@@ -21,3 +21,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "Empty Libs"
 include(":app")
+include(":formatter")
+include(":datastore-ui")
+include(":jetpack-ui")
+include(":storage")
+include(":kolor-picker")
+include(":image-kolor")
+include(":image-krop")
+include(":image-edit")
