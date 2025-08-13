@@ -4,44 +4,47 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.bashpsk.emptylibs.datastoreui.extension.LocalDatastore
+import io.bashpsk.emptylibs.datastoreui.extension.getPreference
+import io.bashpsk.emptylibs.screen.datastoreui.AppTheme
+import io.bashpsk.emptylibs.screen.datastoreui.datastore
 import io.bashpsk.emptylibs.ui.theme.EmptyLibsTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
+
         setContent {
-            EmptyLibsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+            val getAppTheme by datastore.getPreference(
+                key = stringPreferencesKey("SINGLE-OPTION-MENU-PREFERENCE"),
+                initial = AppTheme.SYSTEM.name
+            ).collectAsStateWithLifecycle(initialValue = AppTheme.SYSTEM.name)
+
+            CompositionLocalProvider(LocalDatastore provides datastore) {
+
+                EmptyLibsTheme(darkTheme = AppTheme.getTheme(theme = getAppTheme)) {
+
+//                    BottomOptionBarScreen()
+                    ColorPickerScreen()
+//                    ColorPickerDialogScreen()
+//                    DatastoreUIScreen()
+//                    FormatterScreen()
+//                    ImageCropScreen()
+//                    ImageFilterScreen()
+//                    ImageKolorScreen()
+//                    StorageScreen()
+//                    TransformImageScreen()
+//                    VideoGestureScreen()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    EmptyLibsTheme {
-        Greeting("Android")
     }
 }

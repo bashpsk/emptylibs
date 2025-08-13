@@ -11,6 +11,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -21,11 +22,13 @@ dependencyResolutionManagement {
 
 rootProject.name = "Empty Libs"
 include(":app")
-include(":formatter")
 include(":datastore-ui")
-include(":jetpack-ui")
-include(":storage")
-include(":kolor-picker")
+include(":formatter")
+include(":gesture-ui")
+include(":image-edit")
 include(":image-kolor")
 include(":image-krop")
-include(":image-edit")
+include(":image-view")
+include(":kolor-picker")
+include(":jetpack-ui")
+include(":storage")

@@ -82,14 +82,21 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     //  KOTLINX         :
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.datetime)
+
+    //  NAVIGATION      :
+    implementation(libs.androidx.navigation.compose)
 
     //  MODULE              :
     implementation(project(":datastore-ui"))
     implementation(project(":formatter"))
+    implementation(project(":gesture-ui"))
     implementation(project(":image-edit"))
     implementation(project(":image-kolor"))
     implementation(project(":image-krop"))
+    implementation(project(":image-view"))
     implementation(project(":jetpack-ui"))
     implementation(project(":kolor-picker"))
     implementation(project(":storage"))
