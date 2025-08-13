@@ -4,8 +4,10 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.util.Log
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
@@ -88,7 +90,7 @@ internal suspend fun ImageBitmap.getCroppedImageBitmap(
     cropRect: Rect,
     canvasSize: IntSize,
     imageFlip: KropImageFlip? = null,
-    kropShape: KropShape = KropShape.SharpeCorner
+    kropShape: KropShape = KropShape.None
 ): KropResult = withContext(context = Dispatchers.IO) {
 
     val sourceImageBitmap = this@getCroppedImageBitmap
@@ -295,6 +297,7 @@ private fun bitmapShapeMask(imageBitmap: ImageBitmap, kropShape: KropShape): Ima
 
     val width = imageBitmap.width
     val height = imageBitmap.height
+    val imageSize = Size(width = width.toFloat(), height = height.toFloat())
 
     val outputImageBitmap = ImageBitmap(
         width = width,
@@ -304,11 +307,7 @@ private fun bitmapShapeMask(imageBitmap: ImageBitmap, kropShape: KropShape): Ima
 
     Canvas(image = outputImageBitmap).apply {
 
-        val shapePath = findKropShapePath(
-            kropShape = kropShape,
-            width = width.toFloat(),
-            height = height.toFloat()
-        )
+        val shapePath = kropShape.toPath(canvasSize = imageSize)
 
         val paint = Paint().apply {
 
@@ -330,55 +329,28 @@ private fun bitmapShapeMask(imageBitmap: ImageBitmap, kropShape: KropShape): Ima
  *
  * This function is used internally to generate the clipping mask for shaping the cropped image.
  *
- * @param kropShape The desired shape for the path.
- * @param width The width of the area where the shape will be drawn.
- * @param height The height of the area where the shape will be drawn.
- * @param radiusSize A factor (between 0.0 and 1.0) used to determine the radius of corners for
- * shapes like `RoundedCorner` and `CutCorner`. It's relative to the smaller dimension (width or
- * height). Defaults to `0.05F`.
- * @return A [Path] object representing the specified [kropShape].
+ * @param canvasSize The size of the canvas on which the shape will be drawn.
+ * @return A [Path] object representing the specified [KropShape].
  */
-internal fun findKropShapePath(
-    kropShape: KropShape,
-    width: Float,
-    height: Float,
-    radiusSize: Float = 0.05F
-): Path {
+internal fun KropShape.toPath(canvasSize: Size): Path {
 
-    val rect = Rect(left = 0.0F, top = 0.0F, right = width, bottom = height)
+    val rect = Rect(left = 0.0F, top = 0.0F, right = canvasSize.width, bottom = canvasSize.height)
 
     return Path().apply {
 
-        when (kropShape) {
+        when (this@toPath) {
 
-            KropShape.Circle -> addOval(oval = rect)
+            is KropShape.None -> addRect(rect = rect)
 
-            KropShape.RoundedCorner -> {
+            is KropShape.Circle -> {
 
-                val cornerRadius = CornerRadius(
-                    x = width * radiusSize,
-                    y = height * radiusSize
-                )
+                val center = Offset(x = canvasSize.width / 2, y = canvasSize.height / 2)
+                val radius = minOf(canvasSize.width, canvasSize.height) / 2
 
-                addRoundRect(RoundRect(rect = rect, cornerRadius = cornerRadius))
+                addOval(oval = Rect(center = center, radius = radius))
             }
 
-            KropShape.CutCorner -> {
-
-                val cut = minOf(width, height) * radiusSize
-
-                moveTo(rect.left + cut, rect.top)
-                lineTo(rect.right - cut, rect.top)
-                lineTo(rect.right, rect.top + cut)
-                lineTo(rect.right, rect.bottom - cut)
-                lineTo(rect.right - cut, rect.bottom)
-                lineTo(rect.left + cut, rect.bottom)
-                lineTo(rect.left, rect.bottom - cut)
-                lineTo(rect.left, rect.top + cut)
-                close()
-            }
-
-            KropShape.Triangle -> {
+            is KropShape.Triangle -> {
 
                 moveTo(rect.center.x, rect.top)
                 lineTo(rect.right, rect.bottom)
@@ -386,14 +358,38 @@ internal fun findKropShapePath(
                 close()
             }
 
-            KropShape.Star -> addPath(createStarPath(rect))
-            KropShape.Pentagon -> addPath(createPolygonPath(rect, sides = 5))
-            KropShape.Hexagon -> addPath(createPolygonPath(rect, sides = 6))
-            KropShape.Heptagon -> addPath(createPolygonPath(rect, sides = 7))
-            KropShape.Octagon -> addPath(createPolygonPath(rect, sides = 8))
-            KropShape.Nonagon -> addPath(createPolygonPath(rect, sides = 9))
-            KropShape.Decagon -> addPath(createPolygonPath(rect, sides = 10))
-            KropShape.SharpeCorner -> addRect(rect)
+            is KropShape.Rectangle -> {
+
+                val rectRadius = minOf(canvasSize.width, canvasSize.height) * radius
+                val cornerRadius = CornerRadius(x = rectRadius, y = rectRadius)
+
+                addRoundRect(RoundRect(rect = rect, cornerRadius = cornerRadius))
+            }
+
+            is KropShape.Polygon -> {
+
+                addPath(path = createPolygonPath(rect = rect, sides = sides))
+            }
+
+            is KropShape.CutCorner -> {
+
+                val cutRadius = minOf(canvasSize.width, canvasSize.height) * radius
+
+                moveTo(rect.left + cutRadius, rect.top)
+                lineTo(rect.right - cutRadius, rect.top)
+                lineTo(rect.right, rect.top + cutRadius)
+                lineTo(rect.right, rect.bottom - cutRadius)
+                lineTo(rect.right - cutRadius, rect.bottom)
+                lineTo(rect.left + cutRadius, rect.bottom)
+                lineTo(rect.left, rect.bottom - cutRadius)
+                lineTo(rect.left, rect.top + cutRadius)
+                close()
+            }
+
+            is KropShape.Star -> {
+
+                addPath(path = createStarPath(rect = rect, edges = edges, distance = distance))
+            }
         }
     }
 }
@@ -411,7 +407,7 @@ internal fun findKropShapePath(
  * For polygons with an odd number of sides, one vertex points upwards.
  * For polygons with an even number of sides, two vertices form a horizontal top edge.
  */
-internal fun createPolygonPath(rect: Rect, sides: Int): Path {
+internal fun createPolygonPath(rect: Rect, sides: Short): Path {
 
     val path = Path()
     val radius = min(rect.width, rect.height) / 2
@@ -443,14 +439,14 @@ internal fun createPolygonPath(rect: Rect, sides: Int): Path {
  * @param rect The [Rect] defining the bounds within which the star path will be created.
  * @return A [Path] object representing the star shape.
  */
-internal fun createStarPath(rect: Rect): Path {
+internal fun createStarPath(rect: Rect, edges: Short, distance: Float): Path {
 
     val path = Path()
     val centerX = rect.center.x
     val centerY = rect.center.y
     val outerRadius = min(rect.width, rect.height) / 2
-    val innerRadius = outerRadius / 2.5F
-    val points = 10
+    val innerRadius = outerRadius / distance
+    val points = edges * 2
 
     for (i in 0 until points) {
 

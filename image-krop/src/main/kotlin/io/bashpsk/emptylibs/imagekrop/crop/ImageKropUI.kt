@@ -1,23 +1,35 @@
 package io.bashpsk.emptylibs.imagekrop.crop
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Preview
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -41,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.launch
 
 /**
@@ -78,8 +92,8 @@ internal fun ImageKropTopBar(
                 onClick = {
 
                     state.clearImages()
-                onNavigateBack()
-            }
+                    onNavigateBack()
+                }
             ) {
 
                 Icon(
@@ -383,6 +397,19 @@ internal fun ImageKropBottomBar(
                     }
                 }
             }
+
+            IconButton(
+                onClick = {
+
+                    state.isKropShapeCustomizationDialog = true
+                }
+            ) {
+
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "Shape Customization"
+                )
+            }
         }
     }
 }
@@ -408,9 +435,232 @@ private fun KropShapeView(kropShape: KropShape, isSelected: Boolean) {
 
     Canvas(
         modifier = Modifier.size(size = 20.dp),
-        contentDescription = kropShape.name
+        contentDescription = "Krop Shape"
     ) {
 
         drawKropShapePreview(kropShape = kropShape, shapeColor = shapeColor)
+    }
+}
+
+@Composable
+internal fun KropShapeCustomizationDialog(state: ImageKropState) {
+
+    AnimatedVisibility(
+        visible = state.isKropShapeCustomizationDialog,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+
+        AlertDialog(
+            modifier = Modifier.fillMaxWidth(fraction = 0.95F),
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = false
+            ),
+            onDismissRequest = {
+
+                state.isKropShapeCustomizationDialog = false
+            },
+            title = {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        modifier = Modifier.weight(weight = 1.0F),
+                        text = state.kropShape.toLabel(),
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    IconButton(
+                        onClick = {
+
+                            state.isKropShapeCustomizationDialog = false
+                        }
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Dialog Close"
+                        )
+                    }
+                }
+            },
+            text = {
+
+                KropShapeCustomization(state = state)
+            },
+            confirmButton = {
+
+                Button(
+                    onClick = {
+
+                        state.isKropShapeCustomizationDialog = false
+                    }
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Dialog Done"
+                    )
+
+                    Spacer(modifier = Modifier.width(width = 4.dp))
+
+                    Text(
+                        text = "Done",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun KropShapeCustomization(state: ImageKropState) {
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
+    ) {
+
+        when (val shape = state.kropShape) {
+
+            is KropShape.None, is KropShape.Circle, is KropShape.Triangle -> Text(
+                text = "Customization not available for this shape.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+
+            is KropShape.Polygon -> {
+
+                Text(
+                    text = "Side Count:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Slider(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = shape.sides.toFloat(),
+                    valueRange = 4F..10F,
+                    steps = 6,
+                    onValueChange = { newValue ->
+
+                        val newShape = shape.copy(sides = newValue.toInt().toShort())
+
+                        state.apply {
+
+                            updateShapeList(shape = newShape)
+                            updateKropShape(shape = newShape)
+                        }
+                    }
+                )
+            }
+
+            is KropShape.Rectangle -> {
+
+                Text(
+                    text = "Corner Radius:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Slider(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = shape.radius,
+                    valueRange = 0.0F..0.75F,
+                    steps = 15,
+                    onValueChange = { newValue ->
+
+                        val newShape = shape.copy(radius = newValue)
+
+                        state.apply {
+
+                            updateShapeList(shape = newShape)
+                            updateKropShape(shape = newShape)
+                        }
+                    }
+                )
+            }
+
+            is KropShape.CutCorner ->{
+
+                Text(
+                    text = "Corner Radius:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Slider(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = shape.radius,
+                    valueRange = 0.0F..0.75F,
+                    steps = 15,
+                    onValueChange = { newValue ->
+
+                        val newShape = shape.copy(radius = newValue)
+
+                        state.apply {
+
+                            updateShapeList(shape = newShape)
+                            updateKropShape(shape = newShape)
+                        }
+                    }
+                )
+            }
+
+            is KropShape.Star->{
+
+                Text(
+                    text = "Edge Count:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Slider(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = shape.edges.toFloat(),
+                    valueRange = 3F..40F,
+                    steps = 37,
+                    onValueChange = { newValue ->
+
+                        val newShape = shape.copy(edges = newValue.toInt().toShort())
+
+                        state.apply {
+
+                            updateShapeList(shape = newShape)
+                            updateKropShape(shape = newShape)
+                        }
+                    }
+                )
+
+                Text(
+                    text = "Distance between inner & outer points:",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Slider(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = shape.distance,
+                    valueRange = 0.0F..5.0F,
+                    steps = 6,
+                    onValueChange = { newValue ->
+
+                        val newShape = shape.copy(distance = newValue)
+
+                        state.apply {
+
+                            updateShapeList(shape = newShape)
+                            updateKropShape(shape = newShape)
+                        }
+                    }
+                )
+            }
+        }
     }
 }

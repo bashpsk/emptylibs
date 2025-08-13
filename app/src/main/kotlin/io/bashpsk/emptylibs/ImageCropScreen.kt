@@ -31,12 +31,10 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.imagekrop.crop.ImageKrop
 import io.bashpsk.emptylibs.imagekrop.crop.KropConfig
-import io.bashpsk.emptylibs.imagekrop.crop.KropShape
 import io.bashpsk.emptylibs.imagekrop.crop.rememberImageKropState
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
 import io.bashpsk.emptylibs.imageview.transform.rememberImageTransformState
 import io.bashpsk.emptylibs.screen.imageedit.saveAsFile
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -73,24 +71,7 @@ fun ImageCropScreen() {
         }
     }
 
-    val kropShapeList = remember {
-        persistentListOf(
-            KropShape.SharpeCorner,
-            KropShape.RoundedCorner,
-            KropShape.CutCorner,
-            KropShape.Circle,
-            KropShape.Star,
-            KropShape.Triangle,
-            KropShape.Pentagon,
-            KropShape.Hexagon,
-        )
-    }
-
-    val imageKropState = rememberImageKropState(
-        imageBitmap = imageBitmap,
-        config = kropConfig,
-        shapeList = kropShapeList
-    )
+    val imageKropState = rememberImageKropState(imageBitmap = imageBitmap, config = kropConfig)
 
     Scaffold(
         modifier = Modifier.fillMaxSize()

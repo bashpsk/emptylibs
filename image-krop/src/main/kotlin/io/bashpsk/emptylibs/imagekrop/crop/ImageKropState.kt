@@ -24,8 +24,6 @@ import kotlinx.collections.immutable.persistentListOf
  * @param imageBitmap The initial [ImageBitmap] to be cropped.
  * @param config The [KropConfig] to configure the cropping behavior. Defaults to
  * [KropConfig.surfaceBased].
- * @param shapeList An immutable list of [KropShape] options available for cropping.
- * Defaults to [KropShape.Basic].
  * @param aspectList An immutable list of [KropAspectRatio] options available for cropping.
  * Defaults to [KropAspectRatio.Basic].
  * @return An instance of [ImageKropState].
@@ -34,23 +32,11 @@ import kotlinx.collections.immutable.persistentListOf
 fun rememberImageKropState(
     imageBitmap: ImageBitmap,
     config: KropConfig = KropConfig.surfaceBased(),
-    shapeList: ImmutableList<KropShape> = KropShape.Basic,
     aspectList: ImmutableList<KropAspectRatio> = KropAspectRatio.Basic
 ): ImageKropState {
 
-    return rememberSaveable(
-        imageBitmap,
-        config,
-        shapeList,
-        aspectList,
-        saver = ImageKropState.StateSaver
-    ) {
-        ImageKropState(
-            imageBitmap = imageBitmap,
-            config = config,
-            shapeList = shapeList,
-            aspectList = aspectList
-        )
+    return rememberSaveable(imageBitmap, config, aspectList, saver = ImageKropState.StateSaver) {
+        ImageKropState(imageBitmap = imageBitmap, config = config, aspectList = aspectList)
     }
 }
 
@@ -66,15 +52,21 @@ fun rememberImageKropState(
  *
  * @param imageBitmap The initial [ImageBitmap] to be cropped. This is the base image.
  * @param config The [KropConfig] to be used for the cropping operations.
- * @param shapeList An immutable list of [KropShape] options available for cropping.
  * @param aspectList An immutable list of [KropAspectRatio] options available for cropping.
  */
 class ImageKropState(
     val imageBitmap: ImageBitmap,
     val config: KropConfig,
-    val shapeList: ImmutableList<KropShape>,
     val aspectList: ImmutableList<KropAspectRatio>
 ) {
+
+    /**
+     * A persistent list of [KropShape] objects available for cropping.
+     * This list defines the different shapes that can be used for the crop area.
+     * It is initialized with [BasicKropShapes].
+     * The list can be updated using the [updateShapeList] function.
+     */
+    var shapeList: PersistentList<KropShape> = BasicKropShapes
 
     /**
      * The original image bitmap that is being cropped.
@@ -131,9 +123,9 @@ class ImageKropState(
      * The current shape of the crop area.
      * This determines the visual appearance of the cropping rectangle.
      * It can be updated using [updateKropShape].
-     * The default value is [KropShape.SharpeCorner].
+     * The default value is [KropShape.None].
      */
-    var kropShape by mutableStateOf(KropShape.SharpeCorner)
+    var kropShape by mutableStateOf<KropShape>(KropShape.None)
         private set
 
     /**
@@ -187,6 +179,8 @@ class ImageKropState(
      * When `false`, the menu is collapsed.
      */
     internal var isShapeMenuExpanded by mutableStateOf(false)
+
+    internal var isKropShapeCustomizationDialog by mutableStateOf(false)
 
     /**
      * Updates the original image.
@@ -298,6 +292,25 @@ class ImageKropState(
     }
 
     /**
+     * Updates an existing shape in the [shapeList] or adds it if it doesn't exist.
+     *
+     * If a shape with the same type as the provided [shape] already exists in the list,
+     * it will be replaced with the new [shape]. Otherwise, the new [shape] is added to the list.
+     *
+     * This function is useful for managing a list of customizable shapes where users can modify
+     * existing shapes or add new ones.
+     *
+     * @param shape The [KropShape] to update or add to the list.
+     */
+    fun updateShapeList(shape: KropShape) {
+
+        shapeList = existShapeIndex(shape = shape)?.let { index ->
+
+            shapeList.set(index = index, element = shape)
+        } ?: shapeList
+    }
+
+    /**
      * Checks if an image bitmap already exists in the `imageList`.
      *
      * @param bitmap The [ImageBitmap] to search for.
@@ -312,6 +325,24 @@ class ImageKropState(
 
             bitmapItem.sameAs(bitmap)
         }.takeIf { index -> index > 0 }
+    }
+
+    /**
+     * Checks if a [KropShape] already exists in the `shapeList`.
+     *
+     * This function iterates through the `shapeList` and compares the class of each `shapeItem`
+     * with the class of the provided `shape`. If a shape with the same class is found, its index
+     * is returned.
+     *
+     * @param shape The [KropShape] to search for in the `shapeList`.
+     * @return The index of the existing shape in the `shapeList` if found, otherwise null.
+     */
+    internal fun existShapeIndex(shape: KropShape): Int? {
+
+        return shapeList.indexOfFirst { shapeItem ->
+
+            shapeItem::class == shape::class
+        }.takeIf { index -> index >= 0 }
     }
 
     /**
@@ -353,8 +384,8 @@ class ImageKropState(
                 listOf(
                     state.imageBitmap,
                     state.config,
-                    state.shapeList,
                     state.aspectList,
+                    state.shapeList,
                     state.originalImage,
                     state.modifiedImage,
                     state.previewImage,
@@ -370,15 +401,16 @@ class ImageKropState(
                     state.bottomLeft,
                     state.bottomRight,
                     state.isAspectRatioMenuExpanded,
-                    state.isShapeMenuExpanded
+                    state.isShapeMenuExpanded,
+                    state.isKropShapeCustomizationDialog
                 )
             },
             restore = { elements ->
 
                 val savedImageBitmap = elements[0] as ImageBitmap
                 val savedConfig = elements[1] as KropConfig
-                val savedShapeList = elements[2] as ImmutableList<KropShape>
-                val savedAspectList = elements[3] as ImmutableList<KropAspectRatio>
+                val savedAspectList = elements[2] as ImmutableList<KropAspectRatio>
+                val savedShapeList = elements[3] as PersistentList<KropShape>
                 val savedOriginalImage = elements[4] as ImageBitmap
                 val savedModifiedImage = elements[5] as? ImageBitmap
                 val savedPreviewImage = elements[6] as? ImageBitmap
@@ -398,14 +430,15 @@ class ImageKropState(
                 val savedBottomRight = elements[17] as Offset
                 val savedIsAspectRatioMenuExpanded = elements[18] as Boolean
                 val savedIsShapeMenuExpanded = elements[19] as Boolean
+                val savedIsKropShapeCustomizationDialog = elements[20] as Boolean
 
                 ImageKropState(
                     imageBitmap = savedImageBitmap,
                     config = savedConfig,
-                    shapeList = savedShapeList,
                     aspectList = savedAspectList
                 ).apply {
 
+                    shapeList = savedShapeList
                     originalImage = savedOriginalImage
                     modifiedImage = savedModifiedImage
                     previewImage = savedPreviewImage
@@ -422,6 +455,7 @@ class ImageKropState(
                     bottomRight = savedBottomRight
                     isAspectRatioMenuExpanded = savedIsAspectRatioMenuExpanded
                     isShapeMenuExpanded = savedIsShapeMenuExpanded
+                    isKropShapeCustomizationDialog = savedIsKropShapeCustomizationDialog
                 }
             }
         )

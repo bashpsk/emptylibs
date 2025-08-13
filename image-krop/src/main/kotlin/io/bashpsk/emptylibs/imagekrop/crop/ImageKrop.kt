@@ -951,6 +951,8 @@ fun ImageKrop(
         state = state
     )
 
+    KropShapeCustomizationDialog(state = state)
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,

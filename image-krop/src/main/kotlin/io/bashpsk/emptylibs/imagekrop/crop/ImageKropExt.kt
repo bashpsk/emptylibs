@@ -188,11 +188,8 @@ internal fun DrawScope.drawKropOverlay(
     kropConfig: KropConfig
 ) {
 
-    val shapePath = findKropShapePath(
-        kropShape = kropShape,
-        width = bottomRight.x - topLeft.x,
-        height = bottomRight.y - topLeft.y
-    )
+    val canvasSize = Size(width = bottomRight.x - topLeft.x, height = bottomRight.y - topLeft.y)
+    val shapePath = kropShape.toPath(canvasSize = canvasSize)
 
     translate(left = topLeft.x, top = topLeft.y) {
 
@@ -222,11 +219,8 @@ internal fun DrawScope.drawKropShapeBorder(
     kropConfig: KropConfig
 ) {
 
-    val shapePath = findKropShapePath(
-        kropShape = kropShape,
-        width = bottomRight.x - topLeft.x,
-        height = bottomRight.y - topLeft.y
-    )
+    val canvasSize = Size(width = bottomRight.x - topLeft.x, height = bottomRight.y - topLeft.y)
+    val shapePath = kropShape.toPath(canvasSize = canvasSize)
 
     translate(left = topLeft.x, top = topLeft.y) {
 
@@ -271,12 +265,7 @@ private fun DrawScope.drawKropLine(start: Offset, end: Offset, kropConfig: KropC
  */
 internal fun DrawScope.drawKropShapePreview(kropShape: KropShape, shapeColor: Color) {
 
-    val shapePath = findKropShapePath(
-        kropShape = kropShape,
-        width = size.width,
-        height = size.height,
-        radiusSize = 0.15F
-    )
+    val shapePath = kropShape.toPath(canvasSize = size)
 
     drawPath(
         path = shapePath,
@@ -453,11 +442,11 @@ internal fun calculateNewCropRect(
     val clampedTopLeftY = resultTopLeft.y.coerceIn(0f, canvasHeight - minSize)
 
     val clampedBottomRightX = resultBottomRight.x.coerceIn(
-        clampedTopLeftX + minSize.. canvasWidth
+        clampedTopLeftX + minSize..canvasWidth
     )
 
     val clampedBottomRightY = resultBottomRight.y.coerceIn(
-        clampedTopLeftY + minSize.. canvasHeight
+        clampedTopLeftY + minSize..canvasHeight
     )
 
     if (clampedBottomRightX - clampedTopLeftX < minSize

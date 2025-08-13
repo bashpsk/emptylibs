@@ -33,11 +33,11 @@ class MainActivity : ComponentActivity() {
                 EmptyLibsTheme(darkTheme = AppTheme.getTheme(theme = getAppTheme)) {
 
 //                    BottomOptionBarScreen()
-                    ColorPickerScreen()
+//                    ColorPickerScreen()
 //                    ColorPickerDialogScreen()
 //                    DatastoreUIScreen()
 //                    FormatterScreen()
-//                    ImageCropScreen()
+                    ImageCropScreen()
 //                    ImageFilterScreen()
 //                    ImageKolorScreen()
 //                    StorageScreen()
