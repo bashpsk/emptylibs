@@ -37,12 +37,13 @@ class MainActivity : ComponentActivity() {
 //                    ColorPickerDialogScreen()
 //                    DatastoreUIScreen()
 //                    FormatterScreen()
-                    ImageCropScreen()
+//                    ImageCropScreen()
 //                    ImageFilterScreen()
 //                    ImageKolorScreen()
 //                    StorageScreen()
 //                    TransformImageScreen()
 //                    VideoGestureScreen()
+                    TextPickerScreen()
                 }
             }
         }
