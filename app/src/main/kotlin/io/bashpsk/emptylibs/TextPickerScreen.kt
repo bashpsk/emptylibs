@@ -2,19 +2,20 @@ package io.bashpsk.emptylibs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.jetpackui.textpicker.WheelTextPicker
+import io.bashpsk.emptylibs.jetpackui.textpicker.rememberTextPickerState
 import kotlinx.collections.immutable.persistentListOf
 
 @Composable
@@ -32,7 +33,7 @@ fun TextPickerScreen() {
         )
     }
 
-    var selectedText by remember { mutableStateOf("") }
+    val textPickerState = rememberTextPickerState(textList = textList, initial = textList.first())
 
     Scaffold { paddingValues ->
 
@@ -44,11 +45,12 @@ fun TextPickerScreen() {
 
             WheelTextPicker(
                 modifier = Modifier.fillMaxWidth(),
-                textList.toList(),
-                onSelected = {selectedText=it}
+                state = textPickerState
             )
 
-            Text(selectedText)
+            Spacer(modifier = Modifier.height(height = 64.dp))
+
+            Text("SELECTED : ${textPickerState.selectedText}")
         }
     }
 }
