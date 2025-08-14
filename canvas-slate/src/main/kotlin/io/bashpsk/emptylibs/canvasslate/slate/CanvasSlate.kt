@@ -10,7 +10,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CanvasSlate(
     modifier: Modifier = Modifier,
-    state: CanvasSlateState = rememberCanvasSlateState()
+    state: CanvasSlateState = rememberCanvasSlateState(),
+    onDoneClick: () -> Unit = {},
+    onNavigateBack: () -> Unit = {}
 ) {
 
     Column(
@@ -21,7 +23,9 @@ fun CanvasSlate(
 
         CanvasSlateTopBar(
             modifier = modifier,
-            state = state
+            state = state,
+            onDoneClick = onDoneClick,
+            onNavigateBack = onNavigateBack
         )
 
         CanvasSlateUI(

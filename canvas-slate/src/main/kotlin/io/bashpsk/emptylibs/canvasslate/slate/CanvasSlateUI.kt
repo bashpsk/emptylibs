@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClearAll
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.canvasslate.extension.findContentColorFor
 
 @Composable
@@ -45,6 +48,11 @@ fun CanvasSlateUI(
     modifier: Modifier = Modifier,
     state: CanvasSlateState
 ) {
+
+    val screenSizeChanged = Modifier.onSizeChanged { size ->
+
+        state.canvasSize = size.toSize()
+    }
 
     val tapPointerInputModifier = Modifier.pointerInput(Unit) {
 
@@ -97,6 +105,7 @@ fun CanvasSlateUI(
         modifier = modifier
             .background(color = state.selectedBackgroundColor)
             .clipToBounds()
+            .then(screenSizeChanged)
             .then(tapPointerInputModifier)
             .then(drawPointerInputModifier),
         contentDescription = "Canvas Slate"
@@ -119,6 +128,7 @@ fun CanvasSlateUI(
 fun CanvasSlateTopBar(
     modifier: Modifier = Modifier,
     state: CanvasSlateState,
+    onDoneClick: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
 
@@ -167,6 +177,16 @@ fun CanvasSlateTopBar(
                 Icon(
                     imageVector = Icons.Filled.ClearAll,
                     contentDescription = "Clear Canvas"
+                )
+            }
+
+            IconButton(
+                onClick = onDoneClick
+            ) {
+
+                Icon(
+                    imageVector = Icons.Filled.DoneAll,
+                    contentDescription = "Done"
                 )
             }
         },
