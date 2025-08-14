@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,20 +24,18 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun rememberCanvasSlateState(
     background: Color = Color.Black,
-    initial: Color = Color.Green,
-    colorList: ImmutableList<Color> = ColorList
+    initial: Color = Color.Green
 ): CanvasSlateState {
 
-    return remember(background, initial, colorList) {
-        CanvasSlateState(background = background, initial = initial, colorList = colorList)
+    return remember(background, initial) {
+        CanvasSlateState(background = background, initial = initial)
     }
 }
 
 @OptIn(ExperimentalTime::class)
 class CanvasSlateState(
     val background: Color,
-    val initial: Color,
-    val colorList: ImmutableList<Color>,
+    val initial: Color
 ) {
 
     internal var canvasSize by mutableStateOf(Size.Zero)
@@ -49,13 +46,15 @@ class CanvasSlateState(
     var selectedPenColor by mutableStateOf(initial)
         private set
 
-    var penThickness by mutableStateOf(4.dp)
+    var penThickness by mutableStateOf(24.dp)
         private set
 
     var currentPath by mutableStateOf<PathData?>(null)
         private set
 
     var allPathList by mutableStateOf(persistentListOf<PathData>())
+
+    internal var isToolBarMenuExpanded by mutableStateOf(false)
 
     fun updateBackgroundColor(color: Color) {
 
@@ -124,22 +123,25 @@ class CanvasSlateState(
 
     suspend fun getImageBitmap(density: Density): ImageBitmap? = withContext(Dispatchers.Default) {
 
-        val imageBitmap = ImageBitmap(canvasSize.width.toInt(), canvasSize.height.toInt())
-        val canvas = Canvas(image = imageBitmap)
-        val drawScope = CanvasDrawScope()
+        return@withContext canvasSize.takeIf { size -> size != Size.Zero }?.let { size ->
 
-        drawScope.draw(
-            density = density,
-            layoutDirection = LayoutDirection.Ltr,
-            canvas = canvas,
-            size = canvasSize
-        ) {
+            val imageBitmap = ImageBitmap(size.width.toInt(), size.height.toInt())
+            val canvas = Canvas(image = imageBitmap)
+            val drawScope = CanvasDrawScope()
 
-            drawRect(color = selectedBackgroundColor)
-            allPathList.forEach { pathData -> drawPathData(pathData = pathData) }
-            currentPath?.let { pathData -> drawPathData(pathData = pathData) }
+            drawScope.draw(
+                density = density,
+                layoutDirection = LayoutDirection.Ltr,
+                canvas = canvas,
+                size = size
+            ) {
+
+                drawRect(color = selectedBackgroundColor)
+                allPathList.forEach { pathData -> drawPathData(pathData = pathData) }
+                currentPath?.let { pathData -> drawPathData(pathData = pathData) }
+            }
+
+            imageBitmap
         }
-
-        imageBitmap
     }
 }

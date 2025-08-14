@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.imagekrop.offset
+package io.bashpsk.emptylibs.canvasslate.extension
 
 import androidx.compose.ui.geometry.Offset
 

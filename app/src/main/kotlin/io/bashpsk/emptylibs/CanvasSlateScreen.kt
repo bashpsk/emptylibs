@@ -16,7 +16,6 @@ import androidx.compose.ui.platform.LocalDensity
 import io.bashpsk.emptylibs.canvasslate.slate.CanvasSlate
 import io.bashpsk.emptylibs.canvasslate.slate.rememberCanvasSlateState
 import io.bashpsk.emptylibs.screen.imageedit.saveAsFile
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -27,21 +26,9 @@ fun CanvasSlateScreen() {
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
 
-    val colorList = persistentListOf(
-        MaterialTheme.colorScheme.primaryContainer,
-        MaterialTheme.colorScheme.secondaryContainer,
-        MaterialTheme.colorScheme.tertiaryContainer,
-        MaterialTheme.colorScheme.errorContainer,
-        MaterialTheme.colorScheme.onPrimaryContainer,
-        MaterialTheme.colorScheme.onSecondaryContainer,
-        MaterialTheme.colorScheme.onTertiaryContainer,
-        MaterialTheme.colorScheme.onErrorContainer,
-    )
-
     val canvasSlateState = rememberCanvasSlateState(
         background = MaterialTheme.colorScheme.background,
-        initial = MaterialTheme.colorScheme.onSurface,
-        colorList = colorList
+        initial = MaterialTheme.colorScheme.onSurface
     )
 
     Scaffold(

@@ -1,33 +1,34 @@
 package io.bashpsk.emptylibs.canvasslate.slate
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DoneAll
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material.icons.filled.ModeEdit
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -35,13 +36,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import io.bashpsk.emptylibs.canvasslate.extension.findContentColorFor
 
 @Composable
 fun CanvasSlateUI(
@@ -128,6 +133,8 @@ fun CanvasSlateUI(
 fun CanvasSlateTopBar(
     modifier: Modifier = Modifier,
     state: CanvasSlateState,
+    backgroundColorPickerDialog: MutableTransitionState<Boolean>,
+    foregroundColorPickerDialog: MutableTransitionState<Boolean>,
     onDoneClick: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
@@ -140,20 +147,39 @@ fun CanvasSlateTopBar(
         title = {
 
             ColorSelectionBar(
-                modifier = modifier,
-                state = state
+                modifier = modifier.fillMaxWidth(),
+                state = state,
+                backgroundColorPickerDialog = backgroundColorPickerDialog,
+                foregroundColorPickerDialog = foregroundColorPickerDialog
             )
         },
         navigationIcon = {
 
-            IconButton(
-                onClick = onNavigateBack
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Navigate Back"
-                )
+                IconButton(
+                    onClick = onNavigateBack
+                ) {
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Navigate Back"
+                    )
+                }
+
+                IconButton(
+                    enabled = isUndoButtonEnable,
+                    onClick = onDoneClick
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.DoneAll,
+                        contentDescription = "Done"
+                    )
+                }
             }
         },
         actions = {
@@ -170,25 +196,18 @@ fun CanvasSlateTopBar(
             }
 
             IconButton(
-                enabled = isUndoButtonEnable,
-                onClick = state::onClearCanvas
+                onClick = {
+
+                    state.isToolBarMenuExpanded = true
+                }
             ) {
 
                 Icon(
-                    imageVector = Icons.Filled.ClearAll,
-                    contentDescription = "Clear Canvas"
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = "Tool Bar"
                 )
-            }
 
-            IconButton(
-                enabled = isUndoButtonEnable,
-                onClick = onDoneClick
-            ) {
-
-                Icon(
-                    imageVector = Icons.Filled.DoneAll,
-                    contentDescription = "Done"
-                )
+                CanvasSlateToolBar(state = state)
             }
         },
         windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0)
@@ -196,88 +215,128 @@ fun CanvasSlateTopBar(
 }
 
 @Composable
-fun CanvasSlateToolBar(
-    modifier: Modifier = Modifier,
-    state: CanvasSlateState
-) {
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+fun CanvasSlateToolBar(state: CanvasSlateState) {
+
+    DropdownMenu(
+        expanded = state.isToolBarMenuExpanded,
+        onDismissRequest = {
+
+            state.isToolBarMenuExpanded = false
+        }
     ) {
 
+        MenuItemView(
+            icon = Icons.Filled.ModeEdit,
+            label = "Pen Type",
+            onClick = {
+
+                state.isToolBarMenuExpanded = false
+            }
+        )
+
+        MenuItemView(
+            icon = Icons.Filled.ModeEdit,
+            label = "Pen Thickness",
+            onClick = {
+
+                state.isToolBarMenuExpanded = false
+            }
+        )
+
+        MenuItemView(
+            icon = Icons.Filled.ClearAll,
+            label = "Clear Canvas",
+            onClick = {
+
+                state.apply {
+
+                    onClearCanvas()
+                    isToolBarMenuExpanded = false
+                }
+            }
+        )
     }
 }
 
 @Composable
 private fun ColorSelectionBar(
     modifier: Modifier = Modifier,
-    state: CanvasSlateState
+    state: CanvasSlateState,
+    backgroundColorPickerDialog: MutableTransitionState<Boolean>,
+    foregroundColorPickerDialog: MutableTransitionState<Boolean>,
 ) {
 
     LazyRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(space = 12.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        items(
-            items = state.colorList,
-            key = { colorItem -> colorItem.hashCode() }
-        ) { colorItem ->
-
-            val isSelected by remember(state, colorItem) {
-                derivedStateOf { state.selectedPenColor == colorItem }
-            }
+        item {
 
             ColorBoxView(
-                color = colorItem,
-                onColorClick = state::updatePenColor,
-                isSelected = isSelected
+                color = state.selectedBackgroundColor,
+                onColorClick = {
+
+                    backgroundColorPickerDialog.targetState = true
+                }
+            )
+        }
+
+        item {
+
+            ColorBoxView(
+                color = state.selectedPenColor,
+                onColorClick = {
+
+                    foregroundColorPickerDialog.targetState = true
+                }
             )
         }
     }
 }
 
 @Composable
-private fun ColorBoxView(color: Color, isSelected: Boolean, onColorClick: (Color) -> Unit) {
+private fun ColorBoxView(color: Color, onColorClick: () -> Unit) {
 
-    val elevatedCardElevation = CardDefaults.elevatedCardElevation(defaultElevation = 16.dp)
-
-    val elevatedCardColors = CardDefaults.elevatedCardColors(
-        containerColor = color,
-        contentColor = findContentColorFor(color)
+    Box(
+        modifier = Modifier
+            .size(size = 36.dp)
+            .background(color = color, shape = CircleShape)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape
+            )
+            .clip(shape = CircleShape)
+            .clickable(role = Role.Button, onClick = onColorClick)
+            .shadow(elevation = 16.dp, shape = CircleShape)
     )
+}
 
-    ElevatedCard(
-        modifier = Modifier.size(size = 40.dp),
-        shape = CircleShape,
-        elevation = elevatedCardElevation,
-        colors = elevatedCardColors,
-        onClick = {
+@Composable
+private fun MenuItemView(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit
+) {
 
-            onColorClick(color)
-        }
-    ) {
+    DropdownMenuItem(
+        text = {
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+            Text(
+                text = label,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        leadingIcon = {
 
-            AnimatedVisibility(
-                visible = isSelected,
-                enter = fadeIn() + scaleIn(),
-                exit = fadeOut() + scaleOut()
-            ) {
-
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    tint = elevatedCardColors.contentColor,
-                    contentDescription = "Color Selected"
-                )
-            }
-        }
-    }
+            Icon(
+                imageVector = icon,
+                contentDescription = label
+            )
+        },
+        onClick = onClick
+    )
 }
