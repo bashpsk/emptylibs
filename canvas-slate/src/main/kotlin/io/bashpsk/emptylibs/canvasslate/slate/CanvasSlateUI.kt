@@ -181,6 +181,7 @@ fun CanvasSlateTopBar(
             }
 
             IconButton(
+                enabled = isUndoButtonEnable,
                 onClick = onDoneClick
             ) {
 
