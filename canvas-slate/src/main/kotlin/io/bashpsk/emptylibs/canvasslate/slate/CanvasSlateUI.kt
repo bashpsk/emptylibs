@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.canvasslate.slate
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -54,7 +53,6 @@ fun CanvasSlateUI(
 
                 state.apply {
 
-                    Log.d("PSK", "Tap Position: $position")
                     onNewPathStart()
                     onPathDraw(position = position)
                     onPathEnd()
@@ -64,7 +62,6 @@ fun CanvasSlateUI(
 
                 state.apply {
 
-                    Log.d("PSK", "D Tap Position: $position")
                     onNewPathStart()
                     onPathDraw(position = position)
                     onPathEnd()
@@ -74,7 +71,6 @@ fun CanvasSlateUI(
 
                 state.apply {
 
-                    Log.d("PSK", "L Tap Position: $position")
                     onNewPathStart()
                     onPathDraw(position = position)
                     onPathEnd()
