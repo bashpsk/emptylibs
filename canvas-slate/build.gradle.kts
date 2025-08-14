@@ -2,27 +2,25 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
+    id("maven-publish")
 }
 
 android {
 
-    namespace = "io.bashpsk.emptylibs"
+    namespace = "io.bashpsk.emptylibs.canvasslate"
     compileSdk = 36
 
     defaultConfig {
 
-        applicationId = "io.bashpsk.emptylibs"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -49,9 +47,13 @@ android {
         compilerOptions.jvmTarget = JvmTarget.JVM_17
     }
 
-    buildFeatures {
+    publishing {
 
-        compose = true
+        singleVariant("release") {
+
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 }
 
@@ -78,27 +80,26 @@ dependencies {
     //  ICON            :
     implementation(libs.androidx.material.icons.extended)
 
-    //  DATASTORE       :
-    implementation(libs.androidx.datastore.preferences)
-
     //  KOTLINX         :
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.datetime)
+}
 
-    //  NAVIGATION      :
-    implementation(libs.androidx.navigation.compose)
+publishing {
 
-    //  MODULE              :
-    implementation(project(":canvas-slate"))
-    implementation(project(":datastore-ui"))
-    implementation(project(":formatter"))
-    implementation(project(":gesture-ui"))
-    implementation(project(":image-edit"))
-    implementation(project(":image-kolor"))
-    implementation(project(":image-krop"))
-    implementation(project(":image-view"))
-    implementation(project(":jetpack-ui"))
-    implementation(project(":kolor-picker"))
-    implementation(project(":storage"))
+    publications {
+
+        register<MavenPublication>("release") {
+
+            groupId = "io.bashpsk.emptylibs"
+            artifactId = "canvas-slate"
+            version = "1.0.0"
+
+            afterEvaluate {
+
+                from(components["release"])
+            }
+        }
+    }
 }
