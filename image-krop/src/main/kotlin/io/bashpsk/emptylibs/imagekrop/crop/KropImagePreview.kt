@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -45,8 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.imageview.transform.TransformImageConfig
-import io.bashpsk.emptylibs.imageview.transform.rememberImageTransformState
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
+import io.bashpsk.emptylibs.imageview.transform.rememberImageTransformState
 import kotlinx.coroutines.launch
 
 /**
@@ -75,7 +74,7 @@ internal fun KropImagePreview(
 
     val titleCardColors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.50F),
-        contentColor = contentColorFor(MaterialTheme.colorScheme.surfaceContainerLowest)
+        contentColor = MaterialTheme.colorScheme.onSurface
     )
 
     AnimatedVisibility(
