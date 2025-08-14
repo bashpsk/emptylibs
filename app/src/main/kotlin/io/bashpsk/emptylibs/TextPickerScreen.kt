@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.jetpackui.textpicker.WheelTextPicker
-import io.bashpsk.emptylibs.jetpackui.textpicker.rememberTextPickerState
+import io.bashpsk.emptylibs.jetpackui.textpicker.rememberWheelTextPickerState
 import kotlinx.collections.immutable.persistentListOf
 
 @Composable
@@ -33,7 +33,10 @@ fun TextPickerScreen() {
         )
     }
 
-    val textPickerState = rememberTextPickerState(textList = textList, initial = textList.first())
+    val textPickerState = rememberWheelTextPickerState(
+        textList = textList,
+        initial = textList.first()
+    )
 
     Scaffold { paddingValues ->
 

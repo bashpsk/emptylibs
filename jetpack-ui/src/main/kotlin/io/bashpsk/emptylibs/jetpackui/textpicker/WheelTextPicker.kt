@@ -40,11 +40,40 @@ import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.times
 import kotlin.math.abs
 
+/**
+ * A composable function that creates a wheel-style text picker.
+ *
+ * This picker allows users to select an item from a list of text by scrolling through them in a
+ * wheel-like interface.
+ * The currently selected item is highlighted, and items further from the center are scaled down and
+ * have reduced opacity.
+ *
+ * @param T The type of items in the text list.
+ * @param modifier The modifier to be applied to the picker.
+ * @param state The state object that holds the list of text items and the currently selected item.
+ * See [WheelTextPickerState].
+ * @param visibleCount The number of items visible in the wheel at any given time. Should be an odd
+ * number for symmetrical appearance.
+ * @param itemSpace The vertical spacing between items in the wheel.
+ * @param textStyle The [TextStyle] to be applied to the text items.
+ * @param textColor The color of the text items.
+ * @param textWeight The [FontWeight] of the text items.
+ * @param textScaleLevel A factor determining how much items are scaled down as they move away from
+ * the center.
+ * A value of 0 means no scaling, while a higher value means more pronounced scaling.
+ * @param textAlphaLevel A factor determining how much the opacity of items is reduced as they move
+ * away from the center.
+ * A value of 0 means no alpha change, while a higher value means more pronounced fading.
+ * @param dividerFraction The fraction of the picker's width that the highlight dividers will
+ * occupy.
+ * @param dividerColor The color of the highlight dividers.
+ * @param dividerThickness The thickness of the highlight dividers.
+ */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun <T> WheelTextPicker(
     modifier: Modifier = Modifier,
-    state: TextPickerState<T>,
+    state: WheelTextPickerState<T>,
     visibleCount: Int = 3,
     itemSpace: Dp = 16.dp,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
@@ -158,6 +187,15 @@ fun <T> WheelTextPicker(
     }
 }
 
+/**
+ * Composable function that represents a single item in the wheel picker.
+ *
+ * @param modifier Modifier for this composable.
+ * @param text The text to display for this item.
+ * @param textStyle The text style to apply to the text.
+ * @param textColor The color of the text.
+ * @param textWeight The font weight of the text.
+ */
 @Composable
 private fun <T> WheelItemView(
     modifier: Modifier = Modifier,
@@ -182,6 +220,15 @@ private fun <T> WheelItemView(
     }
 }
 
+/**
+ * A composable function that displays two horizontal dividers with rounded corners.
+ * These dividers are used to highlight the selected item in the WheelTextPicker.
+ *
+ * @param modifier The modifier to be applied to the Column.
+ * @param dividerFraction The fraction of the width that the dividers should occupy.
+ * @param dividerColor The color of the dividers.
+ * @param dividerThickness The thickness of the dividers.
+ */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun HighlightDivider(
