@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.BorderColor
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.ModeEdit
@@ -135,6 +136,8 @@ fun CanvasSlateTopBar(
     state: CanvasSlateState,
     backgroundColorPickerDialog: MutableTransitionState<Boolean>,
     foregroundColorPickerDialog: MutableTransitionState<Boolean>,
+    penStrokeDialogVisibleState: MutableTransitionState<Boolean>,
+    penThicknessDialogVisibleState: MutableTransitionState<Boolean>,
     onDoneClick: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
@@ -207,7 +210,11 @@ fun CanvasSlateTopBar(
                     contentDescription = "Tool Bar"
                 )
 
-                CanvasSlateToolBar(state = state)
+                CanvasSlateToolBar(
+                    state = state,
+                    penStrokeDialogVisibleState = penStrokeDialogVisibleState,
+                    penThicknessDialogVisibleState = penThicknessDialogVisibleState
+                )
             }
         },
         windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0)
@@ -215,7 +222,11 @@ fun CanvasSlateTopBar(
 }
 
 @Composable
-fun CanvasSlateToolBar(state: CanvasSlateState) {
+fun CanvasSlateToolBar(
+    state: CanvasSlateState,
+    penStrokeDialogVisibleState: MutableTransitionState<Boolean>,
+    penThicknessDialogVisibleState: MutableTransitionState<Boolean>,
+) {
 
     DropdownMenu(
         expanded = state.isToolBarMenuExpanded,
@@ -231,15 +242,17 @@ fun CanvasSlateToolBar(state: CanvasSlateState) {
             onClick = {
 
                 state.isToolBarMenuExpanded = false
+                penStrokeDialogVisibleState.targetState = true
             }
         )
 
         MenuItemView(
-            icon = Icons.Filled.ModeEdit,
+            icon = Icons.Filled.BorderColor,
             label = "Pen Thickness",
             onClick = {
 
                 state.isToolBarMenuExpanded = false
+                penThicknessDialogVisibleState.targetState = true
             }
         )
 

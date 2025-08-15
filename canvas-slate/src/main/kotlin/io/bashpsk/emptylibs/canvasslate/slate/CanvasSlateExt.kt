@@ -1,20 +1,15 @@
 package io.bashpsk.emptylibs.canvasslate.slate
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.abs
 
 internal fun DrawScope.drawPathData(pathData: PathData) {
 
     val smoothedPath = Path().apply {
 
-        val smoothness = 0
+        val smoothness = 3
 
         pathData.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
 
@@ -48,22 +43,8 @@ internal fun DrawScope.drawPathData(pathData: PathData) {
         color = pathData.color,
         style = Stroke(
             width = pathData.thickness.toPx(),
-            cap = StrokeCap.Round,
-            join = StrokeJoin.Round
+            cap = pathData.strokeCap,
+            join = pathData.strokeJoin
         )
     )
 }
-
-internal val ColorList = persistentListOf(
-    Color.Black,
-    Color.Red,
-    Color.Green,
-    Color.Blue,
-    Color.Yellow,
-    Color.Magenta,
-    Color.Cyan,
-    Color.DarkGray,
-    Color.Gray,
-    Color.LightGray,
-    Color.White
-).toImmutableList()

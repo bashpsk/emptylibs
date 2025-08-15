@@ -22,6 +22,8 @@ fun CanvasSlate(
     val colorPickerState = rememberColorPickerState(enableAlphaPanel = true)
     val backgroundColorPickerDialog = remember { MutableTransitionState(false) }
     val foregroundColorPickerDialog = remember { MutableTransitionState(false) }
+    val penStrokeDialogVisibleState = remember { MutableTransitionState(false) }
+    val penThicknessDialogVisibleState = remember { MutableTransitionState(false) }
 
     ColorPickerDialog(
         dialogVisibleState = backgroundColorPickerDialog,
@@ -41,6 +43,10 @@ fun CanvasSlate(
         }
     )
 
+    PenStrokeDialog(dialogVisibleState = penStrokeDialogVisibleState, state = state)
+
+    PenThicknessDialog(dialogVisibleState = penThicknessDialogVisibleState, state = state)
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -52,6 +58,8 @@ fun CanvasSlate(
             state = state,
             backgroundColorPickerDialog = backgroundColorPickerDialog,
             foregroundColorPickerDialog = foregroundColorPickerDialog,
+            penStrokeDialogVisibleState = penStrokeDialogVisibleState,
+            penThicknessDialogVisibleState = penThicknessDialogVisibleState,
             onDoneClick = onDoneClick,
             onNavigateBack = onNavigateBack
         )

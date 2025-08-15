@@ -10,6 +10,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -46,7 +48,13 @@ class CanvasSlateState(
     var selectedPenColor by mutableStateOf(initial)
         private set
 
-    var penThickness by mutableStateOf(24.dp)
+    var selectedStrokeCap by mutableStateOf(StrokeCap.Round)
+        private set
+
+    var selectedStrokeJoin by mutableStateOf(StrokeJoin.Round)
+        private set
+
+    var penThickness by mutableStateOf(4.dp)
         private set
 
     var currentPath by mutableStateOf<PathData?>(null)
@@ -64,6 +72,16 @@ class CanvasSlateState(
     fun updatePenColor(color: Color) {
 
         selectedPenColor = color
+    }
+
+    fun updateStrokeCap(type: StrokeCap) {
+
+        selectedStrokeCap = type
+    }
+
+    fun updateStrokeJoin(type: StrokeJoin) {
+
+        selectedStrokeJoin = type
     }
 
     fun updatePenThickness(thickness: Dp) {
@@ -96,6 +114,8 @@ class CanvasSlateState(
             id = Clock.System.now().toEpochMilliseconds().toString(),
             color = selectedPenColor,
             thickness = penThickness,
+            strokeCap = selectedStrokeCap,
+            strokeJoin = selectedStrokeJoin,
             path = persistentListOf()
         )
 
