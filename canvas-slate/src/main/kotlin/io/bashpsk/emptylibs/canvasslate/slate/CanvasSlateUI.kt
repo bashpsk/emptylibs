@@ -33,6 +33,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -41,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,12 +56,17 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CanvasSlateUI(
     modifier: Modifier = Modifier,
-    state: CanvasSlateState
+    state: CanvasSlateState,
+    pathEditSheetState: SheetState,
 ) {
+
+    val coroutineScope = rememberCoroutineScope()
 
     val screenSizeChanged = Modifier.onSizeChanged { size ->
 
@@ -72,6 +79,12 @@ fun CanvasSlateUI(
             onTap = { position ->
 
                 state.apply {
+
+                    onEditPathData(position = position)?.takeIf { isVisible -> isVisible }?.run {
+
+                        coroutineScope.launch { pathEditSheetState.show() }
+                        return@detectTapGestures
+                    }
 
                     onNewPathStart()
                     onPathDraw(position = position)

@@ -3,6 +3,8 @@ package io.bashpsk.emptylibs.canvasslate.slate
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -11,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CanvasSlate(
     modifier: Modifier = Modifier,
@@ -19,6 +22,7 @@ fun CanvasSlate(
     onNavigateBack: () -> Unit = {}
 ) {
 
+    val pathEditSheetState = rememberModalBottomSheetState()
     val colorPickerState = rememberColorPickerState(enableAlphaPanel = true)
     val backgroundColorPickerDialog = remember { MutableTransitionState(false) }
     val foregroundColorPickerDialog = remember { MutableTransitionState(false) }
@@ -47,6 +51,8 @@ fun CanvasSlate(
 
     PenThicknessDialog(dialogVisibleState = penThicknessDialogVisibleState, state = state)
 
+    PathEditBottomSheet(pathEditSheetState = pathEditSheetState, state = state)
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -66,7 +72,8 @@ fun CanvasSlate(
 
         CanvasSlateUI(
             modifier = modifier.weight(weight = 1.0F),
-            state = state
+            state = state,
+            pathEditSheetState = pathEditSheetState
         )
     }
 }

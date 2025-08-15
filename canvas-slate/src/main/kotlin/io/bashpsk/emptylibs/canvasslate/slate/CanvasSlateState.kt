@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.canvasslate.extension.hasNeared
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,18 +27,20 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun rememberCanvasSlateState(
     background: Color = Color.Black,
-    initial: Color = Color.Green
+    initial: Color = Color.Green,
+    threshold: Dp = 12.dp
 ): CanvasSlateState {
 
-    return remember(background, initial) {
-        CanvasSlateState(background = background, initial = initial)
+    return remember(background, initial, threshold) {
+        CanvasSlateState(background = background, initial = initial, threshold = threshold.value)
     }
 }
 
 @OptIn(ExperimentalTime::class)
 class CanvasSlateState(
-    val background: Color,
-    val initial: Color
+    private val background: Color,
+    private val initial: Color,
+    private val threshold: Float
 ) {
 
     internal var canvasSize by mutableStateOf(Size.Zero)
@@ -66,6 +69,10 @@ class CanvasSlateState(
     var allPathList by mutableStateOf(persistentListOf<PathData>())
 
     internal var isToolBarMenuExpanded by mutableStateOf(false)
+
+    internal var editPathData by mutableStateOf<PathData?>(null)
+
+    internal var previewPathList by mutableStateOf(persistentListOf<PathData>())
 
     fun updateBackgroundColor(color: Color) {
 
@@ -118,7 +125,7 @@ class CanvasSlateState(
 
     internal fun onNewPathStart() {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.let {
+        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
 
             val path = PathData(
                 id = Clock.System.now().toEpochMilliseconds().toString(),
@@ -135,7 +142,7 @@ class CanvasSlateState(
 
     internal fun onPathEnd() {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.let {
+        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
 
             currentPath?.let { pathData ->
 
@@ -147,7 +154,7 @@ class CanvasSlateState(
 
     internal fun onPathDraw(position: Offset) {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.let {
+        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
 
             currentPath?.let { pathData ->
 
@@ -155,6 +162,66 @@ class CanvasSlateState(
 
                 onCurrentPath(path = path)
             } ?: return
+        }
+    }
+
+    internal fun onEditPathData(position: Offset): Boolean? {
+
+        return isDrawingMode.takeIf { canDraw -> canDraw.not() }?.run {
+
+            allPathList.find { pathData ->
+
+                val pointThreshold = threshold + pathData.thickness.value
+
+                pathData.path.find { point ->
+
+                    point.hasNeared(point = position, threshold = pointThreshold)
+                } != null
+            }?.let { pathData ->
+
+                onUpdateEditPath(path = pathData)
+                previewPathList = allPathList
+                true
+            }
+        }
+    }
+
+    internal fun onUpdateEditPath(path: PathData?) {
+
+        editPathData = path
+    }
+
+    internal fun addPathInPreview(path: PathData) {
+
+        previewPathList.find { pathData -> pathData.id == path.id }?.let { pathData ->
+
+            previewPathList = previewPathList.remove(element = pathData).add(element = path)
+        }
+    }
+
+    internal fun onUndoPreview() {
+
+        previewPathList.lastOrNull()?.let { pathData ->
+
+            allPathList.find { path -> pathData.id == path.id }?.let { path ->
+
+                onUpdateEditPath(path = path)
+                previewPathList = previewPathList.remove(element = pathData).add(element = path)
+            }
+        }
+    }
+
+    internal fun onApplyPreview() {
+
+        allPathList = previewPathList
+    }
+
+    internal fun onDeleteEditPath() {
+
+        editPathData?.let { pathData ->
+
+            allPathList = previewPathList.removeAll { path -> pathData.id == path.id }
+            onUpdateEditPath(path = null)
         }
     }
 
