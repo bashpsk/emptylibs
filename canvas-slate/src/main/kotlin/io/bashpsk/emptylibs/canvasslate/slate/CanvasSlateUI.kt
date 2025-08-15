@@ -19,16 +19,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.BorderColor
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.ModeEdit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -256,6 +262,24 @@ fun CanvasSlateToolBar(
             }
         )
 
+        HorizontalDivider()
+
+        MenuItemView(
+            icon = Icons.Filled.Draw,
+            label = "Drawing Mode",
+            isChecked = state.isDrawingMode,
+            onClick = {
+
+                state.apply {
+
+                    onDrawingMode(mode = isDrawingMode.not())
+                    isToolBarMenuExpanded = false
+                }
+            }
+        )
+
+        HorizontalDivider()
+
         MenuItemView(
             icon = Icons.Filled.ClearAll,
             label = "Clear Canvas",
@@ -348,6 +372,53 @@ private fun MenuItemView(
             Icon(
                 imageVector = icon,
                 contentDescription = label
+            )
+        },
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun MenuItemView(
+    icon: ImageVector,
+    label: String,
+    isChecked: Boolean,
+    onClick: () -> Unit
+) {
+
+    val thumbIcon by remember(isChecked) {
+        derivedStateOf { if (isChecked) Icons.Filled.Check else Icons.Filled.Clear }
+    }
+
+    DropdownMenuItem(
+        text = {
+
+            Text(
+                text = label,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        leadingIcon = {
+
+            Icon(
+                imageVector = icon,
+                contentDescription = label
+            )
+        },
+        trailingIcon = {
+
+            Switch(
+                checked = isChecked,
+                thumbContent = {
+
+                    Icon(
+                        modifier = Modifier.size(SwitchDefaults.IconSize),
+                        imageVector = thumbIcon,
+                        contentDescription = "Switch"
+                    )
+                },
+                onCheckedChange = null
             )
         },
         onClick = onClick

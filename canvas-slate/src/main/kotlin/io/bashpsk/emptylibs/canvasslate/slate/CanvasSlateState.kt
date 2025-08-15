@@ -60,6 +60,9 @@ class CanvasSlateState(
     var currentPath by mutableStateOf<PathData?>(null)
         private set
 
+    var isDrawingMode by mutableStateOf(true)
+        private set
+
     var allPathList by mutableStateOf(persistentListOf<PathData>())
 
     internal var isToolBarMenuExpanded by mutableStateOf(false)
@@ -108,37 +111,51 @@ class CanvasSlateState(
         currentPath = path
     }
 
+    fun onDrawingMode(mode: Boolean) {
+
+        isDrawingMode = mode
+    }
+
     internal fun onNewPathStart() {
 
-        val path = PathData(
-            id = Clock.System.now().toEpochMilliseconds().toString(),
-            color = selectedPenColor,
-            thickness = penThickness,
-            strokeCap = selectedStrokeCap,
-            strokeJoin = selectedStrokeJoin,
-            path = persistentListOf()
-        )
+        isDrawingMode.takeIf { canDraw -> canDraw }?.let {
 
-        onCurrentPath(path = path)
+            val path = PathData(
+                id = Clock.System.now().toEpochMilliseconds().toString(),
+                color = selectedPenColor,
+                thickness = penThickness,
+                strokeCap = selectedStrokeCap,
+                strokeJoin = selectedStrokeJoin,
+                path = persistentListOf()
+            )
+
+            onCurrentPath(path = path)
+        }
     }
 
     internal fun onPathEnd() {
 
-        currentPath?.let { pathData ->
+        isDrawingMode.takeIf { canDraw -> canDraw }?.let {
 
-            allPathList = allPathList.add(element = pathData)
-            onCurrentPath(path = null)
-        } ?: return
+            currentPath?.let { pathData ->
+
+                allPathList = allPathList.add(element = pathData)
+                onCurrentPath(path = null)
+            } ?: return
+        }
     }
 
     internal fun onPathDraw(position: Offset) {
 
-        currentPath?.let { pathData ->
+        isDrawingMode.takeIf { canDraw -> canDraw }?.let {
 
-            val path = pathData.copy(path = pathData.path.add(element = position))
+            currentPath?.let { pathData ->
 
-            onCurrentPath(path = path)
-        } ?: return
+                val path = pathData.copy(path = pathData.path.add(element = position))
+
+                onCurrentPath(path = path)
+            } ?: return
+        }
     }
 
     suspend fun getImageBitmap(density: Density): ImageBitmap? = withContext(Dispatchers.Default) {
