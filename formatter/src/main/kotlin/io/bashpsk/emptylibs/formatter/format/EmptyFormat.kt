@@ -4,7 +4,10 @@ import android.content.Context
 import android.text.format.Formatter
 import android.util.Log
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.toColorInt
+import androidx.core.graphics.toColorLong
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.time
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.toRoundedDecimal
 import kotlinx.collections.immutable.persistentListOf
@@ -1238,33 +1241,9 @@ object EmptyFormat {
     @JvmStatic
     fun hexToColor(hex: String): Color? {
 
-        val cleanHex = hex.removePrefix("#")
-
         return try {
 
-            when (cleanHex.length) {
-
-                8 -> {
-
-                    val red = cleanHex.substring(0, 2).toInt(16)
-                    val green = cleanHex.substring(2, 4).toInt(16)
-                    val blue = cleanHex.substring(4, 6).toInt(16)
-                    val alpha = cleanHex.substring(6, 8).toInt(16)
-
-                    Color(red = red, green = green, blue = blue, alpha = alpha)
-                }
-
-                6 -> {
-
-                    val red = cleanHex.substring(0, 2).toInt(16)
-                    val green = cleanHex.substring(2, 4).toInt(16)
-                    val blue = cleanHex.substring(4, 6).toInt(16)
-
-                    Color(red = red, green = green, blue = blue, alpha = 255)
-                }
-
-                else -> throw IllegalArgumentException("Invalid hex color string length : $hex.")
-            }
+            Color.fromColorLong(colorLong = hex.toColorInt().toColorLong())
         } catch (exception: Exception) {
 
             Log.e(LOG_TAG, "Failed to parse hex to Color : $hex", exception)
