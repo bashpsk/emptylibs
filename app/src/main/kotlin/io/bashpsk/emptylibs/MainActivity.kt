@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                 EmptyLibsTheme(darkTheme = AppTheme.getTheme(theme = getAppTheme)) {
 
 //                    BottomOptionBarScreen()
-//                    ColorPickerScreen()
+                    ColorPickerScreen()
 //                    ColorPickerDialogScreen()
 //                    DatastoreUIScreen()
 //                    FormatterScreen()
@@ -44,7 +44,8 @@ class MainActivity : ComponentActivity() {
 //                    TransformImageScreen()
 //                    VideoGestureScreen()
 //                    TextPickerScreen()
-                    CanvasSlateScreen()
+//                    CanvasSlateScreen()
+//                    ImageEditScreen()
                 }
             }
         }
