@@ -310,6 +310,25 @@ private fun HuePanel(
                 (normalizedHue * hueSliderWidth) + thumbRadiusPx
             }
 
+            val tapPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
+
+                detectTapGestures(
+                    onPress = { position ->
+
+                        val newX = position.x.coerceIn(
+                            range = thumbRadiusPx..panelWidth - thumbRadiusPx
+                        )
+
+                        val minHue = (0F..360F).start
+                        val maxHue = (0F..360F).endInclusive
+                        val sliderWidth = panelWidth - (2 * thumbRadiusPx)
+                        val normalizedPosition = (newX - thumbRadiusPx) / sliderWidth
+                        val newValue = minHue + (normalizedPosition * (maxHue - minHue))
+
+                        onHueChanged(newValue.coerceIn(range = 0F..360F))
+                    }
+                )
+            }
 
             val dragPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
 
@@ -333,6 +352,7 @@ private fun HuePanel(
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
+                    .then(tapPointerInput)
                     .then(dragPointerInput),
                 contentDescription = "Hue Panel"
             ) {
@@ -442,6 +462,26 @@ private fun AlphaPanel(
                 (normalizedAlpha * alphaSliderWidth) + thumbRadiusPx
             }
 
+            val tapPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
+
+                detectTapGestures(
+                    onPress = { position ->
+
+                        val newX = position.x.coerceIn(
+                            range = thumbRadiusPx..panelWidth - thumbRadiusPx
+                        )
+
+                        val minAlpha = (0F..1F).start
+                        val maxAlpha = (0F..1F).endInclusive
+                        val sliderWidth = panelWidth - (2 * thumbRadiusPx)
+                        val normalizedPosition = (newX - thumbRadiusPx) / sliderWidth
+                        val newValue = minAlpha + (normalizedPosition * (maxAlpha - minAlpha))
+
+                        onAlphaChanged(newValue.coerceIn(range = 0F..1F))
+                    }
+                )
+            }
+
             val dragPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
 
                 detectDragGestures { change, _ ->
@@ -464,6 +504,7 @@ private fun AlphaPanel(
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
+                    .then(tapPointerInput)
                     .then(dragPointerInput),
                 contentDescription = "Alpha Panel"
             ) {
