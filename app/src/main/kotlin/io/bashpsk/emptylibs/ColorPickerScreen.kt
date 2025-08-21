@@ -22,7 +22,7 @@ fun ColorPickerScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .padding(horizontal = 4.dp, vertical = 4.dp),
             state = state
         )
     }
