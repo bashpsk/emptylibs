@@ -48,11 +48,11 @@ import io.bashpsk.emptylibs.imagekolor.R
 @Composable
 fun KolorFilterView(
     modifier: Modifier = Modifier,
-    kolorFilter: () -> ImageFilterType,
-    imageModel: () -> ImageBitmap?,
-    isSelected: () -> Boolean = { false },
+    kolorFilter: ImageFilterType,
+    imageModel: ImageBitmap?,
+    isSelected: Boolean = false,
     contentScale: ContentScale = ContentScale.Crop,
-    borderWidth: Dp = if (isSelected()) 2.dp else 0.2.dp,
+    borderWidth: Dp = if (isSelected) 2.dp else 0.2.dp,
     borderColor: Color = MaterialTheme.colorScheme.error,
     shape: Shape = MaterialTheme.shapes.extraSmall,
     onFilterClick: (filter: ImageFilterType) -> Unit
@@ -60,8 +60,8 @@ fun KolorFilterView(
 
     val imageBitmap = ImageBitmap.imageResource(R.drawable.flower_01)
 
-    val previewBitmap by remember(imageBitmap, imageModel()) {
-        derivedStateOf { imageModel() ?: imageBitmap }
+    val previewBitmap by remember(imageBitmap, imageModel) {
+        derivedStateOf { imageModel ?: imageBitmap }
     }
 
     val borderModifierUnselected = Modifier.border(
@@ -79,12 +79,12 @@ fun KolorFilterView(
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
-            .then(if (isSelected()) borderModifierSelected else borderModifierUnselected)
+            .then(if (isSelected) borderModifierSelected else borderModifierUnselected)
             .clip(shape = shape),
         shape = shape,
         onClick = {
 
-            onFilterClick(kolorFilter())
+            onFilterClick(kolorFilter)
         }
     ) {
 
@@ -97,8 +97,8 @@ fun KolorFilterView(
                 modifier = Modifier.fillMaxSize(),
                 bitmap = previewBitmap,
                 contentScale = contentScale,
-                colorFilter = kolorFilter().colorFilter,
-                contentDescription = kolorFilter().label
+                colorFilter = kolorFilter.colorFilter,
+                contentDescription = kolorFilter.label
             )
 
             Text(
@@ -109,7 +109,7 @@ fun KolorFilterView(
                         shape = MaterialTheme.shapes.extraSmall
                     )
                     .padding(vertical = 4.dp, horizontal = 8.dp),
-                text = kolorFilter().label,
+                text = kolorFilter.label,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.inverseSurface,
                 fontWeight = FontWeight.Medium

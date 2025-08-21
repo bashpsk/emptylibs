@@ -51,10 +51,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun SwitchPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<Boolean>,
-    initialValue: () -> Boolean = { false },
-    title: () -> String,
-    summary: () -> String = { "" },
+    key: Preferences.Key<Boolean>,
+    initialValue: Boolean = false,
+    title: String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
@@ -67,9 +67,9 @@ fun SwitchPreference(
     val coroutineScope = rememberCoroutineScope()
 
     val getSwitchState by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
     ListItem(
         modifier = modifier
@@ -79,7 +79,7 @@ fun SwitchPreference(
 
                     coroutineScope.launch(context = Dispatchers.IO) {
 
-                        datastore.setPreference(key = key(), value = getSwitchState.not())
+                        datastore.setPreference(key = key, value = getSwitchState.not())
                     }
                 }
             ),

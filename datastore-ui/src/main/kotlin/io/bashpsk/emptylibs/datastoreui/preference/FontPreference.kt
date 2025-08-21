@@ -79,12 +79,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun FontPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<String>,
-    initialValue: () -> String,
-    entities: () -> Map<Int, String> = { emptyMap() },
-    title: () -> String,
-    summary: () -> String = { "" },
-    previewText: () -> String = { "This is sample text. Time - 3:33 AM" },
+    key: Preferences.Key<String>,
+    initialValue: String,
+    entities: Map<Int, String> = emptyMap(),
+    title: String,
+    summary: String = "",
+    previewText: String = "This is sample text. Time - 3:33 AM",
     leadingContent: @Composable (() -> Unit) = {},
     trailingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
@@ -94,20 +94,20 @@ fun FontPreference(
     isDismissOnClickOutside: Boolean = true,
     @FloatRange(from = 0.0, to = 1.0)
     summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
-    enableResetButton: () -> Boolean = { false }
+    enableResetButton: Boolean = false
 ) {
 
     val datastore = LocalDatastore.current
     val coroutineScope = rememberCoroutineScope()
 
     val getSelectedItem by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
     val dialogVisibleState = remember { MutableTransitionState(false) }
 
-    val selectedFontRes by rememberFontRes(id = getSelectedItem, entities = entities())
+    val selectedFontRes by rememberFontRes(id = getSelectedItem, entities = entities)
 
     AnimatedVisibility(visibleState = dialogVisibleState) {
 
@@ -137,7 +137,7 @@ fun FontPreference(
 
                     Text(
                         modifier = Modifier.weight(weight = 1.0F),
-                        text = title(),
+                        text = title,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
                         style = MaterialTheme.typography.titleMedium,
@@ -166,7 +166,7 @@ fun FontPreference(
                     verticalArrangement = Arrangement.spacedBy(space = 4.dp)
                 ) {
 
-                    items(items = entities().toList()) { fontItem ->
+                    items(items = entities.toList()) { fontItem ->
 
                         val isSelected by remember(getSelectedItem, fontItem) {
                             derivedStateOf { getSelectedItem == fontItem.second }
@@ -183,7 +183,7 @@ fun FontPreference(
                                         coroutineScope.launch(context = Dispatchers.IO) {
 
                                             datastore.setPreference(
-                                                key = key(),
+                                                key = key,
                                                 value = fontItem.second
                                             )
                                         }
@@ -197,7 +197,7 @@ fun FontPreference(
                             RadioButton(selected = isSelected, onClick = null)
 
                             Text(
-                                text = previewText(),
+                                text = previewText,
                                 textAlign = TextAlign.Start,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontFamily = FontFamily(Font(resId = fontItem.first))
@@ -208,7 +208,7 @@ fun FontPreference(
             },
             confirmButton = {
 
-                when (enableResetButton()) {
+                when (enableResetButton) {
 
                     true -> PreferenceDialogButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -220,7 +220,7 @@ fun FontPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.resetPreference(key = key())
+                                datastore.resetPreference(key = key)
                             }
                         }
                     )

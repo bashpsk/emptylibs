@@ -66,11 +66,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun <K, V> DropDownPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<V>,
-    initialValue: () -> V,
-    entities: () -> Map<K, V> = { emptyMap() },
-    title: () -> String,
-    summary: () -> String = { "" },
+    key: Preferences.Key<V>,
+    initialValue: V,
+    entities: Map<K, V> = emptyMap(),
+    title: String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
@@ -83,9 +83,9 @@ fun <K, V> DropDownPreference(
     val coroutineScope = rememberCoroutineScope()
 
     val getSelectedItem by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
     var isMenuExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -122,7 +122,7 @@ fun <K, V> DropDownPreference(
                 }
             ) {
 
-                entities().forEach { menuItem ->
+                entities.forEach { menuItem ->
 
                     val isSelected by remember(getSelectedItem, menuItem) {
                         derivedStateOf { getSelectedItem == menuItem.value }
@@ -155,7 +155,7 @@ fun <K, V> DropDownPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.setPreference(key = key(), value = menuItem.value)
+                                datastore.setPreference(key = key, value = menuItem.value)
                             }
 
                             isMenuExpanded = false

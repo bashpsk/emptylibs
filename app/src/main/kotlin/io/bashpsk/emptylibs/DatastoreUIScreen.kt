@@ -157,10 +157,10 @@ fun DatastoreUIScreen() {
                     ) {
 
                         ListOptionMenuPreference(
-                            key = { stringPreferencesKey("SINGLE-OPTION-MENU-PREFERENCE") },
-                            initialValue = { AppTheme.SYSTEM.name },
-                            entities = { themeEntities },
-                            title = { "App Theme" },
+                            key = stringPreferencesKey("SINGLE-OPTION-MENU-PREFERENCE"),
+                            initialValue = AppTheme.SYSTEM.name,
+                            entities = themeEntities,
+                            title = "App Theme",
                             leadingContent = {
 
                                 when (AppTheme.valueOf(getAppTheme)) {
@@ -188,9 +188,9 @@ fun DatastoreUIScreen() {
                         )
 
                         SwitchMenuPreference(
-                            key = { booleanPreferencesKey("SWITCH-MENU-PREFERENCE") },
-                            initialValue = { false },
-                            title = { "Switch Menu" },
+                            key = booleanPreferencesKey("SWITCH-MENU-PREFERENCE"),
+                            initialValue = false,
+                            title = "Switch Menu",
                             leadingContent = {
 
                                 Icon(
@@ -232,8 +232,8 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    title = { "Card Preference" },
-                    summary = { "Select video download path." },
+                    title = "Card Preference",
+                    summary = "Select video download path.",
                     leadingContent = {
 
                         Icon(
@@ -264,10 +264,10 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { booleanPreferencesKey("CHECK-BOX-PREFERENCE") },
-                    initialValue = { false },
-                    title = { "Check Box Preference" },
-                    summary = { "Enable the check box preference." },
+                    key = booleanPreferencesKey("CHECK-BOX-PREFERENCE"),
+                    initialValue = false,
+                    title = "Check Box Preference",
+                    summary = "Enable the check box preference.",
                     leadingContent = {
 
                         Icon(
@@ -291,9 +291,9 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { intPreferencesKey("COLOR-PICK-PREFERENCE") },
-                    title = { "Color Picker Preference" },
-                    summary = { "Select a color for color pick preference." },
+                    key = intPreferencesKey("COLOR-PICK-PREFERENCE"),
+                    title = "Color Picker Preference",
+                    summary = "Select a color for color pick preference.",
                     leadingContent = {
 
                         Icon(
@@ -301,7 +301,7 @@ fun DatastoreUIScreen() {
                             contentDescription = ""
                         )
                     },
-                    enableAlphaPanel = { true }
+                    enableAlphaPanel = true
                 )
             }
 
@@ -316,9 +316,9 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { intPreferencesKey("COLOR-PICK-PREFERENCE-TWO") },
-                    title = { "Color Picker Preference Two" },
-                    summary = { "Select a color for color pick preference two." },
+                    key = intPreferencesKey("COLOR-PICK-PREFERENCE-TWO"),
+                    title = "Color Picker Preference Two",
+                    summary = "Select a color for color pick preference two.",
                     leadingContent = {
 
                         Icon(
@@ -326,7 +326,7 @@ fun DatastoreUIScreen() {
                             contentDescription = ""
                         )
                     },
-                    enableResetButton = { true }
+                    enableResetButton = true
                 )
             }
 
@@ -343,11 +343,11 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { stringPreferencesKey("DROP-DOWN-PREFERENCE") },
-                    initialValue = { "" },
-                    entities = { sampleEntities },
-                    title = { "Drop Down Preference" },
-                    summary = { "Select one entity from the list." },
+                    key = stringPreferencesKey("DROP-DOWN-PREFERENCE"),
+                    initialValue = "",
+                    entities = sampleEntities,
+                    title = "Drop Down Preference",
+                    summary = "Select one entity from the list.",
                     leadingContent = {
 
                         Icon(
@@ -371,12 +371,12 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { stringPreferencesKey("FONT-PREFERENCE") },
-                    initialValue = { "" },
-                    entities = { fontEntities },
-                    title = { "Font Preference" },
-                    summary = { "Select font from the list." },
-                    previewText = { "This Font Preference UI. In 2000." },
+                    key = stringPreferencesKey("FONT-PREFERENCE"),
+                    initialValue = "",
+                    entities = fontEntities,
+                    title = "Font Preference",
+                    summary = "Select font from the list.",
+                    previewText = "This Font Preference UI. In 2000.",
                     leadingContent = {
 
                         Icon(
@@ -384,7 +384,7 @@ fun DatastoreUIScreen() {
                             contentDescription = ""
                         )
                     },
-                    enableResetButton = { true }
+                    enableResetButton = true
                 )
             }
 
@@ -401,11 +401,11 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { stringSetPreferencesKey("MULTI-OPTION-PREFERENCE") },
-                    initialValue = { emptySet() },
-                    entities = { sampleTwoEntities },
-                    title = { "Multiple Option Selection Preference" },
-                    summary = { "Select entities from the list. $summaryItems" },
+                    key = stringSetPreferencesKey("MULTI-OPTION-PREFERENCE"),
+                    initialValue = emptySet(),
+                    entities = sampleTwoEntities,
+                    title = "Multiple Option Selection Preference",
+                    summary = "Select entities from the list. $summaryItems",
                     leadingContent = {
 
                         Icon(
@@ -436,11 +436,11 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { stringPreferencesKey("SINGLE-OPTION-PREFERENCE") },
-                    initialValue = { "" },
-                    entities = { sampleEntities },
-                    title = { "Single Option Selection Preference" },
-                    summary = { "Select one entity from the list." },
+                    key = stringPreferencesKey("SINGLE-OPTION-PREFERENCE"),
+                    initialValue = "",
+                    entities = sampleEntities,
+                    title = "Single Option Selection Preference",
+                    summary = "Select one entity from the list.",
                     leadingContent = {
 
                         Icon(
@@ -471,10 +471,10 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { floatPreferencesKey("SLIDER-PREFERENCE") },
-                    initialValue = { 0.0F },
-                    title = { "Slider Preference" },
-                    summary = { "Adjust slider value." },
+                    key = floatPreferencesKey("SLIDER-PREFERENCE"),
+                    initialValue = 0.0F,
+                    title = "Slider Preference",
+                    summary = "Adjust slider value.",
                     leadingContent = {
 
                         Icon(
@@ -501,10 +501,10 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { floatPreferencesKey("SLIDER-STEP-PREFERENCE") },
-                    initialValue = { 0.0F },
-                    title = { "Slider Step Preference" },
-                    summary = { "Adjust slider value from 0 to 50." },
+                    key = floatPreferencesKey("SLIDER-STEP-PREFERENCE"),
+                    initialValue = 0.0F,
+                    title = "Slider Step Preference",
+                    summary = "Adjust slider value from 0 to 50.",
                     leadingContent = {
 
                         Icon(
@@ -531,10 +531,10 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { booleanPreferencesKey("SWITCH-PREFERENCE") },
-                    initialValue = { false },
-                    title = { "Switch Preference" },
-                    summary = { "Enable the switch preference." },
+                    key = booleanPreferencesKey("SWITCH-PREFERENCE"),
+                    initialValue = false,
+                    title = "Switch Preference",
+                    summary = "Enable the switch preference.",
                     leadingContent = {
 
                         Icon(
@@ -558,9 +558,9 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
-                    key = { stringPreferencesKey("TEXT-FIELD-PREFERENCE") },
-                    title = { "Text Field Preference" },
-                    summary = { "Enter a text field preference." },
+                    key = stringPreferencesKey("TEXT-FIELD-PREFERENCE"),
+                    title = "Text Field Preference",
+                    summary = "Enter a text field preference.",
                     leadingContent = {
 
                         Icon(

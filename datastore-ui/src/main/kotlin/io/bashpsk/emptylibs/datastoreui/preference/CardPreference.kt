@@ -37,8 +37,8 @@ import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
 @Composable
 fun CardPreference(
     modifier: Modifier = Modifier,
-    title: () -> String,
-    summary: () -> String = { "" },
+    title:  String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     trailingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),

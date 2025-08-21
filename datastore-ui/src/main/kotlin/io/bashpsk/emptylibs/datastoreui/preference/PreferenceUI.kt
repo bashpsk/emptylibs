@@ -32,7 +32,7 @@ import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
  * @param title A lambda function that returns the title string to be displayed.
  */
 @Composable
-internal inline fun PreferenceTitle(modifier: Modifier = Modifier, title: () -> String) {
+internal fun PreferenceTitle(modifier: Modifier = Modifier, title: String) {
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -41,7 +41,7 @@ internal inline fun PreferenceTitle(modifier: Modifier = Modifier, title: () -> 
     ) {
 
         Text(
-            text = title(),
+            text = title,
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.bodyMedium
         )
@@ -57,9 +57,9 @@ internal inline fun PreferenceTitle(modifier: Modifier = Modifier, title: () -> 
  * [DatastoreUIDefaults.SUMMARY_ALPHA].
  */
 @Composable
-internal inline fun PreferenceSummary(
+internal fun PreferenceSummary(
     modifier: Modifier = Modifier,
-    summary: () -> String = { "" },
+    summary: String = "",
     alpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA
 ) {
 
@@ -73,7 +73,7 @@ internal inline fun PreferenceSummary(
 
         Text(
             modifier = modifier.alpha(alpha = alpha),
-            text = summary(),
+            text = summary,
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.labelSmall
         )
@@ -94,9 +94,9 @@ internal inline fun PreferenceSummary(
  * @param fontFamily The font family to be used for the summary text.
  */
 @Composable
-internal inline fun PreferenceSummary(
+internal fun PreferenceSummary(
     modifier: Modifier = Modifier,
-    summary: () -> String = { "" },
+    summary: String = "",
     alpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
     fontFamily: FontFamily
 ) {
@@ -111,7 +111,7 @@ internal inline fun PreferenceSummary(
 
         Text(
             modifier = modifier.alpha(alpha = alpha),
-            text = summary(),
+            text = summary,
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.labelSmall,
             fontFamily = fontFamily
@@ -190,7 +190,7 @@ internal fun PreferenceDialogButton(
         verticalAlignment = verticalAlignment
     ) {
 
-        OutlinedButton (onClick = onResetClick) {
+        OutlinedButton(onClick = onResetClick) {
 
             Icon(
                 imageVector = Icons.Filled.Restore,

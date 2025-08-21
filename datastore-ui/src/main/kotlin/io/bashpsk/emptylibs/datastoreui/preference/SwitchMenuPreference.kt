@@ -42,9 +42,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun SwitchMenuPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<Boolean>,
-    initialValue: () -> Boolean = { false },
-    title: () -> String,
+    key: Preferences.Key<Boolean>,
+    initialValue: Boolean = false,
+    title: String,
     leadingContent: @Composable (() -> Unit) = {},
     colors: MenuItemColors = MenuDefaults.itemColors(),
     onMenuDismiss: () -> Unit
@@ -54,9 +54,9 @@ fun SwitchMenuPreference(
     val coroutineScope = rememberCoroutineScope()
 
     val getSwitchState by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
     DropdownMenuItem(
         modifier = modifier,
@@ -89,7 +89,7 @@ fun SwitchMenuPreference(
 
             coroutineScope.launch(context = Dispatchers.IO) {
 
-                datastore.setPreference(key = key(), value = getSwitchState.not())
+                datastore.setPreference(key = key, value = getSwitchState.not())
             }
 
             onMenuDismiss()

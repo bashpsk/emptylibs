@@ -76,10 +76,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun SliderPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<Float>,
-    initialValue: () -> Float = { 0.0F },
-    title: () -> String,
-    summary: () -> String = { "" },
+    key: Preferences.Key<Float>,
+    initialValue: Float = 0.0F,
+    title: String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
@@ -98,9 +98,9 @@ fun SliderPreference(
     val sliderInteractionSource = remember { MutableInteractionSource() }
 
     val getPosition by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
     ListItem(
         modifier = modifier,
@@ -142,7 +142,7 @@ fun SliderPreference(
                     modifier = Modifier
                         .fillMaxWidth()
                         .alpha(alpha = summaryAlpha),
-                    text = summary(),
+                    text = summary,
                     textAlign = TextAlign.Start,
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -156,7 +156,7 @@ fun SliderPreference(
 
                         coroutineScope.launch(context = Dispatchers.IO) {
 
-                            datastore.setPreference(key = key(), value = position)
+                            datastore.setPreference(key = key, value = position)
                         }
                     },
                     colors = sliderColors,

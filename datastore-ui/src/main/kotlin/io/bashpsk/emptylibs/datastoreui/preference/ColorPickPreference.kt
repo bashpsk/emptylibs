@@ -30,8 +30,8 @@ import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
 import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
-import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
 import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -64,32 +64,32 @@ import kotlinx.coroutines.launch
 @Composable
 fun ColorPickPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<Int>,
+    key: Preferences.Key<Int>,
     @ColorInt
-    initialValue: () -> Int = { Color.Unspecified.toArgb() },
-    title: () -> String,
-    summary: () -> String = { "" },
+    initialValue: Int = Color.Unspecified.toArgb(),
+    title: String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
     shadowElevation: Dp = ListItemDefaults.Elevation,
-    enableAlphaPanel: () -> Boolean = { false },
+    enableAlphaPanel: Boolean = false,
     @FloatRange(from = 0.0, to = 1.0)
     summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
-    enableResetButton: () -> Boolean = { false },
+    enableResetButton: Boolean = false,
 ) {
 
     val datastore = LocalDatastore.current
     val coroutineScope = rememberCoroutineScope()
     val dialogVisibleState = remember { MutableTransitionState(false) }
-    val colorPickerState = rememberColorPickerState(enableAlphaPanel = enableAlphaPanel())
+    val colorPickerState = rememberColorPickerState(enableAlphaPanel = enableAlphaPanel)
 
     val getColorArgb by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
-    when (enableResetButton()) {
+    when (enableResetButton) {
 
         true -> ColorPickerDialog(
             dialogVisibleState = dialogVisibleState,
@@ -98,14 +98,14 @@ fun ColorPickPreference(
 
                 coroutineScope.launch(context = Dispatchers.IO) {
 
-                    datastore.resetPreference(key = key())
+                    datastore.resetPreference(key = key)
                 }
             },
             onSelectedColor = { color ->
 
                 coroutineScope.launch(context = Dispatchers.IO) {
 
-                    datastore.setPreference(key = key(), value = color.toArgb())
+                    datastore.setPreference(key = key, value = color.toArgb())
                 }
             }
         )
@@ -117,7 +117,7 @@ fun ColorPickPreference(
 
                 coroutineScope.launch(context = Dispatchers.IO) {
 
-                    datastore.setPreference(key = key(), value = color.toArgb())
+                    datastore.setPreference(key = key, value = color.toArgb())
                 }
             }
         )

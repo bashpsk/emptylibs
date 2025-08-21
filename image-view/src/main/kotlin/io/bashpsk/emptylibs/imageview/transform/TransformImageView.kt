@@ -59,7 +59,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun TransformImageView(
     modifier: Modifier = Modifier,
-    imageModel: () -> Any?,
+    imageModel: Any?,
     state: ImageTransformState = rememberImageTransformState(),
     onLeftSwipe: () -> Unit = {},
     onRightSwipe: () -> Unit = {},
@@ -318,7 +318,7 @@ fun TransformImageView(
                     translationY = state.position.y,
                     rotationZ = state.rotation.toFloat()
                 ),
-            model = imageModel(),
+            model = imageModel,
             contentScale = contentScale,
             loading = {
 

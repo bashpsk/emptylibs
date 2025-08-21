@@ -46,10 +46,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun CheckBoxPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<Boolean>,
-    initialValue: () -> Boolean = { false },
-    title: () -> String,
-    summary: () -> String = { "" },
+    key: Preferences.Key<Boolean>,
+    initialValue: Boolean = false,
+    title: String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
@@ -62,9 +62,9 @@ fun CheckBoxPreference(
     val coroutineScope = rememberCoroutineScope()
 
     val getChecked by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
     ListItem(
         modifier = modifier
@@ -74,7 +74,7 @@ fun CheckBoxPreference(
 
                     coroutineScope.launch(context = Dispatchers.IO) {
 
-                        datastore.setPreference(key = key(), value = getChecked.not())
+                        datastore.setPreference(key = key, value = getChecked.not())
                     }
                 }
             ),

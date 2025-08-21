@@ -51,9 +51,9 @@ fun ImageFilter(
 
             KolorFilterView(
                 modifier = Modifier.fillMaxWidth(),
-                kolorFilter = { kolorFilter },
-                imageModel = { state.previewImage },
-                isSelected = { isSelected },
+                kolorFilter = kolorFilter,
+                imageModel = state.previewImage,
+                isSelected = isSelected,
                 onFilterClick = state::onSelectFilter
             )
         }

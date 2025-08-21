@@ -80,11 +80,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun <K> SetOptionPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<Set<String>>,
-    initialValue: () -> Set<String>,
-    entities: () -> Map<K, String> = { emptyMap() },
-    title: () -> String,
-    summary: () -> String = { "" },
+    key: Preferences.Key<Set<String>>,
+    initialValue: Set<String>,
+    entities: Map<K, String> = emptyMap(),
+    title: String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     trailingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
@@ -94,7 +94,7 @@ fun <K> SetOptionPreference(
     isDismissOnClickOutside: Boolean = true,
     @FloatRange(from = 0.0, to = 1.0)
     summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
-    enableResetButton: () -> Boolean = { false }
+    enableResetButton: Boolean = false
 ) {
 
     val datastore = LocalDatastore.current
@@ -102,9 +102,9 @@ fun <K> SetOptionPreference(
     val dialogVisibleState = remember { MutableTransitionState(false) }
 
     val getOptionSelectedItem by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
     AnimatedVisibility(visibleState = dialogVisibleState) {
 
@@ -130,7 +130,7 @@ fun <K> SetOptionPreference(
 
                     Text(
                         modifier = Modifier.weight(weight = 1.0F),
-                        text = title(),
+                        text = title,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
                         style = MaterialTheme.typography.titleMedium,
@@ -159,7 +159,7 @@ fun <K> SetOptionPreference(
                     verticalArrangement = Arrangement.spacedBy(space = 4.dp)
                 ) {
 
-                    items(items = entities().toList()) { entryItem ->
+                    items(items = entities.toList()) { entryItem ->
 
                         val isSelected by remember(entryItem, getOptionSelectedItem) {
                             derivedStateOf { getOptionSelectedItem.contains(entryItem.second) }
@@ -179,7 +179,7 @@ fun <K> SetOptionPreference(
                                         false -> getOptionSelectedItem + item.second
                                     }
 
-                                    datastore.setPreference(key = key(), value = newEntities)
+                                    datastore.setPreference(key = key, value = newEntities)
                                 }
 
                                 dialogVisibleState.targetState = false
@@ -190,7 +190,7 @@ fun <K> SetOptionPreference(
             },
             confirmButton = {
 
-                when (enableResetButton()) {
+                when (enableResetButton) {
 
                     true -> PreferenceDialogButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -202,7 +202,7 @@ fun <K> SetOptionPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.resetPreference(key = key())
+                                datastore.resetPreference(key = key)
                             }
                         }
                     )

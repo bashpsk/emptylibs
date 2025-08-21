@@ -62,9 +62,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun TextFieldPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<String>,
-    title: () -> String,
-    summary: () -> String = { "" },
+    key: Preferences.Key<String>,
+    title: String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     trailingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
@@ -76,7 +76,7 @@ fun TextFieldPreference(
     textFieldContent: @Composable (() -> Unit) = {},
     @FloatRange(from = 0.0, 1.0)
     summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
-    enableResetButton: () -> Boolean = { false }
+    enableResetButton: Boolean = false
 ) {
 
     val datastore = LocalDatastore.current
@@ -107,7 +107,7 @@ fun TextFieldPreference(
 
                     Text(
                         modifier = Modifier.weight(weight = 1.0F),
-                        text = title(),
+                        text = title,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
                         style = MaterialTheme.typography.titleMedium,
@@ -131,7 +131,7 @@ fun TextFieldPreference(
             text = textFieldContent,
             confirmButton = {
 
-                when (enableResetButton()) {
+                when (enableResetButton) {
 
                     true -> PreferenceDialogButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -139,7 +139,7 @@ fun TextFieldPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.setPreference(key = key(), value = textFieldValue.text)
+                                datastore.setPreference(key = key, value = textFieldValue.text)
                             }
 
                             dialogVisibleState.targetState = false
@@ -148,7 +148,7 @@ fun TextFieldPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.resetPreference(key = key())
+                                datastore.resetPreference(key = key)
                             }
                         }
                     )
@@ -159,7 +159,7 @@ fun TextFieldPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.setPreference(key = key(), value = textFieldValue.text)
+                                datastore.setPreference(key = key, value = textFieldValue.text)
                             }
 
                             dialogVisibleState.targetState = false
@@ -187,7 +187,7 @@ fun TextFieldPreference(
         headlineContent = {
 
             Text(
-                text = title(),
+                text = title,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -196,7 +196,7 @@ fun TextFieldPreference(
 
             Text(
                 modifier = modifier.alpha(alpha = summaryAlpha),
-                text = summary(),
+                text = summary,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.labelSmall
             )
@@ -241,9 +241,9 @@ fun TextFieldPreference(
 @Composable
 fun <V> TextFieldPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<V>,
-    title: () -> String,
-    summary: () -> String = { "" },
+    key: Preferences.Key<V>,
+    title: String,
+    summary: String = "",
     leadingContent: @Composable (() -> Unit) = {},
     trailingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
@@ -255,7 +255,7 @@ fun <V> TextFieldPreference(
     textFieldContent: @Composable (() -> Unit) = {},
     @FloatRange(from = 0.0, to = 1.0)
     summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
-    enableResetButton: () -> Boolean = { false }
+    enableResetButton: Boolean = false
 ) {
 
     val datastore = LocalDatastore.current
@@ -286,7 +286,7 @@ fun <V> TextFieldPreference(
 
                     Text(
                         modifier = Modifier.weight(weight = 1.0F),
-                        text = title(),
+                        text = title,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
                         style = MaterialTheme.typography.titleMedium,
@@ -310,7 +310,7 @@ fun <V> TextFieldPreference(
             text = textFieldContent,
             confirmButton = {
 
-                when (enableResetButton()) {
+                when (enableResetButton) {
 
                     true -> PreferenceDialogButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -318,7 +318,7 @@ fun <V> TextFieldPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.setPreference(key = key(), value = textFieldValue)
+                                datastore.setPreference(key = key, value = textFieldValue)
                             }
 
                             dialogVisibleState.targetState = false
@@ -327,7 +327,7 @@ fun <V> TextFieldPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.resetPreference(key = key())
+                                datastore.resetPreference(key = key)
                             }
                         }
                     )
@@ -338,7 +338,7 @@ fun <V> TextFieldPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.setPreference(key = key(), value = textFieldValue)
+                                datastore.setPreference(key = key, value = textFieldValue)
                             }
 
                             dialogVisibleState.targetState = false

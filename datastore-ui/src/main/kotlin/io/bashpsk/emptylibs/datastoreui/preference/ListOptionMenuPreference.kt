@@ -70,17 +70,17 @@ import kotlinx.coroutines.launch
 @Composable
 fun <K, V> ListOptionMenuPreference(
     modifier: Modifier = Modifier,
-    key: () -> Preferences.Key<V>,
-    initialValue: () -> V,
-    entities: () -> Map<K, V> = { emptyMap() },
-    title: () -> String,
+    key: Preferences.Key<V>,
+    initialValue: V,
+    entities: Map<K, V> = emptyMap(),
+    title: String,
     leadingContent: @Composable (() -> Unit) = {},
     trailingContent: @Composable (() -> Unit) = {},
     colors: MenuItemColors = MenuDefaults.itemColors(),
     isDismissOnBackPress: Boolean = true,
     isDismissOnClickOutside: Boolean = true,
     onMenuDismiss: () -> Unit = {},
-    enableResetButton: () -> Boolean = { false }
+    enableResetButton: Boolean = false
 ) {
 
     val datastore = LocalDatastore.current
@@ -88,9 +88,9 @@ fun <K, V> ListOptionMenuPreference(
     val dialogVisibleState = remember { MutableTransitionState(initialState = false) }
 
     val getSelectedItem by datastore.getPreference(
-        key = key(),
-        initial = initialValue()
-    ).collectAsStateWithLifecycle(initialValue = initialValue())
+        key = key,
+        initial = initialValue
+    ).collectAsStateWithLifecycle(initialValue = initialValue)
 
     AnimatedVisibility(
         visible = dialogVisibleState.targetState,
@@ -121,7 +121,7 @@ fun <K, V> ListOptionMenuPreference(
 
                     Text(
                         modifier = Modifier.weight(weight = 1.0F),
-                        text = title(),
+                        text = title,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
                         style = MaterialTheme.typography.titleMedium,
@@ -152,7 +152,7 @@ fun <K, V> ListOptionMenuPreference(
                 ) {
 
                     items(
-                        items = entities().toList(),
+                        items = entities.toList(),
                         key = { entryItem -> entryItem.first.toString() }
                     ) { entryItem ->
 
@@ -171,7 +171,7 @@ fun <K, V> ListOptionMenuPreference(
                                         coroutineScope.launch(context = Dispatchers.IO) {
 
                                             datastore.setPreference(
-                                                key = key(),
+                                                key = key,
                                                 value = entryItem.second
                                             )
                                         }
@@ -195,7 +195,7 @@ fun <K, V> ListOptionMenuPreference(
             },
             confirmButton = {
 
-                when (enableResetButton()) {
+                when (enableResetButton) {
 
                     true -> PreferenceDialogButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -208,7 +208,7 @@ fun <K, V> ListOptionMenuPreference(
 
                             coroutineScope.launch(context = Dispatchers.IO) {
 
-                                datastore.resetPreference(key = key())
+                                datastore.resetPreference(key = key)
                             }
                         }
                     )
