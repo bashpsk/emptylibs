@@ -78,13 +78,14 @@ fun ColorPicker(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
     ) {
 
         SaturationLightnessPanel(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(ratio = 1.0F),
+                .aspectRatio(ratio = 1.0F)
+                .padding(horizontal = TrackHeight / 2, vertical = TrackHeight / 2),
             hueValue = state.hueValue,
             saturationValue = state.saturationValue,
             lightnessValue = state.lightnessValue,
@@ -135,9 +136,19 @@ fun ColorPicker(
             )
         }
 
-        ColorPreview(modifier = Modifier, color = state.selectedColor)
+        ColorPreview(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = TrackHeight / 2),
+            color = state.selectedColor
+        )
 
-        ColorCopyPasteButtons(modifier = Modifier.fillMaxWidth(), state = state)
+        ColorCopyPasteButtons(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = TrackHeight / 2),
+            state = state
+        )
     }
 }
 
@@ -162,7 +173,7 @@ private fun SaturationLightnessPanel(
 ) {
 
     BoxWithConstraints(
-        modifier = modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
 
@@ -213,7 +224,7 @@ private fun SaturationLightnessPanel(
                 .then(dragPointerInput)
                 .clip(shape = MaterialTheme.shapes.extraSmall)
                 .border(
-                    width = 1.dp,
+                    width = 0.6.dp,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.65F),
                     shape = MaterialTheme.shapes.extraSmall
                 ),
@@ -281,17 +292,16 @@ private fun HuePanel(
     val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant
     val panelBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.65F)
 
-    val trackHeight = 32.dp
-    val thumbRadius = trackHeight / 2
+    val thumbRadius = TrackHeight / 2
     val thumbWidth = 2.4.dp
 
-    val trackHeightPx = with(density) { trackHeight.toPx() }
+    val trackHeightPx = with(density) { TrackHeight.toPx() }
     val thumbRadiusPx = with(density) { thumbRadius.toPx() }
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
     ) {
 
         Text(
@@ -311,14 +321,15 @@ private fun HuePanel(
 
             val panelWidth = constraints.maxWidth.toFloat()
 
-            val currentThumbX = remember(currentHue, panelWidth, thumbRadiusPx) {
+            val currentThumbX by remember(currentHue, panelWidth, thumbRadiusPx) {
+                derivedStateOf {
+                    val hueStart = currentHue.coerceIn(0F..360F) - (0F..360F).start
+                    val hueRange = (0F..360F).endInclusive - (0F..360F).start
+                    val normalizedHue = hueStart / hueRange
+                    val hueSliderWidth = panelWidth - (2 * thumbRadiusPx)
 
-                val hueStart = currentHue.coerceIn(0F..360F) - (0F..360F).start
-                val hueRange = (0F..360F).endInclusive - (0F..360F).start
-                val normalizedHue = hueStart / hueRange
-                val hueSliderWidth = panelWidth - (2 * thumbRadiusPx)
-
-                (normalizedHue * hueSliderWidth) + thumbRadiusPx
+                    (normalizedHue * hueSliderWidth) + thumbRadiusPx
+                }
             }
 
             val tapPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
@@ -430,11 +441,10 @@ private fun AlphaPanel(
     val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant
     val panelBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.65F)
 
-    val trackHeight = 32.dp
-    val thumbRadius = trackHeight / 2
+    val thumbRadius = TrackHeight / 2
     val thumbWidth = 2.4.dp
 
-    val trackHeightPx = with(density) { trackHeight.toPx() }
+    val trackHeightPx = with(density) { TrackHeight.toPx() }
     val thumbRadiusPx = with(density) { thumbRadius.toPx() }
 
     val cellColorLight = Color.White
@@ -443,7 +453,7 @@ private fun AlphaPanel(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
     ) {
 
         Text(
@@ -463,14 +473,15 @@ private fun AlphaPanel(
 
             val panelWidth = constraints.maxWidth.toFloat()
 
-            val currentThumbX = remember(currentAlpha, panelWidth, thumbRadiusPx) {
+            val currentThumbX by remember(currentAlpha, panelWidth, thumbRadiusPx) {
+                derivedStateOf {
+                    val alphaStart = currentAlpha.coerceIn(0F..1F) - (0F..1F).start
+                    val alphaRange = (0F..1F).endInclusive - (0F..1F).start
+                    val normalizedAlpha = alphaStart / alphaRange
+                    val alphaSliderWidth = panelWidth - (2 * thumbRadiusPx)
 
-                val alphaStart = currentAlpha.coerceIn(0F..1F) - (0F..1F).start
-                val alphaRange = (0F..1F).endInclusive - (0F..1F).start
-                val normalizedAlpha = alphaStart / alphaRange
-                val alphaSliderWidth = panelWidth - (2 * thumbRadiusPx)
-
-                (normalizedAlpha * alphaSliderWidth) + thumbRadiusPx
+                    (normalizedAlpha * alphaSliderWidth) + thumbRadiusPx
+                }
             }
 
             val tapPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
@@ -619,16 +630,14 @@ private fun AlphaPanel(
 private fun ColorPreview(modifier: Modifier = Modifier, color: Color = Color.Unspecified) {
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(space = 16.dp),
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
         Box(
-            modifier = modifier
-                .size(size = 64.dp)
+            modifier = Modifier
+                .size(size = 60.dp)
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.primary,
@@ -696,7 +705,7 @@ private fun ColorInfoItem(modifier: Modifier = Modifier, infoItem: Pair<String, 
     ) {
 
         Text(
-            modifier = Modifier.weight(weight = 0.35F),
+            modifier = Modifier.weight(weight = 0.4F),
             text = infoItem.first,
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.bodyMedium,
