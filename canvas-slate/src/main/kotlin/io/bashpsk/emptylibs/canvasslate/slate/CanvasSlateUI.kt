@@ -76,7 +76,7 @@ fun CanvasSlateUI(
     val tapPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectTapGestures(
-            onTap = { position ->
+            onPress  = { position ->
 
                 state.apply {
 
@@ -85,24 +85,6 @@ fun CanvasSlateUI(
                         coroutineScope.launch { pathEditSheetState.show() }
                         return@detectTapGestures
                     }
-
-                    onNewPathStart()
-                    onPathDraw(position = position)
-                    onPathEnd()
-                }
-            },
-            onDoubleTap = { position ->
-
-                state.apply {
-
-                    onNewPathStart()
-                    onPathDraw(position = position)
-                    onPathEnd()
-                }
-            },
-            onLongPress = { position ->
-
-                state.apply {
 
                     onNewPathStart()
                     onPathDraw(position = position)
