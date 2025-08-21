@@ -76,7 +76,7 @@ fun CanvasSlateUI(
     val tapPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectTapGestures(
-            onPress  = { position ->
+            onTap  = { position ->
 
                 state.apply {
 
