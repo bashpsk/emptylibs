@@ -1,6 +1,9 @@
 package io.bashpsk.emptylibs.kolorpicker.color
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,13 +14,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -38,6 +49,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,7 +78,7 @@ fun ColorPicker(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 16.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
     ) {
 
         SaturationLightnessPanel(
@@ -123,10 +135,9 @@ fun ColorPicker(
             )
         }
 
-        ColorPreview(
-            modifier = Modifier,
-            color = state.selectedColor
-        )
+        ColorPreview(modifier = Modifier, color = state.selectedColor)
+
+        ColorCopyPasteButtons(modifier = Modifier.fillMaxWidth(), state = state)
     }
 }
 
@@ -627,13 +638,8 @@ private fun ColorPreview(modifier: Modifier = Modifier, color: Color = Color.Uns
                 .background(color = color)
         )
 
-        ColorInfoPreview(
-            modifier = Modifier,
-            color = color
-        )
+        ColorInfoPreview(modifier = Modifier, color = color)
     }
-
-
 }
 
 /**
@@ -667,6 +673,7 @@ private fun ColorInfoPreview(modifier: Modifier = Modifier, color: Color = Color
     ) {
 
         ColorInfoItem(modifier = Modifier.fillMaxWidth(), infoItem = argbColorInfo)
+
         ColorInfoItem(modifier = Modifier.fillMaxWidth(), infoItem = hexColorInfo)
     }
 }
@@ -713,6 +720,77 @@ private fun ColorInfoItem(modifier: Modifier = Modifier, infoItem: Pair<String, 
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+private fun ColorCopyPasteButtons(modifier: Modifier = Modifier, state: ColorPickerState) {
+
+    val context = LocalContext.current
+
+    val clipboardManager by lazy {
+
+        context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    }
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        OutlinedButton(
+            onClick = {
+
+                clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()?.let { hexString ->
+
+                    EmptyFormat.hexToColor(hex = hexString)?.let { color ->
+
+                        state.updateColor(color = color)
+                    }
+                }
+            }
+        ) {
+
+            Icon(
+                modifier = Modifier.size(size = 18.dp),
+                imageVector = Icons.Filled.ContentPaste,
+                contentDescription = "Paste Color"
+            )
+
+            Spacer(modifier = Modifier.width(width = 2.dp))
+
+            Text(
+                text = "Paste",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        Button(
+            onClick = {
+
+                val colorHex = EmptyFormat.toColorHex(color = state.selectedColor)
+                val clipData = ClipData.newPlainText(colorHex, colorHex)
+
+                clipboardManager.setPrimaryClip(clipData)
+            }
+        ) {
+
+            Icon(
+                modifier = Modifier.size(size = 18.dp),
+                imageVector = Icons.Filled.ContentCopy,
+                contentDescription = "Copy Color"
+            )
+
+            Spacer(modifier = Modifier.width(width = 2.dp))
+
+            Text(
+                text = "Copy",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
