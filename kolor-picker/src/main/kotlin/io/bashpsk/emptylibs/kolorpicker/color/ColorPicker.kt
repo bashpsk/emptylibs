@@ -72,7 +72,8 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 @Composable
 fun ColorPicker(
     modifier: Modifier = Modifier,
-    state: ColorPickerState = rememberColorPickerState()
+    state: ColorPickerState = rememberColorPickerState(),
+    enableCopyButtons: Boolean = false
 ) {
 
     Column(
@@ -143,12 +144,15 @@ fun ColorPicker(
             color = state.selectedColor
         )
 
-        ColorCopyPasteButtons(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = TrackHeight / 2),
-            state = state
-        )
+        if (enableCopyButtons) {
+
+            ColorCopyPasteButtons(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = TrackHeight / 2),
+                state = state
+            )
+        }
     }
 }
 

@@ -41,6 +41,7 @@ import androidx.compose.ui.window.DialogProperties
 fun ColorPickerDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
     state: ColorPickerState = rememberColorPickerState(),
+    enableCopyButtons: Boolean = false,
     onSelectedColor: (color: Color) -> Unit
 ) {
 
@@ -96,14 +97,15 @@ fun ColorPickerDialog(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(space = 16.dp)
+                    verticalArrangement = Arrangement.spacedBy(space = 4.dp)
                 ) {
 
                     item {
 
                         ColorPicker(
                             modifier = Modifier.fillParentMaxSize(),
-                            state = state
+                            state = state,
+                            enableCopyButtons = enableCopyButtons
                         )
                     }
                 }
