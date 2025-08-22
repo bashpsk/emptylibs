@@ -86,7 +86,7 @@ internal fun CanvasSlateUI(
                         return@detectTapGestures
                     }
 
-                    onNewPathStart()
+                    onPathStart()
                     onPathDraw(position = position)
                     onPathEnd()
                 }
@@ -97,7 +97,7 @@ internal fun CanvasSlateUI(
     val drawPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectDragGestures(
-            onDragStart = { state.onNewPathStart() },
+            onDragStart = { state.onPathStart() },
             onDragEnd = state::onPathEnd,
             onDragCancel = state::onPathEnd,
             onDrag = { change, dragAmount ->

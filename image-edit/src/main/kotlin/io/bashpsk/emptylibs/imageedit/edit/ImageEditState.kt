@@ -46,9 +46,6 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
     var currentImageEditItem by mutableStateOf<ImageEditItems?>(null)
         private set
 
-    var isDrawingMode by mutableStateOf(true)
-        private set
-
     internal var isToolBarMenuExpanded by mutableStateOf(false)
 
     internal var canvasSize by mutableStateOf(Size.Zero)
@@ -73,32 +70,27 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
         penThickness = thickness
     }
 
-    fun onDrawingMode(mode: Boolean) {
+    fun addImageEditItem(items: ImageEditItems) {
 
-        isDrawingMode = mode
-    }
+        imageEditItemList.find { editItems -> editItems.uuid == items.uuid }?.let { editItems ->
 
-    fun addImageEditItem(item: ImageEditItems) {
-
-        imageEditItemList.find { editItem -> editItem.id == item.id }?.let { editItem ->
-
-            imageEditItemList = imageEditItemList.remove(element = editItem).add(element = item)
+            imageEditItemList = imageEditItemList.remove(element = editItems).add(element = items)
         } ?: run {
 
-            imageEditItemList = imageEditItemList.add(element = item)
+            imageEditItemList = imageEditItemList.add(element = items)
         }
     }
 
-    fun removeImageEditItem(item: ImageEditItems) {
+    fun removeImageEditItem(items: ImageEditItems) {
 
-        imageEditItemList = imageEditItemList.remove(element = item)
+        imageEditItemList = imageEditItemList.remove(element = items)
     }
 
     fun onUndoCanvas() {
 
-        imageEditItemList.lastOrNull()?.let { item ->
+        imageEditItemList.lastOrNull()?.let { items ->
 
-            imageEditItemList = imageEditItemList.remove(element = item)
+            removeImageEditItem(items = items)
         }
     }
 
@@ -112,53 +104,82 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
         currentImageEditItem = items
     }
 
-    internal fun onNewPathStart() {
+    fun onImageItem() {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
+    }
 
-            val path = ImageEditPath(
+    fun onPathItem() {
+
+        val items = ImageEditItems.PathItem(
+            id = Clock.System.now().toEpochMilliseconds().toString(),
+            color = selectedPenColor,
+            thickness = penThickness,
+            strokeCap = selectedStrokeCap,
+            strokeJoin = selectedStrokeJoin,
+            path = persistentListOf()
+        ).apply {
+
+            uuid = Clock.System.now().toEpochMilliseconds().toString()
+        }
+
+        onCurrentImageEdit(items = items)
+    }
+
+    fun onShapeItem() {
+
+    }
+
+    fun onTextItem() {
+
+    }
+
+    fun onResetEditItem() {
+
+        onCurrentImageEdit(items = null)
+    }
+
+    internal fun onPathStart() {
+
+        currentImageEditItem?.takeIf { items -> items is ImageEditItems.PathItem }?.run {
+
+            val items = ImageEditItems.PathItem(
                 id = Clock.System.now().toEpochMilliseconds().toString(),
                 color = selectedPenColor,
                 thickness = penThickness,
                 strokeCap = selectedStrokeCap,
                 strokeJoin = selectedStrokeJoin,
                 path = persistentListOf()
-            )
+            ).apply {
 
-            val item = ImageEditItems.Path(path = path).apply {
-
-                id = Clock.System.now().toEpochMilliseconds()
+                uuid = Clock.System.now().toEpochMilliseconds().toString()
             }
 
-            onCurrentImageEdit(items = item)
+            onCurrentImageEdit(items = items)
         }
     }
 
     internal fun onPathEnd() {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
+        currentImageEditItem?.takeIf { items -> items is ImageEditItems.PathItem }?.run {
 
             currentImageEditItem?.let { editItems ->
 
-                addImageEditItem(item = editItems)
-                onCurrentImageEdit(items = null)
+                addImageEditItem(items = editItems)
             } ?: return
         }
     }
 
     internal fun onPathDraw(position: Offset) {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
+        currentImageEditItem?.takeIf { items -> items is ImageEditItems.PathItem }?.run {
 
-            when (val item = currentImageEditItem) {
+            when (val editItems = currentImageEditItem) {
 
-                is ImageEditItems.Path -> {
+                is ImageEditItems.PathItem -> {
 
-                    val path = item.path.copy(path = item.path.path.add(element = position))
+                    val items = editItems.copy(path = editItems.path.add(position)).apply {
 
-                    val items = ImageEditItems.Path(path = path).apply {
-
-                        id = Clock.System.now().toEpochMilliseconds()
+                        uuid = editItems.uuid
                     }
 
                     onCurrentImageEdit(items = items)

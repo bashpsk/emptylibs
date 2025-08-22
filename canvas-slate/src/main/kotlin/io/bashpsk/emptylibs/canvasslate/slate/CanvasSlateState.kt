@@ -123,7 +123,7 @@ class CanvasSlateState(
         currentPath = path
     }
 
-    internal fun onNewPathStart() {
+    internal fun onPathStart() {
 
         isDrawingMode.takeIf { canDraw -> canDraw }?.run {
 

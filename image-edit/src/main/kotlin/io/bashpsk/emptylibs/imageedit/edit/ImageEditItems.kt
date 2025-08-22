@@ -1,12 +1,37 @@
 package io.bashpsk.emptylibs.imageedit.edit
 
-sealed class ImageEditItems(var id: Long = 0L) {
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import kotlinx.collections.immutable.PersistentList
 
-    data class Image(val image: ImageEditBitmap) : ImageEditItems()
+sealed class ImageEditItems(var uuid: String = "") {
 
-    data class Path(val path: ImageEditPath) : ImageEditItems()
+    data class ImageItem(
+        val bitmap: ImageBitmap?
+    ) : ImageEditItems()
 
-    data class Shape(val shape: ImageEditShape) : ImageEditItems()
+    data class PathItem(
+        val id: String,
+        val color: Color,
+        val thickness: Dp,
+        val strokeCap: StrokeCap,
+        val strokeJoin: StrokeJoin,
+        val path: PersistentList<Offset>
+    ) : ImageEditItems()
 
-    data class Text(val text: ImageEditText) : ImageEditItems()
+    data class ShapeItem(
+        val shape: Path
+    ) : ImageEditItems()
+
+    data class TextItem(
+        val content: String,
+        val color: Color,
+        val style: TextStyle,
+    ) : ImageEditItems()
 }

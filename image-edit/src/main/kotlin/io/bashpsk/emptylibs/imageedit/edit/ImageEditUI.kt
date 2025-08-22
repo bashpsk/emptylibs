@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
@@ -19,12 +20,16 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Draw
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -93,7 +98,7 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
                         return@detectTapGestures
                     }*/
 
-                    onNewPathStart()
+                    onPathStart()
                     onPathDraw(position = position)
                     onPathEnd()
                 }
@@ -104,7 +109,7 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
     val drawPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectDragGestures(
-            onDragStart = { state.onNewPathStart() },
+            onDragStart = { state.onPathStart() },
             onDragEnd = state::onPathEnd,
             onDragCancel = state::onPathEnd,
             onDrag = { change, dragAmount ->
@@ -226,11 +231,114 @@ internal fun ImageEditTopBar(
 @Composable
 internal fun ImageEditBottomBar(state: ImageEditState) {
 
+    val isImageItemSelected by remember(state) {
+        derivedStateOf { state.currentImageEditItem is ImageEditItems.ImageItem }
+    }
+
+    val isPathItemSelected by remember(state) {
+        derivedStateOf { state.currentImageEditItem is ImageEditItems.PathItem }
+    }
+
+    val isShapeItemSelected by remember(state) {
+        derivedStateOf { state.currentImageEditItem is ImageEditItems.ShapeItem }
+    }
+
+    val isTextItemSelected by remember(state) {
+        derivedStateOf { state.currentImageEditItem is ImageEditItems.TextItem }
+    }
+
     BottomAppBar(
         modifier = Modifier.fillMaxWidth(),
         windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0)
     ) {
 
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            item {
+
+                FilledIconToggleButton(
+                    checked = isImageItemSelected,
+                    onCheckedChange = { checked ->
+
+                        if (checked) state.onImageItem() else state.onResetEditItem()
+                    }
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.Image,
+                        contentDescription = "Image"
+                    )
+                }
+            }
+
+            item {
+
+                FilledIconToggleButton(
+                    checked = isPathItemSelected,
+                    onCheckedChange = { checked ->
+
+                        if (checked) state.onPathItem() else state.onResetEditItem()
+                    }
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.Draw,
+                        contentDescription = "Draw"
+                    )
+                }
+            }
+
+            item {
+
+                FilledIconToggleButton(
+                    checked = isShapeItemSelected,
+                    onCheckedChange = { checked ->
+
+                        if (checked) state.onShapeItem() else state.onResetEditItem()
+                    }
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = "Shape"
+                    )
+                }
+            }
+
+            item {
+
+                FilledIconToggleButton(
+                    checked = isTextItemSelected,
+                    onCheckedChange = { checked ->
+
+                        if (checked) state.onTextItem() else state.onResetEditItem()
+                    }
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.TextIncrease,
+                        contentDescription = "Text"
+                    )
+                }
+            }
+
+            item {
+
+                IconButton(
+                    onClick = {}
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.Settings,
+                        contentDescription = "Tool Settings"
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -246,24 +354,6 @@ private fun CanvasSlateToolBar(
             state.isToolBarMenuExpanded = false
         }
     ) {
-
-        HorizontalDivider()
-
-        MenuItemView(
-            icon = Icons.Filled.Draw,
-            label = "Drawing Mode",
-            isChecked = state.isDrawingMode,
-            onClick = {
-
-                state.apply {
-
-                    onDrawingMode(mode = isDrawingMode.not())
-                    isToolBarMenuExpanded = false
-                }
-            }
-        )
-
-        HorizontalDivider()
 
         MenuItemView(
             icon = Icons.Filled.ClearAll,

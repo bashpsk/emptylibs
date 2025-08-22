@@ -10,16 +10,16 @@ internal fun DrawScope.drawImageEditItem(items: ImageEditItems) {
 
     when (items) {
 
-        is ImageEditItems.Image -> drawEditImage(item = items)
-        is ImageEditItems.Path -> drawEditPath(item = items)
-        is ImageEditItems.Shape -> drawEditShape(item = items)
-        is ImageEditItems.Text -> drawEditText(item = items)
+        is ImageEditItems.ImageItem -> drawEditImage(item = items)
+        is ImageEditItems.PathItem -> drawEditPath(item = items)
+        is ImageEditItems.ShapeItem -> drawEditShape(item = items)
+        is ImageEditItems.TextItem -> drawEditText(item = items)
     }
 }
 
-internal fun DrawScope.drawEditImage(item: ImageEditItems.Image) {
+private fun DrawScope.drawEditImage(item: ImageEditItems.ImageItem) {
 
-    item.image.bitmap?.let { bitmap ->
+    item.bitmap?.let { bitmap ->
 
         clipRect {
 
@@ -28,13 +28,13 @@ internal fun DrawScope.drawEditImage(item: ImageEditItems.Image) {
     }
 }
 
-internal fun DrawScope.drawEditPath(item: ImageEditItems.Path) {
+private fun DrawScope.drawEditPath(item: ImageEditItems.PathItem) {
 
     val smoothedPath = Path().apply {
 
         val smoothness = 3
 
-        item.path.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
+        item.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
 
             moveTo(x = points.first().x, y = points.first().y)
 
@@ -63,19 +63,19 @@ internal fun DrawScope.drawEditPath(item: ImageEditItems.Path) {
 
     drawPath(
         path = smoothedPath,
-        color = item.path.color,
+        color = item.color,
         style = Stroke(
-            width = item.path.thickness.toPx(),
-            cap = item.path.strokeCap,
-            join = item.path.strokeJoin
+            width = item.thickness.toPx(),
+            cap = item.strokeCap,
+            join = item.strokeJoin
         )
     )
 }
 
-internal fun DrawScope.drawEditShape(item: ImageEditItems.Shape) {
+private fun DrawScope.drawEditShape(item: ImageEditItems.ShapeItem) {
 
 }
 
-internal fun DrawScope.drawEditText(item: ImageEditItems.Text) {
+private fun DrawScope.drawEditText(item: ImageEditItems.TextItem) {
 
 }
