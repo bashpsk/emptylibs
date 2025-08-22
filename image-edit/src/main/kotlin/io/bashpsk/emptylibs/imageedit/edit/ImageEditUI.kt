@@ -83,7 +83,7 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
     val tapPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectTapGestures(
-            onTap  = { position ->
+            onTap = { position ->
 
                 state.apply {
 
@@ -93,9 +93,9 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
                         return@detectTapGestures
                     }*/
 
-                    onNewImageEditStart()
-                    onImageEditDraw(position = position)
-                    onImageEditEnd()
+                    onNewPathStart()
+                    onPathDraw(position = position)
+                    onPathEnd()
                 }
             }
         )
@@ -104,13 +104,13 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
     val drawPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectDragGestures(
-            onDragStart = { state.onNewImageEditStart() },
-            onDragEnd = state::onImageEditEnd,
-            onDragCancel = state::onImageEditEnd,
+            onDragStart = { state.onNewPathStart() },
+            onDragEnd = state::onPathEnd,
+            onDragCancel = state::onPathEnd,
             onDrag = { change, dragAmount ->
 
                 change.consume()
-                state.onImageEditDraw(position = change.position)
+                state.onPathDraw(position = change.position)
             }
         )
     }

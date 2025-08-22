@@ -112,7 +112,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
         currentImageEditItem = items
     }
 
-    internal fun onNewImageEditStart() {
+    internal fun onNewPathStart() {
 
         isDrawingMode.takeIf { canDraw -> canDraw }?.run {
 
@@ -134,7 +134,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
         }
     }
 
-    internal fun onImageEditEnd() {
+    internal fun onPathEnd() {
 
         isDrawingMode.takeIf { canDraw -> canDraw }?.run {
 
@@ -146,7 +146,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
         }
     }
 
-    internal fun onImageEditDraw(position: Offset) {
+    internal fun onPathDraw(position: Offset) {
 
         isDrawingMode.takeIf { canDraw -> canDraw }?.run {
 
