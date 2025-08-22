@@ -35,7 +35,7 @@ fun TextPickerScreen() {
 
     val textPickerState = rememberWheelTextPickerState(
         textList = textList,
-        initial = textList.first()
+        initial = textList[3]
     )
 
     Scaffold { paddingValues ->

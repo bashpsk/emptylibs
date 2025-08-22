@@ -49,7 +49,7 @@ class WheelTextPickerState<T>(
      * the [updateSelectedText] or [updateSelectedTextFromIndex] methods,
      * which perform necessary validation.
      */
-    var selectedText by mutableStateOf(initial)
+    var selectedText by mutableStateOf<T?>(null)
         private set
 
     /**
@@ -83,10 +83,7 @@ class WheelTextPickerState<T>(
         textList.getOrNull(index = index)?.takeIf { textItem ->
 
             selectedText != textItem
-        }.let { textItem ->
-
-            selectedText = textItem
-        }
+        }.let { textItem -> selectedText = textItem }
     }
 
     companion object {

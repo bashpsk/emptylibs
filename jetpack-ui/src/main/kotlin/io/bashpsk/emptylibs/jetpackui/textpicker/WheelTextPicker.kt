@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -116,6 +115,14 @@ fun <T> WheelTextPicker(
         }
     }
 
+    LaunchedEffect(Unit) {
+
+        state.textList.indexOf(state.initial).takeIf { index -> index >= 0 }?.let { index ->
+
+            lazyListState.animateScrollToItem(index = index)
+        }
+    }
+
     LaunchedEffect(nearestIndex) {
 
         nearestIndex?.let(block = state::updateSelectedTextFromIndex)
@@ -128,11 +135,10 @@ fun <T> WheelTextPicker(
 
         LazyColumn(
             modifier = Modifier.matchParentSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
             state = lazyListState,
             contentPadding = PaddingValues(vertical = itemHeight * centerIndex),
-            flingBehavior = rememberSnapFlingBehavior(lazyListState)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
 
             itemsIndexed(
