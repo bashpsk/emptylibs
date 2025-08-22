@@ -210,8 +210,8 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
         derivedStateOf { state.previewPathList.containsAll(elements = state.allPathList).not() }
     }
 
-    val isDeleteButtonEnable by remember(state.editPathData) {
-        derivedStateOf { state.editPathData != null }
+    val isDeleteButtonEnable by remember(state.editCanvasSlatePath) {
+        derivedStateOf { state.editCanvasSlatePath != null }
     }
 
     val iconButtonColors = IconButtonDefaults.iconButtonColors(
@@ -287,7 +287,7 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
 
         item {
 
-            state.editPathData?.let { pathData ->
+            state.editCanvasSlatePath?.let { pathData ->
 
                 PenThicknessSelectionView(
                     penThickness = pathData.thickness,
@@ -307,7 +307,7 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
 
         item {
 
-            state.editPathData?.let { pathData ->
+            state.editCanvasSlatePath?.let { pathData ->
 
                 PenStrokeSelectionView(
                     selectedStrokeCap = pathData.strokeCap,
@@ -338,7 +338,7 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
 
         item {
 
-            state.editPathData?.let { pathData ->
+            state.editCanvasSlatePath?.let { pathData ->
 
                 PenColorSelectionView(
                     modifier = Modifier.fillParentMaxWidth(),
@@ -556,7 +556,7 @@ private fun CanvasPathPreview(modifier: Modifier = Modifier, state: CanvasSlateS
 
         state.previewPathList.forEach { pathData ->
 
-            drawPathData(pathData = pathData)
+            drawSlatePath(slatePath = pathData)
         }
     }
 }

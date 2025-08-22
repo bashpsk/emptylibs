@@ -5,17 +5,17 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import kotlin.math.abs
 
-internal fun DrawScope.drawPathData(pathData: PathData) {
+internal fun DrawScope.drawSlatePath(slatePath: CanvasSlatePath) {
 
     val smoothedPath = Path().apply {
 
         val smoothness = 3
 
-        pathData.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
+        slatePath.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
 
             moveTo(x = points.first().x, y = points.first().y)
 
-            points.size.takeIf { counts -> counts == 1 }?.let {
+            points.size.takeIf { counts -> counts == 1 }?.run {
 
                 lineTo(x = points.first().x, y = points.first().y)
             }
@@ -25,7 +25,7 @@ internal fun DrawScope.drawPathData(pathData: PathData) {
                 val dx = abs(from.x - to.x)
                 val dy = abs(from.y - to.y)
 
-                (dx >= smoothness || dy >= smoothness).takeIf { hasValid -> hasValid }?.let {
+                (dx >= smoothness || dy >= smoothness).takeIf { hasValid -> hasValid }?.run {
 
                     quadraticTo(
                         x1 = (from.x + to.x) / 2,
@@ -40,11 +40,11 @@ internal fun DrawScope.drawPathData(pathData: PathData) {
 
     drawPath(
         path = smoothedPath,
-        color = pathData.color,
+        color = slatePath.color,
         style = Stroke(
-            width = pathData.thickness.toPx(),
-            cap = pathData.strokeCap,
-            join = pathData.strokeJoin
+            width = slatePath.thickness.toPx(),
+            cap = slatePath.strokeCap,
+            join = slatePath.strokeJoin
         )
     )
 }

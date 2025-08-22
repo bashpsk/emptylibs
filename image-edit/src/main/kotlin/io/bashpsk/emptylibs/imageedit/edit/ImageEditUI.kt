@@ -1,31 +1,26 @@
-package io.bashpsk.emptylibs.canvasslate.slate
+package io.bashpsk.emptylibs.imageedit.edit
 
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
-import androidx.compose.material.icons.filled.BorderColor
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Draw
-import androidx.compose.material.icons.filled.ModeEdit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,7 +28,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -45,32 +39,45 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import kotlinx.coroutines.launch
+import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 
-@OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-internal fun CanvasSlateUI(
-    modifier: Modifier = Modifier,
-    state: CanvasSlateState,
-    pathEditSheetState: SheetState,
-) {
+internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    val screenSizeChanged = Modifier.onSizeChanged { size ->
+    val sizeChangedModifier = Modifier.onSizeChanged { size ->
 
         state.canvasSize = size.toSize()
+    }
+
+    val drawCanvasModifier = Modifier.drawWithContent {
+
+        drawContent()
+
+        drawIntoCanvas {
+
+            state.imageEditItemList.forEach { items ->
+
+                drawImageEditItem(items = items)
+            }
+
+            state.currentImageEditItem?.let { items ->
+
+                drawImageEditItem(items = items)
+            }
+        }
     }
 
     val tapPointerInputModifier = Modifier.pointerInput(Unit) {
@@ -80,15 +87,15 @@ internal fun CanvasSlateUI(
 
                 state.apply {
 
-                    onEditPathData(position = position)?.takeIf { isVisible -> isVisible }?.run {
+                    /*onEditPathData(position = position)?.takeIf { isVisible -> isVisible }?.run {
 
                         coroutineScope.launch { pathEditSheetState.show() }
                         return@detectTapGestures
-                    }
+                    }*/
 
-                    onNewPathStart()
-                    onPathDraw(position = position)
-                    onPathEnd()
+                    onNewImageEditStart()
+                    onImageEditDraw(position = position)
+                    onImageEditEnd()
                 }
             }
         )
@@ -97,66 +104,61 @@ internal fun CanvasSlateUI(
     val drawPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectDragGestures(
-            onDragStart = { state.onNewPathStart() },
-            onDragEnd = state::onPathEnd,
-            onDragCancel = state::onPathEnd,
+            onDragStart = { state.onNewImageEditStart() },
+            onDragEnd = state::onImageEditEnd,
+            onDragCancel = state::onImageEditEnd,
             onDrag = { change, dragAmount ->
 
                 change.consume()
-                state.onPathDraw(position = change.position)
+                state.onImageEditDraw(position = change.position)
             }
         )
     }
 
-    Canvas(
-        modifier = modifier
-            .background(color = state.selectedBackgroundColor)
-            .clipToBounds()
-            .then(screenSizeChanged)
-            .then(tapPointerInputModifier)
-            .then(drawPointerInputModifier),
-        contentDescription = "Canvas Slate"
+    BoxWithConstraints(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
     ) {
 
-        state.allPathList.forEach { pathData ->
+        state.imageBitmap?.let { bitmap ->
 
-            drawSlatePath(slatePath = pathData)
-        }
+            val aspectRatio by remember(bitmap) {
+                derivedStateOf {
+                    EmptyFormat.findAspectRatio(width = bitmap.width, height = bitmap.height)
+                }
+            }
 
-        state.currentPath?.let { pathData ->
-
-            drawSlatePath(slatePath = pathData)
+            Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(ratio = aspectRatio)
+                    .then(sizeChangedModifier)
+                    .then(drawCanvasModifier)
+                    .then(tapPointerInputModifier)
+                    .then(drawPointerInputModifier)
+                    .clipToBounds(),
+                bitmap = bitmap,
+                contentScale = ContentScale.Fit,
+                contentDescription = "Edit Image"
+            )
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun CanvasSlateTopBar(
-    modifier: Modifier = Modifier,
-    state: CanvasSlateState,
-    backgroundColorPickerDialog: MutableTransitionState<Boolean>,
-    foregroundColorPickerDialog: MutableTransitionState<Boolean>,
-    penStrokeDialogVisibleState: MutableTransitionState<Boolean>,
-    penThicknessDialogVisibleState: MutableTransitionState<Boolean>,
-    onDoneClick: () -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+internal fun ImageEditTopBar(
+    state: ImageEditState,
+    onDoneClick: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
 
-    val isUndoButtonEnable by remember(state.allPathList) {
-        derivedStateOf { state.allPathList.isNotEmpty() }
+    val isUndoButtonEnable by remember(state) {
+        derivedStateOf { state.imageEditItemList.isNotEmpty() }
     }
 
     TopAppBar(
-        title = {
-
-            ColorSelectionBar(
-                modifier = modifier.fillMaxWidth(),
-                state = state,
-                backgroundColorPickerDialog = backgroundColorPickerDialog,
-                foregroundColorPickerDialog = foregroundColorPickerDialog
-            )
-        },
+        modifier = Modifier.fillMaxWidth(),
         navigationIcon = {
 
             Row(
@@ -164,9 +166,7 @@ internal fun CanvasSlateTopBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                IconButton(
-                    onClick = onNavigateBack
-                ) {
+                IconButton(onClick = onNavigateBack) {
 
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -185,6 +185,9 @@ internal fun CanvasSlateTopBar(
                     )
                 }
             }
+        },
+        title = {
+
         },
         actions = {
 
@@ -213,8 +216,6 @@ internal fun CanvasSlateTopBar(
 
                 CanvasSlateToolBar(
                     state = state,
-                    penStrokeDialogVisibleState = penStrokeDialogVisibleState,
-                    penThicknessDialogVisibleState = penThicknessDialogVisibleState
                 )
             }
         },
@@ -223,10 +224,19 @@ internal fun CanvasSlateTopBar(
 }
 
 @Composable
-internal fun CanvasSlateToolBar(
-    state: CanvasSlateState,
-    penStrokeDialogVisibleState: MutableTransitionState<Boolean>,
-    penThicknessDialogVisibleState: MutableTransitionState<Boolean>,
+internal fun ImageEditBottomBar(state: ImageEditState) {
+
+    BottomAppBar(
+        modifier = Modifier.fillMaxWidth(),
+        windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0)
+    ) {
+
+    }
+}
+
+@Composable
+private fun CanvasSlateToolBar(
+    state: ImageEditState
 ) {
 
     DropdownMenu(
@@ -236,26 +246,6 @@ internal fun CanvasSlateToolBar(
             state.isToolBarMenuExpanded = false
         }
     ) {
-
-        MenuItemView(
-            icon = Icons.Filled.ModeEdit,
-            label = "Pen Type",
-            onClick = {
-
-                state.isToolBarMenuExpanded = false
-                penStrokeDialogVisibleState.targetState = true
-            }
-        )
-
-        MenuItemView(
-            icon = Icons.Filled.BorderColor,
-            label = "Pen Thickness",
-            onClick = {
-
-                state.isToolBarMenuExpanded = false
-                penThicknessDialogVisibleState.targetState = true
-            }
-        )
 
         HorizontalDivider()
 
@@ -288,62 +278,6 @@ internal fun CanvasSlateToolBar(
             }
         )
     }
-}
-
-@Composable
-private fun ColorSelectionBar(
-    modifier: Modifier = Modifier,
-    state: CanvasSlateState,
-    backgroundColorPickerDialog: MutableTransitionState<Boolean>,
-    foregroundColorPickerDialog: MutableTransitionState<Boolean>,
-) {
-
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(space = 12.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        item {
-
-            ColorBoxView(
-                color = state.selectedBackgroundColor,
-                onColorClick = {
-
-                    backgroundColorPickerDialog.targetState = true
-                }
-            )
-        }
-
-        item {
-
-            ColorBoxView(
-                color = state.selectedPenColor,
-                onColorClick = {
-
-                    foregroundColorPickerDialog.targetState = true
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ColorBoxView(color: Color, onColorClick: () -> Unit) {
-
-    Box(
-        modifier = Modifier
-            .size(size = 36.dp)
-            .background(color = color, shape = CircleShape)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = CircleShape
-            )
-            .clip(shape = CircleShape)
-            .clickable(role = Role.Button, onClick = onColorClick)
-            .shadow(elevation = 16.dp, shape = CircleShape)
-    )
 }
 
 @Composable

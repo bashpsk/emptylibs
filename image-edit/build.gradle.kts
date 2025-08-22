@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.coil3.compose)
 
     //  MODULE              :
+    implementation(project(":formatter"))
     implementation(project(":image-view"))
 }
 

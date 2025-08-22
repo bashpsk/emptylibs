@@ -60,19 +60,19 @@ class CanvasSlateState(
     var penThickness by mutableStateOf(4.dp)
         private set
 
-    var currentPath by mutableStateOf<PathData?>(null)
+    var currentPath by mutableStateOf<CanvasSlatePath?>(null)
         private set
 
     var isDrawingMode by mutableStateOf(true)
         private set
 
-    var allPathList by mutableStateOf(persistentListOf<PathData>())
+    var allPathList by mutableStateOf(persistentListOf<CanvasSlatePath>())
 
     internal var isToolBarMenuExpanded by mutableStateOf(false)
 
-    internal var editPathData by mutableStateOf<PathData?>(null)
+    internal var editCanvasSlatePath by mutableStateOf<CanvasSlatePath?>(null)
 
-    internal var previewPathList by mutableStateOf(persistentListOf<PathData>())
+    internal var previewPathList by mutableStateOf(persistentListOf<CanvasSlatePath>())
 
     fun updateBackgroundColor(color: Color) {
 
@@ -99,6 +99,11 @@ class CanvasSlateState(
         penThickness = thickness
     }
 
+    fun onDrawingMode(mode: Boolean) {
+
+        isDrawingMode = mode
+    }
+
     fun onClearCanvas() {
 
         currentPath = null
@@ -113,21 +118,16 @@ class CanvasSlateState(
         }
     }
 
-    fun onCurrentPath(path: PathData?) {
+    fun onCurrentPath(path: CanvasSlatePath?) {
 
         currentPath = path
-    }
-
-    fun onDrawingMode(mode: Boolean) {
-
-        isDrawingMode = mode
     }
 
     internal fun onNewPathStart() {
 
         isDrawingMode.takeIf { canDraw -> canDraw }?.run {
 
-            val path = PathData(
+            val path = CanvasSlatePath(
                 id = Clock.System.now().toEpochMilliseconds().toString(),
                 color = selectedPenColor,
                 thickness = penThickness,
@@ -186,12 +186,12 @@ class CanvasSlateState(
         }
     }
 
-    internal fun onUpdateEditPath(path: PathData?) {
+    internal fun onUpdateEditPath(path: CanvasSlatePath?) {
 
-        editPathData = path
+        editCanvasSlatePath = path
     }
 
-    internal fun addPathInPreview(path: PathData) {
+    internal fun addPathInPreview(path: CanvasSlatePath) {
 
         previewPathList.find { pathData -> pathData.id == path.id }?.let { pathData ->
 
@@ -218,7 +218,7 @@ class CanvasSlateState(
 
     internal fun onDeleteEditPath() {
 
-        editPathData?.let { pathData ->
+        editCanvasSlatePath?.let { pathData ->
 
             allPathList = previewPathList.removeAll { path -> pathData.id == path.id }
             onUpdateEditPath(path = null)
@@ -241,8 +241,8 @@ class CanvasSlateState(
             ) {
 
                 drawRect(color = selectedBackgroundColor)
-                allPathList.forEach { pathData -> drawPathData(pathData = pathData) }
-                currentPath?.let { pathData -> drawPathData(pathData = pathData) }
+                allPathList.forEach { pathData -> drawSlatePath(slatePath = pathData) }
+                currentPath?.let { pathData -> drawSlatePath(slatePath = pathData) }
             }
 
             imageBitmap
