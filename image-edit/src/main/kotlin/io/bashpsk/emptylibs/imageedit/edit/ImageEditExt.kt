@@ -10,6 +10,7 @@ internal fun DrawScope.drawImageEditItem(items: ImageEditItems) {
 
     when (items) {
 
+        is ImageEditItems.EraseItem -> drawEraseArea(item = items)
         is ImageEditItems.ImageItem -> drawEditImage(item = items)
         is ImageEditItems.PathItem -> drawEditPath(item = items)
         is ImageEditItems.ShapeItem -> drawEditShape(item = items)
@@ -17,14 +18,15 @@ internal fun DrawScope.drawImageEditItem(items: ImageEditItems) {
     }
 }
 
+private fun DrawScope.drawEraseArea(item: ImageEditItems.EraseItem) {
+
+}
+
 private fun DrawScope.drawEditImage(item: ImageEditItems.ImageItem) {
 
-    item.bitmap?.let { bitmap ->
+    clipRect {
 
-        clipRect {
-
-            drawImage(image = bitmap)
-        }
+        drawImage(image = item.bitmap)
     }
 }
 

@@ -12,8 +12,16 @@ import kotlinx.collections.immutable.PersistentList
 
 sealed class ImageEditItems(var uuid: String = "") {
 
+    data class EraseItem(
+        val id: String,
+        val thickness: Dp,
+        val strokeCap: StrokeCap,
+        val strokeJoin: StrokeJoin,
+        val path: PersistentList<Offset>
+    ) : ImageEditItems()
+
     data class ImageItem(
-        val bitmap: ImageBitmap?
+        val bitmap: ImageBitmap
     ) : ImageEditItems()
 
     data class PathItem(

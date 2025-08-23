@@ -165,6 +165,8 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
             currentImageEditItem?.let { editItems ->
 
                 addImageEditItem(items = editItems)
+                onResetEditItem()
+                onPathItem()
             } ?: return
         }
     }
