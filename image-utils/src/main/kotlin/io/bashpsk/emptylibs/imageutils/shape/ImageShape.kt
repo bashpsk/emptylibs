@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.imagekrop.crop
+package io.bashpsk.emptylibs.imageutils.shape
 
 /**
  * Represents the different shapes that can be used for cropping an image.
@@ -19,29 +19,29 @@ package io.bashpsk.emptylibs.imagekrop.crop
  *     - [edges]: The number of points or edges of the star.
  *     - [distance]: A parameter influencing the depth or prominence of the star's points.
  */
-sealed interface KropShape {
+sealed interface ImageShape {
 
     /**
      * Represents no cropping, meaning the original image is retained.
      */
-    data object None : KropShape
+    data object None : ImageShape
 
     /**
      * Represents a circular crop shape.
      */
-    data object Circle : KropShape
+    data object Circle : ImageShape
 
     /**
      * Represents a triangle shape for cropping.
      */
-    data object Triangle : KropShape
+    data object Triangle : ImageShape
 
     /**
      * Represents a polygon shape for cropping.
      *
      * @property sides The number of sides of the polygon.
      */
-    data class Polygon(val sides: Short) : KropShape
+    data class Polygon(val sides: Short) : ImageShape
 
     /**
      * Represents a rectangle shape.
@@ -49,7 +49,7 @@ sealed interface KropShape {
      * @property radius The corner radius of the rectangle. A value of 0.0f creates a sharp-cornered
      * rectangle.
      */
-    data class Rectangle(val radius: Float) : KropShape
+    data class Rectangle(val radius: Float) : ImageShape
 
     /**
      * Represents a cut corner shape for cropping.
@@ -58,7 +58,7 @@ sealed interface KropShape {
      *
      * @property radius The radius of the cut corners. A value of 0 results in a regular rectangle.
      */
-    data class CutCorner(val radius: Float) : KropShape
+    data class CutCorner(val radius: Float) : ImageShape
 
     /**
      * Represents a star shape with a specified number of edges and distance.
@@ -67,5 +67,5 @@ sealed interface KropShape {
      * @property distance A float value that likely influences the appearance or size of the star's
      * points relative to its center, such as the distance from the inner & outer points.
      */
-    data class Star(val edges: Short, val distance: Float) : KropShape
+    data class Star(val edges: Short, val distance: Float) : ImageShape
 }

@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.imageedit.extension.fittedImageSize
-import io.bashpsk.emptylibs.imageedit.extension.size
+import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
+import io.bashpsk.emptylibs.imageutils.extension.toSize
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -151,7 +151,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
         val items = ImageEditItems.ImageItem(
             bitmap = selectedBitmap ?: return,
             position = positionOfItem,
-            size = canvasSize.fittedImageSize(imageSize = selectedBitmap.size)
+            size = canvasSize.fittedImageSize(imageSize = selectedBitmap.toSize())
         ).apply {
 
             uuid = Clock.System.now().toEpochMilliseconds().toString()
@@ -208,7 +208,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
                 density = density,
                 layoutDirection = LayoutDirection.Ltr,
                 canvas = canvas,
-                size = bitmap.size
+                size = bitmap.toSize()
             ) {
 
                 drawImage(

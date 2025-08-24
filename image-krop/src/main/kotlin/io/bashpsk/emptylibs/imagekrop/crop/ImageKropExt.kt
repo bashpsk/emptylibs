@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.imageutils.shape.ImageShape
+import io.bashpsk.emptylibs.imageutils.shape.toPath
 
 /**
  * Draws a handle for a specific corner of the crop selection.
@@ -182,7 +184,7 @@ internal fun DrawScope.drawKropBorder(topLeft: Offset, rectSize: Size, kropConfi
  * overlay color.
  */
 internal fun DrawScope.drawKropOverlay(
-    kropShape: KropShape,
+    kropShape: ImageShape,
     topLeft: Offset,
     bottomRight: Offset,
     kropConfig: KropConfig
@@ -207,13 +209,13 @@ internal fun DrawScope.drawKropOverlay(
 /**
  * Draws the border of the krop shape.
  *
- * @param kropShape The [KropShape] to draw the border for.
+ * @param kropShape The [ImageShape] to draw the border for.
  * @param topLeft The top-left [Offset] of the crop area.
  * @param bottomRight The bottom-right [Offset] of the crop area.
  * @param kropConfig The [KropConfig] containing styling for the border.
  */
 internal fun DrawScope.drawKropShapeBorder(
-    kropShape: KropShape,
+    kropShape: ImageShape,
     topLeft: Offset,
     bottomRight: Offset,
     kropConfig: KropConfig
@@ -258,12 +260,12 @@ private fun DrawScope.drawKropLine(start: Offset, end: Offset, kropConfig: KropC
  * Draws a preview of the krop shape.
  *
  * This function is used to display a visual representation of the selected crop shape.
- * It takes a [KropShape] and a [Color] as input and draws the shape's path with a stroke style.
+ * It takes a [ImageShape] and a [Color] as input and draws the shape's path with a stroke style.
  *
- * @param kropShape The [KropShape] to draw.
+ * @param kropShape The [ImageShape] to draw.
  * @param shapeColor The [Color] to use for drawing the shape's path.
  */
-internal fun DrawScope.drawKropShapePreview(kropShape: KropShape, shapeColor: Color) {
+internal fun DrawScope.drawKropShapePreview(kropShape: ImageShape, shapeColor: Color) {
 
     val shapePath = kropShape.toPath(canvasSize = size)
 

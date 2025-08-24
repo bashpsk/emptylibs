@@ -1,16 +1,20 @@
-package io.bashpsk.emptylibs.imageedit.extension
+package io.bashpsk.emptylibs.imageutils.extension
 
+import android.graphics.Bitmap
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import kotlin.math.min
 
-internal val ImageBitmap?.size: Size
-    get() = this?.let { bitmap ->
+fun ImageBitmap?.toSize(): Size {
+
+    return this?.let { bitmap ->
 
         Size(width = bitmap.width.toFloat(), height = bitmap.height.toFloat())
     } ?: Size.Zero
+}
 
-internal fun Size.fittedImageSize(imageSize: Size, reduction: Int = 10): Size {
+fun Size.fittedImageSize(imageSize: Size, reduction: Int = 10): Size {
 
     val imageAspectRatio = imageSize.width / imageSize.height
     val canvasAspectRatio = this.width / this.height
@@ -39,4 +43,18 @@ internal fun Size.fittedImageSize(imageSize: Size, reduction: Int = 10): Size {
     val finalHeight = min(newHeight, this.height) * reductionFactor
 
     return Size(width = finalWidth, height = finalHeight)
+}
+
+/**
+ * Checks if this [ImageBitmap] is the same as another [ImageBitmap].
+ *
+ * This function converts both [ImageBitmap] instances to Android [Bitmap] objects
+ * and then uses the [Bitmap.sameAs] method to compare them.
+ *
+ * @param other The [ImageBitmap] to compare with.
+ * @return `true` if the bitmaps are the same, `false` otherwise.
+ */
+fun ImageBitmap.sameAs(other: ImageBitmap): Boolean {
+
+    return this.asAndroidBitmap().sameAs(other.asAndroidBitmap())
 }

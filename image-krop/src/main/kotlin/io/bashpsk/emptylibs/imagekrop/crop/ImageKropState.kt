@@ -10,6 +10,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.IntSize
+import io.bashpsk.emptylibs.imageutils.extension.sameAs
+import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
@@ -61,12 +63,12 @@ class ImageKropState(
 ) {
 
     /**
-     * A persistent list of [KropShape] objects available for cropping.
+     * A persistent list of [io.bashpsk.emptylibs.imageutils.shape.ImageShape] objects available for cropping.
      * This list defines the different shapes that can be used for the crop area.
      * It is initialized with [BasicKropShapes].
      * The list can be updated using the [updateShapeList] function.
      */
-    var shapeList: PersistentList<KropShape> = BasicKropShapes
+    var shapeList: PersistentList<ImageShape> = BasicKropShapes
 
     /**
      * The original image bitmap that is being cropped.
@@ -123,9 +125,9 @@ class ImageKropState(
      * The current shape of the crop area.
      * This determines the visual appearance of the cropping rectangle.
      * It can be updated using [updateKropShape].
-     * The default value is [KropShape.None].
+     * The default value is [ImageShape.None].
      */
-    var kropShape by mutableStateOf<KropShape>(KropShape.None)
+    var kropShape by mutableStateOf<ImageShape>(ImageShape.None)
         private set
 
     /**
@@ -284,9 +286,9 @@ class ImageKropState(
     /**
      * Updates the current crop shape.
      *
-     * @param shape The new [KropShape] to set.
+     * @param shape The new [ImageShape] to set.
      */
-    fun updateKropShape(shape: KropShape) {
+    fun updateKropShape(shape: ImageShape) {
 
         kropShape = shape
     }
@@ -300,9 +302,9 @@ class ImageKropState(
      * This function is useful for managing a list of customizable shapes where users can modify
      * existing shapes or add new ones.
      *
-     * @param shape The [KropShape] to update or add to the list.
+     * @param shape The [ImageShape] to update or add to the list.
      */
-    fun updateShapeList(shape: KropShape) {
+    fun updateShapeList(shape: ImageShape) {
 
         shapeList = existShapeIndex(shape = shape)?.let { index ->
 
@@ -328,16 +330,16 @@ class ImageKropState(
     }
 
     /**
-     * Checks if a [KropShape] already exists in the `shapeList`.
+     * Checks if a [ImageShape] already exists in the `shapeList`.
      *
      * This function iterates through the `shapeList` and compares the class of each `shapeItem`
      * with the class of the provided `shape`. If a shape with the same class is found, its index
      * is returned.
      *
-     * @param shape The [KropShape] to search for in the `shapeList`.
+     * @param shape The [ImageShape] to search for in the `shapeList`.
      * @return The index of the existing shape in the `shapeList` if found, otherwise null.
      */
-    internal fun existShapeIndex(shape: KropShape): Int? {
+    internal fun existShapeIndex(shape: ImageShape): Int? {
 
         return shapeList.indexOfFirst { shapeItem ->
 
@@ -356,8 +358,8 @@ class ImageKropState(
      * This is used for scaling calculations.
      * @param imageFlip An optional [KropImageFlip] value to flip the image horizontally or
      * vertically before cropping. Defaults to null (no flip).
-     * @param imageShape The [KropShape] to apply to the cropped image. Defaults to
-     * [KropShape.SharpeCorner].
+     * @param imageShape The [ImageShape] to apply to the cropped image. Defaults to
+     * [ImageShape.SharpeCorner].
      * @return A [KropResult] object which can be either [KropResult.Success] containing the
      * cropped [ImageBitmap] or [KropResult.Failed] if an error occurred during cropping.
      */
@@ -365,7 +367,7 @@ class ImageKropState(
         imageRect: Rect? = null,
         imageCanvasSize: IntSize? = null,
         imageFlip: KropImageFlip? = null,
-        imageShape: KropShape? = null
+        imageShape: ImageShape? = null
     ): KropResult {
 
         return originalImage.getCroppedImageBitmap(
@@ -410,7 +412,7 @@ class ImageKropState(
                 val savedImageBitmap = elements[0] as ImageBitmap
                 val savedConfig = elements[1] as KropConfig
                 val savedAspectList = elements[2] as ImmutableList<KropAspectRatio>
-                val savedShapeList = elements[3] as PersistentList<KropShape>
+                val savedShapeList = elements[3] as PersistentList<ImageShape>
                 val savedOriginalImage = elements[4] as ImageBitmap
                 val savedModifiedImage = elements[5] as? ImageBitmap
                 val savedPreviewImage = elements[6] as? ImageBitmap
@@ -420,7 +422,7 @@ class ImageKropState(
 
                 val savedKropAspectRatio = elements[8] as KropAspectRatio
                 val savedIsAspectLocked = elements[9] as Boolean
-                val savedKropShape = elements[10] as KropShape
+                val savedKropShape = elements[10] as ImageShape
                 val savedKropCorner = elements[11] as? KropCorner
                 val savedIsMovingCropRect = elements[12] as Boolean
                 val savedCanvasSize = elements[13] as IntSize

@@ -55,6 +55,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.DialogProperties
+import io.bashpsk.emptylibs.imageutils.shape.ImageShape
+import io.bashpsk.emptylibs.imageutils.shape.toLabel
 import kotlinx.coroutines.launch
 
 /**
@@ -424,7 +426,7 @@ internal fun ImageKropBottomBar(
  * @param isSelected A boolean indicating whether the shape is currently selected.
  */
 @Composable
-private fun KropShapeView(kropShape: KropShape, isSelected: Boolean) {
+private fun KropShapeView(kropShape: ImageShape, isSelected: Boolean) {
 
     val unSelectedIconColor = MaterialTheme.colorScheme.onSurface
     val selectedIconColor = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.5F)
@@ -535,12 +537,12 @@ private fun KropShapeCustomization(state: ImageKropState) {
 
         when (val shape = state.kropShape) {
 
-            is KropShape.None, is KropShape.Circle, is KropShape.Triangle -> Text(
+            is ImageShape.None, is ImageShape.Circle, is ImageShape.Triangle -> Text(
                 text = "Customization not available for this shape.",
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            is KropShape.Polygon -> {
+            is ImageShape.Polygon -> {
 
                 Text(
                     text = "Side Count:",
@@ -565,7 +567,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 )
             }
 
-            is KropShape.Rectangle -> {
+            is ImageShape.Rectangle -> {
 
                 Text(
                     text = "Corner Radius:",
@@ -590,7 +592,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 )
             }
 
-            is KropShape.CutCorner ->{
+            is ImageShape.CutCorner -> {
 
                 Text(
                     text = "Corner Radius:",
@@ -615,7 +617,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 )
             }
 
-            is KropShape.Star->{
+            is ImageShape.Star -> {
 
                 Text(
                     text = "Edge Count:",
