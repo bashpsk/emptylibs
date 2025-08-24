@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.imageedit.edit
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
@@ -21,7 +22,9 @@ sealed class ImageEditItems(var uuid: String = "") {
     ) : ImageEditItems()
 
     data class ImageItem(
-        val bitmap: ImageBitmap
+        val bitmap: ImageBitmap,
+        val position: Offset,
+        val size: Size
     ) : ImageEditItems()
 
     data class PathItem(

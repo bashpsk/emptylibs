@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.imageedit.extension.fittedImageSize
+import io.bashpsk.emptylibs.imageedit.extension.size
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -43,6 +45,9 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
     var penThickness by mutableStateOf(4.dp)
         private set
 
+    var selectedBitmap by mutableStateOf<ImageBitmap?>(null)
+        private set
+
     var currentImageEditItem by mutableStateOf<ImageEditItems?>(null)
         private set
 
@@ -68,6 +73,11 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
     fun updatePenThickness(thickness: Dp) {
 
         penThickness = thickness
+    }
+
+    fun updateBitmap(bitmap: ImageBitmap?) {
+
+        selectedBitmap = bitmap
     }
 
     fun addImageEditItem(items: ImageEditItems) {
@@ -106,6 +116,23 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
 
     fun onImageItem() {
 
+        val sizeOfItem = canvasSize / 2.5F
+
+        val positionOfItem = Offset(
+            x = (canvasSize.width - sizeOfItem.width) / 2.0F,
+            y = (canvasSize.height - sizeOfItem.height) / 2.0F
+        )
+
+        val items = ImageEditItems.ImageItem(
+            bitmap = selectedBitmap ?: return,
+            position = positionOfItem,
+            size = canvasSize.fittedImageSize(imageSize = selectedBitmap.size)
+        ).apply {
+
+            uuid = Clock.System.now().toEpochMilliseconds().toString()
+        }
+
+        onCurrentImageEdit(items = items)
     }
 
     fun onPathItem() {
@@ -136,58 +163,134 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
     fun onResetEditItem() {
 
         onCurrentImageEdit(items = null)
+        updateBitmap(bitmap = null)
     }
 
-    internal fun onPathStart() {
+    internal fun onEditItemStart() {
 
-        currentImageEditItem?.takeIf { items -> items is ImageEditItems.PathItem }?.run {
+        currentImageEditItem?.let { items ->
 
-            val items = ImageEditItems.PathItem(
-                id = Clock.System.now().toEpochMilliseconds().toString(),
-                color = selectedPenColor,
-                thickness = penThickness,
-                strokeCap = selectedStrokeCap,
-                strokeJoin = selectedStrokeJoin,
-                path = persistentListOf()
-            ).apply {
+            when (items) {
 
-                uuid = Clock.System.now().toEpochMilliseconds().toString()
-            }
+                is ImageEditItems.EraseItem -> {
 
-            onCurrentImageEdit(items = items)
-        }
-    }
+                }
 
-    internal fun onPathEnd() {
+                is ImageEditItems.ImageItem -> {
 
-        currentImageEditItem?.takeIf { items -> items is ImageEditItems.PathItem }?.run {
+                    val newItems = ImageEditItems.ImageItem(
+                        bitmap = items.bitmap,
+                        position = items.position,
+                        size = items.size
+                    ).apply {
 
-            currentImageEditItem?.let { editItems ->
+                        uuid = Clock.System.now().toEpochMilliseconds().toString()
+                    }
 
-                addImageEditItem(items = editItems)
-                onResetEditItem()
-                onPathItem()
-            } ?: return
-        }
-    }
-
-    internal fun onPathDraw(position: Offset) {
-
-        currentImageEditItem?.takeIf { items -> items is ImageEditItems.PathItem }?.run {
-
-            when (val editItems = currentImageEditItem) {
+                    onCurrentImageEdit(items = newItems)
+                }
 
                 is ImageEditItems.PathItem -> {
 
-                    val items = editItems.copy(path = editItems.path.add(position)).apply {
+                    val items = ImageEditItems.PathItem(
+                        id = Clock.System.now().toEpochMilliseconds().toString(),
+                        color = selectedPenColor,
+                        thickness = penThickness,
+                        strokeCap = selectedStrokeCap,
+                        strokeJoin = selectedStrokeJoin,
+                        path = persistentListOf()
+                    ).apply {
 
-                        uuid = editItems.uuid
+                        uuid = Clock.System.now().toEpochMilliseconds().toString()
                     }
 
                     onCurrentImageEdit(items = items)
                 }
 
-                else -> return
+                is ImageEditItems.ShapeItem -> {
+
+                }
+
+                is ImageEditItems.TextItem -> {
+
+                }
+            }
+        }
+    }
+
+    internal fun onEditItemEnd() {
+
+        currentImageEditItem?.let { items ->
+
+            when (items) {
+
+                is ImageEditItems.EraseItem -> {
+
+                }
+
+                is ImageEditItems.ImageItem -> {
+
+                    addImageEditItem(items = items)
+                    onResetEditItem()
+                }
+
+                is ImageEditItems.PathItem -> {
+
+                    addImageEditItem(items = items)
+                    onResetEditItem()
+                    onPathItem()
+                }
+
+                is ImageEditItems.ShapeItem -> {
+
+                }
+
+                is ImageEditItems.TextItem -> {
+
+                }
+            }
+        }
+    }
+
+    internal fun onEditItemChanges(position: Offset, size: Size?) {
+
+        currentImageEditItem?.let { items ->
+
+            when (items) {
+
+                is ImageEditItems.EraseItem -> {
+
+                }
+
+                is ImageEditItems.ImageItem -> {
+
+                    val imageSize = size ?: items.size
+
+                    val newItems = items.copy(position = position, size = imageSize).apply {
+
+                        uuid = items.uuid
+                    }
+
+                    onCurrentImageEdit(items = newItems)
+                }
+
+                is ImageEditItems.PathItem -> {
+
+                    val newItems = items.copy(path = items.path.add(position)).apply {
+
+                        uuid = items.uuid
+                    }
+
+                    onCurrentImageEdit(items = newItems)
+                }
+
+                is ImageEditItems.ShapeItem -> {
+
+                }
+
+                is ImageEditItems.TextItem -> {
+
+                }
             }
         }
     }

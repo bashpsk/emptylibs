@@ -26,6 +26,7 @@ fun ImageEditScreen() {
     val bitmapCoroutineScope = rememberCoroutineScope()
 
     val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
+    val imageBitmap2 = ImageBitmap.imageResource(R.drawable.wallpaper02)
     val imageEditState = rememberImageEditState(imageBitmap = imageBitmap)
 
     Scaffold(
@@ -42,7 +43,11 @@ fun ImageEditScreen() {
 
             ImageEdit(
                 modifier = Modifier.fillMaxSize(),
-                state = imageEditState
+                state = imageEditState,
+                onBitmapSelect = {
+
+                    imageEditState.updateBitmap(bitmap = imageBitmap2)
+                }
             )
         }
     }

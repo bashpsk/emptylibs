@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.changedToUp
@@ -86,6 +87,7 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
             state.currentImageEditItem?.let { items ->
 
                 drawImageEditItem(items = items)
+                drawImageEditItemHandle(items = items, color = Color.Yellow, width = 2.dp)
             }
         }
     }
@@ -97,15 +99,9 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
 
                 state.apply {
 
-                    /*onEditPathData(position = position)?.takeIf { isVisible -> isVisible }?.run {
-
-                        coroutineScope.launch { pathEditSheetState.show() }
-                        return@detectTapGestures
-                    }*/
-
-                    onPathStart()
-                    onPathDraw(position = position)
-                    onPathEnd()
+                    onEditItemStart()
+                    onEditItemChanges(position = position, size = null)
+                    onEditItemEnd()
                 }
             }
         )
@@ -114,19 +110,20 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
     val drawPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectDragGestures(
-            onDragStart = { state.onPathStart() },
-            onDragEnd = state::onPathEnd,
-            onDragCancel = state::onPathEnd,
+            onDragStart = { state.onEditItemStart() },
+            onDragEnd = state::onEditItemEnd,
+            onDragCancel = state::onEditItemEnd,
             onDrag = { change, dragAmount ->
 
                 if (change.position.x < 0f || change.position.x > state.canvasSize.width ||
-                    change.position.y < 0f || change.position.y > state.canvasSize.height) {
+                    change.position.y < 0f || change.position.y > state.canvasSize.height
+                ) {
 
                     change.changedToUp()
                 } else {
 
                     change.consume()
-                    state.onPathDraw(position = change.position)
+                    state.onEditItemChanges(position = change.position, null)
                 }
             }
         )
@@ -241,7 +238,10 @@ internal fun ImageEditTopBar(
 }
 
 @Composable
-internal fun ImageEditBottomBar(state: ImageEditState) {
+internal fun ImageEditBottomBar(
+    state: ImageEditState,
+    onBitmapSelect: () -> Unit
+) {
 
     val isImageItemSelected by remember(state) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.ImageItem }
@@ -276,7 +276,19 @@ internal fun ImageEditBottomBar(state: ImageEditState) {
                     checked = isImageItemSelected,
                     onCheckedChange = { checked ->
 
-                        if (checked) state.onImageItem() else state.onResetEditItem()
+                        when (checked) {
+
+                            true -> {
+
+                                when (state.selectedBitmap) {
+
+                                    null -> onBitmapSelect()
+                                    else -> state.onImageItem()
+                                }
+                            }
+
+                            false -> state.onResetEditItem()
+                        }
                     }
                 ) {
 

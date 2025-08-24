@@ -1,10 +1,44 @@
 package io.bashpsk.emptylibs.imageedit.edit
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toIntSize
 import kotlin.math.abs
+
+internal fun DrawScope.drawImageEditItemHandle(
+    items: ImageEditItems,
+    color: Color,
+    width: Dp
+) {
+
+    when (items) {
+
+        is ImageEditItems.EraseItem -> {}
+
+        is ImageEditItems.ImageItem -> drawEditImageHandle(
+            item = items,
+            color = color,
+            width = width
+        )
+
+        is ImageEditItems.PathItem -> {}
+
+        is ImageEditItems.ShapeItem -> drawEditShapeHandle(
+            item = items,
+            color = color,
+            width = width
+        )
+
+        is ImageEditItems.TextItem -> drawEditTextHandle(item = items, color = color, width = width)
+    }
+}
 
 internal fun DrawScope.drawImageEditItem(items: ImageEditItems) {
 
@@ -26,7 +60,14 @@ private fun DrawScope.drawEditImage(item: ImageEditItems.ImageItem) {
 
     clipRect {
 
-        drawImage(image = item.bitmap)
+        translate(left = item.position.x, top = item.position.y) {
+
+            drawImage(
+                image = item.bitmap,
+                dstOffset = Offset.Zero.round(),
+                dstSize = item.size.toIntSize()
+            )
+        }
     }
 }
 
@@ -79,5 +120,17 @@ private fun DrawScope.drawEditShape(item: ImageEditItems.ShapeItem) {
 }
 
 private fun DrawScope.drawEditText(item: ImageEditItems.TextItem) {
+
+}
+
+private fun DrawScope.drawEditImageHandle(item: ImageEditItems.ImageItem, color: Color, width: Dp) {
+
+}
+
+private fun DrawScope.drawEditShapeHandle(item: ImageEditItems.ShapeItem, color: Color, width: Dp) {
+
+}
+
+private fun DrawScope.drawEditTextHandle(item: ImageEditItems.TextItem, color: Color, width: Dp) {
 
 }
