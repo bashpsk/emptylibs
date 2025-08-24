@@ -60,6 +60,7 @@ fun ImageKolorScreen() {
                             bitmapCoroutineScope.launch {
 
                                 kolorState.getColorImage()?.saveAsFile(
+                                    context,
                                     name = "PSK-Custom-Colored"
                                 ).let { file ->
 

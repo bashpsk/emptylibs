@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.imageedit.edit
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -42,18 +43,62 @@ internal fun DrawScope.drawImageEditItemHandle(
 
 internal fun DrawScope.drawImageEditItem(items: ImageEditItems) {
 
-    when (items) {
+    clipRect {
 
-        is ImageEditItems.EraseItem -> drawEraseArea(item = items)
-        is ImageEditItems.ImageItem -> drawEditImage(item = items)
-        is ImageEditItems.PathItem -> drawEditPath(item = items)
-        is ImageEditItems.ShapeItem -> drawEditShape(item = items)
-        is ImageEditItems.TextItem -> drawEditText(item = items)
+        when (items) {
+
+            is ImageEditItems.EraseItem -> drawEditErase(item = items)
+            is ImageEditItems.ImageItem -> drawEditImage(item = items)
+            is ImageEditItems.PathItem -> drawEditPath(item = items)
+            is ImageEditItems.ShapeItem -> drawEditShape(item = items)
+            is ImageEditItems.TextItem -> drawEditText(item = items)
+        }
     }
 }
 
-private fun DrawScope.drawEraseArea(item: ImageEditItems.EraseItem) {
+private fun DrawScope.drawEditErase(item: ImageEditItems.EraseItem) {
 
+    val smoothedPath = Path().apply {
+
+        val smoothness = 3
+
+        item.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
+
+            moveTo(x = points.first().x, y = points.first().y)
+
+            points.size.takeIf { counts -> counts == 1 }?.run {
+
+                lineTo(x = points.first().x, y = points.first().y)
+            }
+
+            points.zipWithNext().forEach { (from, to) ->
+
+                val dx = abs(from.x - to.x)
+                val dy = abs(from.y - to.y)
+
+                (dx >= smoothness || dy >= smoothness).takeIf { hasValid -> hasValid }?.run {
+
+                    quadraticTo(
+                        x1 = (from.x + to.x) / 2,
+                        y1 = (from.y + to.y) / 2,
+                        x2 = to.x,
+                        y2 = to.y
+                    )
+                }
+            }
+        }
+    }
+
+    drawPath(
+        path = smoothedPath,
+        color = Color.White,
+        style = Stroke(
+            width = item.thickness.toPx(),
+            cap = item.strokeCap,
+            join = item.strokeJoin
+        ),
+        blendMode = BlendMode.Clear
+    )
 }
 
 private fun DrawScope.drawEditImage(item: ImageEditItems.ImageItem) {

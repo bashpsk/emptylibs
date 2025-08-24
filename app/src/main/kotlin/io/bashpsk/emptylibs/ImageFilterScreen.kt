@@ -58,7 +58,7 @@ fun ImageFilterScreen() {
 
                                 imageFilterState.getFilterImage(
                                     imageBitmap
-                                ).saveAsFile(name = "PSK-Colored").let { file ->
+                                ).saveAsFile(context,name = "PSK-Colored").let { file ->
 
                                     Toast.makeText(
                                         context,

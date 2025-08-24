@@ -52,7 +52,7 @@ fun CanvasSlateScreen() {
 
                         canvasSlateState.getImageBitmap(
                             density = density
-                        )?.saveAsFile("PSK-Drawing").let { file ->
+                        )?.saveAsFile(context,"PSK-Drawing").let { file ->
 
                             launch(Dispatchers.Main) {
 

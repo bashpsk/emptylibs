@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.BorderColor
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TextIncrease
+import androidx.compose.material.icons.outlined.BorderColor
 import androidx.compose.material.icons.outlined.Draw
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.StarBorder
@@ -243,6 +245,10 @@ internal fun ImageEditBottomBar(
     onBitmapSelect: () -> Unit
 ) {
 
+    val isEraseItemSelected by remember(state) {
+        derivedStateOf { state.currentImageEditItem is ImageEditItems.EraseItem }
+    }
+
     val isImageItemSelected by remember(state) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.ImageItem }
     }
@@ -269,6 +275,27 @@ internal fun ImageEditBottomBar(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
+
+            item {
+
+                FilledIconToggleButton(
+                    checked = isEraseItemSelected,
+                    onCheckedChange = { checked ->
+
+                        if (checked) state.onEraseItem() else state.onResetEditItem()
+                    }
+                ) {
+
+                    Icon(
+                        imageVector = when (isEraseItemSelected) {
+
+                            true -> Icons.Filled.BorderColor
+                            false -> Icons.Outlined.BorderColor
+                        },
+                        contentDescription = "Erase"
+                    )
+                }
+            }
 
             item {
 

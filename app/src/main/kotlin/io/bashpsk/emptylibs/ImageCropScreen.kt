@@ -92,7 +92,10 @@ fun ImageCropScreen() {
 
                     coroutineScope.launch(Dispatchers.IO) {
 
-                        imageKropState.modifiedImage?.saveAsFile("PSK-Cropped").let { file ->
+                        imageKropState.modifiedImage?.saveAsFile(
+                            context,
+                            "PSK-Cropped"
+                        ).let { file ->
 
                             launch(Dispatchers.Main) {
 
