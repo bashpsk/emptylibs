@@ -54,14 +54,13 @@ import kotlin.time.Duration.Companion.milliseconds
  *
  * @param modifier The modifier to be applied to the layout.
  * @param config An instance of [VideoGestureConfig] to customize the gesture behavior.
- *               Defaults to [VideoGestureConfig].
+ * Defaults to [VideoGestureConfig].
  * @param onTapChanges A lambda that is invoked when a tap gesture occurs.
- *                     It receives a [TapChanges] sealed class instance indicating the type of tap.
+ * It receives a [TapChanges] sealed class instance indicating the type of tap.
  * @param onDragChanges A lambda that is invoked during drag gestures.
- *                      It receives a [DragChanges] sealed class instance indicating the state and
- *                      type of drag.
+ * It receives a [DragChanges] sealed class instance indicating the state and type of drag.
  * @param content The content to be placed inside the gesture-detecting box.
- *                This is a composable lambda that receives a [BoxWithConstraintsScope].
+ * This is a composable lambda that receives a [BoxWithConstraintsScope].
  */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -156,17 +155,46 @@ fun VideoGestureBox(
             deadZone = config.gestureMargin / 100.0F,
             onDragStart = { offset: Offset ->
 
+                swipeAmount = Offset.Zero
                 onDragChanges(DragChanges.DragStart(position = offset))
             },
             onDragCancel = {
 
+                when (dragGestureAction) {
+
+                    DragGestureAction.HorizontalTop -> onDragChanges(
+                        DragChanges.HorizontalTopChanges(swipeAmount.x)
+                    )
+
+                    DragGestureAction.HorizontalBottom -> onDragChanges(
+                        DragChanges.HorizontalBottomChanges(swipeAmount.x)
+                    )
+
+                    else -> {}
+                }
+
                 onDragChanges(DragChanges.DragCanceled)
                 resetDragGestureAction()
+                swipeAmount = Offset.Zero
             },
             onDragEnd = {
 
+                when (dragGestureAction) {
+
+                    DragGestureAction.HorizontalTop -> onDragChanges(
+                        DragChanges.HorizontalTopChanges(swipeAmount.x)
+                    )
+
+                    DragGestureAction.HorizontalBottom -> onDragChanges(
+                        DragChanges.HorizontalBottomChanges(swipeAmount.x)
+                    )
+
+                    else -> {}
+                }
+
                 onDragChanges(DragChanges.DragEnded)
                 resetDragGestureAction()
+                swipeAmount = Offset.Zero
             }
         ) { change, dragAmount, direction ->
 
@@ -194,54 +222,26 @@ fun VideoGestureBox(
 
             when {
 
-                isTopHorizontal && config.isHorizontalTopEnable -> when {
+                isTopHorizontal && config.isHorizontalTopEnable -> when (dragGestureAction) {
 
-                    abs(x = swipeAmount.x) > config.horizontalTopMinimumSwipe -> {
+                    null, DragGestureAction.HorizontalTop -> {
 
-                        when (dragGestureAction) {
-
-                            null -> {
-
-                                dragGestureAction = DragGestureAction.HorizontalTop
-                                change.consume()
-                            }
-
-                            DragGestureAction.HorizontalTop -> {
-
-                                onDragChanges(DragChanges.HorizontalTopChanges(swipeAmount.x))
-                                change.consume()
-                            }
-
-                            else -> {}
-                        }
-
-                        swipeAmount = Offset.Zero
+                        dragGestureAction = DragGestureAction.HorizontalTop
+                        change.consume()
                     }
+
+                    else -> {}
                 }
 
-                isBottomHorizontal && config.isHorizontalBottomEnable -> when {
+                isBottomHorizontal && config.isHorizontalBottomEnable -> when (dragGestureAction) {
 
-                    abs(x = swipeAmount.x) > config.horizontalBottomMinimumSwipe -> {
+                    null, DragGestureAction.HorizontalBottom -> {
 
-                        when (dragGestureAction) {
-
-                            null -> {
-
-                                dragGestureAction = DragGestureAction.HorizontalBottom
-                                change.consume()
-                            }
-
-                            DragGestureAction.HorizontalBottom -> {
-
-                                onDragChanges(DragChanges.HorizontalBottomChanges(swipeAmount.x))
-                                change.consume()
-                            }
-
-                            else -> {}
-                        }
-
-                        swipeAmount = Offset.Zero
+                        dragGestureAction = DragGestureAction.HorizontalBottom
+                        change.consume()
                     }
+
+                    else -> {}
                 }
 
                 isLeftVertical && config.isVerticalLeftEnable -> when {
