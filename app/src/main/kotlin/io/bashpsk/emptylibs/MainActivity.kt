@@ -42,10 +42,10 @@ class MainActivity : ComponentActivity() {
 //                    ImageKolorScreen()
 //                    StorageScreen()
 //                    TransformImageScreen()
-                    VideoGestureScreen()
+//                    VideoGestureScreen()
 //                    TextPickerScreen()
 //                    CanvasSlateScreen()
-//                    ImageEditScreen()
+                    ImageEditScreen()
                 }
             }
         }

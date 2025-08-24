@@ -25,6 +25,10 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TextIncrease
+import androidx.compose.material.icons.outlined.Draw
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material.icons.outlined.TextIncrease
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -48,6 +52,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -114,8 +119,15 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
             onDragCancel = state::onPathEnd,
             onDrag = { change, dragAmount ->
 
-                change.consume()
-                state.onPathDraw(position = change.position)
+                if (change.position.x < 0f || change.position.x > state.canvasSize.width ||
+                    change.position.y < 0f || change.position.y > state.canvasSize.height) {
+
+                    change.changedToUp()
+                } else {
+
+                    change.consume()
+                    state.onPathDraw(position = change.position)
+                }
             }
         )
     }
@@ -269,7 +281,11 @@ internal fun ImageEditBottomBar(state: ImageEditState) {
                 ) {
 
                     Icon(
-                        imageVector = Icons.Filled.Image,
+                        imageVector = when (isImageItemSelected) {
+
+                            true -> Icons.Filled.Image
+                            false -> Icons.Outlined.Image
+                        },
                         contentDescription = "Image"
                     )
                 }
@@ -286,7 +302,11 @@ internal fun ImageEditBottomBar(state: ImageEditState) {
                 ) {
 
                     Icon(
-                        imageVector = Icons.Filled.Draw,
+                        imageVector = when (isPathItemSelected) {
+
+                            true -> Icons.Filled.Draw
+                            false -> Icons.Outlined.Draw
+                        },
                         contentDescription = "Draw"
                     )
                 }
@@ -303,7 +323,11 @@ internal fun ImageEditBottomBar(state: ImageEditState) {
                 ) {
 
                     Icon(
-                        imageVector = Icons.Filled.Star,
+                        imageVector = when (isShapeItemSelected) {
+
+                            true -> Icons.Filled.Star
+                            false -> Icons.Outlined.StarBorder
+                        },
                         contentDescription = "Shape"
                     )
                 }
@@ -320,7 +344,11 @@ internal fun ImageEditBottomBar(state: ImageEditState) {
                 ) {
 
                     Icon(
-                        imageVector = Icons.Filled.TextIncrease,
+                        imageVector = when (isTextItemSelected) {
+
+                            true -> Icons.Filled.TextIncrease
+                            false -> Icons.Outlined.TextIncrease
+                        },
                         contentDescription = "Text"
                     )
                 }
