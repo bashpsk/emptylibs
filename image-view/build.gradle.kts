@@ -87,6 +87,9 @@ dependencies {
 
     //  COIL            :
     implementation(libs.coil3.compose)
+
+    //  MODULE          :
+    implementation(project(":image-utils"))
 }
 
 publishing {

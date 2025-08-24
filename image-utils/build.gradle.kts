@@ -12,7 +12,7 @@ plugins {
 
 android {
 
-    namespace = "io.bashpsk.emptylibs.imagekolor"
+    namespace = "io.bashpsk.emptylibs.imageutils"
     compileSdk = 36
 
     defaultConfig {
@@ -89,8 +89,7 @@ dependencies {
     implementation(libs.coil3.compose)
 
     //  MODULE          :
-    implementation(project(":image-utils"))
-    implementation(project(":image-view"))
+    implementation(project(":formatter"))
 }
 
 publishing {
@@ -100,7 +99,7 @@ publishing {
         register<MavenPublication>("release") {
 
             groupId = "io.bashpsk.emptylibs"
-            artifactId = "image-kolor"
+            artifactId = "image-utils"
             version = "1.0.0"
 
             afterEvaluate {

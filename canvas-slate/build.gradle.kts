@@ -85,9 +85,10 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.datetime)
 
-    //  MODULE              :
+    //  MODULE          :
     implementation(project(":formatter"))
     implementation(project(":kolor-picker"))
+    implementation(project(":image-utils"))
 }
 
 publishing {

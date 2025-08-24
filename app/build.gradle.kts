@@ -89,7 +89,7 @@ dependencies {
     //  NAVIGATION      :
     implementation(libs.androidx.navigation.compose)
 
-    //  MODULE              :
+    //  MODULE          :
     implementation(project(":canvas-slate"))
     implementation(project(":datastore-ui"))
     implementation(project(":formatter"))
@@ -97,6 +97,7 @@ dependencies {
     implementation(project(":image-edit"))
     implementation(project(":image-kolor"))
     implementation(project(":image-krop"))
+    implementation(project(":image-utils"))
     implementation(project(":image-view"))
     implementation(project(":jetpack-ui"))
     implementation(project(":kolor-picker"))

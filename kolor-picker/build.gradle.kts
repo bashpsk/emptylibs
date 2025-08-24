@@ -85,13 +85,12 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.datetime)
 
-    //  MODULE              :
-    implementation(project(":formatter"))
-
     //  COIL            :
     implementation(libs.coil3.compose)
 
-    //  MODULE              :
+    //  MODULE          :
+    implementation(project(":formatter"))
+    implementation(project(":image-utils"))
     implementation(project(":image-view"))
 }
 
