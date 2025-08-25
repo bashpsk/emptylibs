@@ -66,8 +66,7 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 @Composable
 internal fun ImageEditUI(
     modifier: Modifier = Modifier,
-    state: ImageEditState,
-    config: ImageEditConfig
+    state: ImageEditState
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -91,7 +90,7 @@ internal fun ImageEditUI(
             state.currentImageEditItem?.let { items ->
 
                 drawImageEditItem(items = items, textMeasurer = state.textMeasurer)
-                drawImageEditItemHandle(items = items, config = config)
+                drawImageEditItemHandle(items = items, config = state.config)
             }
         }
     }
@@ -103,9 +102,10 @@ internal fun ImageEditUI(
 
                 state.apply {
 
-                    onEditItemStart()
+                    onEditItemStart(position = position)
                     onEditItemChanges(position = position, size = null)
                     onEditItemEnd()
+                    onEditItemsClick(position = position)
                 }
             }
         )
@@ -114,7 +114,7 @@ internal fun ImageEditUI(
     val drawPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectDragGestures(
-            onDragStart = { state.onEditItemStart() },
+            onDragStart = state::onEditItemStart,
             onDragEnd = state::onEditItemEnd,
             onDragCancel = state::onEditItemEnd,
             onDrag = { change, dragAmount ->

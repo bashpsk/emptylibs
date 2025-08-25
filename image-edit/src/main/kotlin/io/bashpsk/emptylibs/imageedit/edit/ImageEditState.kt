@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -26,6 +27,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import io.bashpsk.emptylibs.imageedit.extension.getEditItemCorner
+import io.bashpsk.emptylibs.imageedit.extension.hasEditItemClicked
+import io.bashpsk.emptylibs.imageedit.extension.toPixel
+import io.bashpsk.emptylibs.imageedit.extension.toRect
+import io.bashpsk.emptylibs.imageedit.extension.toTopLeft
+import io.bashpsk.emptylibs.imageedit.utils.setDebug
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
@@ -36,22 +43,36 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 @Composable
-fun rememberImageEditState(imageBitmap: ImageBitmap?): ImageEditState {
+fun rememberImageEditState(
+    imageBitmap: ImageBitmap?,
+    config: ImageEditConfig = ImageEditConfig.surfaceBased()
+): ImageEditState {
 
+    val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
 
-    return remember(imageBitmap, textMeasurer) {
-        ImageEditState(imageBitmap = imageBitmap, textMeasurer = textMeasurer)
+    return remember(imageBitmap, config, density, textMeasurer) {
+        ImageEditState(
+            imageBitmap = imageBitmap,
+            config = config,
+            density = density,
+            textMeasurer = textMeasurer
+        )
     }
 }
 
 @OptIn(ExperimentalTime::class)
-class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasurer) {
+class ImageEditState(
+    val imageBitmap: ImageBitmap?,
+    val config: ImageEditConfig,
+    val density: Density,
+    val textMeasurer: TextMeasurer
+) {
 
     internal var imageEditItemList by mutableStateOf(persistentListOf<ImageEditItems>())
         private set
 
-    var selectedPenColor by mutableStateOf(Color.White)
+    var selectedPenColor by mutableStateOf(Color.Red)
         private set
 
     var selectedStrokeCap by mutableStateOf(StrokeCap.Round)
@@ -81,6 +102,10 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
     internal var isToolBarMenuExpanded by mutableStateOf(false)
 
     internal var canvasSize by mutableStateOf(Size.Zero)
+
+    internal var currentCorner by mutableStateOf<EditItemCorner?>(null)
+
+    internal var isItemMoving by mutableStateOf(false)
 
     fun updatePenColor(color: Color) {
 
@@ -317,7 +342,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
         }
     }
 
-    internal fun onEditItemStart() {
+    internal fun onEditItemStart(position: Offset) {
 
         currentImageEditItem?.let { items ->
 
@@ -327,6 +352,13 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
             }
 
             onCurrentImageEdit(items = newItems)
+
+            currentCorner = items.toRect()?.getEditItemCorner(
+                clickPosition = position,
+                threshold = maxOf(config.handleWidth, config.handleHeight).toPixel(density)
+            )
+
+            "$currentCorner".setDebug()
         }
     }
 
@@ -346,6 +378,9 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
                 is ImageEditItems.TextItem -> {}
             }
         }
+
+        currentCorner = null
+        isItemMoving = false
     }
 
     internal fun onEditItemChanges(position: Offset, size: Size?) {
@@ -366,9 +401,12 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
 
                 is ImageEditItems.ImageItem -> {
 
-                    val imageSize = size ?: items.size
+                    val itemSize = size ?: items.size
 
-                    val newItems = items.copy(position = position, size = imageSize).apply {
+                    val newItems = items.copy(
+                        position = position.toTopLeft(itemSize),
+                        size = itemSize
+                    ).apply {
 
                         uuid = items.uuid
                     }
@@ -388,9 +426,12 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
 
                 is ImageEditItems.ShapeItem -> {
 
-                    val shapeSize = size ?: items.size
+                    val itemSize = size ?: items.size
 
-                    val newItems = items.copy(position = position, size = shapeSize).apply {
+                    val newItems = items.copy(
+                        position = position.toTopLeft(itemSize),
+                        size = itemSize
+                    ).apply {
 
                         uuid = items.uuid
                     }
@@ -400,9 +441,12 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
 
                 is ImageEditItems.TextItem -> {
 
-                    val textSize = size ?: items.size
+                    val itemSize = size ?: items.size
 
-                    val newItems = items.copy(position = position, size = textSize).apply {
+                    val newItems = items.copy(
+                        position = position.toTopLeft(itemSize),
+                        size = itemSize
+                    ).apply {
 
                         uuid = items.uuid
                     }
@@ -410,6 +454,18 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
                     onCurrentImageEdit(items = newItems)
                 }
             }
+        }
+    }
+
+    internal fun onEditItemsClick(position: Offset): Boolean? {
+
+        return imageEditItemList.find { items ->
+
+            items.hasEditItemClicked(clickPosition = position)
+        }?.let { items ->
+
+            onCurrentImageEdit(items = items)
+            true
         }
     }
 }

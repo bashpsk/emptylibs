@@ -32,7 +32,8 @@ data class ImageEditConfig(
     val borderColor: Color = Color.Cyan,
     val targetSize: Dp = 16.dp,
     val targetThickness: Dp = 1.dp,
-    val targetColor: Color = Color.Yellow
+    val targetColor: Color = Color.Yellow,
+    val minItemSize: Float = 20.dp.value
 ) {
 
     companion object {

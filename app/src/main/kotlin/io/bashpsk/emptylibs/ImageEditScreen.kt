@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.imageedit.edit.ImageEdit
-import io.bashpsk.emptylibs.imageedit.edit.ImageEditConfig
 import io.bashpsk.emptylibs.imageedit.edit.rememberImageEditState
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import io.bashpsk.emptylibs.screen.imageedit.saveAsFile
@@ -64,7 +63,6 @@ fun ImageEditScreen() {
             ImageEdit(
                 modifier = Modifier.fillMaxSize(),
                 state = imageEditState,
-                config = ImageEditConfig.surfaceBased(),
                 onBitmapSelect = {
 
                     imageEditState.updateBitmap(bitmap = imageBitmap2)

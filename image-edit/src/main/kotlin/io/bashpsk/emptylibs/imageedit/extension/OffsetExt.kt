@@ -1,7 +1,20 @@
 package io.bashpsk.emptylibs.imageedit.extension
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import io.bashpsk.emptylibs.imageedit.edit.EditItemCorner
+import io.bashpsk.emptylibs.imageedit.edit.ImageEditItems
+
+internal fun Offset.toCenter(size: Size): Offset {
+
+    return Offset(x = x + size.width / 2, y = y + size.height / 2)
+}
+
+internal fun Offset.toTopLeft(size: Size): Offset {
+
+    return Offset(x = x - size.width / 2, y = y - size.height / 2)
+}
 
 internal fun Offset.toTopRight(size: Size): Offset {
 
@@ -36,4 +49,80 @@ internal fun Offset.toLeftCenter(size: Size): Offset {
 internal fun Offset.toRightCenter(size: Size): Offset {
 
     return Offset(x = x + size.width, y = y + size.height / 2)
+}
+
+/**
+ * Checks if this offset has neared another offset within a specified threshold.
+ *
+ * @param point The other offset to compare with.
+ * @param threshold The maximum distance allowed for the offsets to be considered "neared".
+ * Defaults to 24.0F.
+ * @return `true` if the distance between this offset and the given point is less than or equal
+ * to the threshold, `false` otherwise.
+ */
+internal fun Offset.hasNeared(point: Offset, threshold: Float = 24.0F): Boolean {
+
+    return (this - point).getDistance() <= threshold
+}
+
+internal fun Size.itemRect(position: Offset): Rect {
+
+    return Rect(offset = position, size = this)
+}
+
+internal fun ImageEditItems.toRect(): Rect? {
+
+    return when (this) {
+
+        is ImageEditItems.EraseItem -> null
+        is ImageEditItems.ImageItem -> size.itemRect(position = position)
+        is ImageEditItems.PathItem -> null
+        is ImageEditItems.ShapeItem -> size.itemRect(position = position)
+        is ImageEditItems.TextItem -> size.itemRect(position = position)
+    }
+}
+
+internal fun ImageEditItems.hasEditItemClicked(clickPosition: Offset): Boolean {
+    
+    return when (this) {
+
+        is ImageEditItems.EraseItem -> false
+        is ImageEditItems.ImageItem -> size.itemRect(position = position).contains(clickPosition)
+        is ImageEditItems.PathItem -> false
+        is ImageEditItems.ShapeItem -> size.itemRect(position = position).contains(clickPosition)
+        is ImageEditItems.TextItem -> size.itemRect(position = position).contains(clickPosition)
+    }
+}
+
+/**
+ * Determines which EditItemCorner is tapped based on the click position and the shape's bounds.
+ *
+ * @param clickPosition The coordinates of the click.
+ * @param shapeBounds The rectangle defining the shape's current position and size.
+ * @param threshold The threshold distance to consider a tap near a corner or edge.
+ * A smaller value means the user has to tap more precisely.
+ * @return The EditItemCorner that was tapped, or null if the tap is not near any corner/edge.
+ */
+internal fun Rect.getEditItemCorner(
+    clickPosition: Offset,
+    threshold: Float = 24.0F
+): EditItemCorner? {
+    
+    val topCenter = Offset(x = center.x, y = top)
+    val bottomCenter = Offset(x = center.x, y = bottom)
+    val leftCenter = Offset(x = left, y = center.y)
+    val rightCenter = Offset(x = right, y = center.y)
+
+    return when {
+
+        clickPosition.hasNeared(topLeft, threshold) -> EditItemCorner.TOP_LEFT
+        clickPosition.hasNeared(topRight, threshold) -> EditItemCorner.TOP_RIGHT
+        clickPosition.hasNeared(bottomLeft, threshold) -> EditItemCorner.BOTTOM_LEFT
+        clickPosition.hasNeared(bottomRight, threshold) -> EditItemCorner.BOTTOM_RIGHT
+        clickPosition.hasNeared(topCenter, threshold) -> EditItemCorner.TOP_CENTRE
+        clickPosition.hasNeared(bottomCenter, threshold) -> EditItemCorner.BOTTOM_CENTRE
+        clickPosition.hasNeared(leftCenter, threshold) -> EditItemCorner.LEFT_CENTRE
+        clickPosition.hasNeared(rightCenter, threshold) -> EditItemCorner.RIGHT_CENTRE
+        else -> null
+    }
 }

@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 fun ImageEdit(
     modifier: Modifier = Modifier,
     state: ImageEditState,
-    config: ImageEditConfig,
     onBitmapSelect: () -> Unit,
     onDoneClick: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
@@ -38,8 +37,7 @@ fun ImageEdit(
 
             ImageEditUI(
                 modifier = Modifier.weight(weight = 1.0F),
-                state = state,
-                config = config
+                state = state
             )
 
             ImageEditBottomBar(
