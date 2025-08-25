@@ -1,5 +1,7 @@
 package io.bashpsk.emptylibs.imageutils.shape
 
+import androidx.annotation.FloatRange
+
 /**
  * Represents the different shapes that can be used for cropping an image.
  *
@@ -46,19 +48,30 @@ sealed interface ImageShape {
     /**
      * Represents a rectangle shape.
      *
-     * @property radius The corner radius of the rectangle. A value of 0.0f creates a sharp-cornered
-     * rectangle.
+     * @property radius The corner radius of the rectangle, expressed as a fraction of the shortest
+     * side of the rectangle. A value of 0.0f creates a sharp-cornered rectangle. The value must
+     * be between 0.0 and 1.0 (inclusive).
      */
-    data class Rectangle(val radius: Float) : ImageShape
+    data class Rectangle(
+        @param:FloatRange(from = 0.0, to = 1.0)
+        val radius: Float
+    ) : ImageShape
 
     /**
      * Represents a cut corner shape for cropping.
      *
-     * This shape is a rectangle with its corners cut off at a specified radius.
+     * This shape is a rectangle with its corners cut off diagonally, controlled by the `radius`
+     * parameter.
+     * The `radius` determines the extent of the cut from each corner.
      *
-     * @property radius The radius of the cut corners. A value of 0 results in a regular rectangle.
+     * @property radius The extent of the corner cut. A value of 0.0 results in a regular rectangle
+     * (no cut corners).
+     * The value is typically a proportion, ranging from 0.0 (no cut) to 1.0 (maximum cut).
      */
-    data class CutCorner(val radius: Float) : ImageShape
+    data class CutCorner(
+        @param:FloatRange(from = 0.0, to = 1.0)
+        val radius: Float
+    ) : ImageShape
 
     /**
      * Represents a star shape with a specified number of edges and distance.

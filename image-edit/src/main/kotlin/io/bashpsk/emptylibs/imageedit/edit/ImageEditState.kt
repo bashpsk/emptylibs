@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -26,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
+import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -67,6 +70,9 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
         private set
 
     var textStyle by mutableStateOf(TextStyle.Default)
+        private set
+
+    var selectedShape by mutableStateOf<ImageShape>(ImageShape.None)
         private set
 
     var currentImageEditItem by mutableStateOf<ImageEditItems?>(null)
@@ -111,6 +117,11 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
         textStyle = style
     }
 
+    fun updateShape(shape: ImageShape) {
+
+        selectedShape = shape
+    }
+
     fun addImageEditItem(items: ImageEditItems) {
 
         imageEditItemList.find { editItems -> editItems.uuid == items.uuid }?.let { editItems ->
@@ -148,10 +159,11 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
     fun onEraseItem() {
 
         val items = ImageEditItems.EraseItem(
-            id = Clock.System.now().toEpochMilliseconds().toString(),
-            thickness = penThickness,
-            strokeCap = selectedStrokeCap,
-            strokeJoin = selectedStrokeJoin,
+            style = Stroke(
+                width = penThickness.value,
+                cap = selectedStrokeCap,
+                join = selectedStrokeJoin
+            ),
             path = persistentListOf()
         ).apply {
 
@@ -163,7 +175,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
 
     fun onImageItem() {
 
-        val sizeOfItem = canvasSize / 2.5F
+        val sizeOfItem = canvasSize.fittedImageSize(imageSize = selectedBitmap.toSize())
 
         val positionOfItem = Offset(
             x = (canvasSize.width - sizeOfItem.width) / 2.0F,
@@ -171,10 +183,9 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
         )
 
         val items = ImageEditItems.ImageItem(
-            id = Clock.System.now().toEpochMilliseconds().toString(),
             bitmap = selectedBitmap ?: return,
             position = positionOfItem,
-            size = canvasSize.fittedImageSize(imageSize = selectedBitmap.toSize())
+            size = sizeOfItem
         ).apply {
 
             uuid = Clock.System.now().toEpochMilliseconds().toString()
@@ -186,11 +197,12 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
     fun onPathItem() {
 
         val items = ImageEditItems.PathItem(
-            id = Clock.System.now().toEpochMilliseconds().toString(),
             color = selectedPenColor,
-            thickness = penThickness,
-            strokeCap = selectedStrokeCap,
-            strokeJoin = selectedStrokeJoin,
+            style = Stroke(
+                width = penThickness.value,
+                cap = selectedStrokeCap,
+                join = selectedStrokeJoin
+            ),
             path = persistentListOf()
         ).apply {
 
@@ -202,6 +214,25 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
 
     fun onShapeItem() {
 
+        val sizeOfItem = canvasSize / 2.5F
+
+        val positionOfItem = Offset(
+            x = (canvasSize.width - sizeOfItem.width) / 2.0F,
+            y = (canvasSize.height - sizeOfItem.height) / 2.0F
+        )
+
+        val items = ImageEditItems.ShapeItem(
+            shape = selectedShape,
+            color = selectedPenColor,
+            style = Fill,
+            position = positionOfItem,
+            size = sizeOfItem
+        ).apply {
+
+            uuid = Clock.System.now().toEpochMilliseconds().toString()
+        }
+
+        onCurrentImageEdit(items = items)
     }
 
     fun onTextItem() {
@@ -217,7 +248,6 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
         )
 
         val items = ImageEditItems.TextItem(
-            id = Clock.System.now().toEpochMilliseconds().toString(),
             content = enteredText,
             style = textStyle,
             position = positionOfItem,
@@ -291,86 +321,12 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
 
         currentImageEditItem?.let { items ->
 
-            when (items) {
+            val newItems = items.apply {
 
-                is ImageEditItems.EraseItem -> {
-
-                    val items = ImageEditItems.EraseItem(
-                        id = Clock.System.now().toEpochMilliseconds().toString(),
-                        thickness = penThickness,
-                        strokeCap = selectedStrokeCap,
-                        strokeJoin = selectedStrokeJoin,
-                        path = persistentListOf()
-                    ).apply {
-
-                        uuid = Clock.System.now().toEpochMilliseconds().toString()
-                    }
-
-                    onCurrentImageEdit(items = items)
-                }
-
-                is ImageEditItems.ImageItem -> {
-
-                    val newItems = ImageEditItems.ImageItem(
-                        id = Clock.System.now().toEpochMilliseconds().toString(),
-                        bitmap = items.bitmap,
-                        position = items.position,
-                        size = items.size
-                    ).apply {
-
-                        uuid = Clock.System.now().toEpochMilliseconds().toString()
-                    }
-
-                    onCurrentImageEdit(items = newItems)
-                }
-
-                is ImageEditItems.PathItem -> {
-
-                    val items = ImageEditItems.PathItem(
-                        id = Clock.System.now().toEpochMilliseconds().toString(),
-                        color = selectedPenColor,
-                        thickness = penThickness,
-                        strokeCap = selectedStrokeCap,
-                        strokeJoin = selectedStrokeJoin,
-                        path = persistentListOf()
-                    ).apply {
-
-                        uuid = Clock.System.now().toEpochMilliseconds().toString()
-                    }
-
-                    onCurrentImageEdit(items = items)
-                }
-
-                is ImageEditItems.ShapeItem -> {
-
-                }
-
-                is ImageEditItems.TextItem -> {
-
-                    val sizeOfItem = textMeasurer.measure(
-                        text = enteredText,
-                        style = textStyle
-                    ).size.toSize()
-
-                    val positionOfItem = Offset(
-                        x = (canvasSize.width - sizeOfItem.width) / 2.0F,
-                        y = (canvasSize.height - sizeOfItem.height) / 2.0F
-                    )
-
-                    val items = ImageEditItems.TextItem(
-                        id = Clock.System.now().toEpochMilliseconds().toString(),
-                        content = enteredText,
-                        style = textStyle,
-                        position = positionOfItem,
-                        size = sizeOfItem
-                    ).apply {
-
-                        uuid = Clock.System.now().toEpochMilliseconds().toString()
-                    }
-
-                    onCurrentImageEdit(items = items)
-                }
+                uuid = Clock.System.now().toEpochMilliseconds().toString()
             }
+
+            onCurrentImageEdit(items = newItems)
         }
     }
 
@@ -432,6 +388,14 @@ class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasur
 
                 is ImageEditItems.ShapeItem -> {
 
+                    val shapeSize = size ?: items.size
+
+                    val newItems = items.copy(position = position, size = shapeSize).apply {
+
+                        uuid = items.uuid
+                    }
+
+                    onCurrentImageEdit(items = newItems)
                 }
 
                 is ImageEditItems.TextItem -> {

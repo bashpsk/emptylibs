@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.text.TextMeasurer
@@ -14,6 +13,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toIntSize
+import io.bashpsk.emptylibs.imageutils.shape.toPath
 import kotlin.math.abs
 
 internal fun DrawScope.drawImageEditItemHandle(
@@ -95,12 +95,8 @@ private fun DrawScope.drawEditErase(item: ImageEditItems.EraseItem) {
     drawPath(
         path = smoothedPath,
         color = Color.White,
-        style = Stroke(
-            width = item.thickness.toPx(),
-            cap = item.strokeCap,
-            join = item.strokeJoin
-        ),
-        blendMode = BlendMode.Clear
+        style = item.style,
+        blendMode = BlendMode.Xor
     )
 }
 
@@ -152,19 +148,19 @@ private fun DrawScope.drawEditPath(item: ImageEditItems.PathItem) {
         }
     }
 
-    drawPath(
-        path = smoothedPath,
-        color = item.color,
-        style = Stroke(
-            width = item.thickness.toPx(),
-            cap = item.strokeCap,
-            join = item.strokeJoin
-        )
-    )
+    drawPath(path = smoothedPath, color = item.color, style = item.style)
 }
 
 private fun DrawScope.drawEditShape(item: ImageEditItems.ShapeItem) {
 
+    translate(left = item.position.x, top = item.position.y) {
+
+        drawPath(
+            path = item.shape.toPath(canvasSize = item.size),
+            color = item.color,
+            style = item.style
+        )
+    }
 }
 
 private fun DrawScope.drawEditText(item: ImageEditItems.TextItem, textMeasurer: TextMeasurer) {

@@ -20,6 +20,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.imageedit.edit.ImageEdit
 import io.bashpsk.emptylibs.imageedit.edit.rememberImageEditState
+import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import io.bashpsk.emptylibs.screen.imageedit.saveAsFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +45,7 @@ fun ImageEditScreen() {
     LaunchedEffect(imageEditState) {
 
         imageEditState.updateTextStyle(textStyle)
+        imageEditState.updateShape(shape = ImageShape.CutCorner(radius = 0.10F))
     }
 
     Scaffold(

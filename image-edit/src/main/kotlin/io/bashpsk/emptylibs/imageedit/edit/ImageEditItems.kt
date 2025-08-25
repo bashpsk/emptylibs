@@ -4,46 +4,39 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Dp
+import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import kotlinx.collections.immutable.PersistentList
 
 sealed class ImageEditItems(var uuid: String = "") {
 
     data class EraseItem(
-        val id: String,
-        val thickness: Dp,
-        val strokeCap: StrokeCap,
-        val strokeJoin: StrokeJoin,
+        val style: DrawStyle,
         val path: PersistentList<Offset>
     ) : ImageEditItems()
 
     data class ImageItem(
-        val id: String,
         val bitmap: ImageBitmap,
         val position: Offset,
         val size: Size
     ) : ImageEditItems()
 
     data class PathItem(
-        val id: String,
         val color: Color,
-        val thickness: Dp,
-        val strokeCap: StrokeCap,
-        val strokeJoin: StrokeJoin,
+        val style: DrawStyle,
         val path: PersistentList<Offset>
     ) : ImageEditItems()
 
     data class ShapeItem(
-        val id: String,
-        val shape: Path
+        val shape: ImageShape,
+        val color: Color,
+        val style: DrawStyle,
+        val position: Offset,
+        val size: Size
     ) : ImageEditItems()
 
     data class TextItem(
-        val id: String,
         val content: String,
         val style: TextStyle,
         val position: Offset,

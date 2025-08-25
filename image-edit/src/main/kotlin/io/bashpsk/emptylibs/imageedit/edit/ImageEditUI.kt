@@ -55,7 +55,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -117,16 +116,8 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
             onDragCancel = state::onEditItemEnd,
             onDrag = { change, dragAmount ->
 
-                if (change.position.x < 0f || change.position.x > state.canvasSize.width ||
-                    change.position.y < 0f || change.position.y > state.canvasSize.height
-                ) {
-
-                    change.changedToUp()
-                } else {
-
-                    change.consume()
-                    state.onEditItemChanges(position = change.position, null)
-                }
+                change.consume()
+                state.onEditItemChanges(position = change.position, null)
             }
         )
     }
