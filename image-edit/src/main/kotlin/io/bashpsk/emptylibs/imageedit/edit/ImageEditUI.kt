@@ -52,7 +52,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -65,7 +64,11 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
+internal fun ImageEditUI(
+    modifier: Modifier = Modifier,
+    state: ImageEditState,
+    config: ImageEditConfig
+) {
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -88,7 +91,7 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
             state.currentImageEditItem?.let { items ->
 
                 drawImageEditItem(items = items, textMeasurer = state.textMeasurer)
-                drawImageEditItemHandle(items = items, color = Color.Yellow, width = 2.dp)
+                drawImageEditItemHandle(items = items, config = config)
             }
         }
     }
