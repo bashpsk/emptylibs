@@ -184,6 +184,7 @@ private fun DrawScope.drawEditImageHandle(item: ImageEditItems.ImageItem, config
     val leftCenter = item.position.toLeftCenter(size = item.size)
     val rightCenter = item.position.toRightCenter(size = item.size)
 
+    drawEditBox(topLeft = topLeft, rectSize = item.size, config = config)
     drawEditBorder(topLeft = topLeft, rectSize = item.size, config = config)
     drawHandle(corner = EditItemCorner.TOP_LEFT, center = topLeft, config = config)
     drawHandle(corner = EditItemCorner.TOP_RIGHT, center = topRight, config = config)
@@ -208,6 +209,7 @@ private fun DrawScope.drawEditShapeHandle(item: ImageEditItems.ShapeItem, config
     val leftCenter = item.position.toLeftCenter(size = item.size)
     val rightCenter = item.position.toRightCenter(size = item.size)
 
+    drawEditBox(topLeft = topLeft, rectSize = item.size, config = config)
     drawEditBorder(topLeft = topLeft, rectSize = item.size, config = config)
     drawHandle(corner = EditItemCorner.TOP_LEFT, center = topLeft, config = config)
     drawHandle(corner = EditItemCorner.TOP_RIGHT, center = topRight, config = config)
@@ -232,6 +234,7 @@ private fun DrawScope.drawEditTextHandle(item: ImageEditItems.TextItem, config: 
     val leftCenter = item.position.toLeftCenter(size = item.size)
     val rightCenter = item.position.toRightCenter(size = item.size)
 
+    drawEditBox(topLeft = topLeft, rectSize = item.size, config = config)
     drawEditBorder(topLeft = topLeft, rectSize = item.size, config = config)
     drawHandle(corner = EditItemCorner.TOP_LEFT, center = topLeft, config = config)
     drawHandle(corner = EditItemCorner.TOP_RIGHT, center = topRight, config = config)
@@ -396,6 +399,11 @@ private fun DrawScope.drawEditBorder(topLeft: Offset, rectSize: Size, config: Im
         style = Stroke(width = config.borderThickness.toPx()),
         color = config.borderColor
     )
+}
+
+private fun DrawScope.drawEditBox(topLeft: Offset, rectSize: Size, config: ImageEditConfig) {
+
+    drawRect(topLeft = topLeft, size = rectSize, style = Fill, color = config.itemBoxColor)
 }
 
 /**

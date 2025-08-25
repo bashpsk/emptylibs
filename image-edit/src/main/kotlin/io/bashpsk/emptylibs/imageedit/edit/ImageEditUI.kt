@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -89,8 +90,8 @@ internal fun ImageEditUI(
 
             state.currentImageEditItem?.let { items ->
 
-                drawImageEditItem(items = items, textMeasurer = state.textMeasurer)
                 drawImageEditItemHandle(items = items, config = state.config)
+                drawImageEditItem(items = items, textMeasurer = state.textMeasurer)
             }
         }
     }
@@ -103,7 +104,7 @@ internal fun ImageEditUI(
                 state.apply {
 
                     onEditItemStart(position = position)
-                    onEditItemChanges(position = position, size = null)
+                    onEditItemChanges(position = position, amount = Offset.Zero)
                     onEditItemEnd()
                     onEditItemsClick(position = position)
                 }
@@ -120,7 +121,7 @@ internal fun ImageEditUI(
             onDrag = { change, dragAmount ->
 
                 change.consume()
-                state.onEditItemChanges(position = change.position, null)
+                state.onEditItemChanges(position = change.position, amount = dragAmount)
             }
         )
     }

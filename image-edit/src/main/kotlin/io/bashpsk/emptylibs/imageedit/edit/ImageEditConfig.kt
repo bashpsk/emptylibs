@@ -33,7 +33,8 @@ data class ImageEditConfig(
     val targetSize: Dp = 16.dp,
     val targetThickness: Dp = 1.dp,
     val targetColor: Color = Color.Yellow,
-    val minItemSize: Float = 20.dp.value
+    val minItemSize: Dp = 40.dp,
+    val itemBoxColor: Color = Color.DarkGray.copy(alpha = 0.45F),
 ) {
 
     companion object {

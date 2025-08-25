@@ -95,13 +95,17 @@ internal fun ImageEditItems.hasEditItemClicked(clickPosition: Offset): Boolean {
 }
 
 /**
- * Determines which EditItemCorner is tapped based on the click position and the shape's bounds.
+ * Determines which EditItemCorner is tapped based on the click position and the `Rect`'s bounds.
  *
+ * This function checks if the `clickPosition` is within a certain `threshold` of any of the
+ * `Rect`'s corners or the midpoints of its edges.
+ *
+ * @receiver The `Rect` representing the bounds of the item being checked.
  * @param clickPosition The coordinates of the click.
- * @param shapeBounds The rectangle defining the shape's current position and size.
- * @param threshold The threshold distance to consider a tap near a corner or edge.
- * A smaller value means the user has to tap more precisely.
- * @return The EditItemCorner that was tapped, or null if the tap is not near any corner/edge.
+ * @param threshold The maximum distance from a corner or edge midpoint for a tap to be considered
+ * on that corner/edge. Defaults to 24.0F. A smaller value requires more precise tapping.
+ * @return The `EditItemCorner` that was tapped, or `null` if the tap is not near any corner or
+ * edge midpoint within the specified `threshold`.
  */
 internal fun Rect.getEditItemCorner(
     clickPosition: Offset,

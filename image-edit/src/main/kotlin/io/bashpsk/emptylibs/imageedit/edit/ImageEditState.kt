@@ -20,6 +20,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -29,10 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.imageedit.extension.getEditItemCorner
 import io.bashpsk.emptylibs.imageedit.extension.hasEditItemClicked
+import io.bashpsk.emptylibs.imageedit.extension.toBottomLeft
+import io.bashpsk.emptylibs.imageedit.extension.toBottomRight
 import io.bashpsk.emptylibs.imageedit.extension.toPixel
 import io.bashpsk.emptylibs.imageedit.extension.toRect
-import io.bashpsk.emptylibs.imageedit.extension.toTopLeft
-import io.bashpsk.emptylibs.imageedit.utils.setDebug
+import io.bashpsk.emptylibs.imageedit.extension.toTopRight
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
@@ -104,8 +107,6 @@ class ImageEditState(
     internal var canvasSize by mutableStateOf(Size.Zero)
 
     internal var currentCorner by mutableStateOf<EditItemCorner?>(null)
-
-    internal var isItemMoving by mutableStateOf(false)
 
     fun updatePenColor(color: Color) {
 
@@ -264,7 +265,12 @@ class ImageEditState(
 
         val sizeOfItem = textMeasurer.measure(
             text = enteredText,
-            style = textStyle
+            style = textStyle,
+            overflow = TextOverflow.Clip,
+            constraints = Constraints(
+                maxWidth = canvasSize.width.toInt(),
+                maxHeight = canvasSize.height.toInt()
+            )
         ).size.toSize()
 
         val positionOfItem = Offset(
@@ -357,8 +363,6 @@ class ImageEditState(
                 clickPosition = position,
                 threshold = maxOf(config.handleWidth, config.handleHeight).toPixel(density)
             )
-
-            "$currentCorner".setDebug()
         }
     }
 
@@ -380,10 +384,9 @@ class ImageEditState(
         }
 
         currentCorner = null
-        isItemMoving = false
     }
 
-    internal fun onEditItemChanges(position: Offset, size: Size?) {
+    internal fun onEditItemChanges(position: Offset, amount: Offset) {
 
         currentImageEditItem?.let { items ->
 
@@ -401,10 +404,14 @@ class ImageEditState(
 
                 is ImageEditItems.ImageItem -> {
 
-                    val itemSize = size ?: items.size
+                    val (itemPosition, itemSize) = getEditItemPositionSize(
+                        position = items.position,
+                        size = items.size,
+                        amount = amount
+                    )
 
                     val newItems = items.copy(
-                        position = position.toTopLeft(itemSize),
+                        position = itemPosition,
                         size = itemSize
                     ).apply {
 
@@ -426,10 +433,14 @@ class ImageEditState(
 
                 is ImageEditItems.ShapeItem -> {
 
-                    val itemSize = size ?: items.size
+                    val (itemPosition, itemSize) = getEditItemPositionSize(
+                        position = items.position,
+                        size = items.size,
+                        amount = amount
+                    )
 
                     val newItems = items.copy(
-                        position = position.toTopLeft(itemSize),
+                        position = itemPosition,
                         size = itemSize
                     ).apply {
 
@@ -441,11 +452,25 @@ class ImageEditState(
 
                 is ImageEditItems.TextItem -> {
 
-                    val itemSize = size ?: items.size
+                    val (itemPosition, itemSize) = getEditItemPositionSize(
+                        position = items.position,
+                        size = items.size,
+                        amount = amount
+                    )
+
+                    val sizeOfItem = textMeasurer.measure(
+                        text = enteredText,
+                        style = textStyle,
+                        overflow = TextOverflow.Clip,
+                        constraints = Constraints(
+                            maxWidth = itemSize.width.toInt(),
+                            maxHeight = itemSize.height.toInt(),
+                        )
+                    ).size.toSize()
 
                     val newItems = items.copy(
-                        position = position.toTopLeft(itemSize),
-                        size = itemSize
+                        position = itemPosition,
+                        size = sizeOfItem
                     ).apply {
 
                         uuid = items.uuid
@@ -465,7 +490,238 @@ class ImageEditState(
         }?.let { items ->
 
             onCurrentImageEdit(items = items)
+            imageEditItemList = imageEditItemList.remove(element = items)
             true
         }
+    }
+
+    internal fun ImageEditState.getEditItemPositionSize(
+        position: Offset,
+        size: Size,
+        amount: Offset,
+    ): Pair<Offset, Size> {
+
+        val sizeLimit = config.minItemSize.toPixel(density = density)
+        val minX = 0f
+        val minY = 0f
+        val maxX = canvasSize.width
+        val maxY = canvasSize.height
+
+        var finalTopLeft = position
+        var finalSize = size
+
+        val topLeft = position
+        val topRight = position.toTopRight(size = size)
+        val bottomLeft = position.toBottomLeft(size = size)
+        val bottomRight = position.toBottomRight(size = size)
+
+        when (currentCorner) {
+
+            EditItemCorner.TOP_LEFT -> {
+
+                ((bottomRight.x - (topLeft.x + amount.x)) >= sizeLimit &&
+                        (bottomRight.y - (topLeft.y + amount.y)) >= sizeLimit)
+                    .takeIf { isAdjustable -> isAdjustable }?.run {
+
+                        val newX = (topLeft.x + amount.x).coerceIn(
+                            minX..bottomRight.x - sizeLimit
+                        )
+
+                        val newY = (topLeft.y + amount.y).coerceIn(
+                            minY..bottomRight.y - sizeLimit
+                        )
+
+                        finalTopLeft = Offset(newX, newY)
+
+                        finalSize = Size(
+                            width = (bottomRight.x - newX).coerceAtLeast(sizeLimit),
+                            height = (bottomRight.y - newY).coerceAtLeast(sizeLimit)
+                        )
+                    }
+            }
+
+            EditItemCorner.TOP_RIGHT -> {
+
+                ((topRight.x + amount.x - bottomLeft.x) >= sizeLimit &&
+                        (bottomRight.y - (topRight.y + amount.y)) >= sizeLimit)
+                    .takeIf { isAdjustable -> isAdjustable }?.run {
+
+                        val newX = (topRight.x + amount.x).coerceIn(
+                            bottomLeft.x + sizeLimit..maxX
+                        )
+
+                        val newY = (topRight.y + amount.y).coerceIn(
+                            minY..bottomLeft.y - sizeLimit
+                        )
+
+                        finalTopLeft = Offset(bottomLeft.x, newY)
+
+                        finalSize = Size(
+                            width = (newX - bottomLeft.x).coerceAtLeast(sizeLimit),
+                            height = (bottomLeft.y - newY).coerceAtLeast(sizeLimit)
+                        )
+                    }
+            }
+
+            EditItemCorner.BOTTOM_LEFT -> {
+
+                ((topRight.x - (bottomLeft.x + amount.x)) >= sizeLimit &&
+                        ((bottomLeft.y + amount.y) - topRight.y) >= sizeLimit)
+                    .takeIf { isAdjustable -> isAdjustable }?.run {
+
+                        val newX = (bottomLeft.x + amount.x).coerceIn(
+                            minX..topRight.x - sizeLimit
+                        )
+
+                        val newY = (bottomLeft.y + amount.y).coerceIn(
+                            topRight.y + sizeLimit..maxY
+                        )
+
+                        finalTopLeft = Offset(newX, topRight.y)
+
+                        finalSize = Size(
+                            width = (topRight.x - newX).coerceAtLeast(sizeLimit),
+                            height = (newY - topRight.y).coerceAtLeast(sizeLimit)
+                        )
+                    }
+            }
+
+            EditItemCorner.BOTTOM_RIGHT -> {
+
+                (((bottomRight.x + amount.x) - topLeft.x) >= sizeLimit &&
+                        ((bottomRight.y + amount.y) - topLeft.y) >= sizeLimit)
+                    .takeIf { isAdjustable -> isAdjustable }?.run {
+
+                        val newX = (bottomRight.x + amount.x).coerceIn(
+                            topLeft.x + sizeLimit..maxX
+                        )
+
+                        val newY = (bottomRight.y + amount.y).coerceIn(
+                            topLeft.y + sizeLimit..maxY
+                        )
+
+                        finalTopLeft = topLeft
+
+                        finalSize = Size(
+                            width = (newX - topLeft.x).coerceAtLeast(sizeLimit),
+                            height = (newY - topLeft.y).coerceAtLeast(sizeLimit)
+                        )
+                    }
+            }
+
+            EditItemCorner.LEFT_CENTRE -> {
+
+                ((topRight.x - (topLeft.x + amount.x)) >= sizeLimit).takeIf { isAdjustable ->
+
+                    isAdjustable
+                }?.run {
+
+                    val newX = (topLeft.x + amount.x).coerceIn(
+                        minX..topRight.x - sizeLimit
+                    )
+
+                    finalTopLeft = Offset(newX, topLeft.y)
+
+                    finalSize = Size(
+                        width = (topRight.x - newX).coerceAtLeast(sizeLimit),
+                        height = size.height
+                    )
+                }
+            }
+
+            EditItemCorner.TOP_CENTRE -> {
+
+                ((bottomLeft.y - (topLeft.y + amount.y)) >= sizeLimit).takeIf { isAdjustable ->
+
+                    isAdjustable
+                }?.run {
+
+                    val newY = (topLeft.y + amount.y).coerceIn(
+                        minY..bottomLeft.y - sizeLimit
+                    )
+
+                    finalTopLeft = Offset(topLeft.x, newY)
+
+                    finalSize = Size(
+                        width = size.width,
+                        height = (bottomLeft.y - newY).coerceAtLeast(sizeLimit)
+                    )
+                }
+            }
+
+            EditItemCorner.RIGHT_CENTRE -> {
+
+                (((topRight.x + amount.x) - topLeft.x) >= sizeLimit).takeIf { isAdjustable ->
+
+                    isAdjustable
+                }?.run {
+
+                    val newX = (topRight.x + amount.x).coerceIn(
+                        topLeft.x + sizeLimit..maxX
+                    )
+
+                    finalTopLeft = topLeft
+
+                    finalSize = Size(
+                        width = (newX - topLeft.x).coerceAtLeast(sizeLimit),
+                        height = size.height
+                    )
+                }
+            }
+
+            EditItemCorner.BOTTOM_CENTRE -> {
+
+                (((bottomLeft.y + amount.y) - topLeft.y) >= sizeLimit).takeIf { isAdjustable ->
+
+                    isAdjustable
+                }?.run {
+
+                    val newY = (bottomLeft.y + amount.y).coerceIn(
+                        topLeft.y + sizeLimit..maxY
+                    )
+
+                    finalTopLeft = topLeft
+
+                    finalSize = Size(
+                        width = size.width,
+                        height = (newY - topLeft.y).coerceAtLeast(sizeLimit)
+                    )
+                }
+            }
+
+            null -> {
+
+                finalTopLeft = Offset(
+                    x = (position.x + amount.x).coerceIn(minX..maxX - size.width),
+                    y = (position.y + amount.y).coerceIn(minY..maxY - size.height)
+                )
+
+                finalSize = size
+            }
+        }
+
+        var currentWidth = finalSize.width.coerceAtLeast(sizeLimit)
+        var currentHeight = finalSize.height.coerceAtLeast(sizeLimit)
+
+        var currentTopLeftX = finalTopLeft.x.coerceIn(
+            minX..(maxX - currentWidth).coerceAtLeast(minX)
+        )
+        var currentTopLeftY = finalTopLeft.y.coerceIn(
+            minY..(maxY - currentHeight).coerceAtLeast(minY)
+        )
+
+        currentWidth = currentWidth.coerceAtMost((maxX - currentTopLeftX).coerceAtLeast(0f))
+            .coerceAtLeast(sizeLimit)
+        currentHeight = currentHeight.coerceAtMost((maxY - currentTopLeftY).coerceAtLeast(0f))
+            .coerceAtLeast(sizeLimit)
+
+        currentTopLeftX = currentTopLeftX.coerceIn(
+            minX..(maxX - currentWidth).coerceAtLeast(minX)
+        )
+        currentTopLeftY = currentTopLeftY.coerceIn(
+            minY..(maxY - currentHeight).coerceAtLeast(minY)
+        )
+
+        return Pair(Offset(currentTopLeftX, currentTopLeftY), Size(currentWidth, currentHeight))
     }
 }

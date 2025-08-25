@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.imageedit.edit.ImageEdit
 import io.bashpsk.emptylibs.imageedit.edit.rememberImageEditState
@@ -39,11 +40,15 @@ fun ImageEditScreen() {
     val imageEditState = rememberImageEditState(imageBitmap = imageBitmap)
 
     val textStyle = MaterialTheme.typography.displayMedium.copy(
-        color = MaterialTheme.colorScheme.secondary
+        color = MaterialTheme.colorScheme.secondary,
+        textAlign = TextAlign.Center
     )
+
+    val content = "Empty Libs Compose Library"
 
     LaunchedEffect(imageEditState) {
 
+        imageEditState.updateText(content)
         imageEditState.updateTextStyle(textStyle)
         imageEditState.updateShape(shape = ImageShape.CutCorner(radius = 0.10F))
     }
