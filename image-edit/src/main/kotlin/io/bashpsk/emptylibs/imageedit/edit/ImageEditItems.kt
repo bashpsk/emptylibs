@@ -22,6 +22,7 @@ sealed class ImageEditItems(var uuid: String = "") {
     ) : ImageEditItems()
 
     data class ImageItem(
+        val id: String,
         val bitmap: ImageBitmap,
         val position: Offset,
         val size: Size
@@ -37,12 +38,15 @@ sealed class ImageEditItems(var uuid: String = "") {
     ) : ImageEditItems()
 
     data class ShapeItem(
+        val id: String,
         val shape: Path
     ) : ImageEditItems()
 
     data class TextItem(
+        val id: String,
         val content: String,
-        val color: Color,
         val style: TextStyle,
+        val position: Offset,
+        val size: Size
     ) : ImageEditItems()
 }

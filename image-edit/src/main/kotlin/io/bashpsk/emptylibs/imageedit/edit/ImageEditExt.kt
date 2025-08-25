@@ -8,6 +8,9 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toIntSize
@@ -41,7 +44,7 @@ internal fun DrawScope.drawImageEditItemHandle(
     }
 }
 
-internal fun DrawScope.drawImageEditItem(items: ImageEditItems) {
+internal fun DrawScope.drawImageEditItem(items: ImageEditItems, textMeasurer: TextMeasurer) {
 
     clipRect {
 
@@ -51,7 +54,7 @@ internal fun DrawScope.drawImageEditItem(items: ImageEditItems) {
             is ImageEditItems.ImageItem -> drawEditImage(item = items)
             is ImageEditItems.PathItem -> drawEditPath(item = items)
             is ImageEditItems.ShapeItem -> drawEditShape(item = items)
-            is ImageEditItems.TextItem -> drawEditText(item = items)
+            is ImageEditItems.TextItem -> drawEditText(item = items, textMeasurer = textMeasurer)
         }
     }
 }
@@ -164,8 +167,18 @@ private fun DrawScope.drawEditShape(item: ImageEditItems.ShapeItem) {
 
 }
 
-private fun DrawScope.drawEditText(item: ImageEditItems.TextItem) {
+private fun DrawScope.drawEditText(item: ImageEditItems.TextItem, textMeasurer: TextMeasurer) {
 
+    translate(left = item.position.x, top = item.position.y) {
+
+        val textLayoutResult = textMeasurer.measure(
+            text = item.content,
+            style = item.style,
+            constraints = Constraints(maxWidth = item.size.width.toInt())
+        )
+
+        drawText(textLayoutResult = textLayoutResult)
+    }
 }
 
 private fun DrawScope.drawEditImageHandle(item: ImageEditItems.ImageItem, color: Color, width: Dp) {

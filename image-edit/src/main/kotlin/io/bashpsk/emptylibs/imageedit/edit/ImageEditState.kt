@@ -14,12 +14,16 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import kotlinx.collections.immutable.persistentListOf
@@ -31,13 +35,15 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun rememberImageEditState(imageBitmap: ImageBitmap?): ImageEditState {
 
-    return remember(imageBitmap) {
-        ImageEditState(imageBitmap = imageBitmap)
+    val textMeasurer = rememberTextMeasurer()
+
+    return remember(imageBitmap, textMeasurer) {
+        ImageEditState(imageBitmap = imageBitmap, textMeasurer = textMeasurer)
     }
 }
 
 @OptIn(ExperimentalTime::class)
-class ImageEditState(val imageBitmap: ImageBitmap?) {
+class ImageEditState(val imageBitmap: ImageBitmap?, val textMeasurer: TextMeasurer) {
 
     internal var imageEditItemList by mutableStateOf(persistentListOf<ImageEditItems>())
         private set
@@ -55,6 +61,12 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
         private set
 
     var selectedBitmap by mutableStateOf<ImageBitmap?>(null)
+        private set
+
+    var enteredText by mutableStateOf("Empty Libs")
+        private set
+
+    var textStyle by mutableStateOf(TextStyle.Default)
         private set
 
     var currentImageEditItem by mutableStateOf<ImageEditItems?>(null)
@@ -87,6 +99,16 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
     fun updateBitmap(bitmap: ImageBitmap?) {
 
         selectedBitmap = bitmap
+    }
+
+    fun updateText(text: String) {
+
+        enteredText = text
+    }
+
+    fun updateTextStyle(style: TextStyle) {
+
+        textStyle = style
     }
 
     fun addImageEditItem(items: ImageEditItems) {
@@ -149,6 +171,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
         )
 
         val items = ImageEditItems.ImageItem(
+            id = Clock.System.now().toEpochMilliseconds().toString(),
             bitmap = selectedBitmap ?: return,
             position = positionOfItem,
             size = canvasSize.fittedImageSize(imageSize = selectedBitmap.toSize())
@@ -183,6 +206,28 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
 
     fun onTextItem() {
 
+        val sizeOfItem = textMeasurer.measure(
+            text = enteredText,
+            style = textStyle
+        ).size.toSize()
+
+        val positionOfItem = Offset(
+            x = (canvasSize.width - sizeOfItem.width) / 2.0F,
+            y = (canvasSize.height - sizeOfItem.height) / 2.0F
+        )
+
+        val items = ImageEditItems.TextItem(
+            id = Clock.System.now().toEpochMilliseconds().toString(),
+            content = enteredText,
+            style = textStyle,
+            position = positionOfItem,
+            size = sizeOfItem
+        ).apply {
+
+            uuid = Clock.System.now().toEpochMilliseconds().toString()
+        }
+
+        onCurrentImageEdit(items = items)
     }
 
     fun onResetEditItem() {
@@ -226,12 +271,12 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
 
                     imageEditItemList.forEach { items ->
 
-                        drawImageEditItem(items = items)
+                        drawImageEditItem(items = items, textMeasurer = textMeasurer)
                     }
 
                     currentImageEditItem?.let { items ->
 
-                        drawImageEditItem(items = items)
+                        drawImageEditItem(items = items, textMeasurer = textMeasurer)
                     }
 
                     nativeCanvas.restore()
@@ -267,6 +312,7 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
                 is ImageEditItems.ImageItem -> {
 
                     val newItems = ImageEditItems.ImageItem(
+                        id = Clock.System.now().toEpochMilliseconds().toString(),
                         bitmap = items.bitmap,
                         position = items.position,
                         size = items.size
@@ -301,6 +347,28 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
 
                 is ImageEditItems.TextItem -> {
 
+                    val sizeOfItem = textMeasurer.measure(
+                        text = enteredText,
+                        style = textStyle
+                    ).size.toSize()
+
+                    val positionOfItem = Offset(
+                        x = (canvasSize.width - sizeOfItem.width) / 2.0F,
+                        y = (canvasSize.height - sizeOfItem.height) / 2.0F
+                    )
+
+                    val items = ImageEditItems.TextItem(
+                        id = Clock.System.now().toEpochMilliseconds().toString(),
+                        content = enteredText,
+                        style = textStyle,
+                        position = positionOfItem,
+                        size = sizeOfItem
+                    ).apply {
+
+                        uuid = Clock.System.now().toEpochMilliseconds().toString()
+                    }
+
+                    onCurrentImageEdit(items = items)
                 }
             }
         }
@@ -310,35 +378,16 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
 
         currentImageEditItem?.let { items ->
 
+            addImageEditItem(items = items)
+            onResetEditItem()
+
             when (items) {
 
-                is ImageEditItems.EraseItem -> {
-
-                    addImageEditItem(items = items)
-                    onResetEditItem()
-                    onEraseItem()
-                }
-
-                is ImageEditItems.ImageItem -> {
-
-                    addImageEditItem(items = items)
-                    onResetEditItem()
-                }
-
-                is ImageEditItems.PathItem -> {
-
-                    addImageEditItem(items = items)
-                    onResetEditItem()
-                    onPathItem()
-                }
-
-                is ImageEditItems.ShapeItem -> {
-
-                }
-
-                is ImageEditItems.TextItem -> {
-
-                }
+                is ImageEditItems.EraseItem -> onEraseItem()
+                is ImageEditItems.ImageItem -> {}
+                is ImageEditItems.PathItem -> onPathItem()
+                is ImageEditItems.ShapeItem -> {}
+                is ImageEditItems.TextItem -> {}
             }
         }
     }
@@ -387,6 +436,14 @@ class ImageEditState(val imageBitmap: ImageBitmap?) {
 
                 is ImageEditItems.TextItem -> {
 
+                    val textSize = size ?: items.size
+
+                    val newItems = items.copy(position = position, size = textSize).apply {
+
+                        uuid = items.uuid
+                    }
+
+                    onCurrentImageEdit(items = newItems)
                 }
             }
         }

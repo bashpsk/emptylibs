@@ -83,12 +83,12 @@ internal fun ImageEditUI(modifier: Modifier = Modifier, state: ImageEditState) {
 
             state.imageEditItemList.forEach { items ->
 
-                drawImageEditItem(items = items)
+                drawImageEditItem(items = items, textMeasurer = state.textMeasurer)
             }
 
             state.currentImageEditItem?.let { items ->
 
-                drawImageEditItem(items = items)
+                drawImageEditItem(items = items, textMeasurer = state.textMeasurer)
                 drawImageEditItemHandle(items = items, color = Color.Yellow, width = 2.dp)
             }
         }
