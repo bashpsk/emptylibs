@@ -133,12 +133,12 @@ fun ImageCropScreen() {
 
                     TransformImageView(
                         modifier = Modifier.weight(weight = 1.0F),
-                        imageModel = { bitmap.asAndroidBitmap() },
+                        imageModel = bitmap.asAndroidBitmap(),
                         state = imageTransformState
                     )
                 } ?: TransformImageView(
                     modifier = Modifier.weight(weight = 1.0F),
-                    imageModel = { imageBitmap.asAndroidBitmap() },
+                    imageModel = imageBitmap.asAndroidBitmap(),
                     state = imageTransformState
                 )
 

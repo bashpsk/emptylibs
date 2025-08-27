@@ -53,7 +53,6 @@ import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.DialogProperties
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import io.bashpsk.emptylibs.imageutils.shape.toLabel
@@ -129,9 +128,7 @@ internal fun ImageKropTopBar(
 
                     imagePreviewCoroutineScope.launch {
 
-                        val kropResult = state.getCroppedImageBitmap()
-
-                        when (kropResult) {
+                        when (val kropResult = state.getCroppedImageBitmap()) {
 
                             is KropResult.Init -> {}
 
@@ -158,9 +155,7 @@ internal fun ImageKropTopBar(
 
                     imagePreviewCoroutineScope.launch {
 
-                        val kropResult = state.getCroppedImageBitmap()
-
-                        when (kropResult) {
+                        when (val kropResult = state.getCroppedImageBitmap()) {
 
                             is KropResult.Init -> {}
 
@@ -228,7 +223,7 @@ internal fun ImageKropBottomBar(
                     imagePreviewCoroutineScope.launch {
 
                         val kropResult = state.getCroppedImageBitmap(
-                            imageRect = state.canvasSize.toSize().toRect(),
+                            imageRect = state.canvasSize.toRect(),
                             imageFlip = KropImageFlip.Horizontal
                         )
 
@@ -260,7 +255,7 @@ internal fun ImageKropBottomBar(
                     imagePreviewCoroutineScope.launch {
 
                         val kropResult = state.getCroppedImageBitmap(
-                            imageRect = state.canvasSize.toSize().toRect(),
+                            imageRect = state.canvasSize.toRect(),
                             imageFlip = KropImageFlip.Vertical
                         )
 

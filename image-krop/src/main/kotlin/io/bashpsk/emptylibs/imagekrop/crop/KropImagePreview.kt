@@ -125,7 +125,7 @@ internal fun KropImagePreview(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(bitmap.width.toFloat() / bitmap.height),
-                            imageModel = { bitmap.asAndroidBitmap() },
+                            imageModel = bitmap.asAndroidBitmap(),
                             state = imageTransformState,
                             onLeftSwipe = {
 

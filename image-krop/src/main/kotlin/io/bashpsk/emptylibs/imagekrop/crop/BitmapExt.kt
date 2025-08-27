@@ -4,10 +4,10 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.util.Log
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.unit.IntSize
 import io.bashpsk.emptylibs.imagekrop.utils.LOG_TAG
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import io.bashpsk.emptylibs.imageutils.shape.bitmapMask
@@ -78,7 +78,7 @@ private const val MIN_CROP_DIMENSION_PX = 1
  */
 internal suspend fun ImageBitmap.getCroppedImageBitmap(
     cropRect: Rect,
-    canvasSize: IntSize,
+    canvasSize: Size,
     imageFlip: KropImageFlip? = null,
     kropShape: ImageShape = ImageShape.None
 ): KropResult = withContext(context = Dispatchers.IO) {

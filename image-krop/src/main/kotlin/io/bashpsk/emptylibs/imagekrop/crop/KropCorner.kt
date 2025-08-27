@@ -45,4 +45,19 @@ internal enum class KropCorner {
      * Represent bottom centre of the crop view.
      */
     BOTTOM_CENTRE;
+
+    companion object {
+
+        fun KropCorner?.hasCornerEdge(): Boolean {
+
+            return this == TOP_LEFT || this == TOP_RIGHT || this == BOTTOM_LEFT
+                    || this == BOTTOM_RIGHT
+        }
+
+        fun KropCorner?.hasCornerCenter(): Boolean {
+
+            return this == TOP_CENTRE || this == LEFT_CENTRE || this == RIGHT_CENTRE
+                    || this == BOTTOM_CENTRE
+        }
+    }
 }

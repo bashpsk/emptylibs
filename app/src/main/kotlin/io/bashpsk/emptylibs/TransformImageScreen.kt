@@ -35,7 +35,7 @@ fun TransformImageScreen() {
 
             TransformImageView(
                 modifier = Modifier.fillMaxWidth(),
-                imageModel = { R.drawable.empty_layer },
+                imageModel = R.drawable.empty_layer,
                 state = imageTransformState
             )
         }

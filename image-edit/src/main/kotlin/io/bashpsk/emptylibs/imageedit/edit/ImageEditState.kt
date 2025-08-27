@@ -652,10 +652,10 @@ class ImageEditState(
             var tempWidth = finalSize.width
             var tempHeight = finalSize.height
 
-            (tempWidth / aspectRatio > tempHeight + 0.001F).takeIf { it }?.run {
+            (tempWidth / aspectRatio > tempHeight).takeIf { it }?.run {
 
                 tempWidth = tempHeight * aspectRatio
-            } ?: (tempHeight > tempWidth / aspectRatio + 0.001F).takeIf { it }?.run {
+            } ?: (tempHeight > tempWidth / aspectRatio).takeIf { it }?.run {
 
                 tempHeight = tempWidth / aspectRatio
             }
@@ -781,7 +781,7 @@ class ImageEditState(
         var currentWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
         var currentHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
 
-        (currentWidth / aspectRatio > currentHeight + 0.001F).takeIf { it }?.run {
+        (currentWidth / aspectRatio > currentHeight).takeIf { it }?.run {
 
             when (cornerType) {
 
@@ -799,7 +799,7 @@ class ImageEditState(
 
                 else -> {}
             }
-        } ?: (currentHeight > currentWidth / aspectRatio + 0.001F).takeIf { it }?.run {
+        } ?: (currentHeight > currentWidth / aspectRatio).takeIf { it }?.run {
 
             when (cornerType) {
 
