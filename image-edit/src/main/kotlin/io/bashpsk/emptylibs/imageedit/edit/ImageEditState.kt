@@ -608,8 +608,8 @@ class ImageEditState(
 
             null -> {
 
-                val targetWidth = calculatedSize.width.coerceAtLeast(0f)
-                val targetHeight = calculatedSize.height.coerceAtLeast(0f)
+                val targetWidth = calculatedSize.width.coerceAtLeast(0.0F)
+                val targetHeight = calculatedSize.height.coerceAtLeast(0.0F)
 
                 calculatedTopLeft = position.copy(
                     x = (position.x + amount.x).coerceIn(
@@ -652,10 +652,10 @@ class ImageEditState(
             var tempWidth = finalSize.width
             var tempHeight = finalSize.height
 
-            (tempWidth / aspectRatio > tempHeight + 0.001f).takeIf { it }?.run {
+            (tempWidth / aspectRatio > tempHeight + 0.001F).takeIf { it }?.run {
 
                 tempWidth = tempHeight * aspectRatio
-            } ?: (tempHeight > tempWidth / aspectRatio + 0.001f).takeIf { it }?.run {
+            } ?: (tempHeight > tempWidth / aspectRatio + 0.001F).takeIf { it }?.run {
 
                 tempHeight = tempWidth / aspectRatio
             }
@@ -759,8 +759,8 @@ class ImageEditState(
         }
 
         var finalTopLeft = initialTopLeft.copy(
-            x = initialTopLeft.x.coerceIn(0f, canvasWidth - minSize),
-            y = initialTopLeft.y.coerceIn(0f, canvasHeight - minSize)
+            x = initialTopLeft.x.coerceIn(0.0F, canvasWidth - minSize),
+            y = initialTopLeft.y.coerceIn(0.0F, canvasHeight - minSize)
         )
 
         var finalBottomRight = initialBottomRight.copy(
@@ -781,7 +781,7 @@ class ImageEditState(
         var currentWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
         var currentHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
 
-        (currentWidth / aspectRatio > currentHeight + 0.001f).takeIf { it }?.run {
+        (currentWidth / aspectRatio > currentHeight + 0.001F).takeIf { it }?.run {
 
             when (cornerType) {
 
@@ -799,7 +799,7 @@ class ImageEditState(
 
                 else -> {}
             }
-        } ?: (currentHeight > currentWidth / aspectRatio + 0.001f).takeIf { it }?.run {
+        } ?: (currentHeight > currentWidth / aspectRatio + 0.001F).takeIf { it }?.run {
 
             when (cornerType) {
 
@@ -820,8 +820,8 @@ class ImageEditState(
         }
 
         finalTopLeft = finalTopLeft.copy(
-            x = finalTopLeft.x.coerceIn(0f, canvasWidth - minSize),
-            y = finalTopLeft.y.coerceIn(0f, canvasHeight - minSize)
+            x = finalTopLeft.x.coerceIn(0.0F, canvasWidth - minSize),
+            y = finalTopLeft.y.coerceIn(0.0F, canvasHeight - minSize)
         )
 
         finalBottomRight = finalBottomRight.copy(
@@ -838,7 +838,7 @@ class ImageEditState(
         val finalWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
         val finalHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
 
-        (finalWidth < minSize - 0.001f || finalHeight < minSize - 0.001f).takeIf { it }?.run {
+        (finalWidth < minSize || finalHeight < minSize).takeIf { it }?.run {
 
             return null
         }
@@ -849,12 +849,12 @@ class ImageEditState(
         )
 
         val resultTopLeft = finalTopLeft.copy(
-            x = (resultBottomRight.x - finalWidth).coerceIn(0f, canvasWidth - minSize),
-            y = (resultBottomRight.y - finalHeight).coerceIn(0f, canvasHeight - minSize)
+            x = (resultBottomRight.x - finalWidth).coerceIn(0.0F, canvasWidth - minSize),
+            y = (resultBottomRight.y - finalHeight).coerceIn(0.0F, canvasHeight - minSize)
         )
 
-        ((resultBottomRight.x - resultTopLeft.x) < minSize - 0.001f ||
-                (resultBottomRight.y - resultTopLeft.y) < minSize - 0.001f).takeIf { it }?.run {
+        ((resultBottomRight.x - resultTopLeft.x) < minSize ||
+                (resultBottomRight.y - resultTopLeft.y) < minSize).takeIf { it }?.run {
 
             return null
         }
