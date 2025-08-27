@@ -104,7 +104,11 @@ fun ImageKrop(
         state.canvasSize = layoutCoordinates.size
     }
 
-    val pointerInputWithoutAspect = Modifier.pointerInput(Unit) {
+    val pointerInputWithoutAspect = Modifier.pointerInput(
+        state.kropAspectRatio,
+        state.canvasSize,
+        cropSizeLimit
+    ) {
 
         detectDragGestures(
             onDragStart = { offset ->
@@ -404,7 +408,7 @@ fun ImageKrop(
                 KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT, KropCorner.BOTTOM_LEFT,
                 KropCorner.BOTTOM_RIGHT -> {
 
-                    val anchorCorner = when (state.kropCorner) {
+                    val fixedCorner = when (state.kropCorner) {
 
                         KropCorner.TOP_LEFT -> state.bottomRight
                         KropCorner.TOP_RIGHT -> state.bottomLeft
@@ -413,7 +417,7 @@ fun ImageKrop(
                         else -> return@detectDragGestures
                     }
 
-                    val draggedCornerCurrent = when (state.kropCorner) {
+                    val draggedCorner = when (state.kropCorner) {
 
                         KropCorner.TOP_LEFT -> state.topLeft
                         KropCorner.TOP_RIGHT -> state.topRight
@@ -422,105 +426,108 @@ fun ImageKrop(
                         else -> return@detectDragGestures
                     }
 
-                    calculateNewCropRect(
-                        draggedCornerCurrent = draggedCornerCurrent,
-                        anchorCorner = anchorCorner,
-                        dragDelta = dragAmount,
-                        cornerType = state.kropCorner!!,
-                        aspectRatio = aspectRatio,
-                        minSize = cropSizeLimit,
-                        canvasWidth = maxX,
-                        canvasHeight = maxY
-                    )?.let { (newTopLeft, newBottomRight) ->
+                    state.kropCorner?.let { corner ->
 
-                        val boundedTopLeftX = newTopLeft.x.coerceIn(
-                            minX..maxX - cropSizeLimit
-                        )
+                        calculateNewCropRect(
+                            draggedCorner = draggedCorner,
+                            fixedCorner = fixedCorner,
+                            dragDelta = dragAmount,
+                            cornerType = corner,
+                            aspectRatio = aspectRatio,
+                            minSize = cropSizeLimit,
+                            canvasWidth = maxX,
+                            canvasHeight = maxY
+                        )?.let { (newTopLeft, newBottomRight) ->
 
-                        val boundedTopLeftY = newTopLeft.y.coerceIn(
-                            minY..maxY - cropSizeLimit
-                        )
+                            val boundedTopLeftX = newTopLeft.x.coerceIn(
+                                minX..maxX - cropSizeLimit
+                            )
 
-                        val boundedBottomRightX = newBottomRight.x.coerceIn(
-                            minX + cropSizeLimit..maxX
-                        )
+                            val boundedTopLeftY = newTopLeft.y.coerceIn(
+                                minY..maxY - cropSizeLimit
+                            )
 
-                        val boundedBottomRightY = newBottomRight.y.coerceIn(
-                            minY + cropSizeLimit..maxY
-                        )
+                            val boundedBottomRightX = newBottomRight.x.coerceIn(
+                                minX + cropSizeLimit..maxX
+                            )
 
-                        var finalWidth = boundedBottomRightX - boundedTopLeftX
-                        var finalHeight = boundedBottomRightY - boundedTopLeftY
+                            val boundedBottomRightY = newBottomRight.y.coerceIn(
+                                minY + cropSizeLimit..maxY
+                            )
 
-                        if (finalWidth / aspectRatio > finalHeight) {
+                            var finalWidth = boundedBottomRightX - boundedTopLeftX
+                            var finalHeight = boundedBottomRightY - boundedTopLeftY
 
-                            finalWidth = finalHeight * aspectRatio
-                        } else {
+                            if (finalWidth / aspectRatio > finalHeight) {
 
-                            finalHeight = finalWidth / aspectRatio
-                        }
+                                finalWidth = finalHeight * aspectRatio
+                            } else {
 
-                        if (finalWidth >= cropSizeLimit && finalHeight >= cropSizeLimit) {
-
-                            when (state.kropCorner) {
-
-                                KropCorner.TOP_LEFT -> {
-
-                                    state.topLeft = Offset(
-                                        x = boundedBottomRightX - finalWidth,
-                                        y = boundedBottomRightY - finalHeight
-                                    )
-
-                                    state.bottomRight = Offset(
-                                        x = boundedBottomRightX,
-                                        y = boundedBottomRightY
-                                    )
-                                }
-
-                                KropCorner.TOP_RIGHT -> {
-
-                                    state.topLeft = Offset(
-                                        x = boundedTopLeftX,
-                                        y = boundedBottomRightY - finalHeight
-                                    )
-
-                                    state.bottomRight = Offset(
-                                        x = boundedTopLeftX + finalWidth,
-                                        y = boundedBottomRightY
-                                    )
-                                }
-
-                                KropCorner.BOTTOM_LEFT -> {
-
-                                    state.topLeft = Offset(
-                                        x = boundedBottomRightX - finalWidth,
-                                        y = boundedTopLeftY
-                                    )
-
-                                    state.bottomRight = Offset(
-                                        x = boundedBottomRightX,
-                                        y = boundedTopLeftY + finalHeight
-                                    )
-                                }
-
-                                KropCorner.BOTTOM_RIGHT -> {
-
-                                    state.topLeft = Offset(
-                                        x = boundedTopLeftX,
-                                        y = boundedTopLeftY
-                                    )
-
-                                    state.bottomRight = Offset(
-                                        x = boundedTopLeftX + finalWidth,
-                                        y = boundedTopLeftY + finalHeight
-                                    )
-                                }
-
-                                else -> Unit
+                                finalHeight = finalWidth / aspectRatio
                             }
 
-                            state.topRight = Offset(state.bottomRight.x, state.topLeft.y)
-                            state.bottomLeft = Offset(state.topLeft.x, state.bottomRight.y)
+                            if (finalWidth >= cropSizeLimit && finalHeight >= cropSizeLimit) {
+
+                                when (state.kropCorner) {
+
+                                    KropCorner.TOP_LEFT -> {
+
+                                        state.topLeft = Offset(
+                                            x = boundedBottomRightX - finalWidth,
+                                            y = boundedBottomRightY - finalHeight
+                                        )
+
+                                        state.bottomRight = Offset(
+                                            x = boundedBottomRightX,
+                                            y = boundedBottomRightY
+                                        )
+                                    }
+
+                                    KropCorner.TOP_RIGHT -> {
+
+                                        state.topLeft = Offset(
+                                            x = boundedTopLeftX,
+                                            y = boundedBottomRightY - finalHeight
+                                        )
+
+                                        state.bottomRight = Offset(
+                                            x = boundedTopLeftX + finalWidth,
+                                            y = boundedBottomRightY
+                                        )
+                                    }
+
+                                    KropCorner.BOTTOM_LEFT -> {
+
+                                        state.topLeft = Offset(
+                                            x = boundedBottomRightX - finalWidth,
+                                            y = boundedTopLeftY
+                                        )
+
+                                        state.bottomRight = Offset(
+                                            x = boundedBottomRightX,
+                                            y = boundedTopLeftY + finalHeight
+                                        )
+                                    }
+
+                                    KropCorner.BOTTOM_RIGHT -> {
+
+                                        state.topLeft = Offset(
+                                            x = boundedTopLeftX,
+                                            y = boundedTopLeftY
+                                        )
+
+                                        state.bottomRight = Offset(
+                                            x = boundedTopLeftX + finalWidth,
+                                            y = boundedTopLeftY + finalHeight
+                                        )
+                                    }
+
+                                    else -> Unit
+                                }
+
+                                state.topRight = Offset(state.bottomRight.x, state.topLeft.y)
+                                state.bottomLeft = Offset(state.topLeft.x, state.bottomRight.y)
+                            }
                         }
                     }
                 }

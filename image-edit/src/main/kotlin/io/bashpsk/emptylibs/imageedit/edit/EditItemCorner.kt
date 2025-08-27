@@ -45,4 +45,19 @@ internal enum class EditItemCorner {
      * Represent bottom centre of the item view.
      */
     BOTTOM_CENTRE;
+
+    companion object {
+
+        fun EditItemCorner?.hasCornerEdge(): Boolean {
+
+            return this == TOP_LEFT || this == TOP_RIGHT || this == BOTTOM_LEFT
+                    || this == BOTTOM_RIGHT
+        }
+
+        fun EditItemCorner?.hasCornerCenter(): Boolean {
+
+            return this == TOP_CENTRE || this == LEFT_CENTRE || this == RIGHT_CENTRE
+                    || this == BOTTOM_CENTRE
+        }
+    }
 }

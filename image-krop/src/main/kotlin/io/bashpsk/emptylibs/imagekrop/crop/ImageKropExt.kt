@@ -280,8 +280,8 @@ internal fun DrawScope.drawKropShapePreview(kropShape: ImageShape, shapeColor: C
  * Calculates the new top-left and bottom-right points of a rectangle
  * after a corner drag, maintaining a given aspect ratio.
  *
- * @param draggedCornerCurrent The current position of the corner being dragged.
- * @param anchorCorner The position of the corner opposite to the dragged corner
+ * @param draggedCorner The current position of the corner being dragged.
+ * @param fixedCorner The position of the corner opposite to the dragged corner
  * (this corner stays fixed).
  * @param dragDelta The amount by which the draggedCornerCurrent has been moved.
  * @param cornerType The specific corner being dragged
@@ -293,8 +293,8 @@ internal fun DrawScope.drawKropShapePreview(kropShape: ImageShape, shapeColor: C
  * @return A Pair of new topLeft and bottomRight Offsets, or null if the drag is invalid.
  */
 internal fun calculateNewCropRect(
-    draggedCornerCurrent: Offset,
-    anchorCorner: Offset,
+    draggedCorner: Offset,
+    fixedCorner: Offset,
     dragDelta: Offset,
     cornerType: KropCorner,
     aspectRatio: Float,
@@ -303,163 +303,151 @@ internal fun calculateNewCropRect(
     canvasHeight: Float
 ): Pair<Offset, Offset>? {
 
-    val newDraggedCorner = draggedCornerCurrent + dragDelta
+    val newPosition = draggedCorner + dragDelta
 
-    var proposedWidth = when (cornerType) {
+    val proposedWidth = when (cornerType) {
 
-        KropCorner.TOP_LEFT, KropCorner.BOTTOM_LEFT -> anchorCorner.x - newDraggedCorner.x
-        KropCorner.TOP_RIGHT, KropCorner.BOTTOM_RIGHT -> newDraggedCorner.x - anchorCorner.x
+        KropCorner.TOP_LEFT, KropCorner.BOTTOM_LEFT -> fixedCorner.x - newPosition.x
+        KropCorner.TOP_RIGHT, KropCorner.BOTTOM_RIGHT -> newPosition.x - fixedCorner.x
         else -> return null
-    }
+    }.coerceAtLeast(minSize)
 
-    var proposedHeight = when (cornerType) {
-
-        KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT -> anchorCorner.y - newDraggedCorner.y
-        KropCorner.BOTTOM_LEFT, KropCorner.BOTTOM_RIGHT -> newDraggedCorner.y - anchorCorner.y
-        else -> return null
-    }
-
-    if (proposedWidth < minSize) proposedWidth = minSize
-    if (proposedHeight < minSize) proposedHeight = minSize
-
-    var adjustedHeight = proposedWidth / aspectRatio
     var adjustedWidth = proposedWidth
+    var adjustedHeight = proposedWidth / aspectRatio
 
-    if (adjustedHeight < minSize) {
+    (adjustedHeight < minSize).takeIf { it }?.run {
 
         adjustedHeight = minSize
         adjustedWidth = adjustedHeight * aspectRatio
     }
 
-    val newTopLeft: Offset
-    val newBottomRight: Offset
+    adjustedWidth = adjustedWidth.coerceAtLeast(minSize)
 
-    when (cornerType) {
+    val (initialTopLeft, initialBottomRight) = when (cornerType) {
 
-        KropCorner.TOP_LEFT -> {
+        KropCorner.TOP_LEFT -> Offset(
+            fixedCorner.x - adjustedWidth,
+            fixedCorner.y - adjustedHeight
+        ) to fixedCorner
 
-            newTopLeft = Offset(anchorCorner.x - adjustedWidth, anchorCorner.y - adjustedHeight)
-            newBottomRight = anchorCorner
-        }
+        KropCorner.TOP_RIGHT -> Offset(
+            fixedCorner.x,
+            fixedCorner.y - adjustedHeight
+        ) to Offset(fixedCorner.x + adjustedWidth, fixedCorner.y)
 
-        KropCorner.TOP_RIGHT -> {
+        KropCorner.BOTTOM_LEFT -> Offset(
+            fixedCorner.x - adjustedWidth,
+            fixedCorner.y
+        ) to Offset(fixedCorner.x, fixedCorner.y + adjustedHeight)
 
-            newTopLeft = Offset(anchorCorner.x, anchorCorner.y - adjustedHeight)
-            newBottomRight = Offset(anchorCorner.x + adjustedWidth, anchorCorner.y)
-        }
-
-        KropCorner.BOTTOM_LEFT -> {
-
-            newTopLeft = Offset(anchorCorner.x - adjustedWidth, anchorCorner.y)
-            newBottomRight = Offset(anchorCorner.x, anchorCorner.y + adjustedHeight)
-        }
-
-        KropCorner.BOTTOM_RIGHT -> {
-
-            newTopLeft = anchorCorner
-            newBottomRight = Offset(anchorCorner.x + adjustedWidth, anchorCorner.y + adjustedHeight)
-        }
+        KropCorner.BOTTOM_RIGHT -> fixedCorner to Offset(
+            fixedCorner.x + adjustedWidth,
+            fixedCorner.y + adjustedHeight
+        )
 
         else -> return null
     }
 
-    val finalTopLeftX = newTopLeft.x.coerceIn(0f, canvasWidth - minSize)
-    val finalTopLeftY = newTopLeft.y.coerceIn(0f, canvasHeight - minSize)
-    var finalBottomRightX = newBottomRight.x.coerceIn(minSize, canvasWidth)
-    var finalBottomRightY = newBottomRight.y.coerceIn(minSize, canvasHeight)
-
-    if (finalBottomRightX - finalTopLeftX < minSize) {
-
-        finalBottomRightX = if (cornerType == KropCorner.TOP_LEFT
-            || cornerType == KropCorner.BOTTOM_LEFT
-        ) {
-
-            (finalTopLeftX + minSize).coerceAtMost(canvasWidth)
-        } else {
-
-            (finalTopLeftX + minSize).coerceAtMost(canvasWidth)
-        }
-    }
-
-    if (finalBottomRightY - finalTopLeftY < minSize) {
-
-        finalBottomRightY = if (cornerType == KropCorner.TOP_LEFT
-            || cornerType == KropCorner.TOP_RIGHT
-        ) {
-
-            (finalTopLeftY + minSize).coerceAtMost(canvasHeight)
-        } else {
-
-            (finalTopLeftY + minSize).coerceAtMost(canvasHeight)
-        }
-    }
-
-    var finalWidth = finalBottomRightX - finalTopLeftX
-    var finalHeight = finalBottomRightY - finalTopLeftY
-
-    if (finalWidth / aspectRatio > finalHeight) {
-
-        finalWidth = finalHeight * aspectRatio
-    } else {
-
-        finalHeight = finalWidth / aspectRatio
-    }
-
-    finalWidth = finalWidth.coerceAtLeast(minSize)
-    finalHeight = finalHeight.coerceAtLeast(minSize)
-
-    val resultTopLeft: Offset
-    val resultBottomRight: Offset
-
-    when (cornerType) {
-
-        KropCorner.TOP_LEFT -> {
-
-            resultBottomRight = anchorCorner
-            resultTopLeft = Offset(anchorCorner.x - finalWidth, anchorCorner.y - finalHeight)
-        }
-
-        KropCorner.TOP_RIGHT -> {
-
-            resultBottomRight = Offset(anchorCorner.x + finalWidth, anchorCorner.y)
-            resultTopLeft = Offset(anchorCorner.x, anchorCorner.y - finalHeight)
-        }
-
-        KropCorner.BOTTOM_LEFT -> {
-
-            resultBottomRight = Offset(anchorCorner.x, anchorCorner.y + finalHeight)
-            resultTopLeft = Offset(anchorCorner.x - finalWidth, anchorCorner.y)
-        }
-
-        KropCorner.BOTTOM_RIGHT -> {
-
-            resultTopLeft = anchorCorner
-            resultBottomRight = Offset(anchorCorner.x + finalWidth, anchorCorner.y + finalHeight)
-        }
-
-        else -> return null
-    }
-
-    val clampedTopLeftX = resultTopLeft.x.coerceIn(0f, canvasWidth - minSize)
-    val clampedTopLeftY = resultTopLeft.y.coerceIn(0f, canvasHeight - minSize)
-
-    val clampedBottomRightX = resultBottomRight.x.coerceIn(
-        clampedTopLeftX + minSize..canvasWidth
+    var finalTopLeft = initialTopLeft.copy(
+        x = initialTopLeft.x.coerceIn(0f, canvasWidth - minSize),
+        y = initialTopLeft.y.coerceIn(0f, canvasHeight - minSize)
     )
 
-    val clampedBottomRightY = resultBottomRight.y.coerceIn(
-        clampedTopLeftY + minSize..canvasHeight
+    var finalBottomRight = initialBottomRight.copy(
+        x = initialBottomRight.x.coerceIn(finalTopLeft.x + minSize, canvasWidth),
+        y = initialBottomRight.y.coerceIn(finalTopLeft.y + minSize, canvasHeight)
     )
 
-    if (clampedBottomRightX - clampedTopLeftX < minSize
-        || clampedBottomRightY - clampedTopLeftY < minSize
-    ) {
+    finalTopLeft = finalTopLeft.copy(
+        x = finalTopLeft.x.coerceAtMost(finalBottomRight.x - minSize),
+        y = finalTopLeft.y.coerceAtMost(finalBottomRight.y - minSize)
+    )
+
+    finalBottomRight = finalBottomRight.copy(
+        x = finalBottomRight.x.coerceAtLeast(finalTopLeft.x + minSize),
+        y = finalBottomRight.y.coerceAtLeast(finalTopLeft.y + minSize)
+    )
+
+    var currentWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
+    var currentHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
+
+    (currentWidth / aspectRatio > currentHeight + 0.001f).takeIf { it }?.run {
+
+        when (cornerType) {
+
+            KropCorner.TOP_LEFT, KropCorner.BOTTOM_LEFT -> {
+
+                currentWidth = currentHeight * aspectRatio
+                finalTopLeft = finalTopLeft.copy(x = finalBottomRight.x - currentWidth)
+            }
+
+            KropCorner.TOP_RIGHT, KropCorner.BOTTOM_RIGHT -> {
+
+                currentWidth = currentHeight * aspectRatio
+                finalBottomRight = finalBottomRight.copy(x = finalTopLeft.x + currentWidth)
+            }
+
+            else -> {}
+        }
+    } ?: (currentHeight > currentWidth / aspectRatio + 0.001f).takeIf { it }?.run {
+
+        when (cornerType) {
+
+            KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT -> {
+
+                currentHeight = currentWidth / aspectRatio
+                finalTopLeft = finalTopLeft.copy(y = finalBottomRight.y - currentHeight)
+            }
+
+            KropCorner.BOTTOM_LEFT, KropCorner.BOTTOM_RIGHT -> {
+
+                currentHeight = currentWidth / aspectRatio
+                finalBottomRight = finalBottomRight.copy(y = finalTopLeft.y + currentHeight)
+            }
+
+            else -> {}
+        }
+    }
+
+    finalTopLeft = finalTopLeft.copy(
+        x = finalTopLeft.x.coerceIn(0f, canvasWidth - minSize),
+        y = finalTopLeft.y.coerceIn(0f, canvasHeight - minSize)
+    )
+
+    finalBottomRight = finalBottomRight.copy(
+        x = (finalTopLeft.x + currentWidth.coerceAtLeast(minSize)).coerceIn(
+            finalTopLeft.x + minSize,
+            canvasWidth
+        ),
+        y = (finalTopLeft.y + currentHeight.coerceAtLeast(minSize)).coerceIn(
+            finalTopLeft.y + minSize,
+            canvasHeight
+        )
+    )
+
+    val finalWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
+    val finalHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
+
+    (finalWidth < minSize - 0.001f || finalHeight < minSize - 0.001f).takeIf { it }?.run {
 
         return null
     }
 
-    return Pair(
-        first = Offset(x = clampedTopLeftX, y = clampedTopLeftY),
-        second = Offset(x = clampedBottomRightX, y = clampedBottomRightY)
+    val resultBottomRight = Offset(
+        x = (finalTopLeft.x + finalWidth).coerceIn(finalTopLeft.x + minSize, canvasWidth),
+        y = (finalTopLeft.y + finalHeight).coerceIn(finalTopLeft.y + minSize, canvasHeight)
     )
+
+    val resultTopLeft = finalTopLeft.copy(
+        x = (resultBottomRight.x - finalWidth).coerceIn(0f, canvasWidth - minSize),
+        y = (resultBottomRight.y - finalHeight).coerceIn(0f, canvasHeight - minSize)
+    )
+
+    ((resultBottomRight.x - resultTopLeft.x) < minSize - 0.001f ||
+            (resultBottomRight.y - resultTopLeft.y) < minSize - 0.001f).takeIf { it }?.run {
+
+        return null
+    }
+
+    return Pair(resultTopLeft, resultBottomRight)
 }

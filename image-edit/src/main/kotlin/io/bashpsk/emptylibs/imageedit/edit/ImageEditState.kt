@@ -29,13 +29,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import io.bashpsk.emptylibs.imageedit.edit.EditItemCorner.Companion.hasCornerEdge
 import io.bashpsk.emptylibs.imageedit.extension.getEditItemCorner
 import io.bashpsk.emptylibs.imageedit.extension.hasEditItemClicked
-import io.bashpsk.emptylibs.imageedit.extension.toBottomLeft
 import io.bashpsk.emptylibs.imageedit.extension.toBottomRight
 import io.bashpsk.emptylibs.imageedit.extension.toPixel
 import io.bashpsk.emptylibs.imageedit.extension.toRect
-import io.bashpsk.emptylibs.imageedit.extension.toTopRight
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
@@ -495,233 +494,371 @@ class ImageEditState(
         }
     }
 
-    internal fun ImageEditState.getEditItemPositionSize(
+    internal fun getEditItemPositionSize(
         position: Offset,
         size: Size,
-        amount: Offset,
+        amount: Offset
     ): Pair<Offset, Size> {
 
         val sizeLimit = config.minItemSize.toPixel(density = density)
-        val minX = 0f
-        val minY = 0f
+        val minX = 0.0F
+        val minY = 0.0F
         val maxX = canvasSize.width
         val maxY = canvasSize.height
+        val initialBottomRight = position.toBottomRight(size = size)
 
-        var finalTopLeft = position
-        var finalSize = size
+        var calculatedTopLeft = position
+        var calculatedSize = size
 
-        val topLeft = position
-        val topRight = position.toTopRight(size = size)
-        val bottomLeft = position.toBottomLeft(size = size)
-        val bottomRight = position.toBottomRight(size = size)
+        val aspectRatio = size.takeIf { itemSize ->
+
+            itemSize.width > 0.0F && itemSize.height > 0.0F && currentCorner.hasCornerEdge()
+        }?.let { itemSize -> itemSize.width / itemSize.height } ?: 1.0F
+
 
         when (currentCorner) {
 
-            EditItemCorner.TOP_LEFT -> {
-
-                ((bottomRight.x - (topLeft.x + amount.x)) >= sizeLimit &&
-                        (bottomRight.y - (topLeft.y + amount.y)) >= sizeLimit)
-                    .takeIf { isAdjustable -> isAdjustable }?.run {
-
-                        val newX = (topLeft.x + amount.x).coerceIn(
-                            minX..bottomRight.x - sizeLimit
-                        )
-
-                        val newY = (topLeft.y + amount.y).coerceIn(
-                            minY..bottomRight.y - sizeLimit
-                        )
-
-                        finalTopLeft = Offset(newX, newY)
-
-                        finalSize = Size(
-                            width = (bottomRight.x - newX).coerceAtLeast(sizeLimit),
-                            height = (bottomRight.y - newY).coerceAtLeast(sizeLimit)
-                        )
-                    }
-            }
-
-            EditItemCorner.TOP_RIGHT -> {
-
-                ((topRight.x + amount.x - bottomLeft.x) >= sizeLimit &&
-                        (bottomRight.y - (topRight.y + amount.y)) >= sizeLimit)
-                    .takeIf { isAdjustable -> isAdjustable }?.run {
-
-                        val newX = (topRight.x + amount.x).coerceIn(
-                            bottomLeft.x + sizeLimit..maxX
-                        )
-
-                        val newY = (topRight.y + amount.y).coerceIn(
-                            minY..bottomLeft.y - sizeLimit
-                        )
-
-                        finalTopLeft = Offset(bottomLeft.x, newY)
-
-                        finalSize = Size(
-                            width = (newX - bottomLeft.x).coerceAtLeast(sizeLimit),
-                            height = (bottomLeft.y - newY).coerceAtLeast(sizeLimit)
-                        )
-                    }
-            }
-
-            EditItemCorner.BOTTOM_LEFT -> {
-
-                ((topRight.x - (bottomLeft.x + amount.x)) >= sizeLimit &&
-                        ((bottomLeft.y + amount.y) - topRight.y) >= sizeLimit)
-                    .takeIf { isAdjustable -> isAdjustable }?.run {
-
-                        val newX = (bottomLeft.x + amount.x).coerceIn(
-                            minX..topRight.x - sizeLimit
-                        )
-
-                        val newY = (bottomLeft.y + amount.y).coerceIn(
-                            topRight.y + sizeLimit..maxY
-                        )
-
-                        finalTopLeft = Offset(newX, topRight.y)
-
-                        finalSize = Size(
-                            width = (topRight.x - newX).coerceAtLeast(sizeLimit),
-                            height = (newY - topRight.y).coerceAtLeast(sizeLimit)
-                        )
-                    }
-            }
-
+            EditItemCorner.TOP_LEFT, EditItemCorner.TOP_RIGHT, EditItemCorner.BOTTOM_LEFT,
             EditItemCorner.BOTTOM_RIGHT -> {
 
-                (((bottomRight.x + amount.x) - topLeft.x) >= sizeLimit &&
-                        ((bottomRight.y + amount.y) - topLeft.y) >= sizeLimit)
-                    .takeIf { isAdjustable -> isAdjustable }?.run {
+                val fixedCorner = when (currentCorner) {
 
-                        val newX = (bottomRight.x + amount.x).coerceIn(
-                            topLeft.x + sizeLimit..maxX
+                    EditItemCorner.TOP_LEFT -> initialBottomRight
+                    EditItemCorner.TOP_RIGHT -> Offset(position.x, initialBottomRight.y)
+                    EditItemCorner.BOTTOM_LEFT -> Offset(initialBottomRight.x, position.y)
+                    EditItemCorner.BOTTOM_RIGHT -> position
+                    else -> return Pair(position, size)
+                }
+
+                val draggedCorner = when (currentCorner) {
+
+                    EditItemCorner.TOP_LEFT -> position
+                    EditItemCorner.TOP_RIGHT -> Offset(initialBottomRight.x, position.y)
+                    EditItemCorner.BOTTOM_LEFT -> Offset(position.x, initialBottomRight.y)
+                    EditItemCorner.BOTTOM_RIGHT -> initialBottomRight
+                    else -> return Pair(position, size)
+                }
+
+                currentCorner?.let { corner ->
+
+                    calculateNewEditRect(
+                        draggedCorner = draggedCorner,
+                        fixedCorner = fixedCorner,
+                        dragDelta = amount,
+                        cornerType = corner,
+                        aspectRatio = aspectRatio,
+                        minSize = sizeLimit,
+                        canvasWidth = maxX,
+                        canvasHeight = maxY
+                    )?.let { (rectTopLeft, rectBottomRight) ->
+
+                        calculatedTopLeft = rectTopLeft
+
+                        calculatedSize = Size(
+                            width = (rectBottomRight.x - rectTopLeft.x).coerceAtLeast(sizeLimit),
+                            height = (rectBottomRight.y - rectTopLeft.y).coerceAtLeast(sizeLimit)
                         )
+                    } ?: run {
 
-                        val newY = (bottomRight.y + amount.y).coerceIn(
-                            topLeft.y + sizeLimit..maxY
-                        )
-
-                        finalTopLeft = topLeft
-
-                        finalSize = Size(
-                            width = (newX - topLeft.x).coerceAtLeast(sizeLimit),
-                            height = (newY - topLeft.y).coerceAtLeast(sizeLimit)
-                        )
+                        calculatedTopLeft = position
+                        calculatedSize = size
                     }
-            }
-
-            EditItemCorner.LEFT_CENTRE -> {
-
-                ((topRight.x - (topLeft.x + amount.x)) >= sizeLimit).takeIf { isAdjustable ->
-
-                    isAdjustable
-                }?.run {
-
-                    val newX = (topLeft.x + amount.x).coerceIn(
-                        minX..topRight.x - sizeLimit
-                    )
-
-                    finalTopLeft = Offset(newX, topLeft.y)
-
-                    finalSize = Size(
-                        width = (topRight.x - newX).coerceAtLeast(sizeLimit),
-                        height = size.height
-                    )
                 }
             }
 
             EditItemCorner.TOP_CENTRE -> {
 
-                ((bottomLeft.y - (topLeft.y + amount.y)) >= sizeLimit).takeIf { isAdjustable ->
+                val potentialNewTopY = position.y + amount.y
+                val newY = potentialNewTopY.coerceIn(minY, initialBottomRight.y - sizeLimit)
 
-                    isAdjustable
-                }?.run {
+                calculatedTopLeft = position.copy(y = newY)
 
-                    val newY = (topLeft.y + amount.y).coerceIn(
-                        minY..bottomLeft.y - sizeLimit
-                    )
-
-                    finalTopLeft = Offset(topLeft.x, newY)
-
-                    finalSize = Size(
-                        width = size.width,
-                        height = (bottomLeft.y - newY).coerceAtLeast(sizeLimit)
-                    )
-                }
-            }
-
-            EditItemCorner.RIGHT_CENTRE -> {
-
-                (((topRight.x + amount.x) - topLeft.x) >= sizeLimit).takeIf { isAdjustable ->
-
-                    isAdjustable
-                }?.run {
-
-                    val newX = (topRight.x + amount.x).coerceIn(
-                        topLeft.x + sizeLimit..maxX
-                    )
-
-                    finalTopLeft = topLeft
-
-                    finalSize = Size(
-                        width = (newX - topLeft.x).coerceAtLeast(sizeLimit),
-                        height = size.height
-                    )
-                }
+                calculatedSize = size.copy(
+                    height = (initialBottomRight.y - newY).coerceAtLeast(sizeLimit)
+                )
             }
 
             EditItemCorner.BOTTOM_CENTRE -> {
 
-                (((bottomLeft.y + amount.y) - topLeft.y) >= sizeLimit).takeIf { isAdjustable ->
+                val potentialNewBottomY = initialBottomRight.y + amount.y
+                val newY = potentialNewBottomY.coerceIn(position.y + sizeLimit, maxY)
 
-                    isAdjustable
-                }?.run {
+                calculatedSize = size.copy(height = (newY - position.y).coerceAtLeast(sizeLimit))
+            }
 
-                    val newY = (bottomLeft.y + amount.y).coerceIn(
-                        topLeft.y + sizeLimit..maxY
-                    )
+            EditItemCorner.LEFT_CENTRE -> {
 
-                    finalTopLeft = topLeft
+                val potentialNewLeftX = position.x + amount.x
+                val newX = potentialNewLeftX.coerceIn(minX, initialBottomRight.x - sizeLimit)
 
-                    finalSize = Size(
-                        width = size.width,
-                        height = (newY - topLeft.y).coerceAtLeast(sizeLimit)
-                    )
-                }
+                calculatedTopLeft = position.copy(x = newX)
+
+                calculatedSize = size.copy(
+                    width = (initialBottomRight.x - newX).coerceAtLeast(sizeLimit)
+                )
+            }
+
+            EditItemCorner.RIGHT_CENTRE -> {
+
+                val potentialNewRightX = initialBottomRight.x + amount.x
+                val newX = potentialNewRightX.coerceIn(position.x + sizeLimit, maxX)
+
+                calculatedSize = size.copy(width = (newX - position.x).coerceAtLeast(sizeLimit))
             }
 
             null -> {
 
-                finalTopLeft = Offset(
-                    x = (position.x + amount.x).coerceIn(minX..maxX - size.width),
-                    y = (position.y + amount.y).coerceIn(minY..maxY - size.height)
-                )
+                val targetWidth = calculatedSize.width.coerceAtLeast(0f)
+                val targetHeight = calculatedSize.height.coerceAtLeast(0f)
 
-                finalSize = size
+                calculatedTopLeft = position.copy(
+                    x = (position.x + amount.x).coerceIn(
+                        minX, (maxX - targetWidth).coerceAtLeast(minX)
+                    ),
+                    y = (position.y + amount.y).coerceIn(
+                        minY, (maxY - targetHeight).coerceAtLeast(minY)
+                    )
+                )
             }
         }
 
-        var currentWidth = finalSize.width.coerceAtLeast(sizeLimit)
-        var currentHeight = finalSize.height.coerceAtLeast(sizeLimit)
+        var finalTopLeft = calculatedTopLeft
 
-        var currentTopLeftX = finalTopLeft.x.coerceIn(
-            minX..(maxX - currentWidth).coerceAtLeast(minX)
-        )
-        var currentTopLeftY = finalTopLeft.y.coerceIn(
-            minY..(maxY - currentHeight).coerceAtLeast(minY)
+        var finalSize = Size(
+            width = calculatedSize.width.coerceAtLeast(sizeLimit),
+            height = calculatedSize.height.coerceAtLeast(sizeLimit)
         )
 
-        currentWidth = currentWidth.coerceAtMost((maxX - currentTopLeftX).coerceAtLeast(0f))
-            .coerceAtLeast(sizeLimit)
-        currentHeight = currentHeight.coerceAtMost((maxY - currentTopLeftY).coerceAtLeast(0f))
-            .coerceAtLeast(sizeLimit)
-
-        currentTopLeftX = currentTopLeftX.coerceIn(
-            minX..(maxX - currentWidth).coerceAtLeast(minX)
-        )
-        currentTopLeftY = currentTopLeftY.coerceIn(
-            minY..(maxY - currentHeight).coerceAtLeast(minY)
+        finalTopLeft = finalTopLeft.copy(
+            x = finalTopLeft.x.coerceIn(minX, (maxX - finalSize.width).coerceAtLeast(minX)),
+            y = finalTopLeft.y.coerceIn(minY, (maxY - finalSize.height).coerceAtLeast(minY))
         )
 
-        return Pair(Offset(currentTopLeftX, currentTopLeftY), Size(currentWidth, currentHeight))
+        finalSize = finalSize.copy(
+            width = finalSize.width.coerceAtMost(maxX - finalTopLeft.x),
+            height = finalSize.height.coerceAtMost(maxY - finalTopLeft.y)
+        ).let { newSize ->
+
+            Size(newSize.width.coerceAtLeast(sizeLimit), newSize.height.coerceAtLeast(sizeLimit))
+        }
+
+        finalTopLeft = finalTopLeft.copy(
+            x = finalTopLeft.x.coerceIn(minX, (maxX - finalSize.width).coerceAtLeast(minX)),
+            y = finalTopLeft.y.coerceIn(minY, (maxY - finalSize.height).coerceAtLeast(minY))
+        )
+
+        currentCorner.takeIf { corner -> corner.hasCornerEdge() }?.let { corner ->
+
+            var tempWidth = finalSize.width
+            var tempHeight = finalSize.height
+
+            (tempWidth / aspectRatio > tempHeight + 0.001f).takeIf { it }?.run {
+
+                tempWidth = tempHeight * aspectRatio
+            } ?: (tempHeight > tempWidth / aspectRatio + 0.001f).takeIf { it }?.run {
+
+                tempHeight = tempWidth / aspectRatio
+            }
+
+            tempWidth = tempWidth.coerceAtLeast(sizeLimit)
+            tempHeight = tempHeight.coerceAtLeast(sizeLimit)
+
+            val adjustedTopLeftX = when (corner) {
+
+                EditItemCorner.TOP_LEFT -> initialBottomRight.x - tempWidth
+                EditItemCorner.TOP_RIGHT -> position.x
+                EditItemCorner.BOTTOM_LEFT -> initialBottomRight.x - tempWidth
+                EditItemCorner.BOTTOM_RIGHT -> position.x
+                else -> finalTopLeft.x
+            }
+
+            val adjustedTopLeftY = when (corner) {
+
+                EditItemCorner.TOP_LEFT -> initialBottomRight.y - tempHeight
+                EditItemCorner.TOP_RIGHT -> initialBottomRight.y - tempHeight
+                EditItemCorner.BOTTOM_LEFT -> position.y
+                EditItemCorner.BOTTOM_RIGHT -> position.y
+                else -> finalTopLeft.y
+            }
+
+            finalTopLeft = Offset(adjustedTopLeftX, adjustedTopLeftY)
+            finalSize = Size(tempWidth, tempHeight)
+
+            finalTopLeft = finalTopLeft.copy(
+                x = finalTopLeft.x.coerceIn(minX, (maxX - finalSize.width).coerceAtLeast(minX)),
+                y = finalTopLeft.y.coerceIn(minY, (maxY - finalSize.height).coerceAtLeast(minY))
+            )
+
+            finalSize = finalSize.copy(
+                width = finalSize.width.coerceAtMost(
+                    maxX - finalTopLeft.x
+                ).coerceAtLeast(sizeLimit),
+                height = finalSize.height.coerceAtMost(
+                    maxY - finalTopLeft.y
+                ).coerceAtLeast(sizeLimit)
+            )
+        }
+
+        return Pair(first = finalTopLeft, second = finalSize)
+    }
+
+    private fun calculateNewEditRect(
+        draggedCorner: Offset,
+        fixedCorner: Offset,
+        dragDelta: Offset,
+        cornerType: EditItemCorner,
+        aspectRatio: Float,
+        minSize: Float,
+        canvasWidth: Float,
+        canvasHeight: Float
+    ): Pair<Offset, Offset>? {
+
+        val newPosition = draggedCorner + dragDelta
+
+        val proposedWidth = when (cornerType) {
+
+            EditItemCorner.TOP_LEFT, EditItemCorner.BOTTOM_LEFT -> fixedCorner.x - newPosition.x
+            EditItemCorner.TOP_RIGHT, EditItemCorner.BOTTOM_RIGHT -> newPosition.x - fixedCorner.x
+            else -> return null
+        }.coerceAtLeast(minSize)
+
+        var adjustedWidth = proposedWidth
+        var adjustedHeight = proposedWidth / aspectRatio
+
+        (adjustedHeight < minSize).takeIf { it }?.run {
+
+            adjustedHeight = minSize
+            adjustedWidth = adjustedHeight * aspectRatio
+        }
+
+        adjustedWidth = adjustedWidth.coerceAtLeast(minSize)
+
+        val (initialTopLeft, initialBottomRight) = when (cornerType) {
+
+            EditItemCorner.TOP_LEFT -> Offset(
+                fixedCorner.x - adjustedWidth,
+                fixedCorner.y - adjustedHeight
+            ) to fixedCorner
+
+            EditItemCorner.TOP_RIGHT -> Offset(
+                fixedCorner.x,
+                fixedCorner.y - adjustedHeight
+            ) to Offset(fixedCorner.x + adjustedWidth, fixedCorner.y)
+
+            EditItemCorner.BOTTOM_LEFT -> Offset(
+                fixedCorner.x - adjustedWidth,
+                fixedCorner.y
+            ) to Offset(fixedCorner.x, fixedCorner.y + adjustedHeight)
+
+            EditItemCorner.BOTTOM_RIGHT -> fixedCorner to Offset(
+                fixedCorner.x + adjustedWidth,
+                fixedCorner.y + adjustedHeight
+            )
+
+            else -> return null
+        }
+
+        var finalTopLeft = initialTopLeft.copy(
+            x = initialTopLeft.x.coerceIn(0f, canvasWidth - minSize),
+            y = initialTopLeft.y.coerceIn(0f, canvasHeight - minSize)
+        )
+
+        var finalBottomRight = initialBottomRight.copy(
+            x = initialBottomRight.x.coerceIn(finalTopLeft.x + minSize, canvasWidth),
+            y = initialBottomRight.y.coerceIn(finalTopLeft.y + minSize, canvasHeight)
+        )
+
+        finalTopLeft = finalTopLeft.copy(
+            x = finalTopLeft.x.coerceAtMost(finalBottomRight.x - minSize),
+            y = finalTopLeft.y.coerceAtMost(finalBottomRight.y - minSize)
+        )
+
+        finalBottomRight = finalBottomRight.copy(
+            x = finalBottomRight.x.coerceAtLeast(finalTopLeft.x + minSize),
+            y = finalBottomRight.y.coerceAtLeast(finalTopLeft.y + minSize)
+        )
+
+        var currentWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
+        var currentHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
+
+        (currentWidth / aspectRatio > currentHeight + 0.001f).takeIf { it }?.run {
+
+            when (cornerType) {
+
+                EditItemCorner.TOP_LEFT, EditItemCorner.BOTTOM_LEFT -> {
+
+                    currentWidth = currentHeight * aspectRatio
+                    finalTopLeft = finalTopLeft.copy(x = finalBottomRight.x - currentWidth)
+                }
+
+                EditItemCorner.TOP_RIGHT, EditItemCorner.BOTTOM_RIGHT -> {
+
+                    currentWidth = currentHeight * aspectRatio
+                    finalBottomRight = finalBottomRight.copy(x = finalTopLeft.x + currentWidth)
+                }
+
+                else -> {}
+            }
+        } ?: (currentHeight > currentWidth / aspectRatio + 0.001f).takeIf { it }?.run {
+
+            when (cornerType) {
+
+                EditItemCorner.TOP_LEFT, EditItemCorner.TOP_RIGHT -> {
+
+                    currentHeight = currentWidth / aspectRatio
+                    finalTopLeft = finalTopLeft.copy(y = finalBottomRight.y - currentHeight)
+                }
+
+                EditItemCorner.BOTTOM_LEFT, EditItemCorner.BOTTOM_RIGHT -> {
+
+                    currentHeight = currentWidth / aspectRatio
+                    finalBottomRight = finalBottomRight.copy(y = finalTopLeft.y + currentHeight)
+                }
+
+                else -> {}
+            }
+        }
+
+        finalTopLeft = finalTopLeft.copy(
+            x = finalTopLeft.x.coerceIn(0f, canvasWidth - minSize),
+            y = finalTopLeft.y.coerceIn(0f, canvasHeight - minSize)
+        )
+
+        finalBottomRight = finalBottomRight.copy(
+            x = (finalTopLeft.x + currentWidth.coerceAtLeast(minSize)).coerceIn(
+                finalTopLeft.x + minSize,
+                canvasWidth
+            ),
+            y = (finalTopLeft.y + currentHeight.coerceAtLeast(minSize)).coerceIn(
+                finalTopLeft.y + minSize,
+                canvasHeight
+            )
+        )
+
+        val finalWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
+        val finalHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
+
+        (finalWidth < minSize - 0.001f || finalHeight < minSize - 0.001f).takeIf { it }?.run {
+
+            return null
+        }
+
+        val resultBottomRight = Offset(
+            x = (finalTopLeft.x + finalWidth).coerceIn(finalTopLeft.x + minSize, canvasWidth),
+            y = (finalTopLeft.y + finalHeight).coerceIn(finalTopLeft.y + minSize, canvasHeight)
+        )
+
+        val resultTopLeft = finalTopLeft.copy(
+            x = (resultBottomRight.x - finalWidth).coerceIn(0f, canvasWidth - minSize),
+            y = (resultBottomRight.y - finalHeight).coerceIn(0f, canvasHeight - minSize)
+        )
+
+        ((resultBottomRight.x - resultTopLeft.x) < minSize - 0.001f ||
+                (resultBottomRight.y - resultTopLeft.y) < minSize - 0.001f).takeIf { it }?.run {
+
+            return null
+        }
+
+        return Pair(resultTopLeft, resultBottomRight)
     }
 }
