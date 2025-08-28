@@ -631,7 +631,7 @@ private fun AlphaPanel(
  * @param color The color to be displayed. Defaults to [Color.Unspecified].
  */
 @Composable
-private fun ColorPreview(modifier: Modifier = Modifier, color: Color = Color.Unspecified) {
+fun ColorPreview(modifier: Modifier = Modifier, color: Color = Color.Unspecified) {
 
     Row(
         modifier = modifier.fillMaxWidth(),

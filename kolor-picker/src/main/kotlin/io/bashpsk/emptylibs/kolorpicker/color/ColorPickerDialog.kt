@@ -175,6 +175,7 @@ fun ColorPickerDialog(
 fun ColorPickerDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
     state: ColorPickerState = rememberColorPickerState(),
+    enableCopyButtons: Boolean = false,
     onResetClick: () -> Unit,
     onSelectedColor: (color: Color) -> Unit
 ) {
@@ -238,7 +239,8 @@ fun ColorPickerDialog(
 
                         ColorPicker(
                             modifier = Modifier.fillParentMaxSize(),
-                            state = state
+                            state = state,
+                            enableCopyButtons = enableCopyButtons
                         )
                     }
                 }

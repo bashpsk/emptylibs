@@ -54,11 +54,9 @@ internal fun DrawScope.drawImageEditItemHandle(items: ImageEditItems, config: Im
     }
 }
 
-private fun DrawScope.drawEditErase(item: ImageEditItems.EraseItem) {
+private fun DrawScope.drawEditBrush(item: ImageEditItems.BrushItem) {
 
     val smoothedPath = Path().apply {
-
-        val smoothness = 3
 
         item.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
 
@@ -74,7 +72,47 @@ private fun DrawScope.drawEditErase(item: ImageEditItems.EraseItem) {
                 val dx = abs(from.x - to.x)
                 val dy = abs(from.y - to.y)
 
-                (dx >= smoothness || dy >= smoothness).takeIf { hasValid -> hasValid }?.run {
+                (dx >= item.smoothness || dy >= item.smoothness).takeIf { hasValid ->
+
+                    hasValid
+                }?.run {
+
+                    quadraticTo(
+                        x1 = (from.x + to.x) / 2,
+                        y1 = (from.y + to.y) / 2,
+                        x2 = to.x,
+                        y2 = to.y
+                    )
+                }
+            }
+        }
+    }
+
+    drawPath(path = smoothedPath, color = item.color, style = item.style)
+}
+
+private fun DrawScope.drawEditErase(item: ImageEditItems.EraseItem) {
+
+    val smoothedPath = Path().apply {
+
+        item.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
+
+            moveTo(x = points.first().x, y = points.first().y)
+
+            points.size.takeIf { counts -> counts == 1 }?.run {
+
+                lineTo(x = points.first().x, y = points.first().y)
+            }
+
+            points.zipWithNext().forEach { (from, to) ->
+
+                val dx = abs(from.x - to.x)
+                val dy = abs(from.y - to.y)
+
+                (dx >= item.smoothness || dy >= item.smoothness).takeIf { hasValid ->
+
+                    hasValid
+                }?.run {
 
                     quadraticTo(
                         x1 = (from.x + to.x) / 2,
@@ -97,53 +135,20 @@ private fun DrawScope.drawEditErase(item: ImageEditItems.EraseItem) {
 
 private fun DrawScope.drawEditImage(item: ImageEditItems.ImageItem) {
 
-    clipRect {
+    item.bitmap?.let { bitmap ->
 
-        translate(left = item.position.x, top = item.position.y) {
+        clipRect {
 
-            drawImage(
-                image = item.bitmap,
-                dstOffset = Offset.Zero.round(),
-                dstSize = item.size.toIntSize()
-            )
-        }
-    }
-}
+            translate(left = item.position.x, top = item.position.y) {
 
-private fun DrawScope.drawEditBrush(item: ImageEditItems.BrushItem) {
-
-    val smoothedPath = Path().apply {
-
-        val smoothness = 3
-
-        item.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
-
-            moveTo(x = points.first().x, y = points.first().y)
-
-            points.size.takeIf { counts -> counts == 1 }?.run {
-
-                lineTo(x = points.first().x, y = points.first().y)
-            }
-
-            points.zipWithNext().forEach { (from, to) ->
-
-                val dx = abs(from.x - to.x)
-                val dy = abs(from.y - to.y)
-
-                (dx >= smoothness || dy >= smoothness).takeIf { hasValid -> hasValid }?.run {
-
-                    quadraticTo(
-                        x1 = (from.x + to.x) / 2,
-                        y1 = (from.y + to.y) / 2,
-                        x2 = to.x,
-                        y2 = to.y
-                    )
-                }
+                drawImage(
+                    image = bitmap,
+                    dstOffset = Offset.Zero.round(),
+                    dstSize = item.size.toIntSize()
+                )
             }
         }
     }
-
-    drawPath(path = smoothedPath, color = item.color, style = item.style)
 }
 
 private fun DrawScope.drawEditShape(item: ImageEditItems.ShapeItem) {

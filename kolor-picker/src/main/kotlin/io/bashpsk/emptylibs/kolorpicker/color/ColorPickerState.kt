@@ -12,13 +12,13 @@ import androidx.compose.ui.graphics.Color
 /**
  * Remembers the state of a color picker.
  *
- * @param initialColor The initial color to be selected. Defaults to [Color.Black].
+ * @param initialColor The initial color to be selected. Defaults to [Color.Unspecified].
  * @param enableAlphaPanel Whether to enable the alpha panel. Defaults to false.
  * @return A [ColorPickerState] instance that can be used to control the color picker.
  */
 @Composable
 fun rememberColorPickerState(
-    initialColor: Color = Color.Black,
+    initialColor: Color = Color.Unspecified,
     enableAlphaPanel: Boolean = false
 ): ColorPickerState {
 

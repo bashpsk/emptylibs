@@ -2,14 +2,19 @@ package io.bashpsk.emptylibs.imageedit.edit
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -17,6 +22,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
@@ -44,6 +50,7 @@ import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -55,18 +62,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -239,11 +251,15 @@ internal fun ImageEditTopBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ImageEditBottomBar(
     state: ImageEditState,
+    editToolInputSheetState: SheetState,
     onBitmapSelect: () -> Unit
 ) {
+
+    val sheetCoroutineScope = rememberCoroutineScope()
 
     val isBrushItemSelected by remember(state.currentImageEditItem) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.BrushItem }
@@ -328,19 +344,7 @@ internal fun ImageEditBottomBar(
                     checked = isImageItemSelected,
                     onCheckedChange = { checked ->
 
-                        when (checked) {
-
-                            true -> {
-
-                                when (state.selectedBitmap) {
-
-                                    null -> onBitmapSelect()
-                                    else -> state.onImageItem()
-                                }
-                            }
-
-                            false -> state.onResetEditItem()
-                        }
+                        if (checked) state.onImageItem() else state.onResetEditItem()
                     }
                 ) {
 
@@ -406,7 +410,10 @@ internal fun ImageEditBottomBar(
                 ) {
 
                     IconButton(
-                        onClick = {}
+                        onClick = {
+
+                            sheetCoroutineScope.launch { editToolInputSheetState.expand() }
+                        }
                     ) {
 
                         Icon(
@@ -435,7 +442,7 @@ private fun CanvasSlateToolBar(
 
         MenuItemView(
             icon = Icons.Filled.ClearAll,
-            label = "Clear Canvas",
+            label = "Clear All",
             onClick = {
 
                 state.apply {
@@ -446,6 +453,63 @@ private fun CanvasSlateToolBar(
             }
         )
     }
+}
+
+@Composable
+private fun ColorSelectionBar(
+    modifier: Modifier = Modifier,
+    primaryColor: Color,
+    secondaryColor: Color,
+    primaryColorPickerDialog: MutableTransitionState<Boolean>,
+    secondaryColorPickerDialog: MutableTransitionState<Boolean>,
+) {
+
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(space = 12.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        item {
+
+            ColorBoxView(
+                color = primaryColor,
+                onColorClick = {
+
+                    primaryColorPickerDialog.targetState = true
+                }
+            )
+        }
+
+        item {
+
+            ColorBoxView(
+                color = secondaryColor,
+                onColorClick = {
+
+                    secondaryColorPickerDialog.targetState = true
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ColorBoxView(color: Color, onColorClick: () -> Unit) {
+
+    Box(
+        modifier = Modifier
+            .size(size = 36.dp)
+            .background(color = color, shape = CircleShape)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape
+            )
+            .clip(shape = CircleShape)
+            .clickable(role = Role.Button, onClick = onColorClick)
+            .shadow(elevation = 16.dp, shape = CircleShape)
+    )
 }
 
 @Composable

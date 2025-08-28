@@ -14,16 +14,18 @@ sealed class ImageEditItems(var uuid: String = "") {
     data class BrushItem(
         val color: Color,
         val style: DrawStyle,
+        val smoothness: Int,
         val path: PersistentList<Offset>
     ) : ImageEditItems()
 
     data class EraseItem(
         val style: DrawStyle,
+        val smoothness: Int,
         val path: PersistentList<Offset>
     ) : ImageEditItems()
 
     data class ImageItem(
-        val bitmap: ImageBitmap,
+        val bitmap: ImageBitmap?,
         val position: Offset,
         val size: Size
     ) : ImageEditItems()

@@ -8,26 +8,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.imageedit.edit.EditItemCorner.Companion.hasCornerEdge
 import io.bashpsk.emptylibs.imageedit.extension.getEditItemCorner
@@ -37,7 +32,6 @@ import io.bashpsk.emptylibs.imageedit.extension.toPixel
 import io.bashpsk.emptylibs.imageedit.extension.toRect
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
-import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -74,30 +68,6 @@ class ImageEditState(
     internal var imageEditItemList by mutableStateOf(persistentListOf<ImageEditItems>())
         private set
 
-    var selectedPenColor by mutableStateOf(Color.Red)
-        private set
-
-    var selectedStrokeCap by mutableStateOf(StrokeCap.Round)
-        private set
-
-    var selectedStrokeJoin by mutableStateOf(StrokeJoin.Round)
-        private set
-
-    var penThickness by mutableStateOf(24.dp)
-        private set
-
-    var selectedBitmap by mutableStateOf<ImageBitmap?>(null)
-        private set
-
-    var enteredText by mutableStateOf("Empty Libs")
-        private set
-
-    var textStyle by mutableStateOf(TextStyle.Default)
-        private set
-
-    var selectedShape by mutableStateOf<ImageShape>(ImageShape.None)
-        private set
-
     var currentImageEditItem by mutableStateOf<ImageEditItems?>(null)
         private set
 
@@ -107,45 +77,15 @@ class ImageEditState(
 
     internal var currentCorner by mutableStateOf<EditItemCorner?>(null)
 
-    fun updatePenColor(color: Color) {
+    internal var brushEditInput by mutableStateOf(ImageEditInput.BrushItem())
 
-        selectedPenColor = color
-    }
+    internal var eraseEditInput by mutableStateOf(ImageEditInput.EraseItem())
 
-    fun updateStrokeCap(type: StrokeCap) {
+    internal var imageEditInput by mutableStateOf(ImageEditInput.ImageItem())
 
-        selectedStrokeCap = type
-    }
+    internal var shapeEditInput by mutableStateOf(ImageEditInput.ShapeItem())
 
-    fun updateStrokeJoin(type: StrokeJoin) {
-
-        selectedStrokeJoin = type
-    }
-
-    fun updatePenThickness(thickness: Dp) {
-
-        penThickness = thickness
-    }
-
-    fun updateBitmap(bitmap: ImageBitmap?) {
-
-        selectedBitmap = bitmap
-    }
-
-    fun updateText(text: String) {
-
-        enteredText = text
-    }
-
-    fun updateTextStyle(style: TextStyle) {
-
-        textStyle = style
-    }
-
-    fun updateShape(shape: ImageShape) {
-
-        selectedShape = shape
-    }
+    internal var textEditInput by mutableStateOf(ImageEditInput.TextItem())
 
     fun addImageEditItem(items: ImageEditItems) {
 
@@ -184,12 +124,21 @@ class ImageEditState(
     fun onBrushItem() {
 
         val items = ImageEditItems.BrushItem(
-            color = selectedPenColor,
+            color = brushEditInput.color,
             style = Stroke(
-                width = penThickness.value,
-                cap = selectedStrokeCap,
-                join = selectedStrokeJoin
+                width = brushEditInput.thickness,
+                miter = brushEditInput.miter,
+                cap = brushEditInput.strokeCap,
+                join = brushEditInput.strokeJoin,
+                pathEffect = PathEffect.dashPathEffect(
+                    intervals = floatArrayOf(
+                        brushEditInput.dashIntervalOff,
+                        brushEditInput.dashIntervalOn
+                    ),
+                    phase = brushEditInput.dashPhase
+                )
             ),
+            smoothness = brushEditInput.smoothness,
             path = persistentListOf()
         ).apply {
 
@@ -203,10 +152,12 @@ class ImageEditState(
 
         val items = ImageEditItems.EraseItem(
             style = Stroke(
-                width = penThickness.value,
-                cap = selectedStrokeCap,
-                join = selectedStrokeJoin
+                width = eraseEditInput.thickness,
+                cap = eraseEditInput.strokeCap,
+                join = eraseEditInput.strokeJoin,
+                pathEffect = eraseEditInput.pathEffect
             ),
+            smoothness = eraseEditInput.smoothness,
             path = persistentListOf()
         ).apply {
 
@@ -218,7 +169,9 @@ class ImageEditState(
 
     fun onImageItem() {
 
-        val sizeOfItem = canvasSize.fittedImageSize(imageSize = selectedBitmap.toSize())
+        val sizeOfItem = canvasSize.fittedImageSize(
+            imageSize = imageEditInput.bitmap?.toSize() ?: Size.Zero
+        )
 
         val positionOfItem = Offset(
             x = (canvasSize.width - sizeOfItem.width) / 2.0F,
@@ -226,7 +179,7 @@ class ImageEditState(
         )
 
         val items = ImageEditItems.ImageItem(
-            bitmap = selectedBitmap ?: return,
+            bitmap = imageEditInput.bitmap,
             position = positionOfItem,
             size = sizeOfItem
         ).apply {
@@ -247,8 +200,8 @@ class ImageEditState(
         )
 
         val items = ImageEditItems.ShapeItem(
-            shape = selectedShape,
-            color = selectedPenColor,
+            shape = shapeEditInput.shape,
+            color = shapeEditInput.color,
             style = Fill,
             position = positionOfItem,
             size = sizeOfItem
@@ -263,8 +216,8 @@ class ImageEditState(
     fun onTextItem() {
 
         val sizeOfItem = textMeasurer.measure(
-            text = enteredText,
-            style = textStyle,
+            text = textEditInput.content,
+            style = textEditInput.style,
             overflow = TextOverflow.Clip,
             constraints = Constraints(
                 maxWidth = canvasSize.width.toInt(),
@@ -278,8 +231,8 @@ class ImageEditState(
         )
 
         val items = ImageEditItems.TextItem(
-            content = enteredText,
-            style = textStyle,
+            content = textEditInput.content,
+            style = textEditInput.style,
             position = positionOfItem,
             size = sizeOfItem
         ).apply {
@@ -289,11 +242,23 @@ class ImageEditState(
 
         onCurrentImageEdit(items = items)
     }
+    
+    fun onRefreshEditItem() {
+        
+        when (currentImageEditItem) {
+
+            is ImageEditItems.BrushItem -> onBrushItem()
+            is ImageEditItems.EraseItem -> onEraseItem()
+            is ImageEditItems.ImageItem -> onImageItem()
+            is ImageEditItems.ShapeItem -> onShapeItem()
+            is ImageEditItems.TextItem -> onTextItem()
+            null -> {}
+        }
+    }
 
     fun onResetEditItem() {
 
         onCurrentImageEdit(items = null)
-        updateBitmap(bitmap = null)
     }
 
     suspend fun getEditedImageBitmap(
@@ -458,8 +423,8 @@ class ImageEditState(
                     )
 
                     val sizeOfItem = textMeasurer.measure(
-                        text = enteredText,
-                        style = textStyle,
+                        text = textEditInput.content,
+                        style = textEditInput.style,
                         overflow = TextOverflow.Clip,
                         constraints = Constraints(
                             maxWidth = itemSize.width.toInt(),

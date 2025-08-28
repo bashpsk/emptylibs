@@ -94,6 +94,7 @@ fun ColorPickPreference(
         true -> ColorPickerDialog(
             dialogVisibleState = dialogVisibleState,
             state = colorPickerState,
+            enableCopyButtons = true,
             onResetClick = {
 
                 coroutineScope.launch(context = Dispatchers.IO) {
@@ -113,6 +114,7 @@ fun ColorPickPreference(
         false -> ColorPickerDialog(
             dialogVisibleState = dialogVisibleState,
             state = colorPickerState,
+            enableCopyButtons = true,
             onSelectedColor = { color ->
 
                 coroutineScope.launch(context = Dispatchers.IO) {
