@@ -33,9 +33,9 @@ internal fun DrawScope.drawImageEditItem(items: ImageEditItems, textMeasurer: Te
 
         when (items) {
 
+            is ImageEditItems.BrushItem -> drawEditBrush(item = items)
             is ImageEditItems.EraseItem -> drawEditErase(item = items)
             is ImageEditItems.ImageItem -> drawEditImage(item = items)
-            is ImageEditItems.PathItem -> drawEditPath(item = items)
             is ImageEditItems.ShapeItem -> drawEditShape(item = items)
             is ImageEditItems.TextItem -> drawEditText(item = items, textMeasurer = textMeasurer)
         }
@@ -46,9 +46,9 @@ internal fun DrawScope.drawImageEditItemHandle(items: ImageEditItems, config: Im
 
     when (items) {
 
+        is ImageEditItems.BrushItem -> {}
         is ImageEditItems.EraseItem -> {}
         is ImageEditItems.ImageItem -> drawEditImageHandle(item = items, config = config)
-        is ImageEditItems.PathItem -> {}
         is ImageEditItems.ShapeItem -> drawEditShapeHandle(item = items, config = config)
         is ImageEditItems.TextItem -> drawEditTextHandle(item = items, config = config)
     }
@@ -110,7 +110,7 @@ private fun DrawScope.drawEditImage(item: ImageEditItems.ImageItem) {
     }
 }
 
-private fun DrawScope.drawEditPath(item: ImageEditItems.PathItem) {
+private fun DrawScope.drawEditBrush(item: ImageEditItems.BrushItem) {
 
     val smoothedPath = Path().apply {
 

@@ -1,6 +1,11 @@
 package io.bashpsk.emptylibs.imageedit.edit
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -15,19 +20,19 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BorderColor
+import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DoneAll
-import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material.icons.outlined.BorderColor
-import androidx.compose.material.icons.outlined.Draw
+import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material.icons.outlined.TextIncrease
@@ -240,24 +245,28 @@ internal fun ImageEditBottomBar(
     onBitmapSelect: () -> Unit
 ) {
 
-    val isEraseItemSelected by remember(state) {
+    val isBrushItemSelected by remember(state.currentImageEditItem) {
+        derivedStateOf { state.currentImageEditItem is ImageEditItems.BrushItem }
+    }
+
+    val isEraseItemSelected by remember(state.currentImageEditItem) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.EraseItem }
     }
 
-    val isImageItemSelected by remember(state) {
+    val isImageItemSelected by remember(state.currentImageEditItem) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.ImageItem }
     }
 
-    val isPathItemSelected by remember(state) {
-        derivedStateOf { state.currentImageEditItem is ImageEditItems.PathItem }
-    }
-
-    val isShapeItemSelected by remember(state) {
+    val isShapeItemSelected by remember(state.currentImageEditItem) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.ShapeItem }
     }
 
-    val isTextItemSelected by remember(state) {
+    val isTextItemSelected by remember(state.currentImageEditItem) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.TextItem }
+    }
+
+    val isToolSettingsVisible by remember(state.currentImageEditItem) {
+        derivedStateOf { state.currentImageEditItem != null }
     }
 
     BottomAppBar(
@@ -270,6 +279,27 @@ internal fun ImageEditBottomBar(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
+
+            item {
+
+                FilledIconToggleButton(
+                    checked = isBrushItemSelected,
+                    onCheckedChange = { checked ->
+
+                        if (checked) state.onBrushItem() else state.onResetEditItem()
+                    }
+                ) {
+
+                    Icon(
+                        imageVector = when (isBrushItemSelected) {
+
+                            true -> Icons.Filled.Brush
+                            false -> Icons.Outlined.Brush
+                        },
+                        contentDescription = "Brush"
+                    )
+                }
+            }
 
             item {
 
@@ -328,27 +358,6 @@ internal fun ImageEditBottomBar(
             item {
 
                 FilledIconToggleButton(
-                    checked = isPathItemSelected,
-                    onCheckedChange = { checked ->
-
-                        if (checked) state.onPathItem() else state.onResetEditItem()
-                    }
-                ) {
-
-                    Icon(
-                        imageVector = when (isPathItemSelected) {
-
-                            true -> Icons.Filled.Draw
-                            false -> Icons.Outlined.Draw
-                        },
-                        contentDescription = "Draw"
-                    )
-                }
-            }
-
-            item {
-
-                FilledIconToggleButton(
                     checked = isShapeItemSelected,
                     onCheckedChange = { checked ->
 
@@ -390,14 +399,21 @@ internal fun ImageEditBottomBar(
 
             item {
 
-                IconButton(
-                    onClick = {}
+                AnimatedVisibility(
+                    visible = isToolSettingsVisible,
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
                 ) {
 
-                    Icon(
-                        imageVector = Icons.Filled.Settings,
-                        contentDescription = "Tool Settings"
-                    )
+                    IconButton(
+                        onClick = {}
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Tool Settings"
+                        )
+                    }
                 }
             }
         }

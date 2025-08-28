@@ -74,9 +74,9 @@ internal fun ImageEditItems.toRect(): Rect? {
 
     return when (this) {
 
+        is ImageEditItems.BrushItem -> null
         is ImageEditItems.EraseItem -> null
         is ImageEditItems.ImageItem -> size.itemRect(position = position)
-        is ImageEditItems.PathItem -> null
         is ImageEditItems.ShapeItem -> size.itemRect(position = position)
         is ImageEditItems.TextItem -> size.itemRect(position = position)
     }
@@ -86,9 +86,9 @@ internal fun ImageEditItems.hasEditItemClicked(clickPosition: Offset): Boolean {
     
     return when (this) {
 
+        is ImageEditItems.BrushItem -> false
         is ImageEditItems.EraseItem -> false
         is ImageEditItems.ImageItem -> size.itemRect(position = position).contains(clickPosition)
-        is ImageEditItems.PathItem -> false
         is ImageEditItems.ShapeItem -> size.itemRect(position = position).contains(clickPosition)
         is ImageEditItems.TextItem -> size.itemRect(position = position).contains(clickPosition)
     }

@@ -181,6 +181,24 @@ class ImageEditState(
         currentImageEditItem = items
     }
 
+    fun onBrushItem() {
+
+        val items = ImageEditItems.BrushItem(
+            color = selectedPenColor,
+            style = Stroke(
+                width = penThickness.value,
+                cap = selectedStrokeCap,
+                join = selectedStrokeJoin
+            ),
+            path = persistentListOf()
+        ).apply {
+
+            uuid = Clock.System.now().toEpochMilliseconds().toString()
+        }
+
+        onCurrentImageEdit(items = items)
+    }
+
     fun onEraseItem() {
 
         val items = ImageEditItems.EraseItem(
@@ -211,24 +229,6 @@ class ImageEditState(
             bitmap = selectedBitmap ?: return,
             position = positionOfItem,
             size = sizeOfItem
-        ).apply {
-
-            uuid = Clock.System.now().toEpochMilliseconds().toString()
-        }
-
-        onCurrentImageEdit(items = items)
-    }
-
-    fun onPathItem() {
-
-        val items = ImageEditItems.PathItem(
-            color = selectedPenColor,
-            style = Stroke(
-                width = penThickness.value,
-                cap = selectedStrokeCap,
-                join = selectedStrokeJoin
-            ),
-            path = persistentListOf()
         ).apply {
 
             uuid = Clock.System.now().toEpochMilliseconds().toString()
@@ -374,9 +374,9 @@ class ImageEditState(
 
             when (items) {
 
+                is ImageEditItems.BrushItem -> onBrushItem()
                 is ImageEditItems.EraseItem -> onEraseItem()
                 is ImageEditItems.ImageItem -> {}
-                is ImageEditItems.PathItem -> onPathItem()
                 is ImageEditItems.ShapeItem -> {}
                 is ImageEditItems.TextItem -> {}
             }
@@ -390,6 +390,16 @@ class ImageEditState(
         currentImageEditItem?.let { items ->
 
             when (items) {
+
+                is ImageEditItems.BrushItem -> {
+
+                    val newItems = items.copy(path = items.path.add(position)).apply {
+
+                        uuid = items.uuid
+                    }
+
+                    onCurrentImageEdit(items = newItems)
+                }
 
                 is ImageEditItems.EraseItem -> {
 
@@ -413,16 +423,6 @@ class ImageEditState(
                         position = itemPosition,
                         size = itemSize
                     ).apply {
-
-                        uuid = items.uuid
-                    }
-
-                    onCurrentImageEdit(items = newItems)
-                }
-
-                is ImageEditItems.PathItem -> {
-
-                    val newItems = items.copy(path = items.path.add(position)).apply {
 
                         uuid = items.uuid
                     }
