@@ -4,7 +4,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawStyle
@@ -31,7 +30,9 @@ internal sealed interface ImageEditInput {
         val strokeCap: StrokeCap = StrokeCap.Round,
         val strokeJoin: StrokeJoin = StrokeJoin.Round,
         val miter: Float = 4.0F,
-        val pathEffect: PathEffect? = null,
+        val dashIntervalOff: Float = 0.0F,
+        val dashIntervalOn: Float = 0.0F,
+        val dashPhase: Float = 0.0F,
         val smoothness: Int = 2
     ) : ImageEditInput
 

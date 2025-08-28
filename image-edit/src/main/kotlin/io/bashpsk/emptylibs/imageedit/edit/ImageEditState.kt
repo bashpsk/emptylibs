@@ -155,7 +155,13 @@ class ImageEditState(
                 width = eraseEditInput.thickness,
                 cap = eraseEditInput.strokeCap,
                 join = eraseEditInput.strokeJoin,
-                pathEffect = eraseEditInput.pathEffect
+                pathEffect = PathEffect.dashPathEffect(
+                    intervals = floatArrayOf(
+                        eraseEditInput.dashIntervalOff,
+                        eraseEditInput.dashIntervalOn
+                    ),
+                    phase = eraseEditInput.dashPhase
+                )
             ),
             smoothness = eraseEditInput.smoothness,
             path = persistentListOf()

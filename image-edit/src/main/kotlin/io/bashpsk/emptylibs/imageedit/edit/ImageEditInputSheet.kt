@@ -271,6 +271,151 @@ private fun InputEditBrush(state: ImageEditState) {
 @Composable
 private fun InputEditErase(state: ImageEditState) {
 
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+    ) {
+
+        item {
+
+            SmoothnessSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                smoothness = state.eraseEditInput.smoothness,
+                onSmoothnessChange = { newSmoothness ->
+
+                    state.apply {
+
+                        eraseEditInput = eraseEditInput.copy(smoothness = newSmoothness)
+                    }
+                }
+            )
+        }
+
+        item {
+
+            ThicknessSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                thickness = state.eraseEditInput.thickness,
+                onThicknessChange = { newThickness ->
+
+                    state.apply {
+
+                        eraseEditInput = eraseEditInput.copy(thickness = newThickness)
+                    }
+                }
+            )
+        }
+
+        item {
+
+            MiterSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                miter = state.eraseEditInput.miter,
+                onMiterChange = { newMiter ->
+
+                    state.apply {
+
+                        eraseEditInput = eraseEditInput.copy(miter = newMiter)
+                    }
+                }
+            )
+        }
+
+        item { HorizontalDivider() }
+
+        item {
+
+            DashPathSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                intervalOff = state.eraseEditInput.dashIntervalOff,
+                intervalOn = state.eraseEditInput.dashIntervalOn,
+                intervalPhase = state.eraseEditInput.dashPhase,
+                onIntervalOffChange = { newInterval ->
+
+                    state.apply {
+
+                        eraseEditInput = eraseEditInput.copy(dashIntervalOff = newInterval)
+                    }
+                },
+                onIntervalOnChange = { newInterval ->
+
+                    state.apply {
+
+                        eraseEditInput = eraseEditInput.copy(dashIntervalOn = newInterval)
+                    }
+                },
+                onIntervalPhaseChange = { newInterval ->
+
+                    state.apply {
+
+                        eraseEditInput = eraseEditInput.copy(dashPhase = newInterval)
+                    }
+                }
+            )
+        }
+
+        item { HorizontalDivider() }
+
+        item {
+
+            StrokeSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                selectedStrokeCap = state.eraseEditInput.strokeCap,
+                selectedStrokeJoin = state.eraseEditInput.strokeJoin,
+                onStrokeCapChange = { newStrokeCap ->
+
+                    state.apply {
+
+                        eraseEditInput = eraseEditInput.copy(strokeCap = newStrokeCap)
+                    }
+                },
+                onStrokeJoinChange = { newStrokeJoin ->
+
+                    state.apply {
+
+                        eraseEditInput = eraseEditInput.copy(strokeJoin = newStrokeJoin)
+                    }
+                }
+            )
+        }
+    }
 }
 
 @Composable
