@@ -50,9 +50,6 @@ fun ImageEditScreen() {
             ImageEdit(
                 modifier = Modifier.fillMaxSize(),
                 state = imageEditState,
-                onBitmapSelect = {
-
-                },
                 onDoneClick = {
 
                     bitmapCoroutineScope.launch(Dispatchers.IO) {

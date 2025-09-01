@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreVert
@@ -255,8 +256,7 @@ internal fun ImageEditTopBar(
 @Composable
 internal fun ImageEditBottomBar(
     state: ImageEditState,
-    editToolInputSheetState: SheetState,
-    onBitmapSelect: () -> Unit
+    editToolInputSheetState: SheetState
 ) {
 
     val sheetCoroutineScope = rememberCoroutineScope()
@@ -432,6 +432,10 @@ private fun CanvasSlateToolBar(
     state: ImageEditState
 ) {
 
+    val isDeleteEnabled by remember(state.currentImageEditItem) {
+        derivedStateOf { state.currentImageEditItem != null }
+    }
+
     DropdownMenu(
         expanded = state.isToolBarMenuExpanded,
         onDismissRequest = {
@@ -439,6 +443,20 @@ private fun CanvasSlateToolBar(
             state.isToolBarMenuExpanded = false
         }
     ) {
+
+        MenuItemView(
+            icon = Icons.Filled.Delete,
+            label = "Delete Item",
+            enabled = isDeleteEnabled,
+            onClick = {
+
+                state.apply {
+
+                    onCurrentImageEdit(items = null)
+                    isToolBarMenuExpanded = false
+                }
+            }
+        )
 
         MenuItemView(
             icon = Icons.Filled.ClearAll,
@@ -516,10 +534,12 @@ private fun ColorBoxView(color: Color, onColorClick: () -> Unit) {
 private fun MenuItemView(
     icon: ImageVector,
     label: String,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
 
     DropdownMenuItem(
+        enabled = enabled,
         text = {
 
             Text(
@@ -544,6 +564,7 @@ private fun MenuItemView(
     icon: ImageVector,
     label: String,
     isChecked: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
 
@@ -552,6 +573,7 @@ private fun MenuItemView(
     }
 
     DropdownMenuItem(
+        enabled = enabled,
         text = {
 
             Text(

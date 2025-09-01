@@ -38,22 +38,25 @@ internal sealed interface ImageEditInput {
 
     data class ImageItem(
         val bitmap: ImageBitmap? = null,
-        val position: Offset = Offset.Zero,
-        val size: Size = Size.Zero
+        val shape: ImageShape = ImageShape.None,
+        val border: Float = 0.0F,
+        val borderColor: Color = Color.Unspecified,
+        val position: Offset = Offset.Unspecified,
+        val size: Size = Size.Unspecified
     ) : ImageEditInput
 
     data class ShapeItem(
         val shape: ImageShape = ImageShape.None,
         val color: Color = Color.Green,
         val style: DrawStyle = Fill,
-        val position: Offset = Offset.Zero,
-        val size: Size = Size.Zero
+        val position: Offset = Offset.Unspecified,
+        val size: Size = Size.Unspecified
     ) : ImageEditInput
 
     data class TextItem(
         val content: String = "",
         val style: TextStyle = TextStyle.Default,
-        val position: Offset = Offset.Zero,
-        val size: Size = Size.Zero
+        val position: Offset = Offset.Unspecified,
+        val size: Size = Size.Unspecified
     ) : ImageEditInput
 }

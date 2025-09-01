@@ -30,7 +30,6 @@ import io.bashpsk.emptylibs.imageedit.extension.hasEditItemClicked
 import io.bashpsk.emptylibs.imageedit.extension.toBottomRight
 import io.bashpsk.emptylibs.imageedit.extension.toPixel
 import io.bashpsk.emptylibs.imageedit.extension.toRect
-import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
@@ -113,6 +112,7 @@ class ImageEditState(
 
     fun onClearCanvas() {
 
+        onCurrentImageEdit(items = null)
         imageEditItemList = persistentListOf()
     }
 
@@ -175,19 +175,10 @@ class ImageEditState(
 
     fun onImageItem() {
 
-        val sizeOfItem = canvasSize.fittedImageSize(
-            imageSize = imageEditInput.bitmap?.toSize() ?: Size.Zero
-        )
-
-        val positionOfItem = Offset(
-            x = (canvasSize.width - sizeOfItem.width) / 2.0F,
-            y = (canvasSize.height - sizeOfItem.height) / 2.0F
-        )
-
         val items = ImageEditItems.ImageItem(
             bitmap = imageEditInput.bitmap,
-            position = positionOfItem,
-            size = sizeOfItem
+            position = imageEditInput.position,
+            size = imageEditInput.size
         ).apply {
 
             uuid = Clock.System.now().toEpochMilliseconds().toString()
@@ -248,9 +239,9 @@ class ImageEditState(
 
         onCurrentImageEdit(items = items)
     }
-    
+
     fun onRefreshEditItem() {
-        
+
         when (currentImageEditItem) {
 
             is ImageEditItems.BrushItem -> onBrushItem()

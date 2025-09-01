@@ -17,12 +17,11 @@ import androidx.compose.ui.Modifier
 fun ImageEdit(
     modifier: Modifier = Modifier,
     state: ImageEditState,
-    onBitmapSelect: () -> Unit,
     onDoneClick: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
 
-    val editToolInputSheetState = rememberModalBottomSheetState()
+    val editToolInputSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(editToolInputSheetState.isVisible) {
 
@@ -55,8 +54,7 @@ fun ImageEdit(
 
             ImageEditBottomBar(
                 state = state,
-                editToolInputSheetState = editToolInputSheetState,
-                onBitmapSelect = onBitmapSelect
+                editToolInputSheetState = editToolInputSheetState
             )
         }
     }
