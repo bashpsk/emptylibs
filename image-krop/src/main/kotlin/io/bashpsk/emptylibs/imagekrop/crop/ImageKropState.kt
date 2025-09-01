@@ -18,6 +18,7 @@ import io.bashpsk.emptylibs.imagekrop.offset.coerceAtLeast
 import io.bashpsk.emptylibs.imagekrop.offset.getKropCorner
 import io.bashpsk.emptylibs.imagekrop.offset.itemRect
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
+import io.bashpsk.emptylibs.imageutils.shape.BasicImageShapes
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
@@ -88,10 +89,10 @@ class ImageKropState(
     /**
      * A persistent list of [ImageShape] objects available for cropping.
      * This list defines the different shapes that can be used for the crop area.
-     * It is initialized with [BasicKropShapes].
+     * It is initialized with [BasicImageShapes].
      * The list can be updated using the [updateShapeList] function.
      */
-    var shapeList: PersistentList<ImageShape> = BasicKropShapes
+    var shapeList: PersistentList<ImageShape> = BasicImageShapes
 
     /**
      * The original image bitmap that is being cropped.
