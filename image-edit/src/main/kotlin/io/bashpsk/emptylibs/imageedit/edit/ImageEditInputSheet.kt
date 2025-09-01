@@ -770,6 +770,31 @@ private fun InputEditShape(state: ImageEditState) {
                 }
             )
         }
+
+        item { HorizontalDivider() }
+
+        item {
+
+            ShapeSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                imageShape = state.shapeEditInput.shape,
+                imageShapeList = BasicImageShapes,
+                onShapeChange = { newShape ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(shape = newShape)
+                    }
+                }
+            )
+        }
     }
 }
 
