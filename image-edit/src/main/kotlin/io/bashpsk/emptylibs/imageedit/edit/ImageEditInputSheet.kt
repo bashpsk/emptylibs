@@ -488,7 +488,7 @@ private fun InputEditImage(state: ImageEditState) {
                             size != Size.Unspecified
                         } ?: canvasSize.fittedImageSize(newBitmap.toSize())
 
-                        val positionOfItem = imageEditInput.position.takeIf { position->
+                        val positionOfItem = imageEditInput.position.takeIf { position ->
 
                             position != Offset.Unspecified
                         } ?: Offset(
@@ -623,6 +623,154 @@ private fun InputEditImage(state: ImageEditState) {
 @Composable
 private fun InputEditShape(state: ImageEditState) {
 
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+    ) {
+
+        item {
+
+            ColorSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                label = "Color:",
+                color = state.shapeEditInput.color,
+                onColorChange = { newColor ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(color = newColor)
+                    }
+                }
+            )
+        }
+
+        item { HorizontalDivider() }
+
+        item {
+
+            ThicknessSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                thickness = state.shapeEditInput.thickness,
+                onThicknessChange = { newThickness ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(thickness = newThickness)
+                    }
+                }
+            )
+        }
+
+        item {
+
+            MiterSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                miter = state.shapeEditInput.miter,
+                onMiterChange = { newMiter ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(miter = newMiter)
+                    }
+                }
+            )
+        }
+
+        item { HorizontalDivider() }
+
+        item {
+
+            DashPathSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                intervalOff = state.shapeEditInput.dashIntervalOff,
+                intervalOn = state.shapeEditInput.dashIntervalOn,
+                intervalPhase = state.shapeEditInput.dashPhase,
+                onIntervalOffChange = { newInterval ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(dashIntervalOff = newInterval)
+                    }
+                },
+                onIntervalOnChange = { newInterval ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(dashIntervalOn = newInterval)
+                    }
+                },
+                onIntervalPhaseChange = { newInterval ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(dashPhase = newInterval)
+                    }
+                }
+            )
+        }
+
+        item { HorizontalDivider() }
+
+        item {
+
+            StrokeSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                selectedStrokeCap = state.shapeEditInput.strokeCap,
+                selectedStrokeJoin = state.shapeEditInput.strokeJoin,
+                onStrokeCapChange = { newStrokeCap ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(strokeCap = newStrokeCap)
+                    }
+                },
+                onStrokeJoinChange = { newStrokeJoin ->
+
+                    state.apply {
+
+                        shapeEditInput = shapeEditInput.copy(strokeJoin = newStrokeJoin)
+                    }
+                }
+            )
+        }
+    }
 }
 
 @Composable
@@ -802,7 +950,7 @@ private fun ShapeSelectionView(
 
         ExposedDropdownMenuBox(
             expanded = isShapeMenuExpanded,
-            onExpandedChange = { isVisible->
+            onExpandedChange = { isVisible ->
 
                 isShapeMenuExpanded = isVisible
             }
@@ -855,8 +1003,8 @@ private fun ShapeSelectionView(
 
                             AnimatedVisibility(
                                 visible = isSelected,
-                                enter = fadeIn()+ scaleIn(),
-                                exit = fadeOut()+ scaleOut()
+                                enter = fadeIn() + scaleIn(),
+                                exit = fadeOut() + scaleOut()
                             ) {
 
                                 Icon(

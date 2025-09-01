@@ -199,7 +199,24 @@ class ImageEditState(
         val items = ImageEditItems.ShapeItem(
             shape = shapeEditInput.shape,
             color = shapeEditInput.color,
-            style = Fill,
+            style = when (val style= shapeEditInput.style) {
+
+                is Fill -> style
+
+                is Stroke -> Stroke(
+                    width = shapeEditInput.thickness,
+                    miter = shapeEditInput.miter,
+                    cap = shapeEditInput.strokeCap,
+                    join = shapeEditInput.strokeJoin,
+                    pathEffect = PathEffect.dashPathEffect(
+                        intervals = floatArrayOf(
+                            shapeEditInput.dashIntervalOff,
+                            shapeEditInput.dashIntervalOn
+                        ),
+                        phase = shapeEditInput.dashPhase
+                    )
+                )
+            },
             position = positionOfItem,
             size = sizeOfItem
         ).apply {

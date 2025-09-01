@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 
@@ -48,7 +48,14 @@ internal sealed interface ImageEditInput {
     data class ShapeItem(
         val shape: ImageShape = ImageShape.None,
         val color: Color = Color.Green,
-        val style: DrawStyle = Fill,
+        val style: DrawStyle = Stroke(),
+        val thickness: Float = 12.0F,
+        val strokeCap: StrokeCap = StrokeCap.Round,
+        val strokeJoin: StrokeJoin = StrokeJoin.Round,
+        val miter: Float = 4.0F,
+        val dashIntervalOff: Float = 0.0F,
+        val dashIntervalOn: Float = 0.0F,
+        val dashPhase: Float = 0.0F,
         val position: Offset = Offset.Unspecified,
         val size: Size = Size.Unspecified
     ) : ImageEditInput
