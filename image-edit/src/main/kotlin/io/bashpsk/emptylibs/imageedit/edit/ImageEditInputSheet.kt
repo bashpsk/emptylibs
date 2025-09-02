@@ -498,8 +498,8 @@ private fun InputEditImage(state: ImageEditState) {
 
                         imageEditInput = imageEditInput.copy(
                             bitmap = newBitmap,
-                            size = sizeOfItem,
-                            position = positionOfItem
+                            position = positionOfItem,
+                            size = sizeOfItem
                         )
                     }
                 }
@@ -755,7 +755,26 @@ private fun InputEditShape(state: ImageEditState) {
 
                     state.apply {
 
-                        shapeEditInput = shapeEditInput.copy(shape = newShape)
+                        val sizeOfItem = shapeEditInput.size.takeIf { size ->
+
+                            size != Size.Unspecified
+                        } ?: canvasSize.fittedImageSize(
+                            Size(canvasSize.width / 2.0F, canvasSize.width / 2.0F)
+                        )
+
+                        val positionOfItem = shapeEditInput.position.takeIf { position ->
+
+                            position != Offset.Unspecified
+                        } ?: Offset(
+                            x = (canvasSize.width - sizeOfItem.width) / 2.0F,
+                            y = (canvasSize.height - sizeOfItem.height) / 2.0F
+                        )
+
+                        shapeEditInput = shapeEditInput.copy(
+                            shape = newShape,
+                            position = positionOfItem,
+                            size = sizeOfItem
+                        )
                     }
                 }
             )

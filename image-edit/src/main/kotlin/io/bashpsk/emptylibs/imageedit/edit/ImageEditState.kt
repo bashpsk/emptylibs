@@ -30,6 +30,7 @@ import io.bashpsk.emptylibs.imageedit.extension.hasEditItemClicked
 import io.bashpsk.emptylibs.imageedit.extension.toBottomRight
 import io.bashpsk.emptylibs.imageedit.extension.toPixel
 import io.bashpsk.emptylibs.imageedit.extension.toRect
+import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
@@ -190,9 +191,17 @@ class ImageEditState(
 
     fun onShapeItem() {
 
-        val sizeOfItem = canvasSize / 2.5F
+        val sizeOfItem = shapeEditInput.size.takeIf { size ->
 
-        val positionOfItem = Offset(
+            size != Size.Unspecified
+        } ?: canvasSize.fittedImageSize(
+            Size(canvasSize.width / 2.0F, canvasSize.width / 2.0F)
+        )
+
+        val positionOfItem = shapeEditInput.position.takeIf { position ->
+
+            position != Offset.Unspecified
+        } ?: Offset(
             x = (canvasSize.width - sizeOfItem.width) / 2.0F,
             y = (canvasSize.height - sizeOfItem.height) / 2.0F
         )
@@ -200,7 +209,7 @@ class ImageEditState(
         val items = ImageEditItems.ShapeItem(
             shape = shapeEditInput.shape,
             color = shapeEditInput.color,
-            style = when (val style= shapeEditInput.style) {
+            style = when (val style = shapeEditInput.style) {
 
                 is Fill -> style
 
