@@ -178,12 +178,19 @@ internal fun ImageEditUI(
 @Composable
 internal fun ImageEditTopBar(
     state: ImageEditState,
+    editToolInputSheetState: SheetState,
     onDoneClick: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
 
-    val isUndoButtonEnable by remember(state) {
+    val sheetCoroutineScope = rememberCoroutineScope()
+
+    val isUndoButtonEnable by remember(state.imageEditItemList) {
         derivedStateOf { state.imageEditItemList.isNotEmpty() }
+    }
+
+    val isToolSettingsVisible by remember(state.currentImageEditItem) {
+        derivedStateOf { state.currentImageEditItem != null }
     }
 
     TopAppBar(
@@ -217,6 +224,35 @@ internal fun ImageEditTopBar(
         },
         title = {
 
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                item {
+
+                    AnimatedVisibility(
+                        visible = isToolSettingsVisible,
+                        enter = fadeIn() + scaleIn(),
+                        exit = fadeOut() + scaleOut()
+                    ) {
+
+                        IconButton(
+                            onClick = {
+
+                                sheetCoroutineScope.launch { editToolInputSheetState.expand() }
+                            }
+                        ) {
+
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = "Tool Settings"
+                            )
+                        }
+                    }
+                }
+            }
         },
         actions = {
 
@@ -252,14 +288,8 @@ internal fun ImageEditTopBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun ImageEditBottomBar(
-    state: ImageEditState,
-    editToolInputSheetState: SheetState
-) {
-
-    val sheetCoroutineScope = rememberCoroutineScope()
+internal fun ImageEditBottomBar(state: ImageEditState) {
 
     val isBrushItemSelected by remember(state.currentImageEditItem) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.BrushItem }
@@ -279,10 +309,6 @@ internal fun ImageEditBottomBar(
 
     val isTextItemSelected by remember(state.currentImageEditItem) {
         derivedStateOf { state.currentImageEditItem is ImageEditItems.TextItem }
-    }
-
-    val isToolSettingsVisible by remember(state.currentImageEditItem) {
-        derivedStateOf { state.currentImageEditItem != null }
     }
 
     BottomAppBar(
@@ -398,29 +424,6 @@ internal fun ImageEditBottomBar(
                         },
                         contentDescription = "Text"
                     )
-                }
-            }
-
-            item {
-
-                AnimatedVisibility(
-                    visible = isToolSettingsVisible,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-
-                    IconButton(
-                        onClick = {
-
-                            sheetCoroutineScope.launch { editToolInputSheetState.expand() }
-                        }
-                    ) {
-
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "Tool Settings"
-                        )
-                    }
                 }
             }
         }

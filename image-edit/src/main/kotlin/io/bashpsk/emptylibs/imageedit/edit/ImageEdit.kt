@@ -43,6 +43,7 @@ fun ImageEdit(
 
             ImageEditTopBar(
                 state = state,
+                editToolInputSheetState = editToolInputSheetState,
                 onDoneClick = onDoneClick,
                 onNavigateBack = onNavigateBack
             )
@@ -52,10 +53,7 @@ fun ImageEdit(
                 state = state
             )
 
-            ImageEditBottomBar(
-                state = state,
-                editToolInputSheetState = editToolInputSheetState
-            )
+            ImageEditBottomBar(state = state)
         }
     }
 }
