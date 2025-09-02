@@ -618,7 +618,7 @@ private fun InputEditShape(state: ImageEditState) {
             )
         }
 
-        item { HorizontalDivider() }
+        /*item { HorizontalDivider() }
 
         item {
 
@@ -734,7 +734,7 @@ private fun InputEditShape(state: ImageEditState) {
                     }
                 }
             )
-        }
+        }*/
 
         item { HorizontalDivider() }
 
