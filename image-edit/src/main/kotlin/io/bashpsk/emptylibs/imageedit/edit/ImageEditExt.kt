@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.text.TextMeasurer
@@ -141,11 +142,14 @@ private fun DrawScope.drawEditImage(item: ImageEditItems.ImageItem) {
 
             translate(left = item.position.x, top = item.position.y) {
 
-                drawImage(
-                    image = bitmap,
-                    dstOffset = Offset.Zero.round(),
-                    dstSize = item.size.toIntSize()
-                )
+                clipPath(path = item.shape.toPath(canvasSize = item.size)) {
+
+                    drawImage(
+                        image = bitmap,
+                        dstOffset = Offset.Zero.round(),
+                        dstSize = item.size.toIntSize()
+                    )
+                }
             }
         }
     }

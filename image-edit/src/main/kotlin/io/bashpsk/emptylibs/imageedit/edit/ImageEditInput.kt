@@ -39,8 +39,6 @@ internal sealed interface ImageEditInput {
     data class ImageItem(
         val bitmap: ImageBitmap? = null,
         val shape: ImageShape = ImageShape.None,
-        val border: Float = 0.0F,
-        val borderColor: Color = Color.Unspecified,
         val position: Offset = Offset.Unspecified,
         val size: Size = Size.Unspecified
     ) : ImageEditInput

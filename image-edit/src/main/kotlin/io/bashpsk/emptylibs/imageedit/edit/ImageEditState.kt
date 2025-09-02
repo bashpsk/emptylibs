@@ -177,6 +177,7 @@ class ImageEditState(
 
         val items = ImageEditItems.ImageItem(
             bitmap = imageEditInput.bitmap,
+            shape = imageEditInput.shape,
             position = imageEditInput.position,
             size = imageEditInput.size
         ).apply {
@@ -493,7 +494,6 @@ class ImageEditState(
 
             itemSize.width > 0.0F && itemSize.height > 0.0F && currentCorner.hasCornerEdge()
         }?.let { itemSize -> itemSize.width / itemSize.height } ?: 1.0F
-
 
         when (currentCorner) {
 

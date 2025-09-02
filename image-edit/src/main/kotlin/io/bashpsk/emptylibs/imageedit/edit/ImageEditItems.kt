@@ -26,6 +26,7 @@ sealed class ImageEditItems(var uuid: String = "") {
 
     data class ImageItem(
         val bitmap: ImageBitmap?,
+        val shape: ImageShape,
         val position: Offset,
         val size: Size
     ) : ImageEditItems()

@@ -562,41 +562,6 @@ private fun InputEditImage(state: ImageEditState) {
 
         item {
 
-            BorderSelectionView(
-                modifier = Modifier.animateItem(
-                    fadeInSpec = tween(durationMillis = 250),
-                    fadeOutSpec = tween(durationMillis = 100),
-                    placementSpec = spring(
-                        stiffness = Spring.StiffnessLow,
-                        dampingRatio = Spring.DampingRatioMediumBouncy
-                    )
-                ),
-                border = state.imageEditInput.border,
-                onBorderChange = { newBorder ->
-
-                    state.apply {
-
-                        imageEditInput = imageEditInput.copy(border = newBorder)
-                    }
-                },
-                borderColor = state.imageEditInput.borderColor,
-                onBorderColorChange = { newColor ->
-
-                    state.apply {
-
-                        imageEditInput = imageEditInput.copy(borderColor = newColor)
-                    }
-                }
-            )
-        }
-
-        item {
-
-            HorizontalDivider()
-        }
-
-        item {
-
             ShapeSelectionView(
                 modifier = Modifier.animateItem(
                     fadeInSpec = tween(durationMillis = 250),
