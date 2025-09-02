@@ -1,4 +1,4 @@
-package io.bashpsk.jetpackui.optionbar
+package io.bashpsk.emptylibs.jetpackui.optionbar
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info

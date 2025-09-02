@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.coil3.compose)
 
     //  MODULE          :
+    implementation(project(":compose-utils"))
     implementation(project(":formatter"))
 }
 

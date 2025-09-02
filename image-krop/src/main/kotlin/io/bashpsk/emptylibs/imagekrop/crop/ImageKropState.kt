@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
@@ -13,6 +14,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import io.bashpsk.emptylibs.composeutils.offset.OffsetData
+import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
+import io.bashpsk.emptylibs.composeutils.size.SizeData
+import io.bashpsk.emptylibs.composeutils.size.toSizeData
 import io.bashpsk.emptylibs.imagekrop.crop.KropCorner.Companion.hasCornerCenter
 import io.bashpsk.emptylibs.imagekrop.offset.coerceAtLeast
 import io.bashpsk.emptylibs.imagekrop.offset.getKropCorner
@@ -20,7 +25,6 @@ import io.bashpsk.emptylibs.imagekrop.offset.itemRect
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
 import io.bashpsk.emptylibs.imageutils.shape.BasicImageShapes
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.abs
@@ -42,8 +46,7 @@ import kotlin.math.abs
 @Composable
 fun rememberImageKropState(
     imageBitmap: ImageBitmap,
-    config: KropConfig = KropConfig.surfaceBased(),
-    aspectList: ImmutableList<KropAspectRatio> = KropAspectRatio.Basic
+    config: KropConfig = KropConfig.surfaceBased()
 ): ImageKropState {
 
     val density = LocalDensity.current
@@ -51,15 +54,16 @@ fun rememberImageKropState(
     return rememberSaveable(
         imageBitmap,
         config,
-        aspectList,
         density,
-        saver = ImageKropState.StateSaver(density = density)
+        saver = ImageKropState.StateSaver(
+            imageBitmap = imageBitmap,
+            config = config,
+            density = density
+        )
     ) {
-
         ImageKropState(
             imageBitmap = imageBitmap,
             config = config,
-            aspectList = aspectList,
             density = density
         )
     }
@@ -79,12 +83,7 @@ fun rememberImageKropState(
  * @param config The [KropConfig] to be used for the cropping operations.
  * @param aspectList An immutable list of [KropAspectRatio] options available for cropping.
  */
-class ImageKropState(
-    val imageBitmap: ImageBitmap,
-    val config: KropConfig,
-    val aspectList: ImmutableList<KropAspectRatio>,
-    val density: Density
-) {
+class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val density: Density) {
 
     /**
      * A persistent list of [ImageShape] objects available for cropping.
@@ -192,7 +191,7 @@ class ImageKropState(
      */
     internal var isShapeMenuExpanded by mutableStateOf(false)
 
-    internal var isKropShapeCustomizationDialog by mutableStateOf(false)
+    internal var isShapeCustomizeDialog by mutableStateOf(false)
 
     /**
      * Updates the original image.
@@ -1132,8 +1131,8 @@ class ImageKropState(
         val resultTopLeft = finalTopLeft
         val resultBottomRight = finalBottomRight
 
-        (((resultBottomRight.x - resultTopLeft.x) < minSize - 0.001F) ||
-                ((resultBottomRight.y - resultTopLeft.y) < minSize - 0.001F)).takeIf { isNotValid ->
+        (((resultBottomRight.x - resultTopLeft.x) < minSize) ||
+                ((resultBottomRight.y - resultTopLeft.y) < minSize)).takeIf { isNotValid ->
 
             isNotValid
         }?.run { return null }
@@ -1143,76 +1142,98 @@ class ImageKropState(
 
     companion object {
 
-        fun StateSaver(density: Density): Saver<ImageKropState, List<Any?>> = Saver(
+        private const val KEY_SHAPE_LIST = "IMAGE-KROP-SHAPE-LIST"
+        private const val KEY_ORIGINAL_IMAGE = "IMAGE-KROP-ORIGINAL"
+        private const val KEY_MODIFIED_IMAGE = "IMAGE-KROP-MODIFIED"
+        private const val KEY_PREVIEW_IMAGE = "IMAGE-KROP-PREVIEW"
+        private const val KEY_IMAGE_LIST = "IMAGE-KROP-IMAGE-LIST"
+        private const val KEY_ASPECT_RATIO = "IMAGE-KROP-ASPECT-RATIO"
+        private const val KEY_ASPECT_LOCKED = "IMAGE-KROP-ASPECT-LOCKED"
+        private const val KEY_KROP_SHAPE = "IMAGE-KROP-SHAPE"
+        private const val KEY_CURRENT_CORNER = "IMAGE-KROP-CURRENT-CORNER"
+        private const val KEY_CANVAS_SIZE = "IMAGE-KROP-CANVAS-SIZE"
+        private const val KEY_KROP_RECT_POSITION = "IMAGE-KROP-RECT-POSITION"
+        private const val KEY_KROP_RECT_SIZE = "IMAGE-KROP-RECT-SIZE"
+        private const val KEY_ASPECT_RATIO_MENU_EXPANDED = "IMAGE-KROP-ASPECT-RATIO-MENU-EXPANDED"
+        private const val KEY_SHAPE_MENU_EXPANDED = "IMAGE-KROP-SHAPE-MENU-EXPANDED"
+        private const val KEY_SHAPE_CUSTOMIZE_DIALOG = "IMAGE-KROP-SHAPE-CUSTOMIZE-DIALOG"
+
+        @Suppress("UNCHECKED_CAST")
+        fun StateSaver(
+            imageBitmap: ImageBitmap,
+            config: KropConfig,
+            density: Density
+        ): Saver<ImageKropState, Any> = mapSaver(
             save = { state ->
 
-                listOf(
-                    state.imageBitmap,
-                    state.config,
-                    state.aspectList,
-                    state.shapeList,
-                    state.originalImage,
-                    state.modifiedImage,
-                    state.previewImage,
-                    state.imageList,
-                    state.kropAspectRatio,
-                    state.isAspectLocked,
-                    state.kropShape,
-                    state.currentCorner,
-                    state.canvasSize,
-                    state.kropRectPosition,
-                    state.kropRectSize,
-                    state.isAspectRatioMenuExpanded,
-                    state.isShapeMenuExpanded,
-                    state.isKropShapeCustomizationDialog
+                mapOf(
+                    KEY_ASPECT_RATIO to state.kropAspectRatio,
+                    KEY_ASPECT_LOCKED to state.isAspectLocked,
+                    KEY_KROP_SHAPE to state.kropShape,
+                    KEY_CURRENT_CORNER to state.currentCorner,
+                    KEY_CANVAS_SIZE to state.canvasSize,
+                    KEY_KROP_RECT_POSITION to state.kropRectPosition,
+                    KEY_KROP_RECT_SIZE to state.kropRectSize.toSizeData(),
+                    KEY_ASPECT_RATIO_MENU_EXPANDED to state.isAspectRatioMenuExpanded,
+                    KEY_SHAPE_MENU_EXPANDED to state.isShapeMenuExpanded,
+                    KEY_SHAPE_CUSTOMIZE_DIALOG to state.isShapeCustomizeDialog
                 )
             },
             restore = { elements ->
 
-                val savedImageBitmap = elements[0] as ImageBitmap
-                val savedConfig = elements[1] as KropConfig
-                val savedAspectList = elements[2] as ImmutableList<KropAspectRatio>
-                val savedShapeList = elements[3] as PersistentList<ImageShape>
-                val savedOriginalImage = elements[4] as ImageBitmap
-                val savedModifiedImage = elements[5] as? ImageBitmap
-                val savedPreviewImage = elements[6] as? ImageBitmap
-
-                val savedImageList = (elements[7] as? PersistentList<ImageBitmap>)
-                    ?: persistentListOf(savedImageBitmap)
-
-                val savedKropAspectRatio = elements[8] as KropAspectRatio
-                val savedIsAspectLocked = elements[9] as Boolean
-                val savedKropShape = elements[10] as ImageShape
-                val savedKropCorner = elements[11] as? KropCorner
-                val savedCanvasSize = elements[12] as Size
-                val savedRectPosition = elements[13] as Offset
-                val savedRectSize = elements[14] as Size
-                val savedIsAspectRatioMenuExpanded = elements[15] as Boolean
-                val savedIsShapeMenuExpanded = elements[16] as Boolean
-                val savedIsKropShapeCustomizationDialog = elements[17] as Boolean
-
                 ImageKropState(
-                    imageBitmap = savedImageBitmap,
-                    config = savedConfig,
-                    aspectList = savedAspectList,
+                    imageBitmap = imageBitmap,
+                    config = config,
                     density = density
                 ).apply {
 
-                    shapeList = savedShapeList
-                    originalImage = savedOriginalImage
-                    modifiedImage = savedModifiedImage
-                    previewImage = savedPreviewImage
-                    imageList = savedImageList
-                    kropAspectRatio = savedKropAspectRatio
-                    isAspectLocked = savedIsAspectLocked
-                    kropShape = savedKropShape
-                    currentCorner = savedKropCorner
-                    canvasSize = savedCanvasSize
-                    kropRectPosition = savedRectPosition
-                    kropRectSize = savedRectSize
-                    isAspectRatioMenuExpanded = savedIsAspectRatioMenuExpanded
-                    isShapeMenuExpanded = savedIsShapeMenuExpanded
-                    isKropShapeCustomizationDialog = savedIsKropShapeCustomizationDialog
+                    shapeList = elements.getOrElse(
+                        KEY_SHAPE_LIST
+                    ) { BasicImageShapes } as PersistentList<ImageShape>
+
+                    originalImage = elements.getOrElse(
+                        KEY_ORIGINAL_IMAGE
+                    ) { imageBitmap } as ImageBitmap
+
+                    modifiedImage = elements.getOrElse(KEY_MODIFIED_IMAGE) { null } as ImageBitmap?
+
+                    previewImage = elements.getOrElse(KEY_PREVIEW_IMAGE) { null } as ImageBitmap?
+
+                    imageList = elements.getOrElse(
+                        KEY_IMAGE_LIST
+                    ) { persistentListOf<ImageBitmap>() } as PersistentList<ImageBitmap>
+
+                    kropAspectRatio = elements.getOrElse(
+                        KEY_ASPECT_RATIO
+                    ) { KropAspectRatio.Ratio1to1 } as KropAspectRatio
+
+                    isAspectLocked = elements.getOrElse(KEY_ASPECT_LOCKED) { false } as Boolean
+                    kropShape = elements.getOrElse(KEY_KROP_SHAPE) { ImageShape.None } as ImageShape
+                    currentCorner = elements.getOrElse(KEY_CURRENT_CORNER) { null } as KropCorner?
+
+                    canvasSize = (elements.getOrElse(
+                        KEY_CANVAS_SIZE
+                    ) { Size.Zero.toSizeData() } as SizeData).toSize()
+
+                    kropRectPosition = (elements.getOrElse(
+                        KEY_KROP_RECT_POSITION
+                    ) { Offset.Zero.toOffsetData() } as OffsetData).toOffset()
+
+                    kropRectSize = (elements.getOrElse(
+                        KEY_KROP_RECT_SIZE
+                    ) { Size.Zero.toSizeData() } as SizeData).toSize()
+
+                    isAspectRatioMenuExpanded = elements.getOrElse(
+                        KEY_ASPECT_RATIO_MENU_EXPANDED
+                    ) { false } as Boolean
+
+                    isShapeMenuExpanded = elements.getOrElse(
+                        KEY_SHAPE_MENU_EXPANDED
+                    ) { false } as Boolean
+
+                    isShapeCustomizeDialog = elements.getOrElse(
+                        KEY_SHAPE_CUSTOMIZE_DIALOG
+                    ) { false } as Boolean
                 }
             }
         )

@@ -82,7 +82,7 @@ fun ColorPickPreference(
     val datastore = LocalDatastore.current
     val coroutineScope = rememberCoroutineScope()
     val dialogVisibleState = remember { MutableTransitionState(false) }
-    val colorPickerState = rememberColorPickerState(enableAlphaPanel = enableAlphaPanel)
+    val colorPickerState = rememberColorPickerState()
 
     val getColorArgb by datastore.getPreference(
         key = key,
@@ -94,6 +94,7 @@ fun ColorPickPreference(
         true -> ColorPickerDialog(
             dialogVisibleState = dialogVisibleState,
             state = colorPickerState,
+            enableAlphaPanel = enableAlphaPanel,
             enableCopyButtons = true,
             onResetClick = {
 
@@ -114,6 +115,7 @@ fun ColorPickPreference(
         false -> ColorPickerDialog(
             dialogVisibleState = dialogVisibleState,
             state = colorPickerState,
+            enableAlphaPanel = enableAlphaPanel,
             enableCopyButtons = true,
             onSelectedColor = { color ->
 

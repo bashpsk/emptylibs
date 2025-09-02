@@ -12,7 +12,7 @@ import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
 @Composable
 fun ColorPickerScreen() {
 
-    val state = rememberColorPickerState(enableAlphaPanel = true)
+    val state = rememberColorPickerState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -23,7 +23,8 @@ fun ColorPickerScreen() {
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(horizontal = 4.dp, vertical = 4.dp),
-            state = state
+            state = state,
+            enableAlphaPanel = true
         )
     }
 }

@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.bashpsk.emptylibs.screen.jetpackui.FileOperation
-import io.bashpsk.jetpackui.optionbar.BottomOptionBar
+import io.bashpsk.emptylibs.jetpackui.optionbar.BottomOptionBar
 
 @Composable
 fun BottomOptionBarScreen() {

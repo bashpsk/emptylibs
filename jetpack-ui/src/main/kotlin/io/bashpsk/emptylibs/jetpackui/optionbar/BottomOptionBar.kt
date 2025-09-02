@@ -1,4 +1,4 @@
-package io.bashpsk.jetpackui.optionbar
+package io.bashpsk.emptylibs.jetpackui.optionbar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,12 +19,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.composeutils.offset.toDpOffsetData
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -49,11 +51,11 @@ fun BottomOptionBar(
     maxLines: Int = 1,
 ) {
 
-    var isMoreOptionMenuExpanded by remember { mutableStateOf(value = false) }
-    var menuPosition by remember { mutableStateOf(value = DpOffset.Zero) }
-    var shownItemCount by remember { mutableIntStateOf(value = 0) }
+    var isMoreOptionMenuExpanded by rememberSaveable { mutableStateOf(false) }
+    var menuPosition by rememberSaveable { mutableStateOf(DpOffset.Zero.toDpOffsetData()) }
+    var shownItemCount by rememberSaveable { mutableIntStateOf(0) }
 
-    val remainingItems by remember(key1 = optionList, key2 = shownItemCount) {
+    val remainingItems by remember(optionList, shownItemCount) {
         derivedStateOf { optionList.subList(shownItemCount, optionList.size) }
     }
 
@@ -82,7 +84,10 @@ fun BottomOptionBar(
                 .align(alignment = Alignment.Center)
                 .onPlaced { layoutCoordinates ->
 
-                    menuPosition = DpOffset(x = layoutCoordinates.size.width.dp, y = 0.dp)
+                    menuPosition = DpOffset(
+                        x = layoutCoordinates.size.width.dp,
+                        y = 0.dp
+                    ).toDpOffsetData()
                 },
             maxLines = maxLines,
             itemCount = optionList.size,
@@ -111,7 +116,7 @@ fun BottomOptionBar(
 
                 isMoreOptionMenuExpanded = false
             },
-            offset = menuPosition
+            offset = menuPosition.toDpOffset()
         ) {
 
             HorizontalDivider()

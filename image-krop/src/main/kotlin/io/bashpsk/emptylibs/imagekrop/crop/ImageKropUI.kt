@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import io.bashpsk.emptylibs.imageutils.shape.toLabel
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 
 /**
@@ -195,7 +196,8 @@ internal fun ImageKropTopBar(
 @Composable
 internal fun ImageKropBottomBar(
     modifier: Modifier = Modifier,
-    state: ImageKropState
+    state: ImageKropState,
+    aspectList: ImmutableList<KropAspectRatio>
 ) {
 
     val imagePreviewCoroutineScope = rememberCoroutineScope()
@@ -323,7 +325,7 @@ internal fun ImageKropBottomBar(
                         }
                     )
 
-                    state.aspectList.forEach { aspectRatio ->
+                    aspectList.forEach { aspectRatio ->
 
                         val isSelected by remember(state, aspectRatio) {
                             derivedStateOf { state.kropAspectRatio == aspectRatio }
@@ -398,7 +400,7 @@ internal fun ImageKropBottomBar(
             IconButton(
                 onClick = {
 
-                    state.isKropShapeCustomizationDialog = true
+                    state.isShapeCustomizeDialog = true
                 }
             ) {
 
@@ -443,7 +445,7 @@ private fun KropShapeView(kropShape: ImageShape, isSelected: Boolean) {
 internal fun KropShapeCustomizationDialog(state: ImageKropState) {
 
     AnimatedVisibility(
-        visible = state.isKropShapeCustomizationDialog,
+        visible = state.isShapeCustomizeDialog,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
@@ -457,7 +459,7 @@ internal fun KropShapeCustomizationDialog(state: ImageKropState) {
             ),
             onDismissRequest = {
 
-                state.isKropShapeCustomizationDialog = false
+                state.isShapeCustomizeDialog = false
             },
             title = {
 
@@ -479,7 +481,7 @@ internal fun KropShapeCustomizationDialog(state: ImageKropState) {
                     IconButton(
                         onClick = {
 
-                            state.isKropShapeCustomizationDialog = false
+                            state.isShapeCustomizeDialog = false
                         }
                     ) {
 
@@ -499,7 +501,7 @@ internal fun KropShapeCustomizationDialog(state: ImageKropState) {
                 Button(
                     onClick = {
 
-                        state.isKropShapeCustomizationDialog = false
+                        state.isShapeCustomizeDialog = false
                     }
                 ) {
 

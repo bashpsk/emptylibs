@@ -23,6 +23,7 @@ dependencyResolutionManagement {
 rootProject.name = "Empty Libs"
 include(":app")
 include(":canvas-slate")
+include(":compose-utils")
 include(":datastore-ui")
 include(":formatter")
 include(":gesture-ui")

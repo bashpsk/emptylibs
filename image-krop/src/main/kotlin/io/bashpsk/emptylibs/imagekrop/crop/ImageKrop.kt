@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * A Composable function that provides an image cropping interface.
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.toSize
 fun ImageKrop(
     modifier: Modifier = Modifier,
     state: ImageKropState,
+    aspectList: ImmutableList<KropAspectRatio> = KropAspectRatio.Basic,
     onKropFinished: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -143,7 +145,8 @@ fun ImageKrop(
 
         ImageKropBottomBar(
             modifier = Modifier.fillMaxWidth(),
-            state = state
+            state = state,
+            aspectList = aspectList
         )
     }
 }

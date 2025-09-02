@@ -5,25 +5,29 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 /**
  * Remembers the state of a color picker.
  *
- * @param initialColor The initial color to be selected. Defaults to [Color.Unspecified].
- * @param enableAlphaPanel Whether to enable the alpha panel. Defaults to false.
+ * @param initialColor The initial color to be selected. Defaults to [Color.Black].
  * @return A [ColorPickerState] instance that can be used to control the color picker.
  */
 @Composable
 fun rememberColorPickerState(
-    initialColor: Color = Color.Unspecified,
-    enableAlphaPanel: Boolean = false
+    initialColor: Color = Color.Black
 ): ColorPickerState {
 
-    return remember(enableAlphaPanel, initialColor) {
-        ColorPickerState(initialColor = initialColor, isAlphaPanelEnabled = enableAlphaPanel)
+    return rememberSaveable(
+        initialColor,
+        saver = ColorPickerState.StateSaver(initialColor = initialColor)
+    ) {
+        ColorPickerState(initialColor = initialColor)
     }
 }
 
@@ -33,13 +37,9 @@ fun rememberColorPickerState(
  * In most cases, this will be created via [rememberColorPickerState].
  *
  * @param initialColor the initial color to set on the picker
- * @param isAlphaPanelEnabled whether the alpha panel is enabled or not
  */
 @Stable
-class ColorPickerState(
-    val initialColor: Color,
-    val isAlphaPanelEnabled: Boolean = false
-) {
+class ColorPickerState(val initialColor: Color) {
 
     /**
      * Represents the currently selected color in the color picker.
@@ -80,16 +80,12 @@ class ColorPickerState(
      * This value is updated when [selectedColor] changes or when [updateHslA] is called.
      * It can be observed to react to changes in the alpha of the selected color.
      */
-    internal var alphaValue by mutableFloatStateOf(initialColor.alpha)
+    internal var alphaValue by mutableFloatStateOf(0F)
         private set
 
     init {
 
-        val hslComponents = initialColor.toHslComponents()
-
-        hueValue = hslComponents[0]
-        saturationValue = hslComponents[1]
-        lightnessValue = hslComponents[2]
+        updateColor(color = initialColor)
     }
 
     /**
@@ -102,10 +98,10 @@ class ColorPickerState(
         val hslComponents = color.toHslComponents()
 
         selectedColor = color
-        hueValue = hslComponents[0]
-        saturationValue = hslComponents[1]
-        lightnessValue = hslComponents[2]
         alphaValue = color.alpha
+        hslComponents.getOrNull(0)?.let { value -> hueValue = value }
+        hslComponents.getOrNull(1)?.let { value -> saturationValue = value }
+        hslComponents.getOrNull(2)?.let { value -> lightnessValue = value }
     }
 
     /**
@@ -123,5 +119,40 @@ class ColorPickerState(
         lightnessValue = lightness.coerceIn(range = 0F..1F)
         alphaValue = alpha.coerceIn(range = 0F..1F)
         selectedColor = Color.hsl(hueValue, saturationValue, lightnessValue, alphaValue)
+    }
+
+    companion object {
+
+        private const val KEY_COLOR = "COLOR-PICKER-COLOR"
+        private const val KEY_HUE = "COLOR-PICKER-HUE"
+        private const val KEY_SATURATION = "COLOR-PICKER-SATURATION"
+        private const val KEY_LIGHTNESS = "COLOR-PICKER-LIGHTNESS"
+        private const val KEY_ALPHA = "COLOR-PICKER-ALPHA"
+
+        fun StateSaver(initialColor: Color): Saver<ColorPickerState, Any> = mapSaver(
+            save = { state ->
+
+                mapOf(
+                    KEY_COLOR to state.selectedColor.toArgb(),
+                    KEY_HUE to state.hueValue,
+                    KEY_SATURATION to state.saturationValue,
+                    KEY_LIGHTNESS to state.lightnessValue,
+                    KEY_ALPHA to state.alphaValue
+                )
+            },
+            restore = { elements ->
+
+                ColorPickerState(initialColor = initialColor).apply {
+
+                    hueValue = elements.getOrElse(KEY_HUE) { 0.0F } as Float
+                    saturationValue = elements.getOrElse(KEY_SATURATION) { 0.0F } as Float
+                    lightnessValue = elements.getOrElse(KEY_LIGHTNESS) { 0.0F } as Float
+                    alphaValue = elements.getOrElse(KEY_ALPHA) { 0.0F } as Float
+                    selectedColor = Color(
+                        elements.getOrElse(KEY_COLOR) { initialColor.toArgb() } as Int
+                    )
+                }
+            }
+        )
     }
 }

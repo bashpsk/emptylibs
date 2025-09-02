@@ -73,6 +73,7 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 fun ColorPicker(
     modifier: Modifier = Modifier,
     state: ColorPickerState = rememberColorPickerState(),
+    enableAlphaPanel: Boolean = false,
     enableCopyButtons: Boolean = false
 ) {
 
@@ -115,7 +116,7 @@ fun ColorPicker(
             }
         )
 
-        if (state.isAlphaPanelEnabled) {
+        if (enableAlphaPanel) {
 
             AlphaPanel(
                 modifier = Modifier.fillMaxWidth(),

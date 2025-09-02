@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 //                    ColorPickerDialogScreen()
 //                    DatastoreUIScreen()
 //                    FormatterScreen()
-//                    ImageCropScreen()
+                    ImageCropScreen()
 //                    ImageFilterScreen()
 //                    ImageKolorScreen()
 //                    StorageScreen()
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
 //                    VideoGestureScreen()
 //                    TextPickerScreen()
 //                    CanvasSlateScreen()
-                    ImageEditScreen()
+//                    ImageEditScreen()
                 }
             }
         }

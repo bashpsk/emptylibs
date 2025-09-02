@@ -13,7 +13,7 @@ import androidx.compose.material.icons.filled.MoveDown
 import androidx.compose.material.icons.filled.RuleFolder
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
-import io.bashpsk.jetpackui.optionbar.OptionBarData
+import io.bashpsk.emptylibs.jetpackui.optionbar.OptionBarData
 
 object FileOperation {
 

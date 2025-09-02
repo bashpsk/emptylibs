@@ -391,10 +391,7 @@ private fun PenColorSelectionView(
     onSelectedColor: (color: Color) -> Unit
 ) {
 
-    val colorPickerState = rememberColorPickerState(
-        initialColor = color,
-        enableAlphaPanel = true
-    )
+    val colorPickerState = rememberColorPickerState(initialColor = color)
 
     val colorPickerDialog = remember { MutableTransitionState(false) }
 
@@ -403,6 +400,7 @@ private fun PenColorSelectionView(
     ColorPickerDialog(
         dialogVisibleState = colorPickerDialog,
         state = colorPickerState,
+        enableAlphaPanel = true,
         onSelectedColor = onSelectedColor
     )
 

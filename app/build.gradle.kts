@@ -91,6 +91,7 @@ dependencies {
 
     //  MODULE          :
     implementation(project(":canvas-slate"))
+    implementation(project(":compose-utils"))
     implementation(project(":datastore-ui"))
     implementation(project(":formatter"))
     implementation(project(":gesture-ui"))

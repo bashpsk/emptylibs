@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/canvas-slate" />
+            <option value="$PROJECT_DIR$/compose-utils" />
             <option value="$PROJECT_DIR$/datastore-ui" />
             <option value="$PROJECT_DIR$/formatter" />
             <option value="$PROJECT_DIR$/gesture-ui" />

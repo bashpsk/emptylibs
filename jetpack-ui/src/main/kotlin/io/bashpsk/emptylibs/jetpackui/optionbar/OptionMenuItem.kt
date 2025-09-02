@@ -1,4 +1,4 @@
-package io.bashpsk.jetpackui.optionbar
+package io.bashpsk.emptylibs.jetpackui.optionbar
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenuItem

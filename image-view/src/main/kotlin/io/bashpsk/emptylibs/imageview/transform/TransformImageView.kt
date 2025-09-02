@@ -61,6 +61,7 @@ fun TransformImageView(
     modifier: Modifier = Modifier,
     imageModel: Any?,
     state: ImageTransformState = rememberImageTransformState(),
+    zoomRange: ClosedFloatingPointRange<Float> = 0.4F..8.0F,
     onLeftSwipe: () -> Unit = {},
     onRightSwipe: () -> Unit = {},
     onClick: (offset: Offset) -> Unit = {},
@@ -116,7 +117,7 @@ fun TransformImageView(
                     in 1.80F..2.40F -> 3.0F
                     in 2.80F..3.40F -> 4.0F
                     else -> 1.0F
-                }.coerceIn(range = state.zoomMin..state.zoomMax)
+                }.coerceIn(range = zoomRange)
 
                 state.zoom = zoomFactor
             },
@@ -217,9 +218,7 @@ fun TransformImageView(
 
                 TransformImageGesture.ZOOM -> {
 
-                    val newZoom = (state.zoom * zoomChange).coerceIn(
-                        range = state.zoomMin..state.zoomMax
-                    )
+                    val newZoom = (state.zoom * zoomChange).coerceIn(range = zoomRange)
 
                     val newPan = Offset(
                         x = state.position.x,
@@ -312,8 +311,8 @@ fun TransformImageView(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer(
-                    scaleX = state.zoom.coerceIn(range = state.zoomMin..state.zoomMax),
-                    scaleY = state.zoom.coerceIn(range = state.zoomMin..state.zoomMax),
+                    scaleX = state.zoom.coerceIn(range = zoomRange),
+                    scaleY = state.zoom.coerceIn(range = zoomRange),
                     translationX = state.position.x,
                     translationY = state.position.y,
                     rotationZ = state.rotation.toFloat()

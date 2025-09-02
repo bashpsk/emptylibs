@@ -942,12 +942,13 @@ private fun ColorSelectionView(
     onColorChange: (color: Color) -> Unit
 ) {
 
-    val colorPickerState = rememberColorPickerState(initialColor = color, enableAlphaPanel = true)
+    val colorPickerState = rememberColorPickerState(initialColor = color)
     val colorPickerDialogState = remember { MutableTransitionState(false) }
 
     ColorPickerDialog(
         dialogVisibleState = colorPickerDialogState,
         state = colorPickerState,
+        enableAlphaPanel = true,
         enableCopyButtons = true,
         onSelectedColor = onColorChange
     )

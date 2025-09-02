@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
@@ -14,12 +15,15 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.canvasslate.extension.hasNeared
+import io.bashpsk.emptylibs.composeutils.size.SizeData
+import io.bashpsk.emptylibs.composeutils.size.toSizeData
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +43,11 @@ fun rememberCanvasSlateState(
         background,
         initial,
         density,
-        saver = CanvasSlateState.StateSaver(density = density)
+        saver = CanvasSlateState.StateSaver(
+            background = background,
+            initial = initial,
+            density = density
+        )
     ) {
         CanvasSlateState(background = background, initial = initial, density = density)
     }
@@ -260,79 +268,78 @@ class CanvasSlateState(
 
     companion object {
 
-        private object StateKeys {
+        private const val KEY_CANVAS_SIZE = "CANVAS-SLATE-CANVAS-SIZE"
+        private const val KEY_BACKGROUND_COLOR = "CANVAS-SLATE-BACKGROUND-COLOR"
+        private const val KEY_BRUSH_COLOR = "CANVAS-SLATE-BRUSH-COLOR"
+        private const val KEY_STROKE_CAP = "CANVAS-SLATE-STROKE-CAP"
+        private const val KEY_STROKE_JOIN = "CANVAS-SLATE-STROKE-JOIN"
+        private const val KEY_BRUSH_THICKNESS = "CANVAS-SLATE-BRUSH-THICKNESS"
+        private const val KEY_CURRENT_PATH = "CANVAS-SLATE-CURRENT-PATH"
+        private const val KEY_DRAWING_MODE = "CANVAS-SLATE-DRAWING-MODE"
+        private const val KEY_ALL_PATH_LIST = "CANVAS-SLATE-ALL-PATH-LIST"
 
-            const val BACKGROUND = "CanvasSlateBackground"
-            const val INITIAL = "CanvasSlateInitial"
-            const val CANVAS_SIZE = "CanvasSlateCanvasSize"
-            const val SELECTED_BACKGROUND_COLOR = "CanvasSlateSelectedBackgroundColor"
-            const val SELECTED_BRUSH_COLOR = "CanvasSlateSelectedBrushColor"
-            const val SELECTED_STROKE_CAP = "CanvasSlateSelectedStrokeCap"
-            const val SELECTED_STROKE_JOIN = "CanvasSlateSelectedStrokeJoin"
-            const val BRUSH_THICKNESS = "CanvasSlateBrushThickness"
-            const val CURRENT_PATH = "CanvasSlateCurrentPath"
-            const val IS_DRAWING_MODE = "CanvasSlateIsDrawingMode"
-            const val ALL_PATH_LIST = "CanvasSlateAllPathList"
-        }
-
-        fun StateSaver(density: Density): Saver<CanvasSlateState, Map<String, Any?>> = Saver(
+        fun StateSaver(
+            background: Color,
+            initial: Color,
+            density: Density
+        ): Saver<CanvasSlateState, Any> = mapSaver(
             save = { state ->
 
                 mapOf(
-                    StateKeys.BACKGROUND to state.background,
-                    StateKeys.INITIAL to state.initial,
-                    StateKeys.CANVAS_SIZE to state.canvasSize,
-                    StateKeys.SELECTED_BACKGROUND_COLOR to state.selectedBackgroundColor,
-                    StateKeys.SELECTED_BRUSH_COLOR to state.selectedBrushColor,
-                    StateKeys.SELECTED_STROKE_CAP to state.selectedStrokeCap,
-                    StateKeys.SELECTED_STROKE_JOIN to state.selectedStrokeJoin,
-                    StateKeys.BRUSH_THICKNESS to state.brushThickness,
-                    StateKeys.CURRENT_PATH to state.currentPath,
-                    StateKeys.IS_DRAWING_MODE to state.isDrawingMode,
-                    StateKeys.ALL_PATH_LIST to state.allPathList
+                    KEY_CANVAS_SIZE to state.canvasSize.toSizeData(),
+                    KEY_BACKGROUND_COLOR to state.selectedBackgroundColor.toArgb(),
+                    KEY_BRUSH_COLOR to state.selectedBrushColor.toArgb(),
+                    KEY_STROKE_CAP to state.selectedStrokeCap,
+                    KEY_STROKE_JOIN to state.selectedStrokeJoin,
+                    KEY_BRUSH_THICKNESS to state.brushThickness.value,
+                    KEY_CURRENT_PATH to state.currentPath,
+                    KEY_DRAWING_MODE to state.isDrawingMode,
+                    KEY_ALL_PATH_LIST to state.allPathList
                 )
             },
             restore = { elements ->
 
                 CanvasSlateState(
-                    background = elements.getOrElse(StateKeys.BACKGROUND) { Color.Black } as Color,
-                    initial = elements.getOrElse(StateKeys.INITIAL) { Color.Green } as Color,
+                    background = background,
+                    initial = initial,
                     density = density
                 ).apply {
 
-                    canvasSize = elements.getOrElse(StateKeys.CANVAS_SIZE) { Size.Zero } as Size
+                    canvasSize = (elements.getOrElse(
+                        KEY_CANVAS_SIZE
+                    ) { Size.Zero.toSizeData() } as SizeData).toSize()
 
-                    selectedBackgroundColor = elements.getOrElse(
-                        StateKeys.SELECTED_BACKGROUND_COLOR
-                    ) { background } as Color
+                    selectedBackgroundColor = Color(elements.getOrElse(
+                        KEY_BACKGROUND_COLOR
+                    ) { background.toArgb() } as Int)
 
-                    selectedBrushColor = elements.getOrElse(
-                        StateKeys.SELECTED_BRUSH_COLOR
-                    ) { initial } as Color
+                    selectedBrushColor = Color(elements.getOrElse(
+                        KEY_BRUSH_COLOR
+                    ) { initial.toArgb() } as Int)
 
                     selectedStrokeCap = elements.getOrElse(
-                        StateKeys.SELECTED_STROKE_CAP
+                        KEY_STROKE_CAP
                     ) { StrokeCap.Round } as StrokeCap
 
                     selectedStrokeJoin = elements.getOrElse(
-                        StateKeys.SELECTED_STROKE_JOIN
+                        KEY_STROKE_JOIN
                     ) { StrokeJoin.Round } as StrokeJoin
 
-                    brushThickness = elements.getOrElse(
-                        StateKeys.BRUSH_THICKNESS
-                    ) { 4.dp } as Dp
+                    brushThickness = (elements.getOrElse(
+                        KEY_BRUSH_THICKNESS
+                    ) { 4.dp.value } as Float).dp
 
                     currentPath = elements.getOrElse(
-                        StateKeys.CURRENT_PATH
+                        KEY_CURRENT_PATH
                     ) { null } as CanvasSlatePath?
 
                     isDrawingMode = elements.getOrElse(
-                        StateKeys.IS_DRAWING_MODE
+                        KEY_DRAWING_MODE
                     ) { true } as Boolean
 
                     @Suppress("UNCHECKED_CAST")
                     allPathList = elements.getOrElse(
-                        StateKeys.ALL_PATH_LIST
+                        KEY_ALL_PATH_LIST
                     ) { persistentListOf<CanvasSlatePath>() } as PersistentList<CanvasSlatePath>
                 }
             }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import kotlinx.collections.immutable.ImmutableList
@@ -22,7 +23,11 @@ fun <T> rememberWheelTextPickerState(
     initial: T? = textList.firstOrNull()
 ): WheelTextPickerState<T> {
 
-    return rememberSaveable(textList, initial, saver = WheelTextPickerState.Saver()) {
+    return rememberSaveable(
+        textList,
+        initial,
+        saver = WheelTextPickerState.Saver(textList = textList, initial = initial)
+    ) {
         WheelTextPickerState(textList = textList, initial = initial)
     }
 }
@@ -49,7 +54,7 @@ class WheelTextPickerState<T>(
      * the [updateSelectedText] or [updateSelectedTextFromIndex] methods,
      * which perform necessary validation.
      */
-    var selectedText by mutableStateOf<T?>(null)
+    var selectedText by mutableStateOf(initial)
         private set
 
     /**
@@ -88,24 +93,22 @@ class WheelTextPickerState<T>(
 
     companion object {
 
-        fun <T> Saver(): Saver<WheelTextPickerState<T>, List<Any?>> = Saver(
+        private const val KEY_TEXT = "WHEEL-TEXT-PICKER-TEXT"
+
+        @Suppress("UNCHECKED_CAST")
+        fun <T> Saver(
+            textList: ImmutableList<T>,
+            initial: T?
+        ): Saver<WheelTextPickerState<T>, Any> = mapSaver(
             save = { state ->
 
-                listOf(
-                    state.textList,
-                    state.initial,
-                    state.selectedText
-                )
+                mapOf(KEY_TEXT to state.selectedText)
             },
             restore = { elements ->
 
-                val savedTextList = elements[0] as ImmutableList<T>
-                val savedInitial = elements[1] as T
-                val savedSelectedText = elements[2] as? T
+                WheelTextPickerState(textList = textList, initial = initial).apply {
 
-                WheelTextPickerState(textList = savedTextList, initial = savedInitial).apply {
-
-                    selectedText = savedSelectedText
+                    selectedText = elements.getOrElse(KEY_TEXT) { initial } as T?
                 }
             }
         )

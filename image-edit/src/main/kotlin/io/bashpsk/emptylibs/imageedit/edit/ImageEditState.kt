@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
@@ -25,6 +26,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
+import io.bashpsk.emptylibs.composeutils.size.SizeData
+import io.bashpsk.emptylibs.composeutils.size.toSizeData
 import io.bashpsk.emptylibs.imageedit.edit.EditItemCorner.Companion.hasCornerEdge
 import io.bashpsk.emptylibs.imageedit.extension.getEditItemCorner
 import io.bashpsk.emptylibs.imageedit.extension.hasEditItemClicked
@@ -872,39 +875,36 @@ class ImageEditState(
 
     companion object {
 
-        private object StateKeys {
-
-            const val IMAGE_EDIT_ITEM_LIST = "ImageEditStateImageEditItemList"
-            const val CURRENT_IMAGE_EDIT_ITEM = "ImageEditStateCurrentImageEditItem"
-            const val IS_TOOLBAR_MENU_EXPANDED = "ImageEditStateIsToolBarMenuExpanded"
-            const val CANVAS_SIZE = "ImageEditStateCanvasSize"
-            const val CURRENT_CORNER = "ImageEditStateCurrentCorner"
-            const val BRUSH_EDIT_INPUT = "ImageEditStateBrushEditInput"
-            const val ERASE_EDIT_INPUT = "ImageEditStateEraseEditInput"
-            const val IMAGE_EDIT_INPUT = "ImageEditStateImageEditInput"
-            const val SHAPE_EDIT_INPUT = "ImageEditStateShapeEditInput"
-            const val TEXT_EDIT_INPUT = "ImageEditStateTextEditInput"
-        }
+        private const val KEY_EDIT_ITEM_LIST = "IMAGE-EDIT-ITEM-LIST"
+        private const val KEY_CURRENT_EDIT_ITEM = "IMAGE-EDIT-CURRENT-ITEM"
+        private const val KEY_TOOLBAR_MENU_EXPANDED = "IMAGE-EDIT-TOOLBAR-MENU-EXPANDED"
+        private const val KEY_CANVAS_SIZE = "IMAGE-EDIT-CANVAS-SIZE"
+        private const val KEY_CURRENT_CORNER = "IMAGE-EDIT-CURRENT-CORNER"
+        private const val KEY_BRUSH_INPUT = "IMAGE-EDIT-BRUSH-INPUT"
+        private const val KEY_ERASE_INPUT = "IMAGE-EDIT-ERASE-INPUT"
+        private const val KEY_IMAGE_INPUT = "IMAGE-EDIT-IMAGE-INPUT"
+        private const val KEY_SHAPE_INPUT = "IMAGE-EDIT-SHAPE-INPUT"
+        private const val KEY_TEXT_INPUT = "IMAGE-EDIT-TEXT-INPUT"
 
         fun StateSaver(
             imageBitmap: ImageBitmap?,
             config: ImageEditConfig,
             density: Density,
             textMeasurer: TextMeasurer
-        ): Saver<ImageEditState, Map<String, Any?>> = Saver(
+        ): Saver<ImageEditState, Any> = mapSaver(
             save = { state ->
 
                 mapOf(
-                    StateKeys.IMAGE_EDIT_ITEM_LIST to state.imageEditItemList,
-                    StateKeys.CURRENT_IMAGE_EDIT_ITEM to state.currentImageEditItem,
-                    StateKeys.IS_TOOLBAR_MENU_EXPANDED to state.isToolBarMenuExpanded,
-                    StateKeys.CANVAS_SIZE to state.canvasSize,
-                    StateKeys.CURRENT_CORNER to state.currentCorner,
-                    StateKeys.BRUSH_EDIT_INPUT to state.brushEditInput,
-                    StateKeys.ERASE_EDIT_INPUT to state.eraseEditInput,
-                    StateKeys.IMAGE_EDIT_INPUT to state.imageEditInput,
-                    StateKeys.SHAPE_EDIT_INPUT to state.shapeEditInput,
-                    StateKeys.TEXT_EDIT_INPUT to state.textEditInput
+                    KEY_EDIT_ITEM_LIST to state.imageEditItemList,
+                    KEY_CURRENT_EDIT_ITEM to state.currentImageEditItem,
+                    KEY_TOOLBAR_MENU_EXPANDED to state.isToolBarMenuExpanded,
+                    KEY_CANVAS_SIZE to state.canvasSize.toSizeData(),
+                    KEY_CURRENT_CORNER to state.currentCorner,
+                    KEY_BRUSH_INPUT to state.brushEditInput,
+                    KEY_ERASE_INPUT to state.eraseEditInput,
+                    KEY_IMAGE_INPUT to state.imageEditInput,
+                    KEY_SHAPE_INPUT to state.shapeEditInput,
+                    KEY_TEXT_INPUT to state.textEditInput
                 )
             },
             restore = { elements ->
@@ -918,43 +918,43 @@ class ImageEditState(
                 ).apply {
 
                     imageEditItemList = elements.getOrElse(
-                        StateKeys.IMAGE_EDIT_ITEM_LIST
+                        KEY_EDIT_ITEM_LIST
                     ) { persistentListOf<ImageEditItems>() } as PersistentList<ImageEditItems>
 
                     currentImageEditItem = elements.getOrElse(
-                        StateKeys.CURRENT_IMAGE_EDIT_ITEM
+                        KEY_CURRENT_EDIT_ITEM
                     ) { null } as ImageEditItems?
 
                     isToolBarMenuExpanded = elements.getOrElse(
-                        StateKeys.IS_TOOLBAR_MENU_EXPANDED
+                        KEY_TOOLBAR_MENU_EXPANDED
                     ) { false } as Boolean
 
-                    canvasSize = elements.getOrElse(
-                        StateKeys.CANVAS_SIZE
-                    ) { Size.Zero } as Size
+                    canvasSize = (elements.getOrElse(
+                        KEY_CANVAS_SIZE
+                    ) { Size.Zero.toSizeData() } as SizeData).toSize()
 
                     currentCorner = elements.getOrElse(
-                        StateKeys.CURRENT_CORNER
+                        KEY_CURRENT_CORNER
                     ) { null } as EditItemCorner?
 
                     brushEditInput = elements.getOrElse(
-                        StateKeys.BRUSH_EDIT_INPUT
+                        KEY_BRUSH_INPUT
                     ) { ImageEditInput.BrushItem() } as ImageEditInput.BrushItem
 
                     eraseEditInput = elements.getOrElse(
-                        StateKeys.ERASE_EDIT_INPUT
+                        KEY_ERASE_INPUT
                     ) { ImageEditInput.EraseItem() } as ImageEditInput.EraseItem
 
                     imageEditInput = elements.getOrElse(
-                        StateKeys.IMAGE_EDIT_INPUT
+                        KEY_IMAGE_INPUT
                     ) { ImageEditInput.ImageItem() } as ImageEditInput.ImageItem
 
                     shapeEditInput = elements.getOrElse(
-                        StateKeys.SHAPE_EDIT_INPUT
+                        KEY_SHAPE_INPUT
                     ) { ImageEditInput.ShapeItem() } as ImageEditInput.ShapeItem
 
                     textEditInput = elements.getOrElse(
-                        StateKeys.TEXT_EDIT_INPUT
+                        KEY_TEXT_INPUT
                     ) { ImageEditInput.TextItem() } as ImageEditInput.TextItem
                 }
             }

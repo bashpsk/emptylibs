@@ -23,7 +23,7 @@ fun CanvasSlate(
 ) {
 
     val pathEditSheetState = rememberModalBottomSheetState()
-    val colorPickerState = rememberColorPickerState(enableAlphaPanel = true)
+    val colorPickerState = rememberColorPickerState()
     val backgroundColorPickerDialog = remember { MutableTransitionState(false) }
     val foregroundColorPickerDialog = remember { MutableTransitionState(false) }
     val penStrokeDialogVisibleState = remember { MutableTransitionState(false) }
@@ -32,6 +32,7 @@ fun CanvasSlate(
     ColorPickerDialog(
         dialogVisibleState = backgroundColorPickerDialog,
         state = colorPickerState,
+        enableAlphaPanel = true,
         onSelectedColor = { color ->
 
             state.updateBackgroundColor(color = color)
@@ -41,6 +42,7 @@ fun CanvasSlate(
     ColorPickerDialog(
         dialogVisibleState = foregroundColorPickerDialog,
         state = colorPickerState,
+        enableAlphaPanel = true,
         onSelectedColor = { color ->
 
             state.updateBrushColor(color = color)

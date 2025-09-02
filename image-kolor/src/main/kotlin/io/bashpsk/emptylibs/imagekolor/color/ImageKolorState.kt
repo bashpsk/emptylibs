@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ColorFilter
@@ -33,7 +34,11 @@ fun rememberImageKolorState(
     config: ImageKolorConfig = ImageKolorConfig()
 ): ImageKolorState {
 
-    return rememberSaveable(imageBitmap, config, saver = ImageKolorState.StateSaver) {
+    return rememberSaveable(
+        imageBitmap,
+        config,
+        saver = ImageKolorState.StateSaver(imageBitmap = imageBitmap, config = config)
+    ) {
         ImageKolorState(imageBitmap = imageBitmap, config = config)
     }
 }
@@ -412,49 +417,44 @@ class ImageKolorState(val imageBitmap: ImageBitmap?, val config: ImageKolorConfi
 
     companion object {
 
-        val StateSaver: Saver<ImageKolorState, List<Any?>> = Saver(
+        private const val KEY_BRIGHTNESS = "IMAGE-KOLOR-BRIGHTNESS"
+        private const val KEY_EXPOSURE = "IMAGE-KOLOR-EXPOSURE"
+        private const val KEY_CONTRAST = "IMAGE-KOLOR-CONTRAST"
+        private const val KEY_HIGHLIGHTS = "IMAGE-KOLOR-HIGHLIGHTS"
+        private const val KEY_SHADOWS = "IMAGE-KOLOR-SHADOWS"
+        private const val KEY_SATURATION = "IMAGE-KOLOR-SATURATION"
+        private const val KEY_WARMTH = "IMAGE-KOLOR-WARMTH"
+        private const val KEY_TINT = "IMAGE-KOLOR-TINT"
+
+        fun StateSaver(
+            imageBitmap: ImageBitmap?,
+            config: ImageKolorConfig
+        ): Saver<ImageKolorState, Any> = mapSaver(
             save = { state ->
 
-                listOf(
-                    state.imageBitmap,
-                    state.config,
-                    state.brightness,
-                    state.exposure,
-                    state.contrast,
-                    state.highlights,
-                    state.shadows,
-                    state.saturation,
-                    state.warmth,
-                    state.tint
+                mapOf(
+                    KEY_BRIGHTNESS to state.brightness,
+                    KEY_EXPOSURE to state.exposure,
+                    KEY_CONTRAST to state.contrast,
+                    KEY_HIGHLIGHTS to state.highlights,
+                    KEY_SHADOWS to state.shadows,
+                    KEY_SATURATION to state.saturation,
+                    KEY_WARMTH to state.warmth,
+                    KEY_TINT to state.tint
                 )
             },
             restore = { elements ->
 
-                val savedImageBitmap = elements.getOrNull(0) as? ImageBitmap
-                val savedConfig = elements.getOrNull(1) as? ImageKolorConfig ?: ImageKolorConfig()
+                ImageKolorState(imageBitmap = imageBitmap, config = config).apply {
 
-                val savedBrightness = elements.getOrNull(2) as? Float ?: 0.0F
-                val savedExposure = elements.getOrNull(3) as? Float ?: 0.0F
-                val savedContrast = elements.getOrNull(4) as? Float ?: 1.0F
-                val savedHighlights = elements.getOrNull(5) as? Float ?: 0.0F
-                val savedShadows = elements.getOrNull(6) as? Float ?: 0.0F
-                val savedSaturation = elements.getOrNull(7) as? Float ?: 1.0F
-                val savedWarmth = elements.getOrNull(8) as? Float ?: 0.0F
-                val savedTint = elements.getOrNull(9) as? Float ?: 0.0F
-
-                ImageKolorState(
-                    imageBitmap = savedImageBitmap,
-                    config = savedConfig
-                ).apply {
-
-                    brightness = savedBrightness
-                    exposure = savedExposure
-                    contrast = savedContrast
-                    highlights = savedHighlights
-                    shadows = savedShadows
-                    saturation = savedSaturation
-                    warmth = savedWarmth
-                    tint = savedTint
+                    brightness = elements.getOrElse(KEY_BRIGHTNESS) { 0F } as Float
+                    exposure = elements.getOrElse(KEY_EXPOSURE) { 0F } as Float
+                    contrast = elements.getOrElse(KEY_CONTRAST) { 1F } as Float
+                    highlights = elements.getOrElse(KEY_HIGHLIGHTS) { 0F } as Float
+                    shadows = elements.getOrElse(KEY_SHADOWS) { 0F } as Float
+                    saturation = elements.getOrElse(KEY_SATURATION) { 1F } as Float
+                    warmth = elements.getOrElse(KEY_WARMTH) { 0F } as Float
+                    tint = elements.getOrElse(KEY_TINT) { 0F } as Float
                 }
             }
         )

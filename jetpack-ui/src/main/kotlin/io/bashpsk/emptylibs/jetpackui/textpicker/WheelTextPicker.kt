@@ -117,7 +117,7 @@ fun <T> WheelTextPicker(
 
     LaunchedEffect(Unit) {
 
-        state.textList.indexOf(state.initial).takeIf { index -> index >= 0 }?.let { index ->
+        state.textList.indexOf(state.selectedText).takeIf { index -> index >= 0 }?.let { index ->
 
             lazyListState.animateScrollToItem(index = index)
         }

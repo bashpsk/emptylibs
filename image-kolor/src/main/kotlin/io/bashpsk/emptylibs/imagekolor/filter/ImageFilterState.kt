@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
@@ -23,7 +24,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 @Composable
 fun rememberImageFilterState(previewImage: ImageBitmap? = null): ImageFilterState {
 
-    return rememberSaveable(previewImage, saver = ImageFilterState.StateSaver) {
+    return rememberSaveable(
+        previewImage,
+        saver = ImageFilterState.StateSaver(previewImage = previewImage)
+    ) {
 
         ImageFilterState(previewImage = previewImage)
     }
@@ -76,23 +80,22 @@ class ImageFilterState(val previewImage: ImageBitmap?) {
 
     companion object {
 
-        val StateSaver = Saver<ImageFilterState, List<Any?>>(
+        const val KEY_SELECTED_FILTER = "IMAGE-FILTER-SELECTED-FILTER"
+
+        fun StateSaver(
+            previewImage: ImageBitmap?
+        ): Saver<ImageFilterState, Any> = mapSaver(
             save = { state ->
 
-                listOf(state.previewImage, state.selectedFilter)
+                mapOf(KEY_SELECTED_FILTER to state.selectedFilter)
             },
             restore = { elements ->
 
-                val savedPreviewImage=elements.getOrNull(0) as? ImageBitmap
+                ImageFilterState(previewImage = previewImage).apply {
 
-                val savedSelectedFilter = elements.getOrNull(1) as? ImageFilterType
-                    ?: ImageFilterType.Original
-
-                ImageFilterState(
-                    previewImage = savedPreviewImage
-                ).apply {
-
-                    selectedFilter = savedSelectedFilter
+                    selectedFilter = elements.getOrElse(
+                        KEY_SELECTED_FILTER
+                    ) { ImageFilterType.Original} as ImageFilterType
                 }
             }
         )

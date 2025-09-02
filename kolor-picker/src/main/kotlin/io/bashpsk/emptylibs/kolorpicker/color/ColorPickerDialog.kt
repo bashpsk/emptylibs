@@ -41,6 +41,7 @@ import androidx.compose.ui.window.DialogProperties
 fun ColorPickerDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
     state: ColorPickerState = rememberColorPickerState(),
+    enableAlphaPanel: Boolean = false,
     enableCopyButtons: Boolean = false,
     onSelectedColor: (color: Color) -> Unit
 ) {
@@ -105,6 +106,7 @@ fun ColorPickerDialog(
                         ColorPicker(
                             modifier = Modifier.fillParentMaxSize(),
                             state = state,
+                            enableAlphaPanel = enableAlphaPanel,
                             enableCopyButtons = enableCopyButtons
                         )
                     }
@@ -175,6 +177,7 @@ fun ColorPickerDialog(
 fun ColorPickerDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
     state: ColorPickerState = rememberColorPickerState(),
+    enableAlphaPanel: Boolean = false,
     enableCopyButtons: Boolean = false,
     onResetClick: () -> Unit,
     onSelectedColor: (color: Color) -> Unit
@@ -240,6 +243,7 @@ fun ColorPickerDialog(
                         ColorPicker(
                             modifier = Modifier.fillParentMaxSize(),
                             state = state,
+                            enableAlphaPanel = enableAlphaPanel,
                             enableCopyButtons = enableCopyButtons
                         )
                     }

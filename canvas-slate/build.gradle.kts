@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     //  MODULE          :
+    implementation(project(":compose-utils"))
     implementation(project(":formatter"))
     implementation(project(":kolor-picker"))
     implementation(project(":image-utils"))

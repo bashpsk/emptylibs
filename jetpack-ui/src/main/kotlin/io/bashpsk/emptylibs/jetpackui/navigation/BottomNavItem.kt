@@ -1,4 +1,4 @@
-package io.bashpsk.jetpackui.navigation
+package io.bashpsk.emptylibs.jetpackui.navigation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement

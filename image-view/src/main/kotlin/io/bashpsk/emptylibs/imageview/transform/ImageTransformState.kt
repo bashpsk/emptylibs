@@ -6,9 +6,12 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import io.bashpsk.emptylibs.composeutils.offset.OffsetData
+import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 
 /**
  * Remembers and creates an [ImageTransformState] with the given [zoomRange] and [config]
@@ -24,16 +27,11 @@ import androidx.compose.ui.geometry.Offset
  */
 @Composable
 fun rememberImageTransformState(
-    zoomRange: ClosedFloatingPointRange<Float> = 0.4F..8.0F,
     config: TransformImageConfig = TransformImageConfig()
 ): ImageTransformState {
 
-    return rememberSaveable(zoomRange, config, saver = ImageTransformState.StateSaver) {
-        ImageTransformState(
-            zoomMin = zoomRange.start,
-            zoomMax = zoomRange.endInclusive,
-            config = config
-        )
+    return rememberSaveable(config, saver = ImageTransformState.StateSaver(config = config)) {
+        ImageTransformState(config = config)
     }
 }
 
@@ -46,11 +44,7 @@ fun rememberImageTransformState(
  * @param zoomMin The allowable range for zoom values.
  * @param config The configuration for image transformations.
  */
-class ImageTransformState(
-    val zoomMin: Float,
-    val zoomMax: Float,
-    val config: TransformImageConfig
-) {
+class ImageTransformState(val config: TransformImageConfig) {
 
     /**
      * The current zoom level of the image.
@@ -110,39 +104,29 @@ class ImageTransformState(
 
     companion object {
 
-        val StateSaver: Saver<ImageTransformState, List<Any?>> = Saver(
+        private const val KEY_ZOOM = "IMAGE-TRANSFORM-ZOOM"
+        private const val KEY_ROTATION = "IMAGE-TRANSFORM-ROTATION"
+        private const val KEY_POSITION = "IMAGE-TRANSFORM-POSITION"
+
+        fun StateSaver(config: TransformImageConfig): Saver<ImageTransformState, Any> = mapSaver(
             save = { state ->
 
-                listOf(
-                    state.zoomMin,
-                    state.zoomMax,
-                    state.config,
-                    state.zoom,
-                    state.rotation,
-                    state.position
+                mapOf(
+                    KEY_ZOOM to state.zoom,
+                    KEY_ROTATION to state.rotation,
+                    KEY_POSITION to state.position.toOffsetData()
                 )
             },
             restore = { elements ->
 
-                val savedZoomMin = elements.getOrNull(0) as? Float ?: 0.4F
-                val savedZoomMax = elements.getOrNull(1) as? Float ?: 8.0F
+                ImageTransformState(config = config).apply {
 
-                val savedConfig = elements.getOrNull(2) as? TransformImageConfig
-                    ?: TransformImageConfig()
+                    zoom = elements.getOrElse(KEY_ZOOM) { 1.0F } as Float
+                    rotation = elements.getOrElse(KEY_ROTATION) { 0 } as Int
 
-                val savedZoom = elements.getOrNull(3) as? Float ?: 1.0F
-                val savedRotation = elements.getOrNull(4) as? Int ?: 0
-                val savedPosition = elements.getOrNull(5) as? Offset ?: Offset.Zero
-
-                ImageTransformState(
-                    zoomMin = savedZoomMin,
-                    zoomMax = savedZoomMax,
-                    config = savedConfig
-                ).apply {
-
-                    zoom = savedZoom
-                    rotation = savedRotation
-                    position = savedPosition
+                    position = (elements.getOrElse(
+                        KEY_POSITION
+                    ) { Offset.Zero.toOffsetData() } as OffsetData).toOffset()
                 }
             }
         )
