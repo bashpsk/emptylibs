@@ -59,12 +59,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import io.bashpsk.emptylibs.composeutils.stroke.toStrokeCap
+import io.bashpsk.emptylibs.composeutils.stroke.toStrokeJoin
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
@@ -312,13 +314,13 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
             state.editCanvasSlatePath?.let { pathData ->
 
                 PenStrokeSelectionView(
-                    selectedStrokeCap = pathData.strokeCap,
-                    selectedStrokeJoin = pathData.strokeJoin,
+                    selectedStrokeCap = pathData.strokeCap.toStrokeCap(),
+                    selectedStrokeJoin = pathData.strokeJoin.toStrokeJoin(),
                     onStrokeCapChange = { strokeCap ->
 
                         state.apply {
 
-                            val newPath = pathData.copy(strokeCap = strokeCap)
+                            val newPath = pathData.copy(strokeCap = strokeCap.toString())
 
                             onUpdateEditPath(path = newPath)
                             addPathInPreview(path = newPath)
@@ -328,7 +330,7 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
 
                         state.apply {
 
-                            val newPath = pathData.copy(strokeJoin = strokeJoin)
+                            val newPath = pathData.copy(strokeJoin = strokeJoin.toString())
 
                             onUpdateEditPath(path = newPath)
                             addPathInPreview(path = newPath)
@@ -344,12 +346,12 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
 
                 PenColorSelectionView(
                     modifier = Modifier.fillParentMaxWidth(),
-                    color = pathData.color,
+                    color = Color(pathData.color),
                     onSelectedColor = { color ->
 
                         state.apply {
 
-                            val newPath = pathData.copy(color = color)
+                            val newPath = pathData.copy(color = color.toArgb())
 
                             onUpdateEditPath(path = newPath)
                             addPathInPreview(path = newPath)
@@ -437,15 +439,15 @@ private fun PenColorSelectionView(
 
 @Composable
 private fun BrushThicknessSelectionView(
-    penThickness: Dp,
-    onThicknessChange: (thickness: Dp) -> Unit,
+    penThickness: Float,
+    onThicknessChange: (thickness: Float) -> Unit,
 ) {
 
     val selectedThickness by remember(penThickness) {
         derivedStateOf {
             "Brush Thickness - ${
-                EmptyFormat.toRoundedDecimal(decimal = penThickness.value, fraction = 1)
-            } Dp"
+                EmptyFormat.toRoundedDecimal(decimal = penThickness, fraction = 1)
+            } Px"
         }
     }
 
@@ -463,11 +465,11 @@ private fun BrushThicknessSelectionView(
         )
 
         Slider(
-            value = penThickness.value,
+            value = penThickness,
             valueRange = 0.3.dp.value..40.dp.value,
             onValueChange = { newValue ->
 
-                onThicknessChange(newValue.dp)
+                onThicknessChange(newValue)
             }
         )
     }

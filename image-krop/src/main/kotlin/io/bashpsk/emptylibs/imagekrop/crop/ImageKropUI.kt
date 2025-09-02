@@ -226,7 +226,8 @@ internal fun ImageKropBottomBar(
 
                         val kropResult = state.getCroppedImageBitmap(
                             imageRect = state.canvasSize.toRect(),
-                            imageFlip = KropImageFlip.Horizontal
+                            imageFlip = KropImageFlip.Horizontal,
+                            imageShape = ImageShape.None
                         )
 
                         when (kropResult) {
@@ -258,7 +259,8 @@ internal fun ImageKropBottomBar(
 
                         val kropResult = state.getCroppedImageBitmap(
                             imageRect = state.canvasSize.toRect(),
-                            imageFlip = KropImageFlip.Vertical
+                            imageFlip = KropImageFlip.Vertical,
+                            imageShape = ImageShape.None
                         )
 
                         when (kropResult) {
@@ -461,6 +463,7 @@ internal fun KropShapeCustomizationDialog(state: ImageKropState) {
 
                 state.isShapeCustomizeDialog = false
             },
+            shape = MaterialTheme.shapes.extraSmall,
             title = {
 
                 Row(

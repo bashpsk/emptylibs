@@ -1,8 +1,11 @@
 package io.bashpsk.emptylibs.canvasslate.slate
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import io.bashpsk.emptylibs.composeutils.stroke.toStrokeCap
+import io.bashpsk.emptylibs.composeutils.stroke.toStrokeJoin
 import kotlin.math.abs
 
 internal fun DrawScope.drawSlatePath(slatePath: CanvasSlatePath) {
@@ -40,11 +43,11 @@ internal fun DrawScope.drawSlatePath(slatePath: CanvasSlatePath) {
 
     drawPath(
         path = smoothedPath,
-        color = slatePath.color,
+        color = Color(slatePath.color),
         style = Stroke(
-            width = slatePath.thickness.toPx(),
-            cap = slatePath.strokeCap,
-            join = slatePath.strokeJoin
+            width = slatePath.thickness,
+            cap = slatePath.strokeCap.toStrokeCap(),
+            join = slatePath.strokeJoin.toStrokeJoin()
         )
     )
 }

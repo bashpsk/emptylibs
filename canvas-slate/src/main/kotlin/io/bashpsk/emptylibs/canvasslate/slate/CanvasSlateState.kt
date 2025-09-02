@@ -18,14 +18,16 @@ import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.canvasslate.extension.hasNeared
+import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.composeutils.size.SizeData
 import io.bashpsk.emptylibs.composeutils.size.toSizeData
-import kotlinx.collections.immutable.PersistentList
+import io.bashpsk.emptylibs.composeutils.stroke.toStrokeCap
+import io.bashpsk.emptylibs.composeutils.stroke.toStrokeJoin
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
@@ -76,7 +78,7 @@ class CanvasSlateState(
     var selectedStrokeJoin by mutableStateOf(StrokeJoin.Round)
         private set
 
-    var brushThickness by mutableStateOf(4.dp)
+    var brushThickness by mutableStateOf(4.0F)
         private set
 
     var currentPath by mutableStateOf<CanvasSlatePath?>(null)
@@ -113,7 +115,7 @@ class CanvasSlateState(
         selectedStrokeJoin = type
     }
 
-    fun updateBrushThickness(thickness: Dp) {
+    fun updateBrushThickness(thickness: Float) {
 
         brushThickness = thickness
     }
@@ -148,10 +150,10 @@ class CanvasSlateState(
 
             val path = CanvasSlatePath(
                 id = Clock.System.now().toEpochMilliseconds().toString(),
-                color = selectedBrushColor,
+                color = selectedBrushColor.toArgb(),
                 thickness = brushThickness,
-                strokeCap = selectedStrokeCap,
-                strokeJoin = selectedStrokeJoin,
+                strokeCap = selectedStrokeCap.toString(),
+                strokeJoin = selectedStrokeJoin.toString(),
                 path = persistentListOf()
             )
 
@@ -177,7 +179,7 @@ class CanvasSlateState(
 
             currentPath?.let { pathData ->
 
-                val path = pathData.copy(path = pathData.path.add(element = position))
+                val path = pathData.copy(path = pathData.path.add(position.toOffsetData()))
 
                 onCurrentPath(path = path)
             } ?: return
@@ -190,11 +192,11 @@ class CanvasSlateState(
 
             allPathList.find { pathData ->
 
-                val pointThreshold = threshold + pathData.thickness.value
+                val pointThreshold = threshold + pathData.thickness
 
                 pathData.path.find { point ->
 
-                    point.hasNeared(point = position, threshold = pointThreshold)
+                    point.toOffset().hasNeared(point = position, threshold = pointThreshold)
                 } != null
             }?.let { pathData ->
 
@@ -289,12 +291,12 @@ class CanvasSlateState(
                     KEY_CANVAS_SIZE to state.canvasSize.toSizeData(),
                     KEY_BACKGROUND_COLOR to state.selectedBackgroundColor.toArgb(),
                     KEY_BRUSH_COLOR to state.selectedBrushColor.toArgb(),
-                    KEY_STROKE_CAP to state.selectedStrokeCap,
-                    KEY_STROKE_JOIN to state.selectedStrokeJoin,
-                    KEY_BRUSH_THICKNESS to state.brushThickness.value,
+                    KEY_STROKE_CAP to state.selectedStrokeCap.toString(),
+                    KEY_STROKE_JOIN to state.selectedStrokeJoin.toString(),
+                    KEY_BRUSH_THICKNESS to state.brushThickness,
                     KEY_CURRENT_PATH to state.currentPath,
                     KEY_DRAWING_MODE to state.isDrawingMode,
-                    KEY_ALL_PATH_LIST to state.allPathList
+                    KEY_ALL_PATH_LIST to state.allPathList.toTypedArray()
                 )
             },
             restore = { elements ->
@@ -317,30 +319,23 @@ class CanvasSlateState(
                         KEY_BRUSH_COLOR
                     ) { initial.toArgb() } as Int)
 
-                    selectedStrokeCap = elements.getOrElse(
+                    selectedStrokeCap = (elements.getOrElse(
                         KEY_STROKE_CAP
-                    ) { StrokeCap.Round } as StrokeCap
+                    ) { StrokeCap.Round.toString() } as String).toStrokeCap()
 
-                    selectedStrokeJoin = elements.getOrElse(
+                    selectedStrokeJoin = (elements.getOrElse(
                         KEY_STROKE_JOIN
-                    ) { StrokeJoin.Round } as StrokeJoin
+                    ) { StrokeJoin.Round.toString() } as String).toStrokeJoin()
 
-                    brushThickness = (elements.getOrElse(
-                        KEY_BRUSH_THICKNESS
-                    ) { 4.dp.value } as Float).dp
-
-                    currentPath = elements.getOrElse(
-                        KEY_CURRENT_PATH
-                    ) { null } as CanvasSlatePath?
-
-                    isDrawingMode = elements.getOrElse(
-                        KEY_DRAWING_MODE
-                    ) { true } as Boolean
+                    brushThickness = elements.getOrElse(KEY_BRUSH_THICKNESS) { 4.0F } as Float
+                    currentPath = elements.getOrElse(KEY_CURRENT_PATH) { null } as CanvasSlatePath?
+                    isDrawingMode = elements.getOrElse(KEY_DRAWING_MODE) { true } as Boolean
 
                     @Suppress("UNCHECKED_CAST")
-                    allPathList = elements.getOrElse(
-                        KEY_ALL_PATH_LIST
-                    ) { persistentListOf<CanvasSlatePath>() } as PersistentList<CanvasSlatePath>
+                    allPathList = (elements.getOrElse(KEY_ALL_PATH_LIST) {
+
+                        arrayOf<CanvasSlatePath>()
+                    } as Array<CanvasSlatePath>).toPersistentList()
                 }
             }
         )

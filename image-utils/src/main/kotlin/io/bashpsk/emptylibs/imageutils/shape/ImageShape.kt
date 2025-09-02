@@ -1,6 +1,9 @@
 package io.bashpsk.emptylibs.imageutils.shape
 
+import android.os.Parcelable
 import androidx.annotation.FloatRange
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 /**
  * Represents the different shapes that can be used for cropping an image.
@@ -21,7 +24,9 @@ import androidx.annotation.FloatRange
  *     - [edges]: The number of points or edges of the star.
  *     - [distance]: A parameter influencing the depth or prominence of the star's points.
  */
-sealed interface ImageShape {
+@Parcelize
+@Serializable
+sealed interface ImageShape : Parcelable {
 
     /**
      * Represents no cropping, meaning the original image is retained.

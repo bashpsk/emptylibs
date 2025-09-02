@@ -117,8 +117,8 @@ internal suspend fun ImageBitmap.getCroppedImageBitmap(
         return@withContext KropResult.Failed(message = message)
     }
 
-    val canvasWidth = canvasSize.width.toFloat()
-    val canvasHeight = canvasSize.height.toFloat()
+    val canvasWidth = canvasSize.width
+    val canvasHeight = canvasSize.height
     val actualBitmapWidth = sourceImageBitmap.width.toFloat()
     val actualBitmapHeight = sourceImageBitmap.height.toFloat()
 
@@ -129,8 +129,8 @@ internal suspend fun ImageBitmap.getCroppedImageBitmap(
     val displayedImageWidth = actualBitmapWidth * scaleFactor
     val displayedImageHeight = actualBitmapHeight * scaleFactor
 
-    val offsetX = (canvasWidth - displayedImageWidth) / 2f
-    val offsetY = (canvasHeight - displayedImageHeight) / 2f
+    val offsetX = (canvasWidth - displayedImageWidth) / 2F
+    val offsetY = (canvasHeight - displayedImageHeight) / 2F
 
     val cropLeft = transformToBitmapCoordinate(
         canvasCoordinate = cropRect.left,
@@ -177,7 +177,7 @@ internal suspend fun ImageBitmap.getCroppedImageBitmap(
         Log.w(LOG_TAG, message)
     }
 
-    try {
+    return@withContext try {
 
         val androidBitmap = sourceImageBitmap.asAndroidBitmap()
         var bitmapToProcess = androidBitmap
@@ -216,26 +216,26 @@ internal suspend fun ImageBitmap.getCroppedImageBitmap(
 
         val shapedBitmap = kropShape.bitmapMask(imageBitmap = croppedBitmap)
 
-        return@withContext KropResult.Success(bitmap = shapedBitmap)
+        KropResult.Success(bitmap = shapedBitmap)
     } catch (exception: IllegalArgumentException) {
 
         val message = "Image Crop Failed: Invalid dimensions for bitmap. ${exception.message}"
 
         Log.e(LOG_TAG, message, exception)
-        return@withContext KropResult.Failed(message = message)
+        KropResult.Failed(message = message)
     } catch (exception: OutOfMemoryError) {
 
         val message = "Image Crop Failed: Out of memory. ${exception.message}"
 
         Log.e(LOG_TAG, message, exception)
-        return@withContext KropResult.Failed(message = message)
+        KropResult.Failed(message = message)
     } catch (exception: Exception) {
 
         val message = "Image Crop Failed: An unexpected error occurred. ${exception.message}"
 
         ensureActive()
         Log.e(LOG_TAG, message, exception)
-        return@withContext KropResult.Failed(message = message)
+        KropResult.Failed(message = message)
     }
 }
 

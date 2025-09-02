@@ -61,11 +61,7 @@ fun rememberImageKropState(
             density = density
         )
     ) {
-        ImageKropState(
-            imageBitmap = imageBitmap,
-            config = config,
-            density = density
-        )
+        ImageKropState(imageBitmap = imageBitmap, config = config, density = density)
     }
 }
 
@@ -1171,8 +1167,8 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
                     KEY_ASPECT_LOCKED to state.isAspectLocked,
                     KEY_KROP_SHAPE to state.kropShape,
                     KEY_CURRENT_CORNER to state.currentCorner,
-                    KEY_CANVAS_SIZE to state.canvasSize,
-                    KEY_KROP_RECT_POSITION to state.kropRectPosition,
+                    KEY_CANVAS_SIZE to state.canvasSize.toSizeData(),
+                    KEY_KROP_RECT_POSITION to state.kropRectPosition.toOffsetData(),
                     KEY_KROP_RECT_SIZE to state.kropRectSize.toSizeData(),
                     KEY_ASPECT_RATIO_MENU_EXPANDED to state.isAspectRatioMenuExpanded,
                     KEY_SHAPE_MENU_EXPANDED to state.isShapeMenuExpanded,
@@ -1196,7 +1192,6 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
                     ) { imageBitmap } as ImageBitmap
 
                     modifiedImage = elements.getOrElse(KEY_MODIFIED_IMAGE) { null } as ImageBitmap?
-
                     previewImage = elements.getOrElse(KEY_PREVIEW_IMAGE) { null } as ImageBitmap?
 
                     imageList = elements.getOrElse(

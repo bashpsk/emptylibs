@@ -11,9 +11,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -22,7 +19,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.toSize
 import kotlinx.collections.immutable.ImmutableList
 
@@ -46,16 +42,11 @@ fun ImageKrop(
     modifier: Modifier = Modifier,
     state: ImageKropState,
     aspectList: ImmutableList<KropAspectRatio> = KropAspectRatio.Basic,
-    onKropFinished: () -> Unit,
-    onNavigateBack: () -> Unit
+    onKropFinished: () -> Unit = {},
+    onNavigateBack: () -> Unit = {}
 ) {
 
-    val density = LocalDensity.current
     val imagePreviewSheetState = rememberModalBottomSheetState()
-
-    val cropSizeLimit by remember(state.config, density) {
-        derivedStateOf { state.config.minimumCropSize.toPixel(density = density) }
-    }
 
     val imagePlacedModifier = Modifier.onPlaced { layoutCoordinates ->
 

@@ -1,5 +1,8 @@
 package io.bashpsk.emptylibs.imagekolor.filter
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,6 +13,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.toImmutableList
 
@@ -28,14 +32,15 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 fun ImageFilter(
     modifier: Modifier = Modifier,
-    state: ImageFilterState = rememberImageFilterState()
+    state: ImageFilterState = rememberImageFilterState(),
+    itemSize: Dp = 120.dp
 ) {
 
     val kolorFilterList = remember { ImageFilterType.entries.toImmutableList() }
 
     LazyVerticalGrid(
         modifier = modifier,
-        columns = GridCells.Adaptive(minSize = 128.dp),
+        columns = GridCells.Adaptive(minSize = itemSize),
         verticalArrangement = Arrangement.spacedBy(space = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(space = 4.dp)
     ) {
@@ -50,7 +55,16 @@ fun ImageFilter(
             }
 
             KolorFilterView(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateItem(
+                        fadeInSpec = tween(durationMillis = 250),
+                        fadeOutSpec = tween(durationMillis = 100),
+                        placementSpec = spring(
+                            stiffness = Spring.StiffnessLow,
+                            dampingRatio = Spring.DampingRatioMediumBouncy
+                        )
+                    ),
                 kolorFilter = kolorFilter,
                 imageModel = state.previewImage,
                 isSelected = isSelected,

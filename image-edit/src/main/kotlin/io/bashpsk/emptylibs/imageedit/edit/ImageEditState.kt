@@ -36,8 +36,8 @@ import io.bashpsk.emptylibs.imageedit.extension.toPixel
 import io.bashpsk.emptylibs.imageedit.extension.toRect
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
@@ -895,7 +895,7 @@ class ImageEditState(
             save = { state ->
 
                 mapOf(
-                    KEY_EDIT_ITEM_LIST to state.imageEditItemList,
+                    KEY_EDIT_ITEM_LIST to state.imageEditItemList.toTypedArray(),
                     KEY_CURRENT_EDIT_ITEM to state.currentImageEditItem,
                     KEY_TOOLBAR_MENU_EXPANDED to state.isToolBarMenuExpanded,
                     KEY_CANVAS_SIZE to state.canvasSize.toSizeData(),
@@ -917,9 +917,9 @@ class ImageEditState(
                     textMeasurer = textMeasurer
                 ).apply {
 
-                    imageEditItemList = elements.getOrElse(
-                        KEY_EDIT_ITEM_LIST
-                    ) { persistentListOf<ImageEditItems>() } as PersistentList<ImageEditItems>
+                    imageEditItemList = (elements.getOrElse(KEY_EDIT_ITEM_LIST) {
+                        arrayOf<ImageEditItems>()
+                    } as Array<ImageEditItems>).toPersistentList()
 
                     currentImageEditItem = elements.getOrElse(
                         KEY_CURRENT_EDIT_ITEM
