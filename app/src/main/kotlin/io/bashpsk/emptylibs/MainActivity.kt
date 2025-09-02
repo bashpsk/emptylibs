@@ -44,8 +44,8 @@ class MainActivity : ComponentActivity() {
 //                    TransformImageScreen()
 //                    VideoGestureScreen()
 //                    TextPickerScreen()
-//                    CanvasSlateScreen()
-                    ImageEditScreen()
+                    CanvasSlateScreen()
+//                    ImageEditScreen()
                 }
             }
         }

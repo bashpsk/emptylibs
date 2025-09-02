@@ -318,7 +318,7 @@ private fun ColorSelectionBar(
         item {
 
             ColorBoxView(
-                color = state.selectedPenColor,
+                color = state.selectedBrushColor,
                 onColorClick = {
 
                     foregroundColorPickerDialog.targetState = true

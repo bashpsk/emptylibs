@@ -142,9 +142,9 @@ internal fun PenThicknessDialog(
             },
             text = {
 
-                PenThicknessSelectionView(
-                    penThickness = state.penThickness,
-                    onThicknessChange = state::updatePenThickness
+                BrushThicknessSelectionView(
+                    penThickness = state.brushThickness,
+                    onThicknessChange = state::updateBrushThickness
                 )
             },
             confirmButton = {
@@ -291,7 +291,7 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
 
             state.editCanvasSlatePath?.let { pathData ->
 
-                PenThicknessSelectionView(
+                BrushThicknessSelectionView(
                     penThickness = pathData.thickness,
                     onThicknessChange = { thickness ->
 
@@ -438,14 +438,14 @@ private fun PenColorSelectionView(
 }
 
 @Composable
-private fun PenThicknessSelectionView(
+private fun BrushThicknessSelectionView(
     penThickness: Dp,
     onThicknessChange: (thickness: Dp) -> Unit,
 ) {
 
     val selectedThickness by remember(penThickness) {
         derivedStateOf {
-            "Selected Thickness - ${
+            "Brush Thickness - ${
                 EmptyFormat.toRoundedDecimal(decimal = penThickness.value, fraction = 1)
             } Dp"
         }

@@ -3,7 +3,8 @@ package io.bashpsk.emptylibs.canvasslate.slate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -13,11 +14,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.canvasslate.extension.hasNeared
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,12 +30,18 @@ import kotlin.time.ExperimentalTime
 @Composable
 fun rememberCanvasSlateState(
     background: Color = Color.Black,
-    initial: Color = Color.Green,
-    threshold: Dp = 12.dp
+    initial: Color = Color.Green
 ): CanvasSlateState {
 
-    return remember(background, initial, threshold) {
-        CanvasSlateState(background = background, initial = initial, threshold = threshold.value)
+    val density = LocalDensity.current
+
+    return rememberSaveable(
+        background,
+        initial,
+        density,
+        saver = CanvasSlateState.StateSaver(density = density)
+    ) {
+        CanvasSlateState(background = background, initial = initial, density = density)
     }
 }
 
@@ -40,15 +49,17 @@ fun rememberCanvasSlateState(
 class CanvasSlateState(
     private val background: Color,
     private val initial: Color,
-    private val threshold: Float
+    private val density: Density
 ) {
+
+    private val threshold = 12.dp.toPixel(density = density)
 
     internal var canvasSize by mutableStateOf(Size.Zero)
 
     var selectedBackgroundColor by mutableStateOf(background)
         private set
 
-    var selectedPenColor by mutableStateOf(initial)
+    var selectedBrushColor by mutableStateOf(initial)
         private set
 
     var selectedStrokeCap by mutableStateOf(StrokeCap.Round)
@@ -57,7 +68,7 @@ class CanvasSlateState(
     var selectedStrokeJoin by mutableStateOf(StrokeJoin.Round)
         private set
 
-    var penThickness by mutableStateOf(4.dp)
+    var brushThickness by mutableStateOf(4.dp)
         private set
 
     var currentPath by mutableStateOf<CanvasSlatePath?>(null)
@@ -79,9 +90,9 @@ class CanvasSlateState(
         selectedBackgroundColor = color
     }
 
-    fun updatePenColor(color: Color) {
+    fun updateBrushColor(color: Color) {
 
-        selectedPenColor = color
+        selectedBrushColor = color
     }
 
     fun updateStrokeCap(type: StrokeCap) {
@@ -94,9 +105,9 @@ class CanvasSlateState(
         selectedStrokeJoin = type
     }
 
-    fun updatePenThickness(thickness: Dp) {
+    fun updateBrushThickness(thickness: Dp) {
 
-        penThickness = thickness
+        brushThickness = thickness
     }
 
     fun onDrawingMode(mode: Boolean) {
@@ -129,8 +140,8 @@ class CanvasSlateState(
 
             val path = CanvasSlatePath(
                 id = Clock.System.now().toEpochMilliseconds().toString(),
-                color = selectedPenColor,
-                thickness = penThickness,
+                color = selectedBrushColor,
+                thickness = brushThickness,
                 strokeCap = selectedStrokeCap,
                 strokeJoin = selectedStrokeJoin,
                 path = persistentListOf()
@@ -230,13 +241,11 @@ class CanvasSlateState(
         return@withContext canvasSize.takeIf { size -> size != Size.Zero }?.let { size ->
 
             val imageBitmap = ImageBitmap(size.width.toInt(), size.height.toInt())
-            val canvas = Canvas(image = imageBitmap)
-            val drawScope = CanvasDrawScope()
 
-            drawScope.draw(
+            CanvasDrawScope().draw(
                 density = density,
                 layoutDirection = LayoutDirection.Ltr,
-                canvas = canvas,
+                canvas = Canvas(image = imageBitmap),
                 size = size
             ) {
 
@@ -247,5 +256,86 @@ class CanvasSlateState(
 
             imageBitmap
         }
+    }
+
+    companion object {
+
+        private object StateKeys {
+
+            const val BACKGROUND = "CanvasSlateBackground"
+            const val INITIAL = "CanvasSlateInitial"
+            const val CANVAS_SIZE = "CanvasSlateCanvasSize"
+            const val SELECTED_BACKGROUND_COLOR = "CanvasSlateSelectedBackgroundColor"
+            const val SELECTED_BRUSH_COLOR = "CanvasSlateSelectedBrushColor"
+            const val SELECTED_STROKE_CAP = "CanvasSlateSelectedStrokeCap"
+            const val SELECTED_STROKE_JOIN = "CanvasSlateSelectedStrokeJoin"
+            const val BRUSH_THICKNESS = "CanvasSlateBrushThickness"
+            const val CURRENT_PATH = "CanvasSlateCurrentPath"
+            const val IS_DRAWING_MODE = "CanvasSlateIsDrawingMode"
+            const val ALL_PATH_LIST = "CanvasSlateAllPathList"
+        }
+
+        fun StateSaver(density: Density): Saver<CanvasSlateState, Map<String, Any?>> = Saver(
+            save = { state ->
+
+                mapOf(
+                    StateKeys.BACKGROUND to state.background,
+                    StateKeys.INITIAL to state.initial,
+                    StateKeys.CANVAS_SIZE to state.canvasSize,
+                    StateKeys.SELECTED_BACKGROUND_COLOR to state.selectedBackgroundColor,
+                    StateKeys.SELECTED_BRUSH_COLOR to state.selectedBrushColor,
+                    StateKeys.SELECTED_STROKE_CAP to state.selectedStrokeCap,
+                    StateKeys.SELECTED_STROKE_JOIN to state.selectedStrokeJoin,
+                    StateKeys.BRUSH_THICKNESS to state.brushThickness,
+                    StateKeys.CURRENT_PATH to state.currentPath,
+                    StateKeys.IS_DRAWING_MODE to state.isDrawingMode,
+                    StateKeys.ALL_PATH_LIST to state.allPathList
+                )
+            },
+            restore = { elements ->
+
+                CanvasSlateState(
+                    background = elements.getOrElse(StateKeys.BACKGROUND) { Color.Black } as Color,
+                    initial = elements.getOrElse(StateKeys.INITIAL) { Color.Green } as Color,
+                    density = density
+                ).apply {
+
+                    canvasSize = elements.getOrElse(StateKeys.CANVAS_SIZE) { Size.Zero } as Size
+
+                    selectedBackgroundColor = elements.getOrElse(
+                        StateKeys.SELECTED_BACKGROUND_COLOR
+                    ) { background } as Color
+
+                    selectedBrushColor = elements.getOrElse(
+                        StateKeys.SELECTED_BRUSH_COLOR
+                    ) { initial } as Color
+
+                    selectedStrokeCap = elements.getOrElse(
+                        StateKeys.SELECTED_STROKE_CAP
+                    ) { StrokeCap.Round } as StrokeCap
+
+                    selectedStrokeJoin = elements.getOrElse(
+                        StateKeys.SELECTED_STROKE_JOIN
+                    ) { StrokeJoin.Round } as StrokeJoin
+
+                    brushThickness = elements.getOrElse(
+                        StateKeys.BRUSH_THICKNESS
+                    ) { 4.dp } as Dp
+
+                    currentPath = elements.getOrElse(
+                        StateKeys.CURRENT_PATH
+                    ) { null } as CanvasSlatePath?
+
+                    isDrawingMode = elements.getOrElse(
+                        StateKeys.IS_DRAWING_MODE
+                    ) { true } as Boolean
+
+                    @Suppress("UNCHECKED_CAST")
+                    allPathList = elements.getOrElse(
+                        StateKeys.ALL_PATH_LIST
+                    ) { persistentListOf<CanvasSlatePath>() } as PersistentList<CanvasSlatePath>
+                }
+            }
+        )
     }
 }

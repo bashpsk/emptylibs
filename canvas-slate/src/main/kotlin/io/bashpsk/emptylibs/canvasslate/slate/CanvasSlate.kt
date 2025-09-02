@@ -43,7 +43,7 @@ fun CanvasSlate(
         state = colorPickerState,
         onSelectedColor = { color ->
 
-            state.updatePenColor(color = color)
+            state.updateBrushColor(color = color)
         }
     )
 
