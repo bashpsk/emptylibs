@@ -3,7 +3,8 @@ package io.bashpsk.emptylibs.imageedit.edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -32,6 +33,7 @@ import io.bashpsk.emptylibs.imageedit.extension.toPixel
 import io.bashpsk.emptylibs.imageedit.extension.toRect
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -47,7 +49,18 @@ fun rememberImageEditState(
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
 
-    return remember(imageBitmap, config, density, textMeasurer) {
+    return rememberSaveable(
+        imageBitmap,
+        config,
+        density,
+        textMeasurer,
+        saver = ImageEditState.StateSaver(
+            imageBitmap = imageBitmap,
+            config = config,
+            density = density,
+            textMeasurer = textMeasurer
+        )
+    ) {
         ImageEditState(
             imageBitmap = imageBitmap,
             config = config,
@@ -855,5 +868,96 @@ class ImageEditState(
         }
 
         return Pair(resultTopLeft, resultBottomRight)
+    }
+
+    companion object {
+
+        private object StateKeys {
+
+            const val IMAGE_EDIT_ITEM_LIST = "ImageEditStateImageEditItemList"
+            const val CURRENT_IMAGE_EDIT_ITEM = "ImageEditStateCurrentImageEditItem"
+            const val IS_TOOLBAR_MENU_EXPANDED = "ImageEditStateIsToolBarMenuExpanded"
+            const val CANVAS_SIZE = "ImageEditStateCanvasSize"
+            const val CURRENT_CORNER = "ImageEditStateCurrentCorner"
+            const val BRUSH_EDIT_INPUT = "ImageEditStateBrushEditInput"
+            const val ERASE_EDIT_INPUT = "ImageEditStateEraseEditInput"
+            const val IMAGE_EDIT_INPUT = "ImageEditStateImageEditInput"
+            const val SHAPE_EDIT_INPUT = "ImageEditStateShapeEditInput"
+            const val TEXT_EDIT_INPUT = "ImageEditStateTextEditInput"
+        }
+
+        fun StateSaver(
+            imageBitmap: ImageBitmap?,
+            config: ImageEditConfig,
+            density: Density,
+            textMeasurer: TextMeasurer
+        ): Saver<ImageEditState, Map<String, Any?>> = Saver(
+            save = { state ->
+
+                mapOf(
+                    StateKeys.IMAGE_EDIT_ITEM_LIST to state.imageEditItemList,
+                    StateKeys.CURRENT_IMAGE_EDIT_ITEM to state.currentImageEditItem,
+                    StateKeys.IS_TOOLBAR_MENU_EXPANDED to state.isToolBarMenuExpanded,
+                    StateKeys.CANVAS_SIZE to state.canvasSize,
+                    StateKeys.CURRENT_CORNER to state.currentCorner,
+                    StateKeys.BRUSH_EDIT_INPUT to state.brushEditInput,
+                    StateKeys.ERASE_EDIT_INPUT to state.eraseEditInput,
+                    StateKeys.IMAGE_EDIT_INPUT to state.imageEditInput,
+                    StateKeys.SHAPE_EDIT_INPUT to state.shapeEditInput,
+                    StateKeys.TEXT_EDIT_INPUT to state.textEditInput
+                )
+            },
+            restore = { elements ->
+
+                @Suppress("UNCHECKED_CAST")
+                ImageEditState(
+                    imageBitmap = imageBitmap,
+                    config = config,
+                    density = density,
+                    textMeasurer = textMeasurer
+                ).apply {
+
+                    imageEditItemList = elements.getOrElse(
+                        StateKeys.IMAGE_EDIT_ITEM_LIST
+                    ) { persistentListOf<ImageEditItems>() } as PersistentList<ImageEditItems>
+
+                    currentImageEditItem = elements.getOrElse(
+                        StateKeys.CURRENT_IMAGE_EDIT_ITEM
+                    ) { null } as ImageEditItems?
+
+                    isToolBarMenuExpanded = elements.getOrElse(
+                        StateKeys.IS_TOOLBAR_MENU_EXPANDED
+                    ) { false } as Boolean
+
+                    canvasSize = elements.getOrElse(
+                        StateKeys.CANVAS_SIZE
+                    ) { Size.Zero } as Size
+
+                    currentCorner = elements.getOrElse(
+                        StateKeys.CURRENT_CORNER
+                    ) { null } as EditItemCorner?
+
+                    brushEditInput = elements.getOrElse(
+                        StateKeys.BRUSH_EDIT_INPUT
+                    ) { ImageEditInput.BrushItem() } as ImageEditInput.BrushItem
+
+                    eraseEditInput = elements.getOrElse(
+                        StateKeys.ERASE_EDIT_INPUT
+                    ) { ImageEditInput.EraseItem() } as ImageEditInput.EraseItem
+
+                    imageEditInput = elements.getOrElse(
+                        StateKeys.IMAGE_EDIT_INPUT
+                    ) { ImageEditInput.ImageItem() } as ImageEditInput.ImageItem
+
+                    shapeEditInput = elements.getOrElse(
+                        StateKeys.SHAPE_EDIT_INPUT
+                    ) { ImageEditInput.ShapeItem() } as ImageEditInput.ShapeItem
+
+                    textEditInput = elements.getOrElse(
+                        StateKeys.TEXT_EDIT_INPUT
+                    ) { ImageEditInput.TextItem() } as ImageEditInput.TextItem
+                }
+            }
+        )
     }
 }
