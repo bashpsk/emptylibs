@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 
 internal sealed interface ImageEditInput {
@@ -59,8 +60,8 @@ internal sealed interface ImageEditInput {
     ) : ImageEditInput
 
     data class TextItem(
-        val content: String = "",
-        val style: TextStyle = TextStyle.Default,
+        val content: String = "Text",
+        val style: TextStyle = TextStyle.Default.copy(fontSize = 28.sp),
         val position: Offset = Offset.Unspecified,
         val size: Size = Size.Unspecified
     ) : ImageEditInput

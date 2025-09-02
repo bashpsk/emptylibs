@@ -239,19 +239,26 @@ class ImageEditState(
 
     fun onTextItem() {
 
+        val maxWidth = textEditInput.size.takeIf { size ->
+
+            size != Size.Unspecified
+        }?.width?.toInt() ?: canvasSize.width.toInt()
+
+        val maxHeight = textEditInput.size.takeIf { size ->
+
+            size != Size.Unspecified
+        }?.height?.toInt() ?: canvasSize.height.toInt()
+
         val sizeOfItem = textMeasurer.measure(
             text = textEditInput.content,
             style = textEditInput.style,
             overflow = TextOverflow.Clip,
-            constraints = Constraints(
-                maxWidth = canvasSize.width.toInt(),
-                maxHeight = canvasSize.height.toInt()
-            )
+            constraints = Constraints(maxWidth = maxWidth, maxHeight = maxHeight)
         ).size.toSize()
 
         val positionOfItem = Offset(
-            x = (canvasSize.width - sizeOfItem.width) / 2.0F,
-            y = (canvasSize.height - sizeOfItem.height) / 2.0F
+            x = (maxWidth - sizeOfItem.width) / 2.0F,
+            y = (maxHeight - sizeOfItem.height) / 2.0F
         )
 
         val items = ImageEditItems.TextItem(

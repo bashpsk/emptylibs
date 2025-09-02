@@ -70,10 +70,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
@@ -169,7 +173,7 @@ private fun InputEditBrush(state: ImageEditState) {
 
         item {
 
-            SmoothnessSelectionView(
+            SliderSelectionView(
                 modifier = Modifier.animateItem(
                     fadeInSpec = tween(durationMillis = 250),
                     fadeOutSpec = tween(durationMillis = 100),
@@ -178,12 +182,14 @@ private fun InputEditBrush(state: ImageEditState) {
                         dampingRatio = Spring.DampingRatioMediumBouncy
                     )
                 ),
-                smoothness = state.brushEditInput.smoothness,
-                onSmoothnessChange = { newSmoothness ->
+                label = "Smoothness",
+                value = state.brushEditInput.smoothness.toFloat(),
+                valueRange = 0.0F..10.0F,
+                onValueChange = { newSmoothness ->
 
                     state.apply {
 
-                        brushEditInput = brushEditInput.copy(smoothness = newSmoothness)
+                        brushEditInput = brushEditInput.copy(smoothness = newSmoothness.toInt())
                     }
                 }
             )
@@ -191,7 +197,7 @@ private fun InputEditBrush(state: ImageEditState) {
 
         item {
 
-            ThicknessSelectionView(
+            SliderSelectionView(
                 modifier = Modifier.animateItem(
                     fadeInSpec = tween(durationMillis = 250),
                     fadeOutSpec = tween(durationMillis = 100),
@@ -200,8 +206,10 @@ private fun InputEditBrush(state: ImageEditState) {
                         dampingRatio = Spring.DampingRatioMediumBouncy
                     )
                 ),
-                thickness = state.brushEditInput.thickness,
-                onThicknessChange = { newThickness ->
+                label = "Thickness",
+                value = state.brushEditInput.thickness,
+                valueRange = 0.3F..64.0F,
+                onValueChange = { newThickness ->
 
                     state.apply {
 
@@ -213,7 +221,7 @@ private fun InputEditBrush(state: ImageEditState) {
 
         item {
 
-            MiterSelectionView(
+            SliderSelectionView(
                 modifier = Modifier.animateItem(
                     fadeInSpec = tween(durationMillis = 250),
                     fadeOutSpec = tween(durationMillis = 100),
@@ -222,8 +230,10 @@ private fun InputEditBrush(state: ImageEditState) {
                         dampingRatio = Spring.DampingRatioMediumBouncy
                     )
                 ),
-                miter = state.brushEditInput.miter,
-                onMiterChange = { newMiter ->
+                label = "Miter",
+                value = state.brushEditInput.miter,
+                valueRange = 0.3F..20.0F,
+                onValueChange = { newMiter ->
 
                     state.apply {
 
@@ -319,7 +329,7 @@ private fun InputEditErase(state: ImageEditState) {
 
         item {
 
-            SmoothnessSelectionView(
+            SliderSelectionView(
                 modifier = Modifier.animateItem(
                     fadeInSpec = tween(durationMillis = 250),
                     fadeOutSpec = tween(durationMillis = 100),
@@ -328,12 +338,14 @@ private fun InputEditErase(state: ImageEditState) {
                         dampingRatio = Spring.DampingRatioMediumBouncy
                     )
                 ),
-                smoothness = state.eraseEditInput.smoothness,
-                onSmoothnessChange = { newSmoothness ->
+                label = "Smoothness",
+                value = state.eraseEditInput.smoothness.toFloat(),
+                valueRange = 0.0F..10.0F,
+                onValueChange = { newSmoothness ->
 
                     state.apply {
 
-                        eraseEditInput = eraseEditInput.copy(smoothness = newSmoothness)
+                        eraseEditInput = eraseEditInput.copy(smoothness = newSmoothness.toInt())
                     }
                 }
             )
@@ -341,7 +353,7 @@ private fun InputEditErase(state: ImageEditState) {
 
         item {
 
-            ThicknessSelectionView(
+            SliderSelectionView(
                 modifier = Modifier.animateItem(
                     fadeInSpec = tween(durationMillis = 250),
                     fadeOutSpec = tween(durationMillis = 100),
@@ -350,8 +362,10 @@ private fun InputEditErase(state: ImageEditState) {
                         dampingRatio = Spring.DampingRatioMediumBouncy
                     )
                 ),
-                thickness = state.eraseEditInput.thickness,
-                onThicknessChange = { newThickness ->
+                label = "Thickness",
+                value = state.eraseEditInput.thickness,
+                valueRange = 0.1F..64.0F,
+                onValueChange = { newThickness ->
 
                     state.apply {
 
@@ -363,7 +377,7 @@ private fun InputEditErase(state: ImageEditState) {
 
         item {
 
-            MiterSelectionView(
+            SliderSelectionView(
                 modifier = Modifier.animateItem(
                     fadeInSpec = tween(durationMillis = 250),
                     fadeOutSpec = tween(durationMillis = 100),
@@ -372,8 +386,10 @@ private fun InputEditErase(state: ImageEditState) {
                         dampingRatio = Spring.DampingRatioMediumBouncy
                     )
                 ),
-                miter = state.eraseEditInput.miter,
-                onMiterChange = { newMiter ->
+                label = "Miter",
+                value = state.eraseEditInput.miter,
+                valueRange = 0.3F..20.0F,
+                onValueChange = { newMiter ->
 
                     state.apply {
 
@@ -506,10 +522,7 @@ private fun InputEditImage(state: ImageEditState) {
             )
         }
 
-        item {
-
-            HorizontalDivider()
-        }
+        item { HorizontalDivider() }
 
         item {
 
@@ -555,10 +568,7 @@ private fun InputEditImage(state: ImageEditState) {
             )
         }
 
-        item {
-
-            HorizontalDivider()
-        }
+        item { HorizontalDivider() }
 
         item {
 
@@ -785,6 +795,43 @@ private fun InputEditShape(state: ImageEditState) {
 @Composable
 private fun InputEditText(state: ImageEditState) {
 
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+    ) {
+
+        item {
+
+            TextSelectionView(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 250),
+                    fadeOutSpec = tween(durationMillis = 100),
+                    placementSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                        dampingRatio = Spring.DampingRatioMediumBouncy
+                    )
+                ),
+                text = state.textEditInput.content,
+                style = state.textEditInput.style,
+                onTextChange = {newContent->
+
+                    state.apply {
+
+                        textEditInput = textEditInput.copy(content = newContent)
+                    }
+                },
+                onStyleChange = { newStyle ->
+
+                    state.apply {
+
+                        textEditInput = textEditInput.copy(style = newStyle)
+                    }
+                }
+            )
+        }
+    }
 }
 
 @Composable
@@ -1035,6 +1082,104 @@ private fun ShapeSelectionView(
 }
 
 @Composable
+private fun TextSelectionView(
+    modifier: Modifier = Modifier,
+    text: String,
+    style: TextStyle,
+    onTextChange:(text: String)-> Unit,
+    onStyleChange:(style: TextStyle)-> Unit
+) {
+
+    val focusManager = LocalFocusManager.current
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+    ) {
+
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "Text:",
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = text,
+            onValueChange = onTextChange,
+            singleLine = true,
+            label = {
+
+                Text(text = "Text Input")
+            },
+            placeholder = {
+
+                Text(text = "Text Input")
+            },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                autoCorrectEnabled = false,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+
+                    focusManager.clearFocus()
+                }
+            )
+        )
+
+        HorizontalDivider()
+
+        ColorSelectionView(
+            modifier = Modifier.fillMaxWidth(),
+            label = "Text Color",
+            color = style.color,
+            onColorChange = { newColor->
+
+                onStyleChange(style.copy(color = newColor))
+            }
+        )
+
+        HorizontalDivider()
+
+        SliderSelectionView(
+            modifier = Modifier.fillMaxWidth(),
+            label = "Font Size",
+            value = style.fontSize.value,
+            valueRange = 2.0F..64.0F,
+            onValueChange = {newSize->
+
+                onStyleChange(style.copy(fontSize = newSize.sp))
+            }
+        )
+
+        HorizontalDivider()
+
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "Preview:",
+            textAlign = TextAlign.Start,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = text,
+            textAlign = TextAlign.Center,
+            style = style,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
 private fun BorderSelectionView(
     modifier: Modifier = Modifier,
     border: Float,
@@ -1057,10 +1202,12 @@ private fun BorderSelectionView(
             color = MaterialTheme.colorScheme.primary
         )
 
-        ThicknessSelectionView(
+        SliderSelectionView(
             modifier = Modifier.fillMaxWidth(),
-            thickness = border,
-            onThicknessChange = onBorderChange
+            label = "Thickness",
+            value = border,
+            valueRange = 0.1F..64.0F,
+            onValueChange = onBorderChange
         )
 
         ColorSelectionView(
@@ -1155,49 +1302,17 @@ private fun BitmapSelectionView(
 }
 
 @Composable
-private fun SmoothnessSelectionView(
+private fun SliderSelectionView(
     modifier: Modifier = Modifier,
-    smoothness: Int,
-    onSmoothnessChange: (smoothness: Int) -> Unit
+    label: String,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int = 0,
+    onValueChange: (value: Float) -> Unit
 ) {
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
-    ) {
-
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = "Smoothness - $smoothness",
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Slider(
-            value = smoothness.toFloat(),
-            valueRange = 0.0F..10.0F,
-            steps = 9,
-            onValueChange = { newValue ->
-
-                onSmoothnessChange(newValue.toInt())
-            }
-        )
-    }
-}
-
-@Composable
-private fun ThicknessSelectionView(
-    modifier: Modifier = Modifier,
-    thickness: Float,
-    onThicknessChange: (thickness: Float) -> Unit
-) {
-
-    val selectedThickness by remember(thickness) {
-        derivedStateOf {
-            "Thickness - ${EmptyFormat.toRoundedDecimal(decimal = thickness, fraction = 1)} Px"
-        }
+    val selectedValue by remember(value) {
+        derivedStateOf { "$label - ${EmptyFormat.toRoundedDecimal(decimal = value, fraction = 1)}" }
     }
 
     Column(
@@ -1208,49 +1323,18 @@ private fun ThicknessSelectionView(
 
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = selectedThickness,
+            text = selectedValue,
             textAlign = TextAlign.Start,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
 
         Slider(
-            value = thickness,
-            valueRange = 0.1F..64.0F,
-            onValueChange = onThicknessChange
-        )
-    }
-}
-
-@Composable
-private fun MiterSelectionView(
-    modifier: Modifier = Modifier,
-    miter: Float,
-    onMiterChange: (miter: Float) -> Unit
-) {
-
-    val selectedMiter by remember(miter) {
-        derivedStateOf { "Miter - ${EmptyFormat.toRoundedDecimal(decimal = miter, fraction = 1)}" }
-    }
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
-    ) {
-
-        Text(
             modifier = Modifier.fillMaxWidth(),
-            text = selectedMiter,
-            textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Slider(
-            value = miter,
-            valueRange = 0.3F..20.0F,
-            onValueChange = onMiterChange
+            value = value,
+            valueRange = valueRange,
+            steps = steps,
+            onValueChange = onValueChange
         )
     }
 }
