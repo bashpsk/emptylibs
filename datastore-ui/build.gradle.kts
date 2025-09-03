@@ -92,6 +92,7 @@ dependencies {
     implementation(project(":compose-utils"))
     implementation(project(":formatter"))
     implementation(project(":kolor-picker"))
+    implementation(project(":lrucache-manager"))
 }
 
 publishing {

@@ -94,6 +94,7 @@ dependencies {
     implementation(project(":image-utils"))
     implementation(project(":image-view"))
     implementation(project(":kolor-picker"))
+    implementation(project(":lrucache-manager"))
 }
 
 publishing {

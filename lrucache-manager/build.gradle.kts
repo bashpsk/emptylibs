@@ -12,7 +12,7 @@ plugins {
 
 android {
 
-    namespace = "io.bashpsk.emptylibs.imagekolor"
+    namespace = "io.bashpsk.emptylibs.lrucachemanager"
     compileSdk = 36
 
     defaultConfig {
@@ -85,14 +85,8 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.datetime)
 
-    //  COIL            :
-    implementation(libs.coil3.compose)
-
     //  MODULE          :
     implementation(project(":compose-utils"))
-    implementation(project(":image-utils"))
-    implementation(project(":image-view"))
-    implementation(project(":lrucache-manager"))
 }
 
 publishing {
@@ -102,7 +96,7 @@ publishing {
         register<MavenPublication>("release") {
 
             groupId = "io.bashpsk.emptylibs"
-            artifactId = "image-kolor"
+            artifactId = "lrucache-manager"
             version = "1.0.0"
 
             afterEvaluate {

@@ -92,6 +92,7 @@ dependencies {
     implementation(project(":compose-utils"))
     implementation(project(":image-utils"))
     implementation(project(":image-view"))
+    implementation(project(":lrucache-manager"))
 }
 
 publishing {
