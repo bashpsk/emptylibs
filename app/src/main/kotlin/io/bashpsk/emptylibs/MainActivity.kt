@@ -10,11 +10,14 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.bashpsk.emptylibs.datastoreui.extension.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
+import io.bashpsk.emptylibs.lrucachemanager.manager.BitmapCacheManager
 import io.bashpsk.emptylibs.screen.datastoreui.AppTheme
 import io.bashpsk.emptylibs.screen.datastoreui.datastore
 import io.bashpsk.emptylibs.ui.theme.EmptyLibsTheme
 
 class MainActivity : ComponentActivity() {
+
+    val bitmapCacheManager = BitmapCacheManager(3)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +48,8 @@ class MainActivity : ComponentActivity() {
 //                    VideoGestureScreen()
 //                    TextPickerScreen()
 //                    CanvasSlateScreen()
-                    ImageEditScreen()
+//                    ImageEditScreen()
+                    LruCacheScreen(bitmapCacheManager)
                 }
             }
         }
