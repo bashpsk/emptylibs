@@ -18,16 +18,22 @@ import io.bashpsk.emptylibs.composeutils.offset.OffsetData
 import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.composeutils.size.SizeData
 import io.bashpsk.emptylibs.composeutils.size.toSizeData
+import io.bashpsk.emptylibs.imagekrop.cache.BitmapCacheManager
+import io.bashpsk.emptylibs.imagekrop.cache.BitmapListCacheManager
 import io.bashpsk.emptylibs.imagekrop.crop.KropCorner.Companion.hasCornerCenter
 import io.bashpsk.emptylibs.imagekrop.offset.coerceAtLeast
 import io.bashpsk.emptylibs.imagekrop.offset.getKropCorner
 import io.bashpsk.emptylibs.imagekrop.offset.itemRect
+import io.bashpsk.emptylibs.imagekrop.utils.setDebug
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
 import io.bashpsk.emptylibs.imageutils.shape.BasicImageShapes
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.math.abs
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Composable function to remember an [ImageKropState] instance.
@@ -39,8 +45,6 @@ import kotlin.math.abs
  * @param imageBitmap The initial [ImageBitmap] to be cropped.
  * @param config The [KropConfig] to configure the cropping behavior. Defaults to
  * [KropConfig.surfaceBased].
- * @param aspectList An immutable list of [KropAspectRatio] options available for cropping.
- * Defaults to [KropAspectRatio.Basic].
  * @return An instance of [ImageKropState].
  */
 @Composable
@@ -77,8 +81,8 @@ fun rememberImageKropState(
  *
  * @param imageBitmap The initial [ImageBitmap] to be cropped. This is the base image.
  * @param config The [KropConfig] to be used for the cropping operations.
- * @param aspectList An immutable list of [KropAspectRatio] options available for cropping.
  */
+@OptIn(ExperimentalUuidApi::class)
 class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val density: Density) {
 
     /**
@@ -119,7 +123,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      * It used for image undo functionality.
      * It can be updated using the [addImage] function.
      */
-    var imageList by mutableStateOf(persistentListOf(imageBitmap))
+    var imageList by mutableStateOf(persistentListOf(KEY_ORIGINAL_IMAGE))
         private set
 
     /**
@@ -189,6 +193,11 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
     internal var isShapeCustomizeDialog by mutableStateOf(false)
 
+    init {
+
+        BitmapListCacheManager.add(key = KEY_ORIGINAL_IMAGE, value = imageBitmap)
+    }
+
     /**
      * Updates the original image.
      *
@@ -234,10 +243,20 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
         val safeImageList = existImageIndex(bitmap = bitmap)?.let { index ->
 
-            imageList.removeAt(index)
+            imageList.removeAt(index = index)
         } ?: imageList
 
-        imageList = safeImageList.add(element = bitmap)
+        val newKey = generateImageKey()
+
+        BitmapListCacheManager.resize(maxSize = imageList.size + 1)
+
+        BitmapListCacheManager.add(key = newKey, value = bitmap).takeIf { hasAdded ->
+
+            hasAdded
+        }?.run {
+
+            imageList = safeImageList.add(element = newKey)
+        }
     }
 
     /**
@@ -253,10 +272,15 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
             imageList = imageList.removeAt(index = index)
         }
 
-        imageList.lastOrNull()?.let { bitmap ->
+        imageList.lastOrNull()?.let { key ->
 
-            updateOriginalImage(bitmap = bitmap)
+            BitmapListCacheManager.get(key = key)?.let { bitmap ->
+
+                updateOriginalImage(bitmap)
+            }
         }
+
+        "$imageList".setDebug()
     }
 
     /**
@@ -265,7 +289,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      */
     fun clearImages() {
 
-        imageList = persistentListOf(imageBitmap)
+        imageList = persistentListOf(KEY_ORIGINAL_IMAGE)
     }
 
     /**
@@ -328,10 +352,23 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      */
     internal fun existImageIndex(bitmap: ImageBitmap): Int? {
 
-        return imageList.indexOfFirst { bitmapItem ->
+        return imageList.indexOfFirst { key ->
 
-            bitmapItem.sameAs(bitmap)
+            BitmapListCacheManager.get(key = key)?.sameAs(bitmap) == true
         }.takeIf { index -> index > 0 }
+    }
+
+    internal fun generateImageKey(): String {
+
+        return generateKey().takeIf { newKey ->
+
+            imageList.none { existingKey -> existingKey == newKey }
+        } ?: generateImageKey()
+    }
+
+    internal fun generateKey(): String {
+
+        return Uuid.random().toString()
     }
 
     /**
@@ -1162,7 +1199,13 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         ): Saver<ImageKropState, Any> = mapSaver(
             save = { state ->
 
+                BitmapCacheManager.add(key = KEY_ORIGINAL_IMAGE, state.originalImage)
+                state.modifiedImage?.let { BitmapCacheManager.add(key = KEY_MODIFIED_IMAGE, it) }
+                state.previewImage?.let { BitmapCacheManager.add(key = KEY_PREVIEW_IMAGE, it) }
+
                 mapOf(
+                    KEY_SHAPE_LIST to state.shapeList.toTypedArray(),
+                    KEY_IMAGE_LIST to state.imageList.toTypedArray(),
                     KEY_ASPECT_RATIO to state.kropAspectRatio,
                     KEY_ASPECT_LOCKED to state.isAspectLocked,
                     KEY_KROP_SHAPE to state.kropShape,
@@ -1183,20 +1226,17 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
                     density = density
                 ).apply {
 
-                    shapeList = elements.getOrElse(
+                    shapeList = (elements.getOrElse(
                         KEY_SHAPE_LIST
-                    ) { BasicImageShapes } as PersistentList<ImageShape>
+                    ) { BasicImageShapes.toTypedArray() } as Array<ImageShape>).toPersistentList()
 
-                    originalImage = elements.getOrElse(
-                        KEY_ORIGINAL_IMAGE
-                    ) { imageBitmap } as ImageBitmap
+                    originalImage = BitmapCacheManager.get(key = KEY_ORIGINAL_IMAGE) ?: imageBitmap
+                    modifiedImage = BitmapCacheManager.get(key = KEY_MODIFIED_IMAGE)
+                    previewImage = BitmapCacheManager.get(key = KEY_PREVIEW_IMAGE)
 
-                    modifiedImage = elements.getOrElse(KEY_MODIFIED_IMAGE) { null } as ImageBitmap?
-                    previewImage = elements.getOrElse(KEY_PREVIEW_IMAGE) { null } as ImageBitmap?
-
-                    imageList = elements.getOrElse(
+                    imageList = (elements.getOrElse(
                         KEY_IMAGE_LIST
-                    ) { persistentListOf<ImageBitmap>() } as PersistentList<ImageBitmap>
+                    ) { arrayOf(KEY_ORIGINAL_IMAGE) } as Array<String>).toPersistentList()
 
                     kropAspectRatio = elements.getOrElse(
                         KEY_ASPECT_RATIO

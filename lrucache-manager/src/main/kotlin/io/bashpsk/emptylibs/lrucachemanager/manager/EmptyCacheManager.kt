@@ -5,12 +5,6 @@ import androidx.collection.LruCache
 import io.bashpsk.emptylibs.lrucachemanager.utils.LOG_TAG
 
 /**
- * The LruCache instance used to store objects of type T.
- * The maximum number of entries in the cache. Defaults to 10.
- */
-private val LruCacheEmpty = LruCache<String, Any>(10)
-
-/**
  * Manages an LruCache for storing and retrieving objects of a generic type T.
  *
  * This class provides a simple interface for adding, retrieving, removing, and clearing objects
@@ -21,10 +15,11 @@ private val LruCacheEmpty = LruCache<String, Any>(10)
  */
 class EmptyCacheManager<T>(private val maxSize: Int = 10) {
 
-    init {
-
-        LruCacheEmpty.resize(maxSize = maxSize)
-    }
+    /**
+     * The LruCache instance used to store objects of type T.
+     * The maximum number of entries in the cache. Defaults to 10.
+     */
+    val lruCache = LruCache<String, Any>(maxSize = maxSize)
 
     /**
      * Adds an object to the cache.
@@ -40,10 +35,15 @@ class EmptyCacheManager<T>(private val maxSize: Int = 10) {
      * successfully added, or the object associated with the key if retrieval was successful after a
      * failed put, or null if the object could not be added or retrieved.
      */
-    @Suppress("UNCHECKED_CAST")
-    fun add(key: String, value: T): T? {
+    fun add(key: String, value: T): Boolean {
 
-        return (LruCacheEmpty.put(key, value!!) ?: get(key)) as T?
+        value?.let { item ->
+
+            lruCache.put(key, item)
+            Log.i(LOG_TAG, "Cache Added $key")
+        }
+
+        return get(key = key) == value
     }
 
     /**
@@ -54,7 +54,7 @@ class EmptyCacheManager<T>(private val maxSize: Int = 10) {
     @Suppress("UNCHECKED_CAST")
     fun get(key: String): T? {
 
-        return LruCacheEmpty[key] as T?
+        return lruCache[key] as T?
     }
 
     /**
@@ -64,7 +64,7 @@ class EmptyCacheManager<T>(private val maxSize: Int = 10) {
      */
     fun exist(key: String): Boolean {
 
-        return LruCacheEmpty[key] != null
+        return lruCache[key] != null
     }
 
     /**
@@ -74,7 +74,23 @@ class EmptyCacheManager<T>(private val maxSize: Int = 10) {
      */
     fun remove(key: String): Boolean {
 
-        return LruCacheEmpty.remove(key) != null
+        Log.i(LOG_TAG, "Cache Removed $key")
+        return lruCache.remove(key) != null
+    }
+
+    /**
+     * Resizes the LruCache to the specified maximum size.
+     *
+     * This function allows dynamically changing the capacity of the cache.
+     * If the new `maxSize` is smaller than the current number of items in the cache,
+     * the least recently used items will be evicted until the cache size matches `maxSize`.
+     *
+     * @param maxSize The new maximum number of entries for the cache.
+     */
+    fun resize(maxSize: Int) {
+
+        lruCache.resize(maxSize = maxSize)
+        Log.i(LOG_TAG, "Cache Resized to $maxSize")
     }
 
     /**
@@ -83,7 +99,7 @@ class EmptyCacheManager<T>(private val maxSize: Int = 10) {
      */
     fun evictAll() {
 
-        LruCacheEmpty.evictAll()
+        lruCache.evictAll()
         Log.i(LOG_TAG, "Cache Cleared")
     }
 }
