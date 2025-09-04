@@ -26,14 +26,16 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.lrucachemanager.manager.BitmapCacheManager
 
-@Composable
-fun LruCacheScreen(bitmapCacheManager: BitmapCacheManager) {
+val bitmapCacheManager = BitmapCacheManager(3)
 
-    val bitmap1= ImageBitmap.imageResource(id = R.drawable.wallpaper01)
+@Composable
+fun LruCacheScreen() {
+
+    val bitmap1 = ImageBitmap.imageResource(id = R.drawable.wallpaper01)
     val bitmap2 = ImageBitmap.imageResource(id = R.drawable.wallpaper02)
     val bitmap3 = ImageBitmap.imageResource(id = R.drawable.empty_layer)
 
-    var isRefresh by rememberSaveable { mutableStateOf(false)}
+    var isRefresh by rememberSaveable { mutableStateOf(false) }
 
     val cachedBitmap1 by remember(isRefresh) {
         derivedStateOf { bitmapCacheManager.getBitmap("image1") }
@@ -50,7 +52,9 @@ fun LruCacheScreen(bitmapCacheManager: BitmapCacheManager) {
     Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
@@ -66,7 +70,7 @@ fun LruCacheScreen(bitmapCacheManager: BitmapCacheManager) {
                     Button(
                         onClick = {
 
-                           bitmapCacheManager.addBitmap("image1", bitmap1.asAndroidBitmap())
+                            bitmapCacheManager.addBitmap("image1", bitmap1.asAndroidBitmap())
                             isRefresh = !isRefresh
                         }
                     ) {

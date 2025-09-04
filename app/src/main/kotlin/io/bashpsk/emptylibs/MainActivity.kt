@@ -17,8 +17,6 @@ import io.bashpsk.emptylibs.ui.theme.EmptyLibsTheme
 
 class MainActivity : ComponentActivity() {
 
-    val bitmapCacheManager = BitmapCacheManager(3)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,7 +47,7 @@ class MainActivity : ComponentActivity() {
 //                    TextPickerScreen()
 //                    CanvasSlateScreen()
 //                    ImageEditScreen()
-                    LruCacheScreen(bitmapCacheManager)
+                    LruCacheScreen()
                 }
             }
         }

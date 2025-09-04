@@ -1,10 +1,12 @@
 package io.bashpsk.emptylibs.lrucachemanager.manager
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.collection.LruCache
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import io.bashpsk.emptylibs.lrucachemanager.utils.LOG_TAG
 
 /**
  * The LruCache instance used to store bitmaps.
@@ -101,5 +103,6 @@ class BitmapCacheManager(private val maxSize: Int = 10) {
     fun evictAll() {
 
         LruCacheBitmap.evictAll()
+        Log.i(LOG_TAG, "Cache Cleared")
     }
 }
