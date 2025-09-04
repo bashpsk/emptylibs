@@ -1,8 +1,9 @@
 package io.bashpsk.emptylibs
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,9 +25,9 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.lrucachemanager.manager.BitmapCacheManager
+import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 
-val bitmapCacheManager = BitmapCacheManager(3)
+val bitmapCacheManager = EmptyCacheManager<Bitmap>(maxSize = 3)
 
 @Composable
 fun LruCacheScreen() {
@@ -38,15 +39,15 @@ fun LruCacheScreen() {
     var isRefresh by rememberSaveable { mutableStateOf(false) }
 
     val cachedBitmap1 by remember(isRefresh) {
-        derivedStateOf { bitmapCacheManager.getBitmap("image1") }
+        derivedStateOf { bitmapCacheManager.get("image1") }
     }
 
     val cachedBitmap2 by remember(isRefresh) {
-        derivedStateOf { bitmapCacheManager.getBitmap("image2") }
+        derivedStateOf { bitmapCacheManager.get("image2") }
     }
 
     val cachedBitmap3 by remember(isRefresh) {
-        derivedStateOf { bitmapCacheManager.getBitmap("image3") }
+        derivedStateOf { bitmapCacheManager.get("image3") }
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
@@ -61,43 +62,87 @@ fun LruCacheScreen() {
 
             item {
 
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalArrangement = Arrangement.spacedBy(space = 8.dp)
                 ) {
 
                     Button(
                         onClick = {
 
-                            bitmapCacheManager.addBitmap("image1", bitmap1.asAndroidBitmap())
+                            bitmapCacheManager.add("image1", bitmap1.asAndroidBitmap())
                             isRefresh = !isRefresh
                         }
                     ) {
 
-                        Text(text = "Image 1")
+                        Text(text = "Add Image 1")
                     }
 
                     Button(
                         onClick = {
 
-                            bitmapCacheManager.addBitmap("image2", bitmap2.asAndroidBitmap())
+                            bitmapCacheManager.add("image2", bitmap2.asAndroidBitmap())
                             isRefresh = !isRefresh
                         }
                     ) {
 
-                        Text(text = "Image 2")
+                        Text(text = "Add Image 2")
                     }
 
                     Button(
                         onClick = {
 
-                            bitmapCacheManager.addBitmap("image3", bitmap3.asAndroidBitmap())
+                            bitmapCacheManager.add("image3", bitmap3.asAndroidBitmap())
                             isRefresh = !isRefresh
                         }
                     ) {
 
-                        Text(text = "Image 3")
+                        Text(text = "Add Image 3")
+                    }
+
+                    Button(
+                        onClick = {
+
+                            bitmapCacheManager.evictAll()
+                            isRefresh = !isRefresh
+                        }
+                    ) {
+
+                        Text(text = "Clear Cache")
+                    }
+
+                    Button(
+                        onClick = {
+
+                            bitmapCacheManager.remove("image1")
+                            isRefresh = !isRefresh
+                        }
+                    ) {
+
+                        Text(text = "Remove Image 1")
+                    }
+
+                    Button(
+                        onClick = {
+
+                            bitmapCacheManager.remove("image2")
+                            isRefresh = !isRefresh
+                        }
+                    ) {
+
+                        Text(text = "Remove Image 2")
+                    }
+
+                    Button(
+                        onClick = {
+
+                            bitmapCacheManager.remove("image3")
+                            isRefresh = !isRefresh
+                        }
+                    ) {
+
+                        Text(text = "Remove Image 3")
                     }
                 }
             }
