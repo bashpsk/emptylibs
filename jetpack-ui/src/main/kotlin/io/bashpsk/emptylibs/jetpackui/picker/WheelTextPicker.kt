@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.textpicker
+package io.bashpsk.emptylibs.jetpackui.picker
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.FastOutSlowInEasing

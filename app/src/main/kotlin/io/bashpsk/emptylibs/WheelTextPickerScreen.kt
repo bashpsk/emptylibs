@@ -14,12 +14,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.jetpackui.textpicker.WheelTextPicker
-import io.bashpsk.emptylibs.jetpackui.textpicker.rememberWheelTextPickerState
+import io.bashpsk.emptylibs.jetpackui.picker.WheelTextPicker
+import io.bashpsk.emptylibs.jetpackui.picker.rememberWheelTextPickerState
 import kotlinx.collections.immutable.persistentListOf
 
 @Composable
-fun TextPickerScreen() {
+fun WheelTextPickerScreen() {
 
     val textList = remember {
         persistentListOf(

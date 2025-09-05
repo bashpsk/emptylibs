@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.textpicker
+package io.bashpsk.emptylibs.jetpackui.picker
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
