@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.window.size)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -90,6 +91,7 @@ dependencies {
 
     //  MODULE          :
     implementation(project(":compose-utils"))
+    implementation(project(":formatter"))
     implementation(project(":image-utils"))
     implementation(project(":image-view"))
     implementation(project(":lrucache-manager"))

@@ -1411,9 +1411,23 @@ object EmptyFormat {
     @JvmStatic
     fun findAspectRatio(width: Int, height: Int): Float {
 
-        if (height == 0) return 0.0F
+        return if (height == 0) 0.0F else width / height.toFloat()
+    }
 
-        return width / height.toFloat()
+    /**
+     * Calculates the aspect ratio of a given width and height.
+     *
+     * This function divides the width by the height to determine the aspect ratio.
+     * If the height is zero, it returns 0.0F to prevent division by zero errors.
+     *
+     * @param width The width of the dimension.
+     * @param height The height of the dimension.
+     * @return The aspect ratio as a Float (width / height), or 0.0F if height is 0.0F.
+     */
+    @JvmStatic
+    fun findAspectRatio(width: Float, height: Float): Float {
+
+        return if (height == 0.0F) 0.0F else width / height
     }
 
     /**
