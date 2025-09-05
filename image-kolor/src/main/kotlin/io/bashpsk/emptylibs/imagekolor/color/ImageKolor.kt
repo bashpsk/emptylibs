@@ -5,7 +5,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
@@ -52,18 +51,14 @@ fun KolorImageView(modifier: Modifier = Modifier, state: ImageKolorState) {
     state.imageBitmap?.let { bitmap ->
 
         Image(
-            modifier = modifier
-                .fillMaxWidth()
-                .aspectRatio(ratio = 16F / 9F),
+            modifier = modifier,
             bitmap = bitmap,
             contentScale = ContentScale.Fit,
             colorFilter = colorFilter,
             contentDescription = "Image with Color Filter"
         )
     } ?: Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(ratio = 16F / 9F),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
 

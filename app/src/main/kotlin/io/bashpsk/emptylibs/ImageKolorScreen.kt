@@ -1,13 +1,8 @@
 package io.bashpsk.emptylibs
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.SaveAs
@@ -19,15 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.imagekolor.color.ImageKolorConfig
-import io.bashpsk.emptylibs.imagekolor.color.KolorAdjustmentSliders
-import io.bashpsk.emptylibs.imagekolor.color.KolorImageView
+import io.bashpsk.emptylibs.imagekolor.color.ImageKolorLayout
 import io.bashpsk.emptylibs.imagekolor.color.rememberImageKolorState
 import io.bashpsk.emptylibs.screen.imageedit.saveAsFile
 import kotlinx.coroutines.launch
@@ -39,9 +31,9 @@ fun ImageKolorScreen() {
     val context = LocalContext.current
     val bitmapCoroutineScope = rememberCoroutineScope()
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper02)
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
     val config = ImageKolorConfig(enableHighlights = false, enableShadows = false)
-    val kolorState = rememberImageKolorState(imageBitmap = imageBitmap, config = config)
+    val kolorState = rememberImageKolorState(imageBitmap = null, config = config)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -97,26 +89,11 @@ fun ImageKolorScreen() {
         }
     ) { paddingValues ->
 
-        Column(
+        ImageKolorLayout(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 4.dp)
-        ) {
-
-            KolorImageView(
-                modifier = Modifier.fillMaxWidth(),
-                state = kolorState
-            )
-
-            KolorAdjustmentSliders(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
-                    .verticalScroll(rememberScrollState()),
-                state = kolorState
-            )
-        }
+            state = kolorState,
+        )
     }
 }
