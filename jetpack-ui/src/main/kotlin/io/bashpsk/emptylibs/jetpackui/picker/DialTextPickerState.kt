@@ -1,16 +1,24 @@
 package io.bashpsk.emptylibs.jetpackui.picker
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.floor
@@ -37,15 +45,30 @@ import kotlin.math.floor
 @Composable
 fun <T> rememberDialTextPickerState(
     textList: ImmutableList<T>,
-    initial: T? = textList.firstOrNull()
+    initial: T? = textList.firstOrNull(),
+    animationSpec: TweenSpec<Float> = tween(durationMillis = 250, easing = LinearOutSlowInEasing)
 ): DialTextPickerState<T> {
+
+    val coroutineScope = rememberCoroutineScope()
 
     return rememberSaveable(
         textList,
         initial,
-        saver = DialTextPickerState.Saver(textList = textList, initial = initial)
+        coroutineScope,
+        animationSpec,
+        saver = DialTextPickerState.Saver(
+            textList = textList,
+            initial = initial,
+            coroutineScope = coroutineScope,
+            animationSpec=animationSpec
+        )
     ) {
-        DialTextPickerState(textList = textList, initial = initial)
+        DialTextPickerState(
+            textList = textList,
+            initial = initial,
+            coroutineScope = coroutineScope,
+            animationSpec= animationSpec
+        )
     }
 }
 
@@ -71,6 +94,8 @@ fun <T> rememberDialTextPickerState(
 class DialTextPickerState<T>(
     val textList: ImmutableList<T>,
     val initial: T?,
+    val coroutineScope: CoroutineScope,
+    val animationSpec: TweenSpec<Float>
 ) {
 
     /**
@@ -82,11 +107,20 @@ class DialTextPickerState<T>(
         private set
 
     /**
+     * The index of the currently selected item in the `textList`.
+     * This value is updated when `selectedText` changes.
+     * It is initialized based on the `initial` value provided to the state.
+     * If `initial` is not found in `textList`, `selectedIndex` will be -1.
+     */
+    var selectedIndex by mutableIntStateOf(textList.indexOf(initial))
+        private set
+
+    /**
      * The current rotation angle of the dial in degrees.
      * This value is updated as the user interacts with the dial.
      * It is read-only from outside the class.
      */
-    internal var currentAngle by mutableFloatStateOf(0F)
+    internal val currentAngle = Animatable(0F)
 
     /**
      * Stores the angle of the previous drag event.
@@ -98,7 +132,52 @@ class DialTextPickerState<T>(
 
     init {
 
-        setInitialAngle()
+        updateSelectedText(newValue = initial)
+    }
+
+    /**
+     * Updates the currently selected text and adjusts the dial's angle accordingly.
+     *
+     * If the `newValue` is not null and exists in the `textList`, this function
+     * will find the index of `newValue` in the list. If found, it calculates
+     * the corresponding angle to center that item on the dial and updates
+     * the `currentAngle`. This effectively makes `newValue` the selected item
+     * by rotating the dial.
+     *
+     * If `newValue` is null or not found in `textList`, the `currentAngle`
+     * and `selectedText` remain unchanged.
+     *
+     * @param newValue The new item to be selected.
+     */
+    fun updateSelectedText(newValue: T?) {
+
+        newValue?.let { item ->
+
+            textList.indexOf(item).takeIf { index -> index != -1 }?.let { index ->
+
+                updateRotation(newAngle = -(index.toFloat() / textList.size) * 360F)
+            }
+        }
+    }
+
+    /**
+     * Updates the selected text based on the provided index and rotates the dial accordingly.
+     *
+     * This function is useful for programmatically selecting an item in the `textList`
+     * by its index. If the `newIndex` is a valid index within the `textList`,
+     * this function calculates the required rotation angle to center the item at that
+     * index on the dial and then calls `updateRotation` to apply the change.
+     *
+     * If the `newIndex` is out of bounds for the `textList`, this function does nothing.
+     *
+     * @param newIndex The index of the item in `textList` to be selected.
+     */
+    fun updateSelectedTextFromIndex(newIndex: Int) {
+
+        newIndex.takeIf { index -> index in textList.indices }?.let { index ->
+
+            updateRotation(newAngle = -(index.toFloat() / textList.size) * 360F)
+        }
     }
 
     /**
@@ -117,14 +196,28 @@ class DialTextPickerState<T>(
      *
      * @param newAngle The new rotation angle in degrees.
      */
-    internal fun updateRotation(newAngle: Float) {
+    fun updateRotation(newAngle: Float) {
+
+        coroutineScope.launch {
+
+            currentAngle.animateTo(
+                targetValue = newAngle,
+                animationSpec = animationSpec
+            ) {
+
+                updateSelectionFromAngle(value)
+            }
+
+            updateSelectionFromAngle(currentAngle.value)
+        }
+    }
+
+    internal fun updateSelectionFromAngle(angle: Float) {
 
         textList.takeIf { items -> items.isNotEmpty() }?.let { items ->
 
-            currentAngle = newAngle
-
             val anglePerItem = 360F / items.size
-            val normalizedAngle = (-currentAngle % 360F + 360F) % 360F
+            val normalizedAngle = (-angle % 360F + 360F) % 360F
             val centeredAngle = (normalizedAngle + anglePerItem / 2F) % 360F
 
             (floor(centeredAngle / anglePerItem).toInt() % items.size).takeIf { itemIndex ->
@@ -133,9 +226,12 @@ class DialTextPickerState<T>(
             }?.let { itemIndex ->
 
                 selectedText = items[itemIndex]
+                selectedIndex = itemIndex
             }
         }
     }
+
+
 
     /**
      * Called when the dial interaction starts.
@@ -162,13 +258,13 @@ class DialTextPickerState<T>(
         textList.takeIf { items -> items.isNotEmpty() }?.let { items ->
 
             val anglePerItem = 360F / items.size
-            val normalizedAngle = (-currentAngle % 360F + 360F) % 360F
+            val normalizedAngle = (-currentAngle.value % 360F + 360F) % 360F
             val centeredAngle = (normalizedAngle + anglePerItem / 2F) % 360F
             val currentSelectedIndex = (floor(centeredAngle / anglePerItem).toInt() % items.size)
             var targetRotation = -(currentSelectedIndex.toFloat() * anglePerItem)
-            val angleDifference = (targetRotation - currentAngle) % 360F
+            val angleDifference = (targetRotation - currentAngle.value) % 360F
 
-            targetRotation = currentAngle + when {
+            targetRotation = currentAngle.value + when {
 
                 angleDifference > 180F -> angleDifference - 360F
                 angleDifference < -180F -> angleDifference + 360F
@@ -195,53 +291,43 @@ class DialTextPickerState<T>(
         val currentAngle = atan2(position.x, position.y) * (180F / PI.toFloat())
         val angleChange = currentAngle - previousAngle
 
-        updateRotation(this@DialTextPickerState.currentAngle + angleChange)
+        updateRotation(this@DialTextPickerState.currentAngle.value + angleChange)
         previousAngle = currentAngle
-    }
-
-    /**
-     * Sets the initial rotation angle of the dial based on the provided initial item.
-     * If an initial item is specified and found in the list, the dial will be rotated
-     * so that this item is initially selected. If no initial item is provided or
-     * if the provided item is not in the list, the dial will start at its default
-     * position (usually the first item).
-     */
-    private fun setInitialAngle() {
-
-        initial?.let { item ->
-
-            textList.indexOf(item).takeIf { index -> index != -1 }?.let { index ->
-
-                currentAngle = -(index.toFloat() / textList.size) * 360F
-            }
-        }
     }
 
     companion object {
 
         private const val KEY_TEXT = "DIAL-TEXT-PICKER-TEXT"
+        private const val KEY_INDEX = "DIAL-TEXT-PICKER-INDEX"
         private const val KEY_CURRENT_ANGLE = "DIAL-TEXT-PICKER-CURRENT-ANGLE"
         private const val KEY_PREVIOUS_ANGLE = "DIAL-TEXT-PICKER-PREVIOUS-ANGLE"
 
         @Suppress("UNCHECKED_CAST")
         fun <T> Saver(
             textList: ImmutableList<T>,
-            initial: T?
+            initial: T?,
+            coroutineScope: CoroutineScope,
+            animationSpec: TweenSpec<Float>
         ): Saver<DialTextPickerState<T>, Any> = mapSaver(
             save = { state ->
 
                 mapOf(
                     KEY_TEXT to state.selectedText,
-                    KEY_CURRENT_ANGLE to state.currentAngle,
+                    KEY_INDEX to state.selectedIndex,
                     KEY_PREVIOUS_ANGLE to state.previousAngle
                 )
             },
             restore = { elements ->
 
-                DialTextPickerState(textList = textList, initial = initial).apply {
+                DialTextPickerState(
+                    textList = textList,
+                    initial = initial,
+                    coroutineScope = coroutineScope,
+                    animationSpec = animationSpec
+                ).apply {
 
                     selectedText = elements.getOrElse(KEY_TEXT) { initial } as T?
-                    currentAngle = elements.getOrElse(KEY_CURRENT_ANGLE) { 0F } as Float
+                    selectedIndex = elements.getOrElse(KEY_INDEX) { initial } as Int
                     previousAngle = elements.getOrElse(KEY_PREVIOUS_ANGLE) { 0F } as Float
                 }
             }

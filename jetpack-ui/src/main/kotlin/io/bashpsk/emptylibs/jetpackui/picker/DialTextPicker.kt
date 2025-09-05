@@ -46,9 +46,11 @@ fun <T> DialTextPicker(
     state: DialTextPickerState<T>,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     selectedTextStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    enableTextBox: Boolean = false,
     textBoxPadding: Dp = 2.dp,
     textBoxThickness: Dp = 2.dp,
-    textBoxColor: Color = MaterialTheme.colorScheme.primary
+    textBoxColor: Color = MaterialTheme.colorScheme.primary,
+    enableUserScrollable: Boolean = true
 ) {
 
     val textMeasurer = rememberTextMeasurer()
@@ -62,7 +64,9 @@ fun <T> DialTextPicker(
         }
     }
 
-    val pointerInputModifier = Modifier.pointerInput(Unit) {
+    val pointerInputModifier = Modifier.pointerInput(enableUserScrollable) {
+
+        if (enableUserScrollable.not()) return@pointerInput
 
         detectDragGestures(
             onDragStart = { position ->
@@ -102,14 +106,14 @@ fun <T> DialTextPicker(
             contentDescription = "Dial Text Picker"
         ) {
 
-            rotate(degrees = state.currentAngle, pivot = center) {
+            rotate(degrees = state.currentAngle.value, pivot = center) {
 
                 val angleStep = 360F / state.textList.size
 
                 state.textList.forEachIndexed { index, item ->
 
                     val itemAngleDegrees = index * angleStep
-                    val isSelected = item == state.selectedText
+                    val isSelected = index == state.selectedIndex
 
                     val textLayoutResult = textMeasurer.measure(
                         text = "$item",
@@ -129,20 +133,23 @@ fun <T> DialTextPicker(
                 }
             }
 
-            val rectSize = Size(
-                dialTextBoxSize.width + (textBoxPadding.toPx() * 2),
-                dialTextBoxSize.height + (textBoxPadding.toPx() * 2)
-            )
+            if (enableTextBox) {
 
-            drawDialSelectedBox(
-                end = Offset(
-                    x = size.width + textBoxPadding.toPx(),
-                    y = size.center.y + rectSize.height / 2
-                ),
-                rectSize = rectSize,
-                width = textBoxThickness,
-                color = textBoxColor
-            )
+                val rectSize = Size(
+                    dialTextBoxSize.width + (textBoxPadding.toPx() * 2),
+                    dialTextBoxSize.height + (textBoxPadding.toPx() * 2)
+                )
+
+                drawDialSelectedBox(
+                    end = Offset(
+                        x = size.width + textBoxPadding.toPx(),
+                        y = size.center.y + rectSize.height / 2
+                    ),
+                    rectSize = rectSize,
+                    width = textBoxThickness,
+                    color = textBoxColor
+                )
+            }
         }
     }
 }
