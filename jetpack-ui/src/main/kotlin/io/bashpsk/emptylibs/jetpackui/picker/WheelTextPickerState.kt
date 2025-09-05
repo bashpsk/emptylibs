@@ -1,13 +1,20 @@
 package io.bashpsk.emptylibs.jetpackui.picker
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Creates a [WheelTextPickerState] that is remembered across compositions.
@@ -23,12 +30,26 @@ fun <T> rememberWheelTextPickerState(
     initial: T? = textList.firstOrNull()
 ): WheelTextPickerState<T> {
 
+    val density = LocalDensity.current
+    val coroutineScope = rememberCoroutineScope()
+
     return rememberSaveable(
         textList,
         initial,
-        saver = WheelTextPickerState.Saver(textList = textList, initial = initial)
+        coroutineScope,
+        saver = WheelTextPickerState.StateSaver(
+            textList = textList,
+            initial = initial,
+            coroutineScope = coroutineScope,
+            density = density
+        )
     ) {
-        WheelTextPickerState(textList = textList, initial = initial)
+        WheelTextPickerState(
+            textList = textList,
+            initial = initial,
+            coroutineScope = coroutineScope,
+            density = density
+        )
     }
 }
 
@@ -44,6 +65,8 @@ fun <T> rememberWheelTextPickerState(
 class WheelTextPickerState<T>(
     val textList: ImmutableList<T>,
     val initial: T?,
+    private val coroutineScope: CoroutineScope,
+    private val density: Density
 ) {
 
     /**
@@ -51,64 +74,175 @@ class WheelTextPickerState<T>(
      * This property is observable and can be used to react to changes in the selected text.
      * It is initialized with the [initial] value provided to the constructor.
      * The setter is private to ensure that updates to the selected text are done through
-     * the [updateSelectedText] or [updateSelectedTextFromIndex] methods,
+     * the [updateSelectedText] methods,
      * which perform necessary validation.
      */
     var selectedText by mutableStateOf(initial)
         private set
 
     /**
-     * Updates the selected text.
-     *
-     * This function checks if the `newText` is present in the `textList` and is different
-     * from the currently `selectedText`. If both conditions are true, it updates the
-     * `selectedText` to the `newText`.
-     *
-     * @param newText The new text to be selected.
+     * An [Animatable] instance used to handle the scrolling and flinging animations
+     * of the picker. It stores the current scroll offset of the picker.
+     * The initial value is 0F, representing no initial offset.
+     * This property is internal to the class and is used by various methods
+     * to update and animate the picker's scroll position.
      */
-    fun updateSelectedText(newText: T) {
+    internal val animatable = Animatable(0F)
 
-        newText.takeIf { textItem ->
+    /**
+     * Updates the [selectedText] based on the current scroll position and item height.
+     *
+     * This function calculates the index of the item that is currently centered in the picker
+     * and updates the [selectedText] accordingly.
+     *
+     * @param itemHeight The height of each item in the picker.
+     * @param pickerCenterY The Y-coordinate of the center of the picker.
+     */
+    internal fun updateSelectedText(itemHeight: Float, pickerCenterY: Float) {
 
-            textList.contains(element = textItem) && selectedText != textItem
-        }?.let { textItem -> selectedText = textItem }
+        textList.takeIf { itemsList ->
+
+            itemsList.isNotEmpty() && itemHeight > 0
+        }?.let { itemsList ->
+
+            itemsList.getOrNull(
+                ((pickerCenterY + animatable.value - itemHeight / 2F) / itemHeight).toInt()
+                    .coerceIn(itemsList.indices)
+            )?.let { newSelection ->
+
+                selectedText = newSelection
+            }
+        } ?: run {
+
+            selectedText = null
+        }
     }
 
     /**
-     * Updates the [selectedText] based on the provided [index].
+     * Sets the initial scroll position of the picker.
+     * This function is called when the picker is first composed or when the [initial] value
+     * changes. It calculates the scroll offset needed to center the [initial] item in the picker
+     * and snaps the [animatable] to that offset.
      *
-     * If the [index] is valid (within the bounds of [textList]) and the text at that index
-     * is different from the current [selectedText], then [selectedText] will be updated.
-     * If the [index] is out of bounds, [selectedText] will be set to `null`.
+     * If [textList] is empty or [itemHeight] is not positive, this function does nothing.
+     * If [initial] is null or not found in [textList], the picker will scroll to the first item.
      *
-     * @param index The index of the text item in [textList] to select.
+     * @param itemHeight The height of each item in the picker.
+     * @param pickerCenterY The Y-coordinate of the center of the picker view.
      */
-    internal fun updateSelectedTextFromIndex(index: Int) {
+    internal fun setInitialScroll(
+        itemHeight: Float,
+        pickerCenterY: Float
+    ) {
 
-        textList.getOrNull(index = index)?.takeIf { textItem ->
+        coroutineScope.launch {
 
-            selectedText != textItem
-        }.let { textItem -> selectedText = textItem }
+            textList.takeIf { itemsList ->
+
+                itemsList.isNotEmpty() && itemHeight > 0
+            }?.let { itemsList ->
+
+                val initialIndex = initial?.let { itemsList.indexOf(it) }?.takeIf { it != -1 } ?: 0
+
+                animatable.snapTo((initialIndex * itemHeight + itemHeight / 2F) - pickerCenterY)
+            }
+        }
+    }
+
+    /**
+     * Handles the scroll event and updates the animatable value.
+     *
+     * This function is called when the user scrolls the picker. It adjusts the current
+     * animation value by the given delta, effectively moving the items in the picker.
+     *
+     * @param delta The change in scroll position. A positive value indicates scrolling down,
+     * and a negative value indicates scrolling up.
+     */
+    internal fun onScroll(delta: Float) {
+
+        coroutineScope.launch { animatable.snapTo(animatable.value - delta)}
+    }
+
+    /**
+     * Handles the fling gesture on the picker.
+     * It initiates an animation to decay the scroll velocity and then snaps to the nearest item.
+     *
+     * @param velocity The velocity of the fling gesture.
+     * @param itemHeight The height of each item in the picker.
+     * @param pickerCenterY The Y-coordinate of the center of the picker.
+     */
+    internal fun onFling(
+        velocity: Float,
+        itemHeight: Float,
+        pickerCenterY: Float
+    ) {
+
+        coroutineScope.launch {
+
+            animatable.animateDecay(
+                initialVelocity = -velocity,
+                animationSpec = splineBasedDecay(density)
+            ) {
+
+                launch {
+
+                    snapToNearestItem(itemHeight = itemHeight, pickerCenterY = pickerCenterY)
+                }
+            }
+        }
+    }
+
+    /**
+     * Snaps the picker to the nearest item after a scroll or fling gesture.
+     *
+     * This function calculates the index of the item closest to the center of the picker
+     * and animates the scroll position to align that item with the center.
+     *
+     * @param itemHeight The height of a single item in the picker.
+     * @param pickerCenterY The Y-coordinate of the center of the picker.
+     */
+    internal fun snapToNearestItem(itemHeight: Float, pickerCenterY: Float) {
+
+        coroutineScope.launch {
+
+            textList.takeIf { itemsList ->
+
+                itemsList.isNotEmpty() && itemHeight > 0
+            }?.let { itemsList ->
+
+                val index = ((pickerCenterY + animatable.value - itemHeight / 2F) / itemHeight)
+                    .toInt().coerceIn(itemsList.indices)
+
+                animatable.animateTo((index * itemHeight + itemHeight / 2F) - pickerCenterY)
+            }
+        }
     }
 
     companion object {
 
-        private const val KEY_TEXT = "WHEEL-TEXT-PICKER-TEXT"
+        private const val KEY_SELECTED_TEXT = "WHEEL-TEXT-PICKER-SELECTED-TEXT"
 
         @Suppress("UNCHECKED_CAST")
-        fun <T> Saver(
+        fun <T> StateSaver(
             textList: ImmutableList<T>,
-            initial: T?
+            initial: T?,
+            coroutineScope: CoroutineScope,
+            density: Density
         ): Saver<WheelTextPickerState<T>, Any> = mapSaver(
             save = { state ->
 
-                mapOf(KEY_TEXT to state.selectedText)
+                mapOf(KEY_SELECTED_TEXT to state.selectedText)
             },
             restore = { elements ->
 
-                WheelTextPickerState(textList = textList, initial = initial).apply {
+                WheelTextPickerState(
+                    textList = textList,
+                    initial = initial,
+                    coroutineScope = coroutineScope,
+                    density = density
+                ).apply {
 
-                    selectedText = elements.getOrElse(KEY_TEXT) { initial } as T?
+                    selectedText = elements.getOrElse(KEY_SELECTED_TEXT) { initial } as T?
                 }
             }
         )

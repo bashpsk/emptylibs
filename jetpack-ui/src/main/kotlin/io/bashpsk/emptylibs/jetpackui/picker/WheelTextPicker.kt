@@ -1,24 +1,18 @@
 package io.bashpsk.emptylibs.jetpackui.picker
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -27,17 +21,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.times
 import kotlin.math.abs
+import kotlin.math.floor
 
 /**
  * A composable function that creates a wheel-style text picker.
@@ -55,8 +52,6 @@ import kotlin.math.abs
  * number for symmetrical appearance.
  * @param itemSpace The vertical spacing between items in the wheel.
  * @param textStyle The [TextStyle] to be applied to the text items.
- * @param textColor The color of the text items.
- * @param textWeight The [FontWeight] of the text items.
  * @param textScaleLevel A factor determining how much items are scaled down as they move away from
  * the center.
  * A value of 0 means no scaling, while a higher value means more pronounced scaling.
@@ -74,111 +69,133 @@ fun <T> WheelTextPicker(
     modifier: Modifier = Modifier,
     state: WheelTextPickerState<T>,
     visibleCount: Int = 3,
-    itemSpace: Dp = 16.dp,
+    itemSpace: Dp = 12.dp,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
-    textColor: Color = MaterialTheme.colorScheme.onSurface,
-    textWeight: FontWeight = FontWeight.Normal,
     textScaleLevel: Float = 0.4F,
     textAlphaLevel: Float = 0.7F,
-    dividerFraction: Float = 0.5F,
+    dividerFraction: Float = 0.4F,
     dividerColor: Color = MaterialTheme.colorScheme.primary,
     dividerThickness: Dp = 3.dp
 ) {
 
     val density = LocalDensity.current
-    val lazyListState = rememberLazyListState()
+    val textMeasurer = rememberTextMeasurer()
 
-    val itemHeight = with(density) {
-        (textStyle.lineHeight.takeIf { height -> height.isSpecified }?.toDp()
-            ?: (textStyle.fontSize.toDp() * 1.6F)) + (2 * itemSpace)
-    }
-
-    val itemHeightPx = with(density) { itemHeight.toPx() }
-    val centerIndex = visibleCount / 2
-
-    val scrollPosition by remember {
+    val itemHeight by remember(density, textStyle, itemSpace) {
         derivedStateOf {
-            lazyListState.firstVisibleItemIndex to lazyListState.firstVisibleItemScrollOffset
+            with(density) {
+                (textStyle.lineHeight.takeIf { textUnit ->
+
+                    textUnit.isSpecified
+                }?.toDp() ?: (textStyle.fontSize.toDp() * 1.6F)) + (2 * itemSpace)
+            }
         }
     }
 
-    val nearestIndex by remember {
-        derivedStateOf {
+    val itemHeightPx by remember(density, itemHeight) {
+        derivedStateOf { with(density) { itemHeight.toPx() } }
+    }
 
-            val layoutInfo = lazyListState.layoutInfo
-            val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
+    val pickerTotalHeight by remember(density, itemHeight, visibleCount) {
+        derivedStateOf { with(density) { (itemHeight * visibleCount).toPx() } }
+    }
 
-            layoutInfo.visibleItemsInfo.minByOrNull { item ->
+    val pickerCenterY by remember(pickerTotalHeight) {
+        derivedStateOf { pickerTotalHeight / 2f }
+    }
 
-                abs((item.offset + item.size / 2) - viewportCenter)
-            }?.index?.coerceIn(0..state.textList.lastIndex)
+    LaunchedEffect(state, itemHeightPx, pickerCenterY) {
+
+        state.setInitialScroll(itemHeight = itemHeightPx, pickerCenterY = pickerCenterY)
+    }
+
+    LaunchedEffect(state.animatable.value, itemHeightPx, pickerCenterY) {
+
+        state.updateSelectedText(itemHeight = itemHeightPx, pickerCenterY = pickerCenterY)
+    }
+
+    val draggableState = rememberDraggableState { delta ->
+
+        state.onScroll(delta = delta)
+    }
+
+    val draggableModifier = Modifier.draggable(
+        state = draggableState,
+        orientation = Orientation.Vertical,
+        onDragStopped = { velocity ->
+
+            state.onFling(
+                velocity = velocity,
+                itemHeight = itemHeightPx,
+                pickerCenterY = pickerCenterY
+            )
         }
-    }
-
-    LaunchedEffect(Unit) {
-
-        state.textList.indexOf(state.selectedText).takeIf { index -> index >= 0 }?.let { index ->
-
-            lazyListState.animateScrollToItem(index = index)
-        }
-    }
-
-    LaunchedEffect(nearestIndex) {
-
-        nearestIndex?.let(block = state::updateSelectedTextFromIndex)
-    }
+    )
 
     BoxWithConstraints(
-        modifier = modifier.height(height = itemHeight * visibleCount),
+        modifier = modifier
+            .height(itemHeight * visibleCount)
+            .then(draggableModifier),
         contentAlignment = Alignment.Center
     ) {
 
-        LazyColumn(
-            modifier = Modifier.matchParentSize(),
-            state = lazyListState,
-            contentPadding = PaddingValues(vertical = itemHeight * centerIndex),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        val canvasWidth = constraints.maxWidth.toFloat()
+
+        Canvas(
+            modifier = Modifier
+                .matchParentSize()
+                .clipToBounds(),
+            contentDescription = "Wheel Text Picker"
         ) {
 
-            itemsIndexed(
-                items = state.textList,
-                key = { index, textItem -> "$index. $textItem" }
-            ) { index, textItem ->
+            state.textList.takeIf { itemsList -> itemsList.isNotEmpty() }?.let { itemsList ->
 
-                val (firstIndex, firstOffset) = scrollPosition
-                val offsetPx = (index - firstIndex) * itemHeightPx - firstOffset
-                val distanceFromCenter = offsetPx / itemHeightPx
-                val distanceNormalized = abs(distanceFromCenter).coerceIn(0.0F..1.0F)
+                val firstVisibleIndex = floor(
+                    (state.animatable.value - itemHeightPx) / itemHeightPx
+                ).toInt().coerceAtLeast(0)
 
-                val scaleAnimation by animateFloatAsState(
-                    targetValue = 1.2F - textScaleLevel * distanceNormalized,
-                    animationSpec = tween(durationMillis = 50, easing = FastOutSlowInEasing),
-                    label = "Scale Animation"
-                )
+                val lastVisibleIndex = floor(
+                    (pickerTotalHeight + state.animatable.value + itemHeightPx) / itemHeightPx
+                ).toInt().coerceAtMost(itemsList.lastIndex)
 
-                val alphaAnimation by animateFloatAsState(
-                    targetValue = 1.0F - textAlphaLevel * distanceNormalized,
-                    animationSpec = tween(durationMillis = 50, easing = FastOutSlowInEasing),
-                    label = "Alpha Animation"
-                )
+                (firstVisibleIndex..lastVisibleIndex).forEach { index ->
 
-                WheelItemView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(itemHeight)
-                        .padding(horizontal = 4.dp, vertical = itemSpace)
-                        .graphicsLayer(
-                            scaleX = scaleAnimation,
-                            scaleY = scaleAnimation,
-                            rotationX = distanceFromCenter * -25.0F,
-                            alpha = alphaAnimation
-                        ),
-                    text = textItem,
-                    textStyle = textStyle,
-                    textColor = textColor,
-                    textWeight = textWeight
-                )
+                    val itemCenterY = index * itemHeightPx + itemHeightPx / 2f
+                    val itemDistance = (itemCenterY - state.animatable.value) - pickerCenterY
+                    val distanceNormalized = abs(itemDistance / itemHeightPx).coerceIn(
+                        0.0F..(visibleCount / 2f) + 0.5f
+                    )
+
+                    val scale = (1.2F - textScaleLevel * distanceNormalized).coerceAtLeast(0.1f)
+                    val alpha = (1.0F - textAlphaLevel * distanceNormalized).coerceAtLeast(0.1f)
+
+                    val textLayoutResult = textMeasurer.measure(
+                        text = "${itemsList[index]}",
+                        style = textStyle.copy(color = textStyle.color.copy(alpha = alpha))
+                    )
+
+                    val textPosition = Offset(
+                        (canvasWidth - textLayoutResult.size.width) / 2f,
+                        (index * itemHeightPx) - state.animatable.value + itemSpace.toPx()
+                    )
+
+                    withTransform(
+                        transformBlock = {
+                            translate(
+                                left = textPosition.x + textLayoutResult.size.width / 2f,
+                                top = textPosition.y + textLayoutResult.size.height / 2f
+                            )
+                            scale(scaleX = scale, scaleY = scale, pivot = Offset.Zero)
+                            translate(
+                                left = -(textPosition.x + textLayoutResult.size.width / 2f),
+                                top = -(textPosition.y + textLayoutResult.size.height / 2f)
+                            )
+                        }
+                    ) {
+
+                        drawText(topLeft = textPosition, textLayoutResult = textLayoutResult)
+                    }
+                }
             }
         }
 
@@ -194,39 +211,6 @@ fun <T> WheelTextPicker(
 }
 
 /**
- * Composable function that represents a single item in the wheel picker.
- *
- * @param modifier Modifier for this composable.
- * @param text The text to display for this item.
- * @param textStyle The text style to apply to the text.
- * @param textColor The color of the text.
- * @param textWeight The font weight of the text.
- */
-@Composable
-private fun <T> WheelItemView(
-    modifier: Modifier = Modifier,
-    text: T,
-    textStyle: TextStyle,
-    textColor: Color,
-    textWeight: FontWeight
-) {
-
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-
-        Text(
-            text = "$text",
-            textAlign = TextAlign.Center,
-            style = textStyle,
-            color = textColor,
-            fontWeight = textWeight
-        )
-    }
-}
-
-/**
  * A composable function that displays two horizontal dividers with rounded corners.
  * These dividers are used to highlight the selected item in the WheelTextPicker.
  *
@@ -235,7 +219,6 @@ private fun <T> WheelItemView(
  * @param dividerColor The color of the dividers.
  * @param dividerThickness The thickness of the dividers.
  */
-@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun HighlightDivider(
     modifier: Modifier = Modifier,
