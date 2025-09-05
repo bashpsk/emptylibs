@@ -27,6 +27,18 @@ import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 
+/**
+ * A composable function that displays a dial text picker.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param state The state of the dial text picker.
+ * @param textStyle The text style for the items in the picker.
+ * @param selectedTextStyle The text style for the selected item in the picker.
+ * @param textBoxPadding The padding around the selected text box.
+ * @param textBoxThickness The thickness of the selected text box border.
+ * @param textBoxColor The color of the selected text box border.
+ * @param T The type of items in the picker.
+ */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun <T> DialTextPicker(
@@ -41,10 +53,10 @@ fun <T> DialTextPicker(
 
     val textMeasurer = rememberTextMeasurer()
 
-    val dialTextBoxSize by remember(state.selectedItem) {
+    val dialTextBoxSize by remember(state.selectedText) {
         derivedStateOf {
             textMeasurer.measure(
-                text = "${state.selectedItem ?: "  "}",
+                text = "${state.selectedText ?: state.textList.firstOrNull()}",
                 style = selectedTextStyle
             ).size.toSize()
         }
@@ -90,14 +102,14 @@ fun <T> DialTextPicker(
             contentDescription = "Dial Text Picker"
         ) {
 
-            rotate(degrees = state.currentRotationAngle, pivot = center) {
+            rotate(degrees = state.currentAngle, pivot = center) {
 
                 val angleStep = 360F / state.textList.size
 
                 state.textList.forEachIndexed { index, item ->
 
                     val itemAngleDegrees = index * angleStep
-                    val isSelected = item == state.selectedItem
+                    val isSelected = item == state.selectedText
 
                     val textLayoutResult = textMeasurer.measure(
                         text = "$item",

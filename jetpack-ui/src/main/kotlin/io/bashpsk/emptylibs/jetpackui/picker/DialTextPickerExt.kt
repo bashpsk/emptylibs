@@ -8,6 +8,14 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/**
+ * Draws a selected box on the dial.
+ *
+ * @param end The end offset of the box.
+ * @param rectSize The size of the box.
+ * @param width The width of the box stroke.
+ * @param color The color of the box.
+ */
 internal fun DrawScope.drawDialSelectedBox(
     end: Offset,
     rectSize: Size,

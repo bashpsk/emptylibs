@@ -26,10 +26,7 @@ fun DialTextPickerScreen() {
         (1..12).map { item -> EmptyFormat.toRoundTime(item) }.toPersistentList()
     }
 
-    val textPickerState = rememberDialTextPickerState(
-        textList = textList,
-        initial = textList[3]
-    )
+    val textPickerState = rememberDialTextPickerState(textList = textList, initial = null)
 
     Scaffold { paddingValues ->
 
@@ -56,7 +53,7 @@ fun DialTextPickerScreen() {
 
             Spacer(modifier = Modifier.height(height = 12.dp))
 
-            Text("SELECTED : ${textPickerState.selectedItem}")
+            Text("SELECTED : ${textPickerState.selectedText}")
         }
     }
 }
