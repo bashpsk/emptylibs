@@ -1,7 +1,6 @@
 package io.bashpsk.emptylibs.imageutils.shape
 
 import android.os.Parcelable
-import androidx.annotation.FloatRange
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
@@ -60,10 +59,7 @@ sealed class ImageShape : Parcelable {
      * side of the rectangle. A value of 0.0f creates a sharp-cornered rectangle. The value must
      * be between 0.0 and 1.0 (inclusive).
      */
-    data class Rectangle(
-        @param:FloatRange(from = 0.0, to = 1.0)
-        val radius: Float
-    ) : ImageShape()
+    data class Rectangle(val radius: Float) : ImageShape()
 
     /**
      * Represents a cut corner shape for cropping.
@@ -76,10 +72,7 @@ sealed class ImageShape : Parcelable {
      * (no cut corners).
      * The value is typically a proportion, ranging from 0.0 (no cut) to 1.0 (maximum cut).
      */
-    data class CutCorner(
-        @param:FloatRange(from = 0.0, to = 1.0)
-        val radius: Float
-    ) : ImageShape()
+    data class CutCorner(val radius: Float) : ImageShape()
 
     /**
      * Represents a star shape with a specified number of edges and distance.
@@ -88,5 +81,5 @@ sealed class ImageShape : Parcelable {
      * @property distance A float value that likely influences the appearance or size of the star's
      * points relative to its center, such as the distance from the inner & outer points.
      */
-    data class Star(val edges: Short, val distance: Float) : ImageShape()
+    data class Star(val edges: Int, val distance: Float) : ImageShape()
 }

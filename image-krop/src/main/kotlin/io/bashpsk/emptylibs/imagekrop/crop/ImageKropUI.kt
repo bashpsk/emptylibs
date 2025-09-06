@@ -652,7 +652,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                     steps = 37,
                     onValueChange = { newValue ->
 
-                        val newShape = shape.copy(edges = newValue.toInt().toShort())
+                        val newShape = shape.copy(edges = newValue.toInt())
 
                         state.apply {
 

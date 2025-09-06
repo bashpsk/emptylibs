@@ -187,7 +187,7 @@ private fun createPolygonPath(rect: Rect, sides: Short): Path {
  * @param rect The [Rect] defining the bounds within which the star path will be created.
  * @return A [Path] object representing the star shape.
  */
-private fun createStarPath(rect: Rect, edges: Short, distance: Float): Path {
+private fun createStarPath(rect: Rect, edges: Int, distance: Float): Path {
 
     val path = Path()
     val centerX = rect.center.x
