@@ -554,13 +554,10 @@ class ImageEditState(
      * The drawing operations are scaled appropriately based on the [canvasSize]
      * to ensure edits appear correctly on the final bitmap.
      *
-     * @param density The [Density] to be used for drawing operations, ensuring correct scaling.
      * @return A new [ImageBitmap] containing the original image with all edits applied,
      * or `null` if the original [imageBitmap] is `null`.
      */
-    suspend fun getEditedImageBitmap(
-        density: Density
-    ): ImageBitmap? = withContext(Dispatchers.Default) {
+    suspend fun getEditedImageBitmap(): ImageBitmap? = withContext(Dispatchers.Default) {
 
         return@withContext imageBitmap?.let { bitmap ->
 
