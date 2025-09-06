@@ -13,6 +13,20 @@ import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
 
+/**
+ * A composable function that provides a canvas slate for drawing and editing paths.
+ *
+ * This function integrates various components like color pickers, pen stroke/thickness dialogs,
+ * and a path edit bottom sheet to offer a comprehensive drawing experience.
+ *
+ * @param modifier The modifier to be applied to the CanvasSlate.
+ * @param state The state object that manages the canvas, drawing tools, and path data.
+ * Defaults to a new `CanvasSlateState` instance.
+ * @param onDoneClick A lambda function to be invoked when the "Done" action is triggered,
+ * typically from the top bar.
+ * @param onNavigateBack A lambda function to be invoked when the "Navigate Back" action is
+ * triggered, typically from the top bar.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CanvasSlate(

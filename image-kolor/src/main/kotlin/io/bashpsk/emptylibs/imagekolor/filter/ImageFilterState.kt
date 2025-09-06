@@ -9,6 +9,8 @@ import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
+import io.bashpsk.emptylibs.imagekolor.R
 
 /**
  * Creates and remembers an [ImageFilterState] instance that survives configuration changes.
@@ -17,19 +19,20 @@ import androidx.compose.ui.graphics.ImageBitmap
  * including the currently selected filter and the preview image.
  *
  * @param previewImage The optional [ImageBitmap] to be used as the preview image.
- * If `null`, a default image (R.drawable.flower_02) will be used.
+ * If `null`, a default image (R.drawable.flower_01) will be used.
  * @return An [ImageFilterState] instance that can be used to control and observe the image filter
  * state.
  */
 @Composable
 fun rememberImageFilterState(previewImage: ImageBitmap? = null): ImageFilterState {
 
-    return rememberSaveable(
-        previewImage,
-        saver = ImageFilterState.StateSaver(previewImage = previewImage)
-    ) {
+    val imageBitmap = previewImage ?: ImageBitmap.imageResource(id = R.drawable.flower_01)
 
-        ImageFilterState(previewImage = previewImage)
+    return rememberSaveable(
+        imageBitmap,
+        saver = ImageFilterState.StateSaver(previewImage = imageBitmap)
+    ) {
+        ImageFilterState(previewImage = imageBitmap)
     }
 }
 
@@ -39,7 +42,7 @@ fun rememberImageFilterState(previewImage: ImageBitmap? = null): ImageFilterStat
  * @param previewImage The image to be displayed and filtered image preview.
  */
 @Stable
-class ImageFilterState(val previewImage: ImageBitmap?) {
+class ImageFilterState(val previewImage: ImageBitmap) {
 
     /**
      * The currently selected image filter.
@@ -82,9 +85,7 @@ class ImageFilterState(val previewImage: ImageBitmap?) {
 
         const val KEY_SELECTED_FILTER = "IMAGE-FILTER-SELECTED-FILTER"
 
-        fun StateSaver(
-            previewImage: ImageBitmap?
-        ): Saver<ImageFilterState, Any> = mapSaver(
+        fun StateSaver(previewImage: ImageBitmap): Saver<ImageFilterState, Any> = mapSaver(
             save = { state ->
 
                 mapOf(KEY_SELECTED_FILTER to state.selectedFilter)

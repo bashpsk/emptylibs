@@ -11,6 +11,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+/**
+ * Composable function for the image editing screen.
+ * This function provides the main UI for image editing, including top and bottom bars,
+ * the image display area, and a modal bottom sheet for tool-specific inputs.
+ *
+ * @param modifier The modifier to be applied to the root container.
+ * @param state The [ImageEditState] that holds the current state of the image editing process,
+ * including the image being edited, selected tools, and applied transformations.
+ * @param onDoneClick A lambda function to be invoked when the user clicks the "Done" button,
+ * typically to save the edited image or confirm changes.
+ * @param onNavigateBack A lambda function to be invoked when the user clicks the back button,
+ * typically to navigate away from the editing screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable

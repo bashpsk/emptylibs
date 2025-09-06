@@ -136,7 +136,8 @@ enum class FileType(
     THREE_D_MODEL("3D Model", persistentListOf("blend", "obj", "fbx", "dae", "gltf", "glb")),
 
     /**
-     * Text files are files that contain only plain text data, without any formatting or special characters.
+     * Text files are files that contain only plain text data, without any formatting or special
+     * characters.
      * Some common examples of text files include:
      * - **.txt:** Basic text files with no formatting.
      * - **.md:** Markdown files, used for creating formatted text using a plain text editor.

@@ -3,7 +3,6 @@ package io.bashpsk.emptylibs.datastoreui.font
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import io.bashpsk.emptylibs.datastoreui.extension.toReverseMap
 
@@ -28,7 +27,5 @@ import io.bashpsk.emptylibs.datastoreui.extension.toReverseMap
 @Composable
 fun rememberFontRes(id: String, entities: Map<Int, String>): State<Int?> {
 
-    val reverseEntities by remember(entities) { derivedStateOf { entities.toReverseMap() } }
-
-    return remember(reverseEntities, id) { derivedStateOf { reverseEntities[id] } }
+    return remember(entities, id) { derivedStateOf { entities.toReverseMap()[id] } }
 }

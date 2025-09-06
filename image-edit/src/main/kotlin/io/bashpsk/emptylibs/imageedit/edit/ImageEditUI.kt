@@ -2,19 +2,14 @@ package io.bashpsk.emptylibs.imageedit.edit
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -22,7 +17,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Undo
@@ -63,24 +57,35 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import kotlinx.coroutines.launch
 
+/**
+ * Displays the image editing UI.
+ *
+ * This composable function is responsible for rendering the image and handling user interactions
+ * such as tapping and dragging to edit the image. It uses a [BoxWithConstraints] to determine
+ * the available space and then displays the image within that space, maintaining its aspect ratio.
+ *
+ * The image editing functionality is achieved by drawing [ImageEditItems] onto a canvas.
+ * User gestures are detected and translated into editing actions, which are then applied
+ * to the [ImageEditState].
+ *
+ * @param modifier The modifier to be applied to the UI.
+ * @param state The current state of the image editing process. This includes the image bitmap,
+ * the list of edit items, and other configuration options.
+ */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 internal fun ImageEditUI(
@@ -174,6 +179,19 @@ internal fun ImageEditUI(
     }
 }
 
+/**
+ * Composable function that displays the top bar for the image editing screen.
+ * It includes navigation controls, undo functionality, and access to tool settings and a toolbar
+ * menu.
+ *
+ * @param state The current state of the image editing process, containing information about drawn
+ * items and selected tools.
+ * @param editToolInputSheetState The state of the bottom sheet used for tool-specific input
+ * (e.g., text input).
+ * @param onDoneClick Callback function invoked when the "Done" button is clicked, typically to
+ * finalize edits.
+ * @param onNavigateBack Callback function invoked when the back navigation button is clicked.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ImageEditTopBar(
@@ -288,6 +306,14 @@ internal fun ImageEditTopBar(
     )
 }
 
+/**
+ * Composable function for the bottom app bar in the image editor.
+ * This bar contains toggle buttons for selecting different editing tools like brush, erase, image,
+ * shape, and text.
+ *
+ * @param state The current state of the image editor, containing information about the selected
+ * tool and callbacks for tool selection.
+ */
 @Composable
 internal fun ImageEditBottomBar(state: ImageEditState) {
 
@@ -430,10 +456,15 @@ internal fun ImageEditBottomBar(state: ImageEditState) {
     }
 }
 
+/**
+ * Composable function for the canvas slate toolbar.
+ * This toolbar provides options to delete the current item or clear the entire canvas.
+ *
+ * @param state The current state of the image editor, containing information about the
+ * selected item and canvas content.
+ */
 @Composable
-private fun CanvasSlateToolBar(
-    state: ImageEditState
-) {
+private fun CanvasSlateToolBar(state: ImageEditState) {
 
     val isDeleteEnabled by remember(state.currentImageEditItem) {
         derivedStateOf { state.currentImageEditItem != null }
@@ -476,63 +507,15 @@ private fun CanvasSlateToolBar(
     }
 }
 
-@Composable
-private fun ColorSelectionBar(
-    modifier: Modifier = Modifier,
-    primaryColor: Color,
-    secondaryColor: Color,
-    primaryColorPickerDialog: MutableTransitionState<Boolean>,
-    secondaryColorPickerDialog: MutableTransitionState<Boolean>,
-) {
-
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(space = 12.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        item {
-
-            ColorBoxView(
-                color = primaryColor,
-                onColorClick = {
-
-                    primaryColorPickerDialog.targetState = true
-                }
-            )
-        }
-
-        item {
-
-            ColorBoxView(
-                color = secondaryColor,
-                onColorClick = {
-
-                    secondaryColorPickerDialog.targetState = true
-                }
-            )
-        }
-    }
-}
-
-@Composable
-private fun ColorBoxView(color: Color, onColorClick: () -> Unit) {
-
-    Box(
-        modifier = Modifier
-            .size(size = 36.dp)
-            .background(color = color, shape = CircleShape)
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = CircleShape
-            )
-            .clip(shape = CircleShape)
-            .clickable(role = Role.Button, onClick = onColorClick)
-            .shadow(elevation = 16.dp, shape = CircleShape)
-    )
-}
-
+/**
+ * A composable function that displays a menu item with an icon, label, and an onClick action.
+ *
+ * @param icon The [ImageVector] to be displayed as the leading icon.
+ * @param label The text to be displayed as the label for the menu item.
+ * @param enabled A boolean indicating whether the menu item is enabled or disabled.
+ * Defaults to true.
+ * @param onClick A lambda function to be executed when the menu item is clicked.
+ */
 @Composable
 private fun MenuItemView(
     icon: ImageVector,
@@ -562,6 +545,15 @@ private fun MenuItemView(
     )
 }
 
+/**
+ * A composable function that displays a menu item with an icon, label, and a switch.
+ *
+ * @param icon The icon to display for the menu item.
+ * @param label The text label for the menu item.
+ * @param isChecked Whether the switch is checked or not.
+ * @param enabled Whether the menu item is enabled or not. Defaults to true.
+ * @param onClick The callback to be invoked when the menu item is clicked.
+ */
 @Composable
 private fun MenuItemView(
     icon: ImageVector,

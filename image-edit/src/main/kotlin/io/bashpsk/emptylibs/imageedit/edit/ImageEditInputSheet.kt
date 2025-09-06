@@ -98,6 +98,14 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
+/**
+ * Composable function that displays a modal bottom sheet for editing image elements.
+ * The content of the bottom sheet changes based on the currently selected image edit item.
+ *
+ * @param editToolInputSheetState The state of the modal bottom sheet, controlling its visibility.
+ * @param state The current state of the image editor, containing information about the
+ * selected item and its properties.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ImageEditInputSheet(
@@ -136,6 +144,16 @@ internal fun ImageEditInputSheet(
     }
 }
 
+/**
+ * Composable function to display and edit brush properties.
+ *
+ * This function renders a [LazyColumn] containing various input controls
+ * for modifying the brush settings such as color, smoothness, thickness, miter,
+ * dash path, and stroke style.
+ *
+ * @param state The [ImageEditState] containing the current brush properties and callbacks to update
+ * them.
+ */
 @Composable
 private fun InputEditBrush(state: ImageEditState) {
 
@@ -317,6 +335,16 @@ private fun InputEditBrush(state: ImageEditState) {
     }
 }
 
+/**
+ * Composable function to display and manage input controls for the erase tool.
+ *
+ * This function renders a [LazyColumn] containing various input controls that allow the user
+ * to configure the properties of the erase tool, such as smoothness, thickness, miter,
+ * dash path effect, and stroke cap/join.
+ *
+ * @param state The [ImageEditState] that holds the current state of the image editor, including the
+ * erase tool's input parameters.
+ */
 @Composable
 private fun InputEditErase(state: ImageEditState) {
 
@@ -473,6 +501,16 @@ private fun InputEditErase(state: ImageEditState) {
     }
 }
 
+/**
+ * Composable function to display and edit image properties.
+ *
+ * This function provides UI elements for selecting a bitmap, adjusting its position and size,
+ * and choosing a shape for the image. It uses [LazyColumn] to efficiently display the
+ * different editing sections.
+ *
+ * @param state The [ImageEditState] that holds the current state of the image being edited.
+ * This state is updated as the user interacts with the UI elements.
+ */
 @Composable
 private fun InputEditImage(state: ImageEditState) {
 
@@ -595,6 +633,15 @@ private fun InputEditImage(state: ImageEditState) {
     }
 }
 
+/**
+ * Composable function to display and edit shape properties.
+ *
+ * This function provides a user interface for modifying various attributes of a shape,
+ * such as its color, thickness, miter, dash pattern, stroke cap, stroke join, and the shape itself.
+ * The changes are reflected in the [ImageEditState].
+ *
+ * @param state The current state of the image editor, containing the shape properties to be edited.
+ */
 @Composable
 private fun InputEditShape(state: ImageEditState) {
 
@@ -792,6 +839,13 @@ private fun InputEditShape(state: ImageEditState) {
     }
 }
 
+/**
+ * Composable function to display and edit text properties.
+ * It uses a [LazyColumn] to display the text input field, color picker, font size slider, and a
+ * preview of the text.
+ *
+ * @param state The current state of the image editor, containing the text input and style.
+ */
 @Composable
 private fun InputEditText(state: ImageEditState) {
 
@@ -834,6 +888,14 @@ private fun InputEditText(state: ImageEditState) {
     }
 }
 
+/**
+ * A composable function that displays input fields for selecting the X and Y position.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param position The current position [Offset].
+ * @param onPositionChange A callback function invoked when the position is changed.
+ * It provides the new position as an [Offset].
+ */
 @Composable
 private fun PositionSelectionView(
     modifier: Modifier = Modifier,
@@ -884,6 +946,14 @@ private fun PositionSelectionView(
     }
 }
 
+/**
+ * Composable function to display and edit the size (width and height) of an item.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param size The current size of the item.
+ * @param onSizeChange A callback function invoked when the size is changed by the user.
+ * It provides the new [Size] object.
+ */
 @Composable
 private fun SizeSelectionView(
     modifier: Modifier = Modifier,
@@ -934,6 +1004,16 @@ private fun SizeSelectionView(
     }
 }
 
+/**
+ * A composable function that displays a color selection view.
+ * It shows a label, a preview of the selected color, and opens a color picker dialog when clicked.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param label The text label to display above the color preview.
+ * @param color The currently selected color.
+ * @param onColorChange A callback function that is invoked when a new color is selected from the
+ * color picker dialog.
+ */
 @Composable
 private fun ColorSelectionView(
     modifier: Modifier = Modifier,
@@ -980,6 +1060,14 @@ private fun ColorSelectionView(
     }
 }
 
+/**
+ * Composable function for selecting an image shape from a dropdown menu.
+ *
+ * @param modifier Modifier for styling the view.
+ * @param imageShape The currently selected image shape.
+ * @param imageShapeList A list of available image shapes.
+ * @param onShapeChange Callback function invoked when a new shape is selected.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShapeSelectionView(
@@ -1082,6 +1170,15 @@ private fun ShapeSelectionView(
     }
 }
 
+/**
+ * Composable function to display a view for selecting text content, color, and font size.
+ *
+ * @param modifier Modifier for styling and layout.
+ * @param text The current text content.
+ * @param style The current text style.
+ * @param onTextChange Callback function for when the text content changes.
+ * @param onStyleChange Callback function for when the text style changes.
+ */
 @Composable
 private fun TextSelectionView(
     modifier: Modifier = Modifier,
@@ -1180,6 +1277,17 @@ private fun TextSelectionView(
     }
 }
 
+/**
+ * A composable function that displays a border selection view.
+ *
+ * This view allows the user to select the thickness and color of a border.
+ *
+ * @param modifier The modifier to be applied to the view.
+ * @param border The current border thickness.
+ * @param onBorderChange A callback function that is invoked when the border thickness changes.
+ * @param borderColor The current border color.
+ * @param onBorderColorChange A callback function that is invoked when the border color changes.
+ */
 @Composable
 private fun BorderSelectionView(
     modifier: Modifier = Modifier,
@@ -1220,6 +1328,16 @@ private fun BorderSelectionView(
     }
 }
 
+/**
+ * Composable function to display an image selection view.
+ * It allows the user to pick an image from the device's storage and displays a preview of the
+ * selected image.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param bitmap The current selected [ImageBitmap] to display.
+ * @param onBitmapChange A callback function that is invoked when a new bitmap is selected or
+ * changed.
+ */
 @Composable
 private fun BitmapSelectionView(
     modifier: Modifier = Modifier,
@@ -1302,6 +1420,17 @@ private fun BitmapSelectionView(
     }
 }
 
+/**
+ * A Composable function that displays a slider for selecting a float value within a given range.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param label The label to be displayed above the slider.
+ * @param value The current value of the slider.
+ * @param valueRange The range of values that the slider can take.
+ * @param steps The number of discrete steps that the slider can take.
+ * Defaults to 0, which means continuous.
+ * @param onValueChange A callback that is invoked when the value of the slider changes.
+ */
 @Composable
 private fun SliderSelectionView(
     modifier: Modifier = Modifier,
@@ -1340,6 +1469,15 @@ private fun SliderSelectionView(
     }
 }
 
+/**
+ * Composable function for selecting stroke cap and stroke join.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param selectedStrokeCap The currently selected stroke cap.
+ * @param selectedStrokeJoin The currently selected stroke join.
+ * @param onStrokeCapChange Callback function invoked when the stroke cap changes.
+ * @param onStrokeJoinChange Callback function invoked when the stroke join changes.
+ */
 @Composable
 private fun StrokeSelectionView(
     modifier: Modifier = Modifier,
@@ -1404,6 +1542,19 @@ private fun StrokeSelectionView(
     }
 }
 
+/**
+ * A composable view for selecting dash path effect properties like interval on, interval off, and
+ * phase.
+ * It provides sliders for users to adjust these values.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param intervalOff The current "off" interval value of the dash effect.
+ * @param intervalOn The current "on" interval value of the dash effect.
+ * @param intervalPhase The current phase value of the dash effect.
+ * @param onIntervalOffChange A callback function invoked when the "off" interval value changes.
+ * @param onIntervalOnChange A callback function invoked when the "on" interval value changes.
+ * @param onIntervalPhaseChange A callback function invoked when the phase value changes.
+ */
 @Composable
 private fun DashPathSelectionView(
     modifier: Modifier = Modifier,
@@ -1494,6 +1645,14 @@ private fun DashPathSelectionView(
     }
 }
 
+/**
+ * Composable function to display a single stroke cap option.
+ *
+ * @param modifier Modifier for styling the layout.
+ * @param stroke The [StrokeCap] to display.
+ * @param isSelected Boolean indicating if this stroke cap is currently selected.
+ * @param onClick Callback invoked when this stroke cap is clicked.
+ */
 @Composable
 private fun StrokeView(
     modifier: Modifier = Modifier,
@@ -1530,6 +1689,14 @@ private fun StrokeView(
     }
 }
 
+/**
+ * Composable function to display a selectable stroke join option.
+ *
+ * @param modifier Modifier for styling the layout.
+ * @param stroke The [StrokeJoin] to display.
+ * @param isSelected Boolean indicating if this stroke join is currently selected.
+ * @param onClick Lambda function to be invoked when this stroke join option is clicked.
+ */
 @Composable
 private fun StrokeView(
     modifier: Modifier = Modifier,
@@ -1566,6 +1733,15 @@ private fun StrokeView(
     }
 }
 
+/**
+ * A Composable function that displays an outlined text field for number input.
+ * It uses [OutlinedTextField] and sets the keyboard type to [KeyboardType.Number].
+ *
+ * @param modifier The modifier to be applied to the text field.
+ * @param label The label to be displayed for the text field.
+ * @param value The current value of the text field.
+ * @param onValueChange A callback that is invoked when the value of the text field changes.
+ */
 @Composable
 private fun NumberInputField(
     modifier: Modifier = Modifier,
@@ -1599,6 +1775,13 @@ private fun NumberInputField(
     )
 }
 
+/**
+ * Composable function to display a preview of an editable shape.
+ *
+ * @param shape The [ImageShape] to be displayed.
+ * @param isSelected A boolean indicating whether the shape is currently selected.
+ * The color of the shape will change based on this state.
+ */
 @Composable
 private fun EditShapeView(shape: ImageShape, isSelected: Boolean) {
 

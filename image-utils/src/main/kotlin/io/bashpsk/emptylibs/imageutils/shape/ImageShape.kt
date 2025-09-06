@@ -11,18 +11,21 @@ import kotlinx.serialization.Serializable
  * This sealed interface defines the various geometric forms available for image cropping.
  * Each implementing object or class corresponds to a distinct shape.
  *
- * - [None]: Represents no specific cropping shape, potentially meaning the original image bounds.
+ * Available shapes:
+ * - [None]: Represents no specific cropping shape, effectively using the original image bounds.
  * - [Circle]: Represents a circular cropping shape.
  * - [Triangle]: Represents a triangular cropping shape.
  * - [Polygon]: Represents a polygonal cropping shape with a specified number of sides.
- *     - [sides]: The number of sides for the polygon.
- * - [Rectangle]: Represents a rectangular cropping shape, possibly with rounded corners.
- *     - [radius]: The corner radius for the rectangle. A value of 0 indicates sharp corners.
+ *     - `sides`: The number of sides for the polygon.
+ * - [Rectangle]: Represents a rectangular cropping shape, which can have rounded corners.
+ *     - `radius`: The corner radius for the rectangle, expressed as a fraction of the shortest
+ *       side (0.0f for sharp corners, up to 1.0f).
  * - [CutCorner]: Represents a rectangular shape with diagonally cut corners.
- *     - [radius]: The extent of the corner cut.
+ *     - `radius`: The extent of the corner cut, as a proportion (0.0f for no cut, up to 1.0f).
  * - [Star]: Represents a star-shaped cropping outline.
- *     - [edges]: The number of points or edges of the star.
- *     - [distance]: A parameter influencing the depth or prominence of the star's points.
+ *     - `edges`: The number of points or edges of the star.
+ *     - `distance`: A parameter influencing the depth or prominence of the star's points,
+ *       typically the ratio between the inner and outer radii of the star.
  */
 @Parcelize
 @Serializable

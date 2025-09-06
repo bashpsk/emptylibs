@@ -212,6 +212,31 @@ class DialTextPickerState<T>(
         }
     }
 
+    /**
+     * Updates the selected text and index based on the current dial angle.
+     *
+     * This internal function is responsible for determining which item in the `textList`
+     * should be considered selected given a specific rotation `angle` of the dial.
+     * It performs the following steps:
+     * 1. Checks if `textList` is not empty.
+     * 2. Calculates `anglePerItem`, which is the angular space each item occupies on the dial.
+     * 3. Normalizes the input `angle` to be within the 0-360 degree range. The angle is negated
+     *    because a positive drag typically results in a counter-clockwise rotation, which
+     *    corresponds to decreasing item indices.
+     * 4. Calculates `centeredAngle` by shifting the `normalizedAngle` by half of `anglePerItem`.
+     *    This adjustment helps in correctly identifying the item whose segment the angle falls
+     *    into, effectively treating the center of each item's segment as the selection point.
+     * 5. Determines `itemIndex` by dividing `centeredAngle` by `anglePerItem`, taking the floor,
+     *    and then using the modulo operator with the number of items to ensure the index wraps
+     *    around.
+     * 6. If the calculated `itemIndex` is valid (within the bounds of `textList`), it updates
+     *    `selectedText` to the item at that index and `selectedIndex` to the index itself.
+     *
+     * This function is typically called during or after a rotation animation or drag gesture
+     * to reflect the change in selection.
+     *
+     * @param angle The current rotation angle of the dial in degrees.
+     */
     internal fun updateSelectionFromAngle(angle: Float) {
 
         textList.takeIf { items -> items.isNotEmpty() }?.let { items ->
@@ -230,8 +255,6 @@ class DialTextPickerState<T>(
             }
         }
     }
-
-
 
     /**
      * Called when the dial interaction starts.

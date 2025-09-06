@@ -19,11 +19,10 @@ import kotlin.math.sin
 /**
  * Applies a shape mask to an [ImageBitmap].
  *
- * This function takes an [ImageBitmap] and a [ImageShape] and returns a new [ImageBitmap]
+ * This function takes an [ImageBitmap] and an [ImageShape] and returns a new [ImageBitmap]
  * where the original image is clipped to the specified shape.
  *
  * @param imageBitmap The input [ImageBitmap] to be masked.
- * @param kropShape The [ImageShape] to use as the mask.
  * @return A new [ImageBitmap] with the shape mask applied.
  */
 fun ImageShape.bitmapMask(imageBitmap: ImageBitmap): ImageBitmap {
@@ -58,9 +57,25 @@ fun ImageShape.bitmapMask(imageBitmap: ImageBitmap): ImageBitmap {
 }
 
 /**
- * Creates a [Path] object representing the specified [ImageShape] within the given dimensions.
+ * Converts an [ImageShape] to a [Path] object.
  *
- * This function is used internally to generate the clipping mask for shaping the cropped image.
+ * This function takes an [ImageShape] and the size of the canvas as input and returns a [Path]
+ * object that represents the shape. The path can then be used for drawing or clipping.
+ *
+ * The behavior of this function depends on the type of [ImageShape]:
+ * - For [ImageShape.None], it creates a rectangular path that covers the entire canvas.
+ * - For [ImageShape.Circle], it creates a circular path centered within the canvas.
+ * - For [ImageShape.Triangle], it creates an isosceles triangle path pointing upwards,
+ *   with its base at the bottom of the canvas.
+ * - For [ImageShape.Rectangle], it creates a rounded rectangle path. The corner radius is
+ *   proportional to the smaller dimension of the canvas.
+ * - For [ImageShape.Polygon], it creates a regular polygon path centered within the canvas.
+ *   The number of sides is determined by the `sides` property of the [ImageShape.Polygon].
+ * - For [ImageShape.CutCorner], it creates a rectangular path with its corners cut. The size
+ *   of the cut is proportional to the smaller dimension of the canvas.
+ * - For [ImageShape.Star], it creates a star-shaped path centered within the canvas.
+ *   The number of points and the inner radius of the star are determined by the `edges` and
+ *   `distance` properties of the [ImageShape.Star].
  *
  * @param canvasSize The size of the canvas on which the shape will be drawn.
  * @return A [Path] object representing the specified [ImageShape].
@@ -196,6 +211,13 @@ private fun createStarPath(rect: Rect, edges: Short, distance: Float): Path {
     return path
 }
 
+/**
+ * Converts an [ImageShape] to a human-readable label string.
+ *
+ * This function is useful for displaying the type of shape in UI elements or logs.
+ *
+ * @return A string representation of the [ImageShape].
+ */
 fun ImageShape.toLabel(): String {
 
     return when (this) {

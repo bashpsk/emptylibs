@@ -25,6 +25,19 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.coroutineContext
 
+/**
+ * Provides utility functions for interacting with device storage.
+ *
+ * This object includes methods for:
+ * - Retrieving information about available storage volumes.
+ * - Listing files and directories.
+ * - Getting metadata for files and directories (name, path, size, type, etc.).
+ * - Creating new files and folders.
+ * - Calculating storage space (total, free, used).
+ *
+ * Many operations are performed on the [Dispatchers.IO] thread to avoid blocking the main thread.
+ * Error handling is implemented, with relevant messages logged for debugging.
+ */
 object StorageExt {
 
     /**

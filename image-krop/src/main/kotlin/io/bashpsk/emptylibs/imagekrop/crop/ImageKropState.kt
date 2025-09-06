@@ -191,6 +191,11 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      */
     internal var isShapeMenuExpanded by mutableStateOf(false)
 
+    /**
+     * Whether the shape customization dialog is currently visible.
+     * When `true`, the dialog is shown, allowing the user to customize the properties
+     * of the selected shape. When `false`, the dialog is hidden.
+     */
     internal var isShapeCustomizeDialog by mutableStateOf(false)
 
     init {
@@ -358,6 +363,15 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         }.takeIf { index -> index > 0 }
     }
 
+    /**
+     * Generates a unique key for an image.
+     *
+     * This function recursively calls [generateKey] until a unique key is found that is not
+     * already present in the [imageList]. This ensures that each image in the list has a
+     * distinct identifier.
+     *
+     * @return A unique [String] key for an image.
+     */
     internal fun generateImageKey(): String {
 
         return generateKey().takeIf { newKey ->
@@ -366,6 +380,12 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         } ?: generateImageKey()
     }
 
+    /**
+     * Generates a unique key using a random UUID.
+     * This key is used for identifying images in the cache.
+     *
+     * @return A string representation of a randomly generated UUID.
+     */
     internal fun generateKey(): String {
 
         return Uuid.random().toString()
@@ -420,6 +440,29 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         )
     }
 
+    /**
+     * Initializes the crop rectangle position and size based on the current aspect ratio,
+     * canvas size, and minimum crop size configuration.
+     *
+     * This function calculates an initial size for the crop rectangle, aiming for 80% of the
+     * smaller dimension of the canvas while respecting the configured aspect ratio and minimum
+     * size. It then centers this rectangle within the canvas.
+     *
+     * The logic handles:
+     * - Aspect ratio: If an aspect ratio is set, the rectangle's dimensions will adhere to it.
+     * - No aspect ratio: If no aspect ratio is set (freeform), the rectangle will be a square
+     *   initially, sized at 80% of the smaller canvas dimension.
+     * - Minimum size: Ensures the rectangle's width and height are at least
+     *   `config.minimumCropSize`.
+     * - Canvas boundaries: Ensures the rectangle fits within the canvas. If the calculated size
+     *   exceeds canvas dimensions (even after aspect ratio adjustments), it's clamped to the
+     *   canvas bounds, and the other dimension is adjusted to maintain the aspect ratio if locked.
+     * - Aspect lock refinement: If `isAspectLocked` is true, it performs additional checks
+     *   and adjustments to ensure the final rectangle strictly adheres to the aspect ratio,
+     *   especially after clamping to minimum size or canvas boundaries.
+     *
+     * Finally, it updates `kropRectPosition` and `kropRectSize` with the calculated values.
+     */
     internal fun onKropRectInitialized() {
 
         val sizeLimit = config.minimumCropSize.toPixel(density = density)
@@ -527,6 +570,16 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         kropRectSize = Size(finalRectW, finalRectH)
     }
 
+    /**
+     * Handles the start of a crop operation.
+     *
+     * This function is called when the user starts interacting with the crop rectangle
+     * (e.g., by clicking on a corner or edge).
+     * It determines which corner of the crop rectangle the user
+     * has clicked on and sets [currentCorner] accordingly.
+     *
+     * @param position The [Offset] representing the position where the user clicked on the canvas.
+     */
     internal fun onKropStart(position: Offset) {
 
         currentCorner = kropRectSize.itemRect(position = kropRectPosition).getKropCorner(
@@ -535,11 +588,27 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         )
     }
 
+    /**
+     * Called when the cropping gesture ends.
+     * This function resets the `currentCorner` to null, indicating that no corner is
+     * currently being dragged.
+     */
     internal fun onKropEnd() {
 
         currentCorner = null
     }
 
+    /**
+     * Handles changes to the crop rectangle's position and size.
+     *
+     * This function is called when the user drags a corner or edge of the crop rectangle,
+     * or when the crop rectangle is moved. It calculates the new position and size of the
+     * crop rectangle based on the drag amount and updates the [kropRectPosition] and
+     * [kropRectSize] accordingly.
+     *
+     * @param position The current position of the pointer (e.g., finger or mouse).
+     * @param amount The amount by which the pointer has moved since the last update.
+     */
     internal fun onKropChanges(position: Offset, amount: Offset) {
 
         getKropRectPositionSize(
@@ -553,6 +622,41 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         }
     }
 
+    /**
+     * Calculates the new position and size of the crop rectangle based on user interaction.
+     *
+     * This function determines the new crop rectangle dimensions and location after a drag
+     * operation on one of its corners or edges, or when the entire rectangle is moved.
+     * It considers the current corner being dragged, the drag amount, canvas boundaries,
+     * minimum crop size, and locked aspect ratio.
+     *
+     * If a corner is being dragged ([currentCorner] is not null):
+     * - For corner drags (TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT):
+     *   It uses [calculateNewEditRect] to determine the new rectangle based on the dragged
+     *   and fixed corners, applying aspect ratio constraints if locked.
+     * - For edge drags (TOP_CENTRE, BOTTOM_CENTRE, LEFT_CENTRE, RIGHT_CENTRE):
+     *   It adjusts the corresponding edge of the rectangle, ensuring it stays within canvas
+     *   bounds and maintains the minimum size. If the aspect ratio is locked, it further
+     *   adjusts the rectangle to fit the aspect ratio while staying within bounds and
+     *   maintaining the minimum size.
+     *
+     * If no corner is being dragged ([currentCorner] is null), it means the entire crop
+     * rectangle is being moved. In this case, it simply translates the rectangle by the
+     * [amount], ensuring it stays within the canvas boundaries.
+     *
+     * After calculating the initial new position and size, it performs final adjustments
+     * to ensure the rectangle:
+     * - Adheres to the minimum size limit.
+     * - Stays entirely within the canvas boundaries.
+     * - If the aspect ratio is locked, it makes a final pass to ensure the aspect ratio is
+     *   maintained while respecting the canvas boundaries and minimum size. This might involve
+     *   shrinking one dimension to fit the other based on the aspect ratio and available space.
+     *
+     * @param position The current top-left position of the crop rectangle.
+     * @param size The current size of the crop rectangle.
+     * @param amount The offset representing the drag amount or movement.
+     * @return A [Pair] containing the new [Offset] (top-left position) and [Size] of the
+     */
     internal fun getKropRectPositionSize(
         position: Offset,
         size: Size,
@@ -872,19 +976,30 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
     /**
      * Calculates the new top-left and bottom-right points of a rectangle
-     * after a corner drag, maintaining a given aspect ratio.
+     * after a corner or edge drag, maintaining a given aspect ratio if specified.
      *
-     * @param draggedCorner The current position of the corner being dragged.
-     * @param fixedCorner The position of the corner opposite to the dragged corner
-     * (this corner stays fixed).
-     * @param dragDelta The amount by which the draggedCornerCurrent has been moved.
-     * @param cornerType The specific corner being dragged
-     * (TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT).
-     * @param aspectRatio The desired aspect ratio (width / height).
-     * @param minSize The minimum allowed size (width or height) for the rectangle.
-     * @param canvasWidth The maximum width of the canvas.
-     * @param canvasHeight The maximum height of the canvas.
-     * @return A Pair of new topLeft and bottomRight Offsets, or null if the drag is invalid.
+     * This function handles two main scenarios:
+     * 1. Dragging a corner ([KropCorner.TOP_LEFT], [KropCorner.TOP_RIGHT],
+     * [KropCorner.BOTTOM_LEFT], [KropCorner.BOTTOM_RIGHT]):
+     *    - Calculates the proposed new width and height based on the drag.
+     *    - If an aspect ratio is provided, adjusts the height (or width if height adjustment leads
+     *    to a size smaller than `minSize`) to maintain the ratio.
+     *    - Determines the initial new top-left and bottom-right corners based on the fixed corner
+     *    and adjusted dimensions.
+     *    - Coerces the new rectangle within the canvas boundaries and `minSize`.
+     *    - If an aspect ratio is provided, performs a final adjustment to ensure the aspect ratio
+     *    is strictly maintained while respecting boundaries and `minSize`. This involves checking if adjusting width or height to match the ratio is more appropriate based on which dimension is currently further from the target ratio.
+     *
+     * 2. Dragging an edge center ([KropCorner.TOP_CENTRE], [KropCorner.BOTTOM_CENTRE],
+     * [KropCorner.LEFT_CENTRE], [KropCorner.RIGHT_CENTRE]):
+     *    - Calculates the initial new position of the dragged edge, coercing it within canvas
+     *    bounds and ensuring it doesn't cross the opposite fixed edge minus `minSize`.
+     *    - Updates the corresponding coordinate (top, bottom, left, or right) of the rectangle.
+     *    - If the resulting dimension (width or height) is less than `minSize`, it adjusts the
+     *    dragged edge to meet `minSize`.
+     *    - Coerces the final rectangle within the canvas boundaries and `minSize`.
+     *    - If an aspect ratio is *not* provided (freeform drag of an edge), this is the final step
+     *    for edge drags.
      */
     private fun calculateNewEditRect(
         draggedCorner: Offset,

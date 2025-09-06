@@ -443,6 +443,17 @@ private fun KropShapeView(kropShape: ImageShape, isSelected: Boolean) {
     }
 }
 
+/**
+ * A composable function that displays a dialog for customizing the properties of a KropShape.
+ *
+ * The dialog's visibility is controlled by `state.isShapeCustomizeDialog`. It includes a title
+ * displaying the current shape's label, a close button, and a content area for shape-specific
+ * customization options provided by the `KropShapeCustomization` composable. A "Done" button
+ * dismisses the dialog.
+ *
+ * @param state The current state of the image cropping UI, which includes the current KropShape
+ * and the visibility state of the customization dialog.
+ */
 @Composable
 internal fun KropShapeCustomizationDialog(state: ImageKropState) {
 
@@ -526,6 +537,16 @@ internal fun KropShapeCustomizationDialog(state: ImageKropState) {
     }
 }
 
+/**
+ * Composable function to provide customization options for the selected KropShape.
+ *
+ * This function displays sliders to adjust parameters like side count, corner radius, edge count,
+ * and distance between inner & outer points, depending on the type of KropShape.
+ * If customization is not available for the selected shape, it displays a message indicating so.
+ *
+ * @param state The current state of the image cropping UI, which includes the selected KropShape
+ * and methods to update it.
+ */
 @Composable
 private fun KropShapeCustomization(state: ImageKropState) {
 

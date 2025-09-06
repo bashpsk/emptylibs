@@ -8,6 +8,16 @@ import io.bashpsk.emptylibs.composeutils.stroke.toStrokeCap
 import io.bashpsk.emptylibs.composeutils.stroke.toStrokeJoin
 import kotlin.math.abs
 
+/**
+ * Draws a [CanvasSlatePath] on the [DrawScope].
+ *
+ * This function takes a [CanvasSlatePath] object, which contains the path points, color,
+ * thickness, stroke cap, and stroke join. It then smooths the path using quadratic Bezier
+ * curves if the distance between points is greater than or equal to a predefined `smoothness`
+ * value. Finally, it draws the smoothed path onto the `DrawScope`.
+ *
+ * @param slatePath The [CanvasSlatePath] to be drawn.
+ */
 internal fun DrawScope.drawSlatePath(slatePath: CanvasSlatePath) {
 
     val smoothedPath = Path().apply {

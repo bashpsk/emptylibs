@@ -58,6 +58,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.launch
 
+/**
+ * Composable function that renders the canvas for drawing and editing paths.
+ *
+ * This function handles user input for drawing, tapping to edit existing paths,
+ * and manages the display of all paths on the canvas.
+ *
+ * @param modifier Modifier for styling the canvas.
+ * @param state The current state of the canvas, including path data, colors, and drawing mode.
+ * @param pathEditSheetState The state of the bottom sheet used for editing path properties.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CanvasSlateUI(
@@ -130,6 +140,27 @@ internal fun CanvasSlateUI(
     }
 }
 
+/**
+ * Composable function that displays the top app bar for the canvas slate.
+ *
+ * This top bar includes navigation icons, color selection, undo functionality, and a toolbar menu.
+ *
+ * @param modifier Optional [Modifier] for styling the top app bar.
+ * @param state The current state of the canvas slate, holding information like selected colors and
+ * drawn paths.
+ * @param backgroundColorPickerDialog A [MutableTransitionState] to control the visibility of the
+ * background color picker dialog.
+ * @param foregroundColorPickerDialog A [MutableTransitionState] to control the visibility of the
+ * foreground (brush) color picker dialog.
+ * @param penStrokeDialogVisibleState A [MutableTransitionState] to control the visibility of the
+ * pen stroke type selection dialog.
+ * @param penThicknessDialogVisibleState A [MutableTransitionState] to control the visibility of
+ * the pen thickness selection dialog.
+ * @param onDoneClick Lambda function to be invoked when the "Done" button is clicked. Defaults to
+ * an empty lambda.
+ * @param onNavigateBack Lambda function to be invoked when the "Navigate Back" button is clicked.
+ * Defaults to an empty lambda.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CanvasSlateTopBar(
@@ -222,6 +253,18 @@ internal fun CanvasSlateTopBar(
     )
 }
 
+/**
+ * Composable function for the Canvas Slate Toolbar.
+ * This toolbar provides options to change pen type, pen thickness, toggle drawing mode, and clear
+ * the canvas.
+ *
+ * @param state The current state of the canvas slate, containing information like whether the
+ * toolbar menu is expanded, current drawing mode, etc.
+ * @param penStrokeDialogVisibleState A mutable transition state to control the visibility of the
+ * pen stroke dialog.
+ * @param penThicknessDialogVisibleState A mutable transition state to control the visibility of the
+ * pen thickness dialog.
+ */
 @Composable
 internal fun CanvasSlateToolBar(
     state: CanvasSlateState,
@@ -290,6 +333,18 @@ internal fun CanvasSlateToolBar(
     }
 }
 
+/**
+ * A Composable function that displays a horizontal list of color selection boxes.
+ * It allows the user to select the background color and the foreground (brush) color for the
+ * canvas.
+ *
+ * @param modifier Optional [Modifier] for this composable.
+ * @param state The current state of the canvas, containing selected colors.
+ * @param backgroundColorPickerDialog A [MutableTransitionState] to control the visibility of the
+ * background color picker dialog.
+ * @param foregroundColorPickerDialog A [MutableTransitionState] to control the visibility of the
+ * foreground color picker dialog.
+ */
 @Composable
 private fun ColorSelectionBar(
     modifier: Modifier = Modifier,
@@ -328,6 +383,12 @@ private fun ColorSelectionBar(
     }
 }
 
+/**
+ * A composable function that displays a circular color box.
+ *
+ * @param color The color to be displayed in the box.
+ * @param onColorClick A lambda function to be invoked when the color box is clicked.
+ */
 @Composable
 private fun ColorBoxView(color: Color, onColorClick: () -> Unit) {
 
@@ -346,6 +407,14 @@ private fun ColorBoxView(color: Color, onColorClick: () -> Unit) {
     )
 }
 
+/**
+ * A composable function that displays a menu item with an icon, label, and an action to perform on
+ * click.
+ *
+ * @param icon The [ImageVector] to be displayed as the leading icon of the menu item.
+ * @param label The text to be displayed as the label of the menu item.
+ * @param onClick A lambda function that will be invoked when the menu item is clicked.
+ */
 @Composable
 private fun MenuItemView(
     icon: ImageVector,
@@ -373,6 +442,15 @@ private fun MenuItemView(
     )
 }
 
+/**
+ * A composable function that displays a menu item with an icon, label, and a switch.
+ * The switch indicates the checked state of the menu item.
+ *
+ * @param icon The vector graphic to be displayed as the leading icon of the menu item.
+ * @param label The text to be displayed as the label of the menu item.
+ * @param isChecked A boolean value indicating whether the menu item is currently checked.
+ * @param onClick A lambda function to be invoked when the menu item is clicked.
+ */
 @Composable
 private fun MenuItemView(
     icon: ImageVector,

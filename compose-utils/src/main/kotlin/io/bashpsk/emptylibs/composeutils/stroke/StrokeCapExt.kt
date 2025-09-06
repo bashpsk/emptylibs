@@ -2,6 +2,12 @@ package io.bashpsk.emptylibs.composeutils.stroke
 
 import androidx.compose.ui.graphics.StrokeCap
 
+/**
+ * Converts a string representation of a stroke cap to a [StrokeCap] object.
+ *
+ * @return The corresponding [StrokeCap] object, or [StrokeCap.Round] if the string is not a valid
+ * stroke cap.
+ */
 fun String.toStrokeCap(): StrokeCap {
 
     return when (this) {

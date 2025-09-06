@@ -48,12 +48,25 @@ internal enum class EditItemCorner {
 
     companion object {
 
+        /**
+         * Checks if the [EditItemCorner] represents one of the four corners
+         * (top-left, top-right, bottom-left, bottom-right).
+         *
+         * @return `true` if the [EditItemCorner] is a corner edge, `false` otherwise.
+         * Returns `false` if the receiver is `null`.
+         */
         fun EditItemCorner?.hasCornerEdge(): Boolean {
 
             return this == TOP_LEFT || this == TOP_RIGHT || this == BOTTOM_LEFT
                     || this == BOTTOM_RIGHT
         }
 
+        /**
+         * Checks if the given [EditItemCorner] represents a center point of the item selection.
+         *
+         * @return `true` if the corner is [TOP_CENTRE], [LEFT_CENTRE], [RIGHT_CENTRE],
+         * or [BOTTOM_CENTRE], `false` otherwise.
+         */
         fun EditItemCorner?.hasCornerCenter(): Boolean {
 
             return this == TOP_CENTRE || this == LEFT_CENTRE || this == RIGHT_CENTRE

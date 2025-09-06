@@ -73,6 +73,18 @@ import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
+/**
+ * A composable function that displays a modal bottom sheet for editing a path on the canvas.
+ *
+ * This bottom sheet allows the user to modify various properties of a selected path,
+ * such as its thickness, stroke cap, stroke join, and color. It also provides options
+ * to undo changes, delete the path, or apply the modifications.
+ *
+ * @param pathEditSheetState The [SheetState] that controls the visibility and behavior of the
+ * bottom sheet.
+ * @param state The [CanvasSlateState] that holds the current state of the canvas and the path being
+ * edited.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun PathEditBottomSheet(
@@ -109,6 +121,12 @@ internal fun PathEditBottomSheet(
     }
 }
 
+/**
+ * Composable function that displays a dialog for selecting pen thickness.
+ *
+ * @param dialogVisibleState The mutable transition state to control the visibility of the dialog.
+ * @param state The current state of the canvas slate, used to get and update the pen thickness.
+ */
 @Composable
 internal fun PenThicknessDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
@@ -157,6 +175,12 @@ internal fun PenThicknessDialog(
     }
 }
 
+/**
+ * Composable function that displays an alert dialog for selecting pen stroke cap and join.
+ *
+ * @param dialogVisibleState The mutable transition state to control the visibility of the dialog.
+ * @param state The current state of the canvas slate, used to access and update stroke properties.
+ */
 @Composable
 internal fun PenStrokeDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
@@ -207,6 +231,16 @@ internal fun PenStrokeDialog(
     }
 }
 
+/**
+ * A composable function that displays a view for editing a path in the canvas.
+ *
+ * This view includes options to undo changes, delete the path, apply changes,
+ * and modify the brush thickness, stroke cap, stroke join, and color of the path.
+ *
+ * @param state The current state of the canvas slate, containing information about paths and
+ * editing.
+ * @param onDismiss A lambda function to be invoked when the edit view is dismissed.
+ */
 @Composable
 private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
 
@@ -386,6 +420,17 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
     }
 }
 
+/**
+ * Composable function for selecting a pen color.
+ *
+ * This function displays a color picker dialog when clicked, allowing the user to choose a color.
+ * The selected color is then passed to the `onSelectedColor` callback.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param color The initial color to be displayed and selected.
+ * @param onSelectedColor A callback function that is invoked when a new color is selected.
+ * It receives the selected [Color] as a parameter.
+ */
 @Composable
 private fun PenColorSelectionView(
     modifier: Modifier = Modifier,
@@ -437,6 +482,14 @@ private fun PenColorSelectionView(
     }
 }
 
+/**
+ * Composable function for displaying a view to select brush thickness.
+ * It includes a text indicating the current thickness and a slider to adjust it.
+ *
+ * @param penThickness The current thickness of the pen.
+ * @param onThicknessChange Callback function invoked when the thickness is changed via the slider.
+ * It provides the new thickness value.
+ */
 @Composable
 private fun BrushThicknessSelectionView(
     penThickness: Float,
@@ -475,6 +528,15 @@ private fun BrushThicknessSelectionView(
     }
 }
 
+/**
+ * A composable function that displays options for selecting pen stroke cap and join types.
+ *
+ * @param selectedStrokeCap The currently selected stroke cap.
+ * @param selectedStrokeJoin The currently selected stroke join.
+ * @param onStrokeCapChange A callback function to be invoked when the stroke cap selection changes.
+ * @param onStrokeJoinChange A callback function to be invoked when the stroke join selection
+ * changes.
+ */
 @Composable
 private fun PenStrokeSelectionView(
     selectedStrokeCap: StrokeCap,
@@ -536,6 +598,17 @@ private fun PenStrokeSelectionView(
     }
 }
 
+/**
+ * A composable function that displays a preview of the canvas paths.
+ *
+ * This function takes a [CanvasSlateState] object as input, which contains the current state of the
+ * canvas.
+ * It then renders a preview of the paths on the canvas, allowing the user to see how their changes
+ * will look before applying them.
+ *
+ * @param modifier The modifier to be applied to the canvas.
+ * @param state The current state of the canvas.
+ */
 @Composable
 private fun CanvasPathPreview(modifier: Modifier = Modifier, state: CanvasSlateState) {
 
@@ -563,6 +636,14 @@ private fun CanvasPathPreview(modifier: Modifier = Modifier, state: CanvasSlateS
     }
 }
 
+/**
+ * A composable function that displays a selectable row for a pen stroke cap.
+ *
+ * @param modifier The modifier to be applied to the row.
+ * @param stroke The [StrokeCap] to display.
+ * @param isSelected Whether the stroke is currently selected.
+ * @param onClick The callback to be invoked when the stroke is clicked.
+ */
 @Composable
 private fun PenStrokeView(
     modifier: Modifier = Modifier,
@@ -599,6 +680,14 @@ private fun PenStrokeView(
     }
 }
 
+/**
+ * A composable function that displays a selectable row for a pen stroke join option.
+ *
+ * @param modifier The modifier to be applied to the row.
+ * @param stroke The [StrokeJoin] to display.
+ * @param isSelected Whether the stroke join is currently selected.
+ * @param onClick The callback to be invoked when the stroke join is clicked.
+ */
 @Composable
 private fun PenStrokeView(
     modifier: Modifier = Modifier,
@@ -635,6 +724,12 @@ private fun PenStrokeView(
     }
 }
 
+/**
+ * Composable function that displays the title of a dialog along with a close button.
+ *
+ * @param title The title text to be displayed.
+ * @param onDismiss A callback function to be invoked when the close button is clicked.
+ */
 @Composable
 private fun DialogTitleView(title: String, onDismiss: () -> Unit) {
 
@@ -665,6 +760,14 @@ private fun DialogTitleView(title: String, onDismiss: () -> Unit) {
     }
 }
 
+/**
+ * Composable function to display a confirmation button for a dialog.
+ * This button, when clicked, sets the target state of the provided [dialogVisibleState] to false,
+ * effectively dismissing the dialog.
+ * It displays a "Done" icon and text.
+ *
+ * @param dialogVisibleState The [MutableTransitionState] controlling the visibility of the dialog.
+ */
 @Composable
 private fun DialogConfirmButton(dialogVisibleState: MutableTransitionState<Boolean>) {
 

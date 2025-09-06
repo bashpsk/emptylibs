@@ -14,13 +14,12 @@ import io.bashpsk.emptylibs.composeutils.offset.OffsetData
 import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 
 /**
- * Remembers and creates an [ImageTransformState] with the given [zoomRange] and [config]
+ * Remembers and creates an [ImageTransformState] with the given [config]
  * that survives configuration changes.
  *
  * This function is a composable function that uses [rememberSaveable] to ensure that the
  * [ImageTransformState] is preserved across recompositions and configuration changes.
  *
- * @param zoomRange The range of allowed zoom values. Defaults to 0.4F..8.0F.
  * @param config The configuration for image transformation. Defaults to a default
  * [TransformImageConfig].
  * @return An [ImageTransformState] instance.
@@ -41,7 +40,6 @@ fun rememberImageTransformState(
  * This class holds the current zoom, rotation, and position of the image.
  * It provides methods to update these values and reset them to their defaults.
  *
- * @param zoomMin The allowable range for zoom values.
  * @param config The configuration for image transformations.
  */
 class ImageTransformState(val config: TransformImageConfig) {

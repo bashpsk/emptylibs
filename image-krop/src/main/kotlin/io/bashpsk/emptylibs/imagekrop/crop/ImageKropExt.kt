@@ -246,7 +246,7 @@ internal fun DrawScope.drawKropBorder(topLeft: Offset, rectSize: Size, config: K
  *
  * @param kropShape The shape of the cropping area (e.g., Rectangle, Oval).
  * @param topLeft The top-left [Offset] of the cropping rectangle.
- * @param bottomRight The bottom-right [Offset] of the cropping rectangle.
+ * @param rectSize The [Size] of the cropping rectangle.
  * @param config The [KropConfig] containing styling information for the overlay, such as the
  * overlay color.
  */
@@ -275,10 +275,16 @@ internal fun DrawScope.drawKropOverlay(
 /**
  * Draws the border of the krop shape.
  *
- * @param kropShape The [ImageShape] to draw the border for.
- * @param topLeft The top-left [Offset] of the crop area.
- * @param bottomRight The bottom-right [Offset] of the crop area.
- * @param config The [KropConfig] containing styling for the border.
+ * This function renders the outline of the selected cropping shape (e.g., rectangle, oval).
+ * The appearance of the border, such as its thickness and color, is determined by the
+ * [KropConfig].
+ *
+ * @param kropShape The [ImageShape] defining the shape of the crop area (e.g., Rectangle, Oval).
+ * @param topLeft The [Offset] of the top-left corner of the bounding box for the krop shape.
+ * @param rectSize The [Size] of the bounding box for the krop shape. The shape will be drawn
+ * within these dimensions.
+ * @param config The [KropConfig] object containing styling parameters for the shape border,
+ * such as `shapeBorder` (thickness) and `shapeColor`.
  */
 internal fun DrawScope.drawKropShapeBorder(
     kropShape: ImageShape,
