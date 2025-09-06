@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -86,7 +87,7 @@ internal fun CanvasSlateUI(
     val tapPointerInputModifier = Modifier.pointerInput(Unit) {
 
         detectTapGestures(
-            onTap  = { position ->
+            onTap = { position ->
 
                 state.apply {
 
@@ -118,24 +119,30 @@ internal fun CanvasSlateUI(
         )
     }
 
-    Canvas(
-        modifier = modifier
-            .background(color = state.selectedBackgroundColor)
-            .clipToBounds()
-            .then(screenSizeChanged)
-            .then(tapPointerInputModifier)
-            .then(drawPointerInputModifier),
-        contentDescription = "Canvas Slate"
+    Box(
+        modifier = modifier.background(color = state.selectedBackgroundColor),
+        contentAlignment = Alignment.Center
     ) {
 
-        state.allPathList.forEach { pathData ->
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .clipToBounds()
+                .then(screenSizeChanged)
+                .then(tapPointerInputModifier)
+                .then(drawPointerInputModifier),
+            contentDescription = "Canvas Slate"
+        ) {
 
-            drawSlatePath(slatePath = pathData)
-        }
+            state.allPathList.forEach { pathData ->
 
-        state.currentPath?.let { pathData ->
+                drawSlatePath(slatePath = pathData)
+            }
 
-            drawSlatePath(slatePath = pathData)
+            state.currentPath?.let { pathData ->
+
+                drawSlatePath(slatePath = pathData)
+            }
         }
     }
 }
@@ -179,10 +186,11 @@ internal fun CanvasSlateTopBar(
     }
 
     TopAppBar(
+        modifier = modifier.fillMaxWidth(),
         title = {
 
             ColorSelectionBar(
-                modifier = modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 state = state,
                 backgroundColorPickerDialog = backgroundColorPickerDialog,
                 foregroundColorPickerDialog = foregroundColorPickerDialog
