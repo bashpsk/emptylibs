@@ -33,21 +33,21 @@ class MainActivity : ComponentActivity() {
                 EmptyLibsTheme(darkTheme = AppTheme.getTheme(theme = getAppTheme)) {
 
 //                    BottomOptionBarScreen()
+//                    CanvasSlateScreen()
 //                    ColorPickerScreen()
 //                    ColorPickerDialogScreen()
 //                    DatastoreUIScreen()
+//                    DialTextPickerScreen()
 //                    FormatterScreen()
 //                    ImageCropScreen()
+                    ImageEditScreen()
 //                    ImageFilterScreen()
 //                    ImageKolorScreen()
+//                    LruCacheScreen()
 //                    StorageScreen()
 //                    TransformImageScreen()
 //                    VideoGestureScreen()
-                    DialTextPickerScreen()
 //                    WheelTextPickerScreen()
-//                    CanvasSlateScreen()
-//                    ImageEditScreen()
-//                    LruCacheScreen()
                 }
             }
         }

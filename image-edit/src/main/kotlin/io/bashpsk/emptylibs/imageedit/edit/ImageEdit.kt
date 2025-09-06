@@ -2,8 +2,8 @@ package io.bashpsk.emptylibs.imageedit.edit
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -41,32 +41,26 @@ fun ImageEdit(
         state.onRefreshEditItem()
     }
 
-    BoxWithConstraints(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
+    ImageEditInputSheet(editToolInputSheetState = editToolInputSheetState, state = state)
+
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
 
-        ImageEditInputSheet(editToolInputSheetState = editToolInputSheetState, state = state)
+        ImageEditTopBar(
+            state = state,
+            editToolInputSheetState = editToolInputSheetState,
+            onDoneClick = onDoneClick,
+            onNavigateBack = onNavigateBack
+        )
 
-        Column(
-            modifier = Modifier.matchParentSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
+        ImageEditUI(
+            modifier = Modifier.weight(weight = 1.0F),
+            state = state
+        )
 
-            ImageEditTopBar(
-                state = state,
-                editToolInputSheetState = editToolInputSheetState,
-                onDoneClick = onDoneClick,
-                onNavigateBack = onNavigateBack
-            )
-
-            ImageEditUI(
-                modifier = Modifier.weight(weight = 1.0F),
-                state = state
-            )
-
-            ImageEditBottomBar(state = state)
-        }
+        ImageEditBottomBar(state = state)
     }
 }
