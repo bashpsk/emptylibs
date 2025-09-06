@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.composeutils.size.SizeData
 import io.bashpsk.emptylibs.composeutils.size.toSizeData
+import io.bashpsk.emptylibs.imageedit.cache.ImageEditCacheManager
+import io.bashpsk.emptylibs.imageedit.cache.ImageEditListCacheManager
+import io.bashpsk.emptylibs.imageedit.cache.ImageInputCacheManager
 import io.bashpsk.emptylibs.imageedit.edit.EditItemCorner.Companion.hasCornerEdge
 import io.bashpsk.emptylibs.imageedit.extension.getEditItemCorner
 import io.bashpsk.emptylibs.imageedit.extension.hasEditItemClicked
@@ -37,7 +40,6 @@ import io.bashpsk.emptylibs.imageedit.extension.toRect
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
@@ -894,17 +896,25 @@ class ImageEditState(
         ): Saver<ImageEditState, Any> = mapSaver(
             save = { state ->
 
+                ImageInputCacheManager.add(KEY_BRUSH_INPUT, state.brushEditInput)
+                ImageInputCacheManager.add(KEY_ERASE_INPUT, state.eraseEditInput)
+                ImageInputCacheManager.add(KEY_IMAGE_INPUT, state.imageEditInput)
+                ImageInputCacheManager.add(KEY_SHAPE_INPUT, state.shapeEditInput)
+                ImageInputCacheManager.add(KEY_TEXT_INPUT, state.textEditInput)
+                ImageEditListCacheManager.add(KEY_EDIT_ITEM_LIST, state.imageEditItemList)
+
+                state.currentImageEditItem?.let { items ->
+
+                    ImageEditCacheManager.add(KEY_CURRENT_EDIT_ITEM, items)
+                } ?: run {
+
+                    ImageEditCacheManager.remove(KEY_CURRENT_EDIT_ITEM)
+                }
+
                 mapOf(
-                    KEY_EDIT_ITEM_LIST to state.imageEditItemList.toTypedArray(),
-                    KEY_CURRENT_EDIT_ITEM to state.currentImageEditItem,
                     KEY_TOOLBAR_MENU_EXPANDED to state.isToolBarMenuExpanded,
                     KEY_CANVAS_SIZE to state.canvasSize.toSizeData(),
-                    KEY_CURRENT_CORNER to state.currentCorner,
-                    KEY_BRUSH_INPUT to state.brushEditInput,
-                    KEY_ERASE_INPUT to state.eraseEditInput,
-                    KEY_IMAGE_INPUT to state.imageEditInput,
-                    KEY_SHAPE_INPUT to state.shapeEditInput,
-                    KEY_TEXT_INPUT to state.textEditInput
+                    KEY_CURRENT_CORNER to state.currentCorner
                 )
             },
             restore = { elements ->
@@ -917,13 +927,11 @@ class ImageEditState(
                     textMeasurer = textMeasurer
                 ).apply {
 
-                    imageEditItemList = (elements.getOrElse(KEY_EDIT_ITEM_LIST) {
-                        arrayOf<ImageEditItems>()
-                    } as Array<ImageEditItems>).toPersistentList()
+                    imageEditItemList = ImageEditListCacheManager.get(
+                        KEY_EDIT_ITEM_LIST
+                    ) ?: persistentListOf()
 
-                    currentImageEditItem = elements.getOrElse(
-                        KEY_CURRENT_EDIT_ITEM
-                    ) { null } as ImageEditItems?
+                    currentImageEditItem = ImageEditCacheManager.get(KEY_CURRENT_EDIT_ITEM)
 
                     isToolBarMenuExpanded = elements.getOrElse(
                         KEY_TOOLBAR_MENU_EXPANDED
@@ -937,25 +945,25 @@ class ImageEditState(
                         KEY_CURRENT_CORNER
                     ) { null } as EditItemCorner?
 
-                    brushEditInput = elements.getOrElse(
+                    brushEditInput = (ImageInputCacheManager.get(
                         KEY_BRUSH_INPUT
-                    ) { ImageEditInput.BrushItem() } as ImageEditInput.BrushItem
+                    ) ?: ImageEditInput.BrushItem()) as ImageEditInput.BrushItem
 
-                    eraseEditInput = elements.getOrElse(
+                    eraseEditInput = (ImageInputCacheManager.get(
                         KEY_ERASE_INPUT
-                    ) { ImageEditInput.EraseItem() } as ImageEditInput.EraseItem
+                    ) ?: ImageEditInput.EraseItem()) as ImageEditInput.EraseItem
 
-                    imageEditInput = elements.getOrElse(
+                    imageEditInput = (ImageInputCacheManager.get(
                         KEY_IMAGE_INPUT
-                    ) { ImageEditInput.ImageItem() } as ImageEditInput.ImageItem
+                    ) ?: ImageEditInput.ImageItem()) as ImageEditInput.ImageItem
 
-                    shapeEditInput = elements.getOrElse(
+                    shapeEditInput = (ImageInputCacheManager.get(
                         KEY_SHAPE_INPUT
-                    ) { ImageEditInput.ShapeItem() } as ImageEditInput.ShapeItem
+                    ) ?: ImageEditInput.ShapeItem()) as ImageEditInput.ShapeItem
 
-                    textEditInput = elements.getOrElse(
+                    textEditInput = (ImageInputCacheManager.get(
                         KEY_TEXT_INPUT
-                    ) { ImageEditInput.TextItem() } as ImageEditInput.TextItem
+                    ) ?: ImageEditInput.TextItem()) as ImageEditInput.TextItem
                 }
             }
         )
