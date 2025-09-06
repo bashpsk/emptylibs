@@ -503,12 +503,10 @@ class CanvasSlateState(
      * It creates an [ImageBitmap] with the dimensions of the canvas and then draws the
      * background color, all existing paths, and the current path (if any) onto it.
      *
-     * @param density The [Density] to be used for drawing operations. This is important for
-     * ensuring correct scaling of elements.
      * @return An [ImageBitmap] containing the rendered canvas content, or `null` if the canvas size
      * is zero (i.e., not yet measured or invalid).
      */
-    suspend fun getImageBitmap(density: Density): ImageBitmap? = withContext(Dispatchers.Default) {
+    suspend fun getImageBitmap(): ImageBitmap? = withContext(Dispatchers.Default) {
 
         return@withContext canvasSize.takeIf { size -> size != Size.Zero }?.let { size ->
 

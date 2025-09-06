@@ -3,6 +3,7 @@ package io.bashpsk.emptylibs.canvasslate.slate
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -76,7 +77,7 @@ fun CanvasSlate(
     ) {
 
         CanvasSlateTopBar(
-            modifier = modifier,
+            modifier = Modifier.fillMaxWidth(),
             state = state,
             backgroundColorPickerDialog = backgroundColorPickerDialog,
             foregroundColorPickerDialog = foregroundColorPickerDialog,
@@ -87,7 +88,7 @@ fun CanvasSlate(
         )
 
         CanvasSlateUI(
-            modifier = modifier.weight(weight = 1.0F),
+            modifier = Modifier.weight(weight = 1.0F),
             state = state,
             pathEditSheetState = pathEditSheetState
         )

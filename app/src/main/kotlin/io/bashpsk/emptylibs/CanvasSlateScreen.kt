@@ -50,9 +50,10 @@ fun CanvasSlateScreen() {
 
                     coroutineScope.launch(Dispatchers.IO) {
 
-                        canvasSlateState.getImageBitmap(
-                            density = density
-                        )?.saveAsFile(context,"PSK-Drawing").let { file ->
+                        canvasSlateState.getImageBitmap()?.saveAsFile(
+                            context,
+                            "PSK-Drawing"
+                        ).let { file ->
 
                             launch(Dispatchers.Main) {
 
