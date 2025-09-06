@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 /**
  * Represents the different shapes that can be used for cropping an image.
  *
- * This sealed interface defines the various geometric forms available for image cropping.
+ * This sealed class defines the various geometric forms available for image cropping.
  * Each implementing object or class corresponds to a distinct shape.
  *
  * Available shapes:
@@ -29,29 +29,29 @@ import kotlinx.serialization.Serializable
  */
 @Parcelize
 @Serializable
-sealed interface ImageShape : Parcelable {
+sealed class ImageShape : Parcelable {
 
     /**
      * Represents no cropping, meaning the original image is retained.
      */
-    data object None : ImageShape
+    data object None : ImageShape()
 
     /**
      * Represents a circular crop shape.
      */
-    data object Circle : ImageShape
+    data object Circle : ImageShape()
 
     /**
      * Represents a triangle shape for cropping.
      */
-    data object Triangle : ImageShape
+    data object Triangle : ImageShape()
 
     /**
      * Represents a polygon shape for cropping.
      *
      * @property sides The number of sides of the polygon.
      */
-    data class Polygon(val sides: Short) : ImageShape
+    data class Polygon(val sides: Short) : ImageShape()
 
     /**
      * Represents a rectangle shape.
@@ -63,7 +63,7 @@ sealed interface ImageShape : Parcelable {
     data class Rectangle(
         @param:FloatRange(from = 0.0, to = 1.0)
         val radius: Float
-    ) : ImageShape
+    ) : ImageShape()
 
     /**
      * Represents a cut corner shape for cropping.
@@ -79,7 +79,7 @@ sealed interface ImageShape : Parcelable {
     data class CutCorner(
         @param:FloatRange(from = 0.0, to = 1.0)
         val radius: Float
-    ) : ImageShape
+    ) : ImageShape()
 
     /**
      * Represents a star shape with a specified number of edges and distance.
@@ -88,5 +88,5 @@ sealed interface ImageShape : Parcelable {
      * @property distance A float value that likely influences the appearance or size of the star's
      * points relative to its center, such as the distance from the inner & outer points.
      */
-    data class Star(val edges: Short, val distance: Float) : ImageShape
+    data class Star(val edges: Short, val distance: Float) : ImageShape()
 }
