@@ -1,19 +1,25 @@
 package io.bashpsk.emptylibs.imagekolor.color
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -22,11 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.imagekolor.color.ImageKolorInput.Companion.getIcon
+import io.bashpsk.emptylibs.imagekolor.color.ImageKolorInput.Companion.getValue
+import io.bashpsk.emptylibs.imagekolor.color.ImageKolorInput.Companion.range
 import kotlin.math.roundToInt
 
 /**
@@ -65,7 +72,9 @@ fun KolorImageView(modifier: Modifier = Modifier, state: ImageKolorState) {
         BasicText(
             modifier = Modifier.fillMaxWidth(),
             text = "Image Load Failed!",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
             autoSize = TextAutoSize.StepBased(),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -88,106 +97,21 @@ fun KolorImageView(modifier: Modifier = Modifier, state: ImageKolorState) {
 fun KolorAdjustmentSliders(modifier: Modifier = Modifier, state: ImageKolorState) {
 
     Column(
-        modifier = modifier.padding(horizontal = 4.dp, vertical = 4.dp),
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
+        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
     ) {
 
-        AdjustmentSlider(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Brightness",
-            value = state.brightness,
-            valueRange = -1F..1F,
-            enabled = state.config.enableBrightness,
-            onValueChange = { newValue ->
+        state.imageBitmap?.run {
 
-                state.brightness = newValue
-            }
-        )
+            KolorInputRow(modifier = Modifier.fillMaxWidth(), state = state)
 
-        AdjustmentSlider(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Exposure",
-            value = state.exposure,
-            valueRange = -1F..1F,
-            enabled = state.config.enableExposure,
-            onValueChange = { newValue ->
-
-                state.exposure = newValue
-            }
-        )
-
-        AdjustmentSlider(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Contrast",
-            value = state.contrast,
-            valueRange = 0F..2F,
-            enabled = state.config.enableContrast,
-            onValueChange = { newValue ->
-
-                state.contrast = newValue
-            }
-        )
-
-        AdjustmentSlider(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Saturation",
-            value = state.saturation,
-            valueRange = 0F..2F,
-            enabled = state.config.enableSaturation,
-            onValueChange = { newValue ->
-
-                state.saturation = newValue
-            }
-        )
-
-        AdjustmentSlider(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Warmth",
-            value = state.warmth,
-            valueRange = -1F..1F,
-            enabled = state.config.enableWarmth,
-            onValueChange = { newValue ->
-
-                state.warmth = newValue
-            }
-        )
-
-        AdjustmentSlider(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Tint",
-            value = state.tint,
-            valueRange = -1F..1F,
-            enabled = state.config.enableTint,
-            onValueChange = { newValue ->
-
-                state.tint = newValue
-            }
-        )
-
-        AdjustmentSlider(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Highlights",
-            value = state.highlights,
-            valueRange = -1F..1F,
-            enabled = state.config.enableHighlights,
-            onValueChange = { newValue ->
-
-                state.highlights = newValue
-            }
-        )
-
-        AdjustmentSlider(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Shadows",
-            value = state.shadows,
-            valueRange = -1F..1F,
-            enabled = state.config.enableShadows,
-            onValueChange = { newValue ->
-
-                state.shadows = newValue
-            }
-        )
+            AdjustmentSlider(
+                modifier = Modifier.fillMaxWidth(),
+                kolorInput = state.currentKolorInput,
+                onValueChange = { state.updateValues(it) }
+            )
+        }
     }
 }
 
@@ -195,94 +119,165 @@ fun KolorAdjustmentSliders(modifier: Modifier = Modifier, state: ImageKolorState
  * A Composable function that displays a slider for adjusting a value.
  *
  * This function creates a vertical layout containing a label and a slider.
- * The label displays the provided [label] text along with the current [value]
- * represented as a percentage within the given [valueRange].
- * The slider allows the user to change the [value].
- * The slider is only displayed and interactive if [enabled] is true.
+ * The label displays the text from [ImageKolorInput.label] along with the current value
+ * (obtained from [ImageKolorInput.getValue]) represented as a percentage within the
+ * given [ImageKolorInput.range].
+ * The slider allows the user to change the value.
  *
  * @param modifier The modifier to be applied to the Column that holds the label and slider.
- * @param label The text label to display above the slider.
- * @param value The current value of the slider.
- * @param valueRange The range of possible values for the slider.
- * @param enabled A boolean indicating whether the slider is interactive. Defaults to true.
+ * @param kolorInput The [ImageKolorInput] that provides the label, current value, and value range
+ * for the slider.
  * @param onValueChange A callback function that is invoked when the slider's value changes.
  * It receives the new Float value as an argument.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdjustmentSlider(
+private fun AdjustmentSlider(
     modifier: Modifier = Modifier,
-    label: String,
-    value: Float,
-    valueRange: ClosedFloatingPointRange<Float>,
-    enabled: Boolean = true,
+    kolorInput: ImageKolorInput,
     onValueChange: (Float) -> Unit
 ) {
 
-    val valuePercentage by remember(value, valueRange) {
+    val kolorLabel by remember(kolorInput) { derivedStateOf { kolorInput.label } }
+    val kolorValueRange by remember(kolorInput) { derivedStateOf { kolorInput.range } }
+    val kolorValue by remember(kolorInput) { derivedStateOf { kolorInput.getValue() } }
+
+    val valuePercentage by remember(kolorValue, kolorValueRange) {
         derivedStateOf {
 
-            val range = valueRange.endInclusive - valueRange.start
-            val adjustedValue = value - valueRange.start
+            val range = kolorValueRange.endInclusive - kolorValueRange.start
+            val adjustedValue = kolorValue - kolorValueRange.start
             val normalizedValue = adjustedValue / range
 
             ((normalizedValue * 200) - 100).roundToInt().coerceIn(range = -100..100)
         }
     }
 
-    val sliderLabel by remember(label, valuePercentage) {
+    val sliderLabel by remember(kolorLabel, valuePercentage) {
         derivedStateOf {
-
-            val percentage = if (valuePercentage > 0) "+${valuePercentage}" else "$valuePercentage"
-            "$label : $percentage%"
+            "$kolorLabel : ${
+                if (valuePercentage > 0) "+${valuePercentage}" else "$valuePercentage"
+            }%"
         }
     }
 
-    val sliderColors = SliderDefaults.colors(
-        thumbColor = MaterialTheme.colorScheme.inversePrimary
-    )
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
+    ) {
 
-    if (enabled) {
+        Text(
+            text = sliderLabel,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleSmall
+        )
 
-        Column(
-            modifier = modifier,
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(space = 4.dp)
-        ) {
+        Slider(
+            modifier = Modifier.fillMaxWidth(),
+            value = kolorValue,
+            onValueChange = onValueChange,
+            valueRange = kolorValueRange
+        )
+    }
+}
 
-            Text(
-                text = sliderLabel,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium
-            )
+/**
+ * A Composable function that displays a horizontal row of selectable color input options.
+ *
+ * This function uses a [LazyRow] to efficiently display a list of [ImageKolorInput] items.
+ * Each item is represented by a [KolorInputView]. When an item is selected,
+ * the `currentKolorInput` in the provided [ImageKolorState] is updated.
+ *
+ * @param modifier Optional [Modifier] for this composable. Defaults to [Modifier].
+ * @param state The [ImageKolorState] that holds the list of available color inputs
+ * and the currently selected input.
+ */
+@Composable
+private fun KolorInputRow(modifier: Modifier = Modifier, state: ImageKolorState) {
 
-            Slider(
-                modifier = Modifier.fillMaxWidth(),
-                value = value,
-                onValueChange = onValueChange,
-                valueRange = valueRange,
-                colors = sliderColors,
-                thumb = { sliderState ->
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
 
-                    SliderDefaults.Thumb(
-                        interactionSource = remember { MutableInteractionSource() },
-                        thumbSize = DpSize(
-                            ButtonDefaults.IconSize,
-                            ButtonDefaults.IconSize
-                        ),
-                        colors = sliderColors
-                    )
-                },
-                track = { sliderState ->
+        items(
+            items = state.imageKolorInputList,
+            key = { kolorInput -> kolorInput.label }
+        ) { kolorInput ->
 
-                    SliderDefaults.Track(
-                        sliderState = sliderState,
-                        colors = sliderColors,
-                        thumbTrackGapSize = 0.dp
-                    )
+            val isSelected by remember(state.currentKolorInput, kolorInput) {
+                derivedStateOf { state.currentKolorInput.label == kolorInput.label }
+            }
+
+            KolorInputView(
+                modifier = Modifier.size(size = 64.dp),
+                kolorInput = kolorInput,
+                isSelected = isSelected,
+                onKolorInput = { input ->
+
+                    state.currentKolorInput = input
                 }
             )
         }
+    }
+}
+
+/**
+ * A Composable function that displays a single color input option as a circular card.
+ *
+ * This function renders an [ElevatedCard] with a circular shape. Inside the card,
+ * it displays an [Icon] representing the [kolorInput] type.
+ * The card's background and content color change based on whether it is [isSelected].
+ * When the card is clicked, the [onKolorInput] callback is invoked with the
+ * corresponding [ImageKolorInput].
+ *
+ * @param modifier Optional [Modifier] to be applied to the [ElevatedCard].
+ * @param kolorInput The [ImageKolorInput] to be displayed.
+ * @param isSelected A boolean indicating whether this input option is currently selected.
+ * @param onKolorInput A callback function that is invoked when this input option is selected.
+ * It receives the selected [ImageKolorInput] as an argument.
+ */
+@Composable
+private fun KolorInputView(
+    modifier: Modifier = Modifier,
+    kolorInput: ImageKolorInput,
+    isSelected: Boolean,
+    onKolorInput: (input: ImageKolorInput) -> Unit
+) {
+
+    val kolorInputIcon by remember(kolorInput, isSelected) {
+        derivedStateOf { kolorInput.getIcon(isSelected = isSelected) }
+    }
+
+    val selectedCardColors = CardDefaults.elevatedCardColors(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    )
+
+    val unSelectedCardColors = CardDefaults.elevatedCardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+
+    val elevatedCardColors by remember(isSelected) {
+        derivedStateOf { if (isSelected) selectedCardColors else unSelectedCardColors }
+    }
+
+    ElevatedCard(
+        modifier = modifier.aspectRatio(ratio = 1F),
+        shape = CircleShape,
+        colors = elevatedCardColors,
+        onClick = { onKolorInput(kolorInput) }
+    ) {
+
+        Icon(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 12.dp),
+            imageVector = kolorInputIcon,
+            contentDescription = "Input Type"
+        )
     }
 }

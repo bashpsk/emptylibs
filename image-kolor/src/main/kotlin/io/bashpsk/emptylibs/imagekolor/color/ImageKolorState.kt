@@ -3,7 +3,7 @@ package io.bashpsk.emptylibs.imagekolor.color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -11,35 +11,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
+import io.bashpsk.emptylibs.imagekolor.color.ImageKolorInput.Companion.getValue
 import io.bashpsk.emptylibs.imagekolor.filter.getKolorFilterBitmap
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.math.pow
 
 /**
  * Remembers and creates an [ImageKolorState] instance that can survive configuration changes.
  *
  * This composable function is used to create and manage the state for image color adjustments.
- * It takes an [ImageBitmap] and an optional [ImageKolorConfig] as input.
+ * It takes an [ImageBitmap] as input.
  * The state is remembered across recompositions and configuration changes.
  *
  * @param imageBitmap The [ImageBitmap] to apply color adjustments to. Can be null if no image is
  * loaded.
- * @param config The [ImageKolorConfig] to use for configuring the color adjustments. Defaults to a
- * default [ImageKolorConfig].
  * @return An [ImageKolorState] instance that holds the current color adjustment values and provides
  * methods to modify them.
  */
 @Composable
-fun rememberImageKolorState(
-    imageBitmap: ImageBitmap?,
-    config: ImageKolorConfig = ImageKolorConfig()
-): ImageKolorState {
+fun rememberImageKolorState(imageBitmap: ImageBitmap?): ImageKolorState {
 
     return rememberSaveable(
         imageBitmap,
-        config,
-        saver = ImageKolorState.StateSaver(imageBitmap = imageBitmap, config = config)
+        saver = ImageKolorState.StateSaver(imageBitmap = imageBitmap)
     ) {
-        ImageKolorState(imageBitmap = imageBitmap, config = config)
+        ImageKolorState(imageBitmap = imageBitmap)
     }
 }
 
@@ -49,104 +45,80 @@ fun rememberImageKolorState(
  *
  * @param imageBitmap The [ImageBitmap] to apply color adjustments to. Can be null if no image is
  * loaded yet.
- * @param config The [ImageKolorConfig] that defines the behavior and appearance of the color
- * adjustment controls.
- *
- * @property brightness Controls the overall lightness or darkness of the image.
- * Value typically ranges from -1F (darker) to 1F (lighter), with 0F being the original brightness.
- * @property exposure Controls the exposure level of the image, simulating changes in camera
- * exposure.
- * Value typically ranges from -1F (underexposed) to 1F (overexposed), with 0F being the original
- * exposure.
- * @property contrast Controls the difference between light and dark areas of the image.
- * Value typically ranges from 0F (no contrast) to 2F (high contrast), with 1F being the original
- * contrast.
- * @property highlights Adjusts the brightness of the brightest areas of the image.
- * Value typically ranges from -1F (darker highlights) to 1F (brighter highlights), with 0F being no
- * change.
- * @property shadows Adjusts the brightness of the darkest areas of the image.
- * Value typically ranges from -1F (darker shadows) to 1F (brighter shadows), with 0F being no
- * change.
- * @property saturation Controls the intensity of colors in the image.
- * Value typically ranges from 0F (grayscale) to 2F (highly saturated), with 1F being the original
- * saturation.
- * @property warmth Adjusts the color temperature of the image, making it appear warmer
- * (more orange) or cooler (more blue).
- * Value typically ranges from -1F (cooler) to 1F (warmer), with 0F being the original warmth.
- * @property tint Adjusts the green-magenta balance of the image.
- * Value typically ranges from -1F (more green) to 1F (more magenta), with 0F being the original
- * tint.
  */
 @Stable
-class ImageKolorState(val imageBitmap: ImageBitmap?, val config: ImageKolorConfig) {
+class ImageKolorState(val imageBitmap: ImageBitmap?) {
+    
+    /**
+     * A list of [ImageKolorInput] objects representing the current color adjustment settings.
+     *
+     * This property holds a list of different color adjustment types (e.g., brightness, contrast,
+     * saturation) and their corresponding values. It is a mutable state, meaning that changes to
+     * this list will trigger recomposition if observed by a Composable function.
+     *
+     * The list is initialized with [ImageKolorInput.AllTypes], which provides a default set of
+     * all available color adjustments with their initial neutral values.
+     *
+     * This list is used internally by the [ImageKolorState] to:
+     * - Store the current value for each color adjustment.
+     * - Retrieve values when calculating the final [ColorMatrix] or [ColorFilter].
+     * - Update individual adjustment values via the [updateValues] function.
+     * - Reset all adjustments to their defaults via the [resetAllValues] function.
+     *
+     * @see ImageKolorInput
+     * @see ImageKolorInput.AllTypes
+     * @see updateValues
+     * @see resetAllValues
+     * @see getColorMatrix
+     */
+    internal var imageKolorInputList by mutableStateOf(ImageKolorInput.AllTypes)
 
     /**
-     * Controls the overall lightness or darkness of the image.
-     * The value typically ranges from -1F (darker) to 1F (lighter), with 0F representing the
-     * original brightness.
-     * This property is internally mutable and can be updated to reflect changes in brightness.
+     * Represents the currently selected color input type for adjustment.
+     *
+     * This property holds an instance of [ImageKolorInput] (e.g., Brightness, Contrast)
+     * that the user is currently interacting with or that is targeted for updates.
+     * It is initialized with the first element of [imageKolorInputList].
+     * Changes to this property will trigger recomposition if observed in a Composable.
      */
-    var brightness by mutableFloatStateOf(0F)
-        internal set
+    internal var currentKolorInput by mutableStateOf(imageKolorInputList.first())
 
     /**
-     * Controls the exposure level of the image, simulating changes in camera exposure.
-     * Value typically ranges from -1F (underexposed) to 1F (overexposed), with 0F being the
-     * original exposure.
+     * Updates the value of the currently selected [ImageKolorInput] type.
+     *
+     * This function iterates through the [imageKolorInputList] and updates the
+     * [ImageKolorInput] instance that matches the type of the [currentKolorInput].
+     * The `value` property of the matching input is set to the provided [newValue].
+     *
+     * After updating the specific input, the [currentKolorInput] is also updated
+     * to reflect this new input state. The entire [imageKolorInputList] is then
+     * replaced with a new persistent list containing the updated input.
+     *
+     * @param newValue The new float value to set for the current color input.
      */
-    var exposure by mutableFloatStateOf(0F)
-        internal set
+    fun updateValues(newValue: Float) {
 
-    /**
-     * Controls the difference between light and dark areas of the image.
-     * Value typically ranges from 0F (no contrast) to 2F (high contrast), with 1F being the
-     * original contrast.
-     */
-    var contrast by mutableFloatStateOf(1F)
-        internal set
+        imageKolorInputList = imageKolorInputList.map { kolorInput ->
 
-    /**
-     * Adjusts the brightness of the brightest areas of the image.
-     * Value typically ranges from -1F (darker highlights) to 1F (brighter highlights), with 0F
-     * being no change.
-     */
-    var highlights by mutableFloatStateOf(0F)
-        internal set
+            currentKolorInput.takeIf { input -> kolorInput::class == input::class }?.run {
 
-    /**
-     * Adjusts the brightness of the darkest areas of the image.
-     * Value typically ranges from -1F (darker shadows) to 1F (brighter shadows), with 0F being no
-     * change.
-     */
-    var shadows by mutableFloatStateOf(0F)
-        internal set
+                val newInput = when (val input = kolorInput) {
 
-    /**
-     * Controls the intensity of colors in the image.
-     * A value of 0F results in a grayscale image.
-     * A value of 1F represents the original saturation.
-     * Values greater than 1F increase saturation, making colors more vivid.
-     * Values between 0F and 1F decrease saturation, making colors more muted.
-     * The typical range is from 0F (grayscale) to 2F (highly saturated).
-     */
-    var saturation by mutableFloatStateOf(1F)
-        internal set
+                    is ImageKolorInput.Brightness -> input.copy(value = newValue)
+                    is ImageKolorInput. Exposure ->input.copy(value = newValue)
+                    is ImageKolorInput. Contrast -> input.copy(value = newValue)
+                    is ImageKolorInput. Saturation -> input.copy(value = newValue)
+                    is ImageKolorInput. Warmth -> input.copy(value = newValue)
+                    is ImageKolorInput. Tint -> input.copy(value = newValue)
+                    is ImageKolorInput. Highlights -> input.copy(value = newValue)
+                    is ImageKolorInput. Shadows -> input.copy(value = newValue)
+                }
 
-    /**
-     * Adjusts the color temperature of the image, making it appear warmer (more orange) or cooler
-     * (more blue).
-     * Value typically ranges from -1F (cooler) to 1F (warmer), with 0F being the original warmth.
-     */
-    var warmth by mutableFloatStateOf(0F)
-        internal set
-
-    /**
-     * Adjusts the green-magenta balance of the image.
-     * Value typically ranges from -1F (more green) to 1F (more magenta), with 0F being the
-     * original tint.
-     */
-    var tint by mutableFloatStateOf(0F)
-        internal set
+                currentKolorInput = newInput
+                newInput
+            } ?: kolorInput
+        }.toPersistentList()
+    }
 
     /**
      * Resets all color adjustment values to their default states.
@@ -155,14 +127,7 @@ class ImageKolorState(val imageBitmap: ImageBitmap?, val config: ImageKolorConfi
      */
     fun resetAllValues() {
 
-        brightness = 0F
-        exposure = 0F
-        contrast = 1F
-        highlights = 0F
-        shadows = 0F
-        saturation = 1F
-        warmth = 0F
-        tint = 0F
+        imageKolorInputList = ImageKolorInput.AllTypes
     }
 
     /**
@@ -188,6 +153,46 @@ class ImageKolorState(val imageBitmap: ImageBitmap?, val config: ImageKolorConfi
      * @return A [ColorMatrix] representing the combined effect of all current color adjustments.
      */
     fun getColorMatrix(): ColorMatrix {
+
+        val brightness = imageKolorInputList.find { kolorInput ->
+
+            kolorInput is ImageKolorInput.Brightness
+        }?.getValue() ?: ImageKolorInput.Brightness().value
+
+        val exposure = imageKolorInputList.find { kolorInput ->
+
+            kolorInput is ImageKolorInput.Exposure
+        }?.getValue() ?: ImageKolorInput.Exposure().value
+
+        val contrast = imageKolorInputList.find { kolorInput ->
+
+            kolorInput is ImageKolorInput.Contrast
+        }?.getValue() ?: ImageKolorInput.Contrast().value
+
+        val saturation = imageKolorInputList.find { kolorInput ->
+
+            kolorInput is ImageKolorInput.Saturation
+        }?.getValue() ?: ImageKolorInput.Saturation().value
+
+        val warmth = imageKolorInputList.find { kolorInput ->
+
+            kolorInput is ImageKolorInput.Warmth
+        }?.getValue() ?: ImageKolorInput.Warmth().value
+
+        val tint = imageKolorInputList.find { kolorInput ->
+
+            kolorInput is ImageKolorInput.Tint
+        }?.getValue() ?: ImageKolorInput.Tint().value
+
+        val highlights = imageKolorInputList.find { kolorInput ->
+
+            kolorInput is ImageKolorInput.Highlights
+        }?.getValue() ?: ImageKolorInput.Highlights().value
+
+        val shadows = imageKolorInputList.find { kolorInput ->
+
+            kolorInput is ImageKolorInput.Shadows
+        }?.getValue() ?: ImageKolorInput.Shadows().value
 
         val finalMatrix = ColorMatrix()
 
@@ -417,44 +422,29 @@ class ImageKolorState(val imageBitmap: ImageBitmap?, val config: ImageKolorConfi
 
     companion object {
 
-        private const val KEY_BRIGHTNESS = "IMAGE-KOLOR-BRIGHTNESS"
-        private const val KEY_EXPOSURE = "IMAGE-KOLOR-EXPOSURE"
-        private const val KEY_CONTRAST = "IMAGE-KOLOR-CONTRAST"
-        private const val KEY_HIGHLIGHTS = "IMAGE-KOLOR-HIGHLIGHTS"
-        private const val KEY_SHADOWS = "IMAGE-KOLOR-SHADOWS"
-        private const val KEY_SATURATION = "IMAGE-KOLOR-SATURATION"
-        private const val KEY_WARMTH = "IMAGE-KOLOR-WARMTH"
-        private const val KEY_TINT = "IMAGE-KOLOR-TINT"
+        private const val KEY_CURRENT_INPUT = "IMAGE-KOLOR-CURRENT-INPUT"
+        private const val KEY_INPUT_LIST = "IMAGE-KOLOR-INPUT-LIST"
 
-        fun StateSaver(
-            imageBitmap: ImageBitmap?,
-            config: ImageKolorConfig
-        ): Saver<ImageKolorState, Any> = mapSaver(
+        @Suppress("UNCHECKED_CAST")
+        fun StateSaver(imageBitmap: ImageBitmap?): Saver<ImageKolorState, Any> = mapSaver(
             save = { state ->
 
                 mapOf(
-                    KEY_BRIGHTNESS to state.brightness,
-                    KEY_EXPOSURE to state.exposure,
-                    KEY_CONTRAST to state.contrast,
-                    KEY_HIGHLIGHTS to state.highlights,
-                    KEY_SHADOWS to state.shadows,
-                    KEY_SATURATION to state.saturation,
-                    KEY_WARMTH to state.warmth,
-                    KEY_TINT to state.tint
+                    KEY_INPUT_LIST to state.imageKolorInputList.toTypedArray(),
+                    KEY_CURRENT_INPUT to state.currentKolorInput,
                 )
             },
             restore = { elements ->
 
-                ImageKolorState(imageBitmap = imageBitmap, config = config).apply {
+                ImageKolorState(imageBitmap = imageBitmap).apply {
+                    
+                    imageKolorInputList = (elements.getOrElse(KEY_INPUT_LIST) {
+                        ImageKolorInput.AllTypes.toTypedArray()
+                    } as Array<ImageKolorInput>).toPersistentList()
 
-                    brightness = elements.getOrElse(KEY_BRIGHTNESS) { 0F } as Float
-                    exposure = elements.getOrElse(KEY_EXPOSURE) { 0F } as Float
-                    contrast = elements.getOrElse(KEY_CONTRAST) { 1F } as Float
-                    highlights = elements.getOrElse(KEY_HIGHLIGHTS) { 0F } as Float
-                    shadows = elements.getOrElse(KEY_SHADOWS) { 0F } as Float
-                    saturation = elements.getOrElse(KEY_SATURATION) { 1F } as Float
-                    warmth = elements.getOrElse(KEY_WARMTH) { 0F } as Float
-                    tint = elements.getOrElse(KEY_TINT) { 0F } as Float
+                    currentKolorInput = elements.getOrElse(
+                        KEY_CURRENT_INPUT
+                    ) { ImageKolorInput.AllTypes.first() } as ImageKolorInput
                 }
             }
         )

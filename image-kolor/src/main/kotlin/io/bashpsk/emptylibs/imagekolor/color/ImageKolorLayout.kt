@@ -18,6 +18,22 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 
+/**
+ * A layout composable that arranges an image and color adjustment controls.
+ *
+ * This layout adapts its arrangement based on the window size:
+ * - **Compact width:** The image is displayed at the top, and the color adjustment controls
+ *   are displayed below it. The image maintains its aspect ratio.
+ * - **Medium or Expanded width:** The image is displayed on the left, and the color adjustment
+ *   controls are displayed on the right. The image maintains its aspect ratio.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param state The [ImageKolorState] that holds the current image and color adjustment values.
+ * @param imageContent A composable lambda that defines the content for displaying the image.
+ * By default, it uses [KolorImageView].
+ * @param kolorContent A composable lambda that defines the content for the color adjustment
+ * controls. By default, it uses [KolorAdjustmentSliders].
+ */
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun ImageKolorLayout(

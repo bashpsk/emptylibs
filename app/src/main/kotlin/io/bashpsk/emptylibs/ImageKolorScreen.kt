@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
-import io.bashpsk.emptylibs.imagekolor.color.ImageKolorConfig
 import io.bashpsk.emptylibs.imagekolor.color.ImageKolorLayout
 import io.bashpsk.emptylibs.imagekolor.color.rememberImageKolorState
 import io.bashpsk.emptylibs.screen.imageedit.saveAsFile
@@ -32,8 +31,7 @@ fun ImageKolorScreen() {
     val bitmapCoroutineScope = rememberCoroutineScope()
 
     val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
-    val config = ImageKolorConfig(enableHighlights = false, enableShadows = false)
-    val kolorState = rememberImageKolorState(imageBitmap = null, config = config)
+    val kolorState = rememberImageKolorState(imageBitmap = imageBitmap)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
