@@ -139,6 +139,16 @@ fun VideoGestureScreen() {
                         setDebug("HorizontalBottomChanges : ${changes.changes}")
                     }
 
+                    is DragChanges.HorizontalTopEnd -> {
+
+                        setDebug("HorizontalTopEnd : ${changes.amount}")
+                    }
+
+                    is DragChanges.HorizontalBottomEnd -> {
+
+                        setDebug("HorizontalBottomEnd : ${changes.amount}")
+                    }
+
                     is DragChanges.Unknown -> setDebug("Unknown")
 
                     is DragChanges.VerticalRightChanges -> {

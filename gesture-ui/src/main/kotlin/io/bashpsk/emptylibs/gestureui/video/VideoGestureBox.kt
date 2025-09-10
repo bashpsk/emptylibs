@@ -88,6 +88,7 @@ fun VideoGestureBox(
     val isTwoTouch by remember(touchCount) { derivedStateOf { touchCount == 2 } }
 
     var swipeAmount by remember { mutableStateOf(Offset.Zero) }
+    var horizontalAmount by remember { mutableStateOf(Offset.Zero) }
 
     fun resetDragGestureAction() {
 
@@ -156,6 +157,7 @@ fun VideoGestureBox(
             onDragStart = { offset: Offset ->
 
                 swipeAmount = Offset.Zero
+                horizontalAmount = Offset.Zero
                 onDragChanges(DragChanges.DragStart(position = offset))
             },
             onDragCancel = {
@@ -163,11 +165,11 @@ fun VideoGestureBox(
                 when (dragGestureAction) {
 
                     DragGestureAction.HorizontalTop -> onDragChanges(
-                        DragChanges.HorizontalTopChanges(swipeAmount.x)
+                        DragChanges.HorizontalTopEnd(horizontalAmount.x)
                     )
 
                     DragGestureAction.HorizontalBottom -> onDragChanges(
-                        DragChanges.HorizontalBottomChanges(swipeAmount.x)
+                        DragChanges.HorizontalBottomEnd(horizontalAmount.x)
                     )
 
                     else -> {}
@@ -176,17 +178,18 @@ fun VideoGestureBox(
                 onDragChanges(DragChanges.DragCanceled)
                 resetDragGestureAction()
                 swipeAmount = Offset.Zero
+                horizontalAmount = Offset.Zero
             },
             onDragEnd = {
 
                 when (dragGestureAction) {
 
                     DragGestureAction.HorizontalTop -> onDragChanges(
-                        DragChanges.HorizontalTopChanges(swipeAmount.x)
+                        DragChanges.HorizontalTopEnd(horizontalAmount.x)
                     )
 
                     DragGestureAction.HorizontalBottom -> onDragChanges(
-                        DragChanges.HorizontalBottomChanges(swipeAmount.x)
+                        DragChanges.HorizontalBottomEnd(horizontalAmount.x)
                     )
 
                     else -> {}
@@ -195,10 +198,12 @@ fun VideoGestureBox(
                 onDragChanges(DragChanges.DragEnded)
                 resetDragGestureAction()
                 swipeAmount = Offset.Zero
+                horizontalAmount = Offset.Zero
             }
         ) { change, dragAmount, direction ->
 
             swipeAmount += dragAmount
+            horizontalAmount += dragAmount
 
             when {
 
@@ -222,31 +227,49 @@ fun VideoGestureBox(
 
             when {
 
-                isTopHorizontal && config.isHorizontalTopEnable -> when (dragGestureAction) {
+                isTopHorizontal && config.isHorizontalTopEnable -> when {
 
-                    null, DragGestureAction.HorizontalTop -> {
+                    abs(x = swipeAmount.x) >= config.horizontalMinimumSwipe -> {
 
-                        dragGestureAction = DragGestureAction.HorizontalTop
-                        change.consume()
+                        when (dragGestureAction) {
+
+                            null, DragGestureAction.HorizontalTop -> {
+
+                                dragGestureAction = DragGestureAction.HorizontalTop
+                                change.consume()
+                                onDragChanges(DragChanges.HorizontalTopChanges(swipeAmount.x))
+                            }
+
+                            else -> {}
+                        }
+
+                        swipeAmount = Offset.Zero
                     }
-
-                    else -> {}
                 }
 
-                isBottomHorizontal && config.isHorizontalBottomEnable -> when (dragGestureAction) {
+                isBottomHorizontal && config.isHorizontalBottomEnable -> when {
 
-                    null, DragGestureAction.HorizontalBottom -> {
+                    abs(x = swipeAmount.x) >= config.horizontalMinimumSwipe -> {
 
-                        dragGestureAction = DragGestureAction.HorizontalBottom
-                        change.consume()
+                        when (dragGestureAction) {
+
+                            null, DragGestureAction.HorizontalBottom -> {
+
+                                dragGestureAction = DragGestureAction.HorizontalBottom
+                                change.consume()
+                                onDragChanges(DragChanges.HorizontalBottomChanges(swipeAmount.x))
+                            }
+
+                            else -> {}
+                        }
+
+                        swipeAmount = Offset.Zero
                     }
-
-                    else -> {}
                 }
 
                 isLeftVertical && config.isVerticalLeftEnable -> when {
 
-                    abs(x = swipeAmount.y) > config.verticalLeftMinimumSwipe -> {
+                    abs(x = swipeAmount.y) >= config.verticalMinimumSwipe -> {
 
                         when (dragGestureAction) {
 
@@ -277,7 +300,7 @@ fun VideoGestureBox(
 
                 isRightVertical && config.isVerticalRightEnable -> when {
 
-                    abs(x = swipeAmount.y) > config.verticalRightMinimumSwipe -> {
+                    abs(x = swipeAmount.y) >= config.verticalMinimumSwipe -> {
 
                         when (dragGestureAction) {
 

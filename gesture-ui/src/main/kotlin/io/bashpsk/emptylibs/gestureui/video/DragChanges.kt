@@ -56,6 +56,27 @@ sealed interface DragChanges {
     data class HorizontalBottomChanges(val changes: Float) : DragChanges
 
     /**
+     * Represents the end of a horizontal drag gesture originating from the top side.
+     * This event is typically dispatched when the drag gesture is completed.
+     *
+     * @property amount The total horizontal distance dragged from the top side.
+     * A positive value indicates a drag towards the right, and a negative value indicates a drag
+     * towards the left.
+     */
+    data class HorizontalTopEnd(val amount: Float) : DragChanges
+
+    /**
+     * Represents the end of a horizontal drag gesture originating from the bottom side.
+     * This indicates the total amount of horizontal movement when the drag is released.
+     *
+     * @param amount The total horizontal distance dragged from the bottom edge.
+     * A positive value typically indicates a drag towards the right, and a negative value
+     * indicates a drag towards the left, relative to the starting point of the drag
+     * on the bottom edge.
+     */
+    data class HorizontalBottomEnd(val amount: Float) : DragChanges
+
+    /**
      * Represents vertical drag changes originating from the left side.
      *
      * @param changes The amount of change in the vertical direction.
