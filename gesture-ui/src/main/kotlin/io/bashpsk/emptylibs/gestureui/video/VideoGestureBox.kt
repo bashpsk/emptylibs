@@ -8,36 +8,22 @@ import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.math.abs
-import kotlin.time.Duration.Companion.milliseconds
+import androidx.compose.ui.unit.toSize
 
 /**
  * A Composable function that provides a box with gesture detection capabilities,
  * specifically designed for video player-like interactions.
  *
  * It detects various tap and drag gestures and provides callbacks for them.
- * The behavior of these gestures can be customized through the [config] parameter.
+ * The behavior of these gestures can be customized through the [VideoGestureBoxState.config]
+ * parameter, accessible via the [state] parameter.
  *
  * This Composable uses [BoxWithConstraints] to get the available screen space
  * and adapts its gesture detection logic accordingly.
@@ -50,11 +36,11 @@ import kotlin.time.Duration.Companion.milliseconds
  *     - Horizontal drag at the bottom.
  *     - Vertical drag on the left side (commonly used for brightness control).
  *     - Vertical drag on the right side (commonly used for volume control).
- * - Two-finger pinch-to-zoom and pan gestures (if enabled in [config]).
+ * - Two-finger pinch-to-zoom and pan gestures (if enabled in [VideoGestureBoxState.config]).
  *
  * @param modifier The modifier to be applied to the layout.
- * @param config An instance of [VideoGestureConfig] to customize the gesture behavior.
- * Defaults to [VideoGestureConfig].
+ * @param state An instance of [VideoGestureBoxState] that holds the configuration and current state
+ * of the gestures. Defaults to a remembered [VideoGestureBoxState] instance.
  * @param onTapChanges A lambda that is invoked when a tap gesture occurs.
  * It receives a [TapChanges] sealed class instance indicating the type of tap.
  * @param onDragChanges A lambda that is invoked during drag gestures.
@@ -66,47 +52,18 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun VideoGestureBox(
     modifier: Modifier = Modifier,
-    config: VideoGestureConfig = VideoGestureConfig(),
+    state: VideoGestureBoxState = rememberVideoGestureBoxState(),
     onTapChanges: (changes: TapChanges) -> Unit = {},
     onDragChanges: (changes: DragChanges) -> Unit = {},
     content: @Composable @UiComposable BoxWithConstraintsScope.() -> Unit
 ) {
 
-    val dragGestureCoroutineScope = rememberCoroutineScope()
-
-    var screenWidth by rememberSaveable { mutableFloatStateOf(0.0F) }
-    var screenHeight by rememberSaveable { mutableFloatStateOf(0.0F) }
-
-    val screenSize by remember(screenWidth, screenHeight) {
-        derivedStateOf { Size(width = screenWidth, height = screenHeight) }
-    }
-
-    var resetDragActionJob by remember { mutableStateOf<Job?>(null) }
-    var dragGestureAction by rememberSaveable { mutableStateOf<DragGestureAction?>(null) }
-    var touchCount by rememberSaveable { mutableIntStateOf(0) }
-    val isOneTouch by remember(touchCount) { derivedStateOf { touchCount == 1 } }
-    val isTwoTouch by remember(touchCount) { derivedStateOf { touchCount == 2 } }
-
-    var swipeAmount by remember { mutableStateOf(Offset.Zero) }
-    var horizontalAmount by remember { mutableStateOf(Offset.Zero) }
-
-    fun resetDragGestureAction() {
-
-        resetDragActionJob?.cancel()
-        resetDragActionJob = dragGestureCoroutineScope.launch(context = Dispatchers.Default) {
-
-            delay(duration = 1000.milliseconds)
-            dragGestureAction = null
-        }
-    }
-
     val screenSizeChanged = Modifier.onSizeChanged { size ->
 
-        screenWidth = size.width.toFloat()
-        screenHeight = size.height.toFloat()
+        state.screenSize = size.toSize()
     }
 
-    val touchPointerInput = Modifier.pointerInput(screenSize) {
+    val touchPointerInput = Modifier.pointerInput(state.screenSize) {
 
         awaitEachGesture {
 
@@ -114,12 +71,12 @@ fun VideoGestureBox(
 
                 val event = awaitPointerEvent()
 
-                touchCount = event.changes.size
+                state.touchCount = event.changes.size
             } while (event.changes.any { change -> change.pressed })
         }
     }
 
-    val tapPointerInput = Modifier.pointerInput(screenSize) {
+    val tapPointerInput = Modifier.pointerInput(state.screenSize) {
 
         detectTapGestures(
             onTap = { position: Offset ->
@@ -128,17 +85,14 @@ fun VideoGestureBox(
             },
             onDoubleTap = { position: Offset ->
 
-                val isBackward = position.x in 0.0F..(screenWidth / 2)
-                val isForward = position.x in (screenWidth / 2)..screenWidth
-
                 when {
 
-                    config.isDoubleTapEnable && isBackward -> {
+                    state.hasBackwardTap(position = position) -> {
 
                         onTapChanges(TapChanges.BackwardTap(position))
                     }
 
-                    config.isDoubleTapEnable && isForward -> {
+                    state.hasForwardTap(position = position) -> {
 
                         onTapChanges(TapChanges.ForwardTap(position))
                     }
@@ -149,183 +103,157 @@ fun VideoGestureBox(
         )
     }
 
-    val dragPointerInput = Modifier.pointerInput(screenSize, config) {
+    val dragPointerInput = Modifier.pointerInput(state.screenSize, state.config) {
 
         detectVideoGestures(
-            screenSize = screenSize,
-            deadZone = config.gestureMargin / 100.0F,
+            screenSize = state.screenSize,
+            deadZone = state.config.gestureMargin / 100.0F,
             onDragStart = { offset: Offset ->
 
-                swipeAmount = Offset.Zero
-                horizontalAmount = Offset.Zero
+                state.onDragStart()
                 onDragChanges(DragChanges.DragStart(position = offset))
             },
             onDragCancel = {
 
-                when (dragGestureAction) {
+                when (state.dragGestureAction) {
 
-                    DragGestureAction.HorizontalTop -> onDragChanges(
-                        DragChanges.HorizontalTopEnd(horizontalAmount.x)
-                    )
+                    DragGestureAction.HorizontalTop -> {
 
-                    DragGestureAction.HorizontalBottom -> onDragChanges(
-                        DragChanges.HorizontalBottomEnd(horizontalAmount.x)
-                    )
+                        if (state.config.isHorizontalTopEnable) onDragChanges(
+                            DragChanges.HorizontalTopEnd(state.swipeAmount.x)
+                        )
+                    }
+
+                    DragGestureAction.HorizontalBottom -> {
+
+                        if (state.config.isHorizontalBottomEnable) onDragChanges(
+                            DragChanges.HorizontalBottomEnd(state.swipeAmount.x)
+                        )
+                    }
 
                     else -> {}
                 }
 
+                state.onDragEnd()
                 onDragChanges(DragChanges.DragCanceled)
-                resetDragGestureAction()
-                swipeAmount = Offset.Zero
-                horizontalAmount = Offset.Zero
             },
             onDragEnd = {
 
-                when (dragGestureAction) {
+                when (state.dragGestureAction) {
 
-                    DragGestureAction.HorizontalTop -> onDragChanges(
-                        DragChanges.HorizontalTopEnd(horizontalAmount.x)
-                    )
+                    DragGestureAction.HorizontalTop -> {
 
-                    DragGestureAction.HorizontalBottom -> onDragChanges(
-                        DragChanges.HorizontalBottomEnd(horizontalAmount.x)
-                    )
+                        if (state.config.isHorizontalTopEnable) onDragChanges(
+                            DragChanges.HorizontalTopEnd(state.swipeAmount.x)
+                        )
+                    }
+
+                    DragGestureAction.HorizontalBottom -> {
+
+                        if (state.config.isHorizontalBottomEnable) onDragChanges(
+                            DragChanges.HorizontalBottomEnd(state.swipeAmount.x)
+                        )
+                    }
 
                     else -> {}
                 }
 
+                state.onDragEnd()
                 onDragChanges(DragChanges.DragEnded)
-                resetDragGestureAction()
-                swipeAmount = Offset.Zero
-                horizontalAmount = Offset.Zero
             }
         ) { change, dragAmount, direction ->
 
-            swipeAmount += dragAmount
-            horizontalAmount += dragAmount
+            state.swipeAmount += dragAmount
 
-            when {
+            state.touchCount.takeIf { count -> count == 2 }?.run {
 
-                isTwoTouch -> {
+                state.dragGestureAction = when (state.dragGestureAction) {
 
-                    dragGestureAction = when (dragGestureAction) {
-
-                        DragGestureAction.Transform -> dragGestureAction
-                        else -> null
-                    }
-
-                    change.changedToUp()
-                    return@detectVideoGestures
+                    DragGestureAction.Transform -> state.dragGestureAction
+                    else -> null
                 }
+
+                change.changedToUp()
+                return@detectVideoGestures
             }
 
-            val isTopHorizontal = direction == PointerDirection.HorizontalTop
-            val isBottomHorizontal = direction == PointerDirection.HorizontalBottom
-            val isLeftVertical = direction == PointerDirection.VerticalLeft
-            val isRightVertical = direction == PointerDirection.VerticalRight
-
             when {
 
-                isTopHorizontal && config.isHorizontalTopEnable -> when {
+                direction.hasHorizontalTop() && state.hasHorizontalSwipe() -> when {
 
-                    abs(x = swipeAmount.x) >= config.horizontalMinimumSwipe -> {
+                    state.hasHorizontalTopSwipe() -> {
 
-                        when (dragGestureAction) {
+                        state.dragGestureAction = DragGestureAction.HorizontalTop
+                        change.consume()
+                        onDragChanges(DragChanges.HorizontalTopChanges(state.swipeAmount.x))
+                    }
 
-                            null, DragGestureAction.HorizontalTop -> {
+                    else -> {}
+                }
 
-                                dragGestureAction = DragGestureAction.HorizontalTop
-                                change.consume()
-                                onDragChanges(DragChanges.HorizontalTopChanges(swipeAmount.x))
-                            }
+                direction.hasHorizontalBottom() && state.hasHorizontalSwipe() -> when {
 
-                            else -> {}
+                    state.hasHorizontalBottomSwipe() -> {
+
+                        state.dragGestureAction = DragGestureAction.HorizontalBottom
+                        change.consume()
+                        onDragChanges(DragChanges.HorizontalBottomChanges(state.swipeAmount.x))
+                    }
+
+                    else -> {}
+                }
+
+                direction.hasVerticalLeft() && state.hasVerticalSwipe() -> when {
+
+                    state.hasVerticalLeftSwipe() -> when (state.dragGestureAction) {
+
+                        null -> {
+
+                            state.dragGestureAction = DragGestureAction.VerticalLeft
+                            change.consume()
                         }
 
-                        swipeAmount = Offset.Zero
+                        DragGestureAction.VerticalLeft -> {
+
+                            val brightness = when (dragAmount.y > 0.0F) {
+
+                                true -> ValueChange.Decreased
+                                false -> ValueChange.Increased
+                            }
+
+                            change.consume()
+                            onDragChanges(DragChanges.VerticalLeftChanges(brightness))
+                            state.onResetSwipeAmount()
+                        }
+
+                        else -> {}
                     }
                 }
 
-                isBottomHorizontal && config.isHorizontalBottomEnable -> when {
+                direction.hasVerticalRight() && state.hasVerticalSwipe() -> when {
 
-                    abs(x = swipeAmount.x) >= config.horizontalMinimumSwipe -> {
+                    state.hasVerticalRightSwipe() -> when (state.dragGestureAction) {
 
-                        when (dragGestureAction) {
+                        null -> {
 
-                            null, DragGestureAction.HorizontalBottom -> {
-
-                                dragGestureAction = DragGestureAction.HorizontalBottom
-                                change.consume()
-                                onDragChanges(DragChanges.HorizontalBottomChanges(swipeAmount.x))
-                            }
-
-                            else -> {}
+                            state.dragGestureAction = DragGestureAction.VerticalRight
+                            change.consume()
                         }
 
-                        swipeAmount = Offset.Zero
-                    }
-                }
+                        DragGestureAction.VerticalRight -> {
 
-                isLeftVertical && config.isVerticalLeftEnable -> when {
+                            val volume = when (dragAmount.y > 0.0F) {
 
-                    abs(x = swipeAmount.y) >= config.verticalMinimumSwipe -> {
-
-                        when (dragGestureAction) {
-
-                            null -> {
-
-                                dragGestureAction = DragGestureAction.VerticalLeft
-                                change.consume()
+                                true -> ValueChange.Decreased
+                                false -> ValueChange.Increased
                             }
 
-                            DragGestureAction.VerticalLeft -> {
-
-                                val brightness = when (dragAmount.y > 0.0F) {
-
-                                    true -> ValueChange.Decreased
-                                    false -> ValueChange.Increased
-                                }
-
-                                onDragChanges(DragChanges.VerticalLeftChanges(brightness))
-                                change.consume()
-                            }
-
-                            else -> {}
+                            change.consume()
+                            onDragChanges(DragChanges.VerticalRightChanges(volume))
+                            state.onResetSwipeAmount()
                         }
 
-                        swipeAmount = Offset.Zero
-                    }
-                }
-
-                isRightVertical && config.isVerticalRightEnable -> when {
-
-                    abs(x = swipeAmount.y) >= config.verticalMinimumSwipe -> {
-
-                        when (dragGestureAction) {
-
-                            null -> {
-
-                                dragGestureAction = DragGestureAction.VerticalRight
-                                change.consume()
-                            }
-
-                            DragGestureAction.VerticalRight -> {
-
-                                val volume = when (dragAmount.y > 0.0F) {
-
-                                    true -> ValueChange.Decreased
-                                    false -> ValueChange.Increased
-                                }
-
-                                onDragChanges(DragChanges.VerticalRightChanges(volume))
-                                change.consume()
-                            }
-
-                            else -> {}
-                        }
-
-                        swipeAmount = Offset.Zero
+                        else -> {}
                     }
                 }
 
@@ -340,46 +268,40 @@ fun VideoGestureBox(
 
     val transformableState = rememberTransformableState { zoomChange, panChange, rotationChange ->
 
-        if (config.isPanEnable.not() && config.isZoomEnable.not()) return@rememberTransformableState
+        state.hasTransform().takeIf { isTransform -> isTransform.not() }?.run {
 
-        when (isTwoTouch) {
+            return@rememberTransformableState
+        }
 
-            true -> when (dragGestureAction) {
+        state.touchCount.takeIf { count -> count == 2 }?.run {
+
+            when (state.dragGestureAction) {
 
                 null -> {
 
-                    if (config.isZoomEnable || config.isPanEnable) {
-
-                        dragGestureAction = DragGestureAction.Transform
-                    }
+                    state.dragGestureAction = DragGestureAction.Transform
                 }
 
                 DragGestureAction.Transform -> {
 
-                    val finalZoomChange = zoomChange.takeIf { config.isZoomEnable } ?: 0.0F
-                    val finalPanChange = panChange.takeIf { config.isPanEnable } ?: Offset.Zero
+                    val newZoomChange = zoomChange.takeIf { state.config.isZoomEnable } ?: 1.0F
+                    val newPanChange = panChange.takeIf { state.config.isPanEnable } ?: Offset.Zero
 
-                    if (config.isZoomEnable || config.isPanEnable) {
-
-                        onDragChanges(DragChanges.TransformChanges(finalZoomChange, finalPanChange))
-                    }
-
-                    resetDragGestureAction()
+                    onDragChanges(DragChanges.TransformChanges(newZoomChange, newPanChange))
+                    state.onResetDragGestureAction()
                 }
 
                 else -> return@rememberTransformableState
             }
+        } ?: run {
 
-            false -> {
+            when (state.dragGestureAction) {
 
-                when (dragGestureAction) {
-
-                    DragGestureAction.Transform -> null
-                    else -> {}
-                }
-
-                return@rememberTransformableState
+                DragGestureAction.Transform -> null
+                else -> {}
             }
+
+            return@rememberTransformableState
         }
     }
 
@@ -395,13 +317,4 @@ fun VideoGestureBox(
 
         content()
     }
-}
-
-private enum class DragGestureAction {
-
-    Transform,
-    HorizontalTop,
-    HorizontalBottom,
-    VerticalLeft,
-    VerticalRight;
 }

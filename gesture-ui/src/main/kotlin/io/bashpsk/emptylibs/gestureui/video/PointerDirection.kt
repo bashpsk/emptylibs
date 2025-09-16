@@ -36,7 +36,6 @@ internal enum class PointerDirection {
      */
     Unknown;
 
-
     /**
      * Checks if the pointer direction is horizontal (either top or bottom).
      *
@@ -44,16 +43,37 @@ internal enum class PointerDirection {
      */
     fun hasHorizontal(): Boolean {
 
-        return this == HorizontalTop || this == HorizontalBottom
+        return hasHorizontalTop() || hasHorizontalBottom()
     }
 
     /**
      * Checks if the pointer direction is vertical (either left or right).
      *
-     * @return `true` if the pointer direction is [VerticalLeft] or [VerticalRight], `false` otherwise.
+     * @return `true` if the pointer direction is [VerticalLeft] or [VerticalRight],
+     * `false` otherwise.
      */
     fun hasVertical(): Boolean {
 
-        return this == VerticalLeft || this == VerticalRight
+        return hasVerticalLeft() || hasVerticalRight()
+    }
+
+    fun hasHorizontalTop(): Boolean {
+
+        return this == HorizontalTop
+    }
+
+    fun hasHorizontalBottom(): Boolean {
+
+        return this == HorizontalBottom
+    }
+
+    fun hasVerticalLeft(): Boolean {
+
+        return this == VerticalLeft
+    }
+
+    fun hasVerticalRight(): Boolean {
+
+        return this == VerticalRight
     }
 }

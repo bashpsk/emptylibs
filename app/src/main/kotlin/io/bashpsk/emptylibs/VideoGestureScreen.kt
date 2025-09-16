@@ -38,7 +38,6 @@ import io.bashpsk.emptylibs.gestureui.video.DragChanges
 import io.bashpsk.emptylibs.gestureui.video.TapChanges
 import io.bashpsk.emptylibs.gestureui.video.ValueChange
 import io.bashpsk.emptylibs.gestureui.video.VideoGestureBox
-import io.bashpsk.emptylibs.gestureui.video.VideoGestureConfig
 import io.bashpsk.emptylibs.utils.setDebug
 import kotlin.time.ExperimentalTime
 
@@ -77,9 +76,6 @@ fun VideoGestureScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            config = VideoGestureConfig(
-                isPanEnable = false
-            ),
             onTapChanges = { changes ->
 
                 when (changes) {
@@ -128,6 +124,10 @@ fun VideoGestureScreen() {
                     is DragChanges.DragEnded -> setDebug("DragEnded")
 
                     is DragChanges.DragStart -> setDebug("DragStart : ${changes.position}")
+
+                    is DragChanges.HorizontalTopStart -> setDebug("HorizontalTopStart")
+
+                    is DragChanges.HorizontalBottomStart -> setDebug("HorizontalBottomStart")
 
                     is DragChanges.HorizontalTopChanges -> {
 

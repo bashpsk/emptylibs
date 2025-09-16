@@ -9,8 +9,12 @@ import androidx.compose.ui.geometry.Offset
  * - [DragStart]: Indicates the start of a drag gesture, providing the initial position.
  * - [DragEnded]: Signals the end of a successful drag gesture.
  * - [DragCanceled]: Signals that the drag gesture was canceled.
+ * - [HorizontalTopStart]: Indicates the start of a horizontal drag from the top side.
+ * - [HorizontalBottomStart]: Indicates the start of a horizontal drag from the bottom side.
  * - [HorizontalTopChanges]: Represents horizontal drag changes specifically for the top side.
  * - [HorizontalBottomChanges]: Represents horizontal drag changes specifically for the bottom side.
+ * - [HorizontalTopEnd]: Signals the end of a horizontal drag gesture from the top side.
+ * - [HorizontalBottomEnd]: Signals the end of a horizontal drag gesture from the bottom side.
  * - [VerticalLeftChanges]: Represents vertical drag changes specifically for the left side.
  * - [VerticalRightChanges]: Represents vertical drag changes specifically for the right side.
  * - [TransformChanges]: Represents changes in zoom and pan during a transform gesture
@@ -36,6 +40,20 @@ sealed interface DragChanges {
      * This is typically triggered when the drag is interrupted.
      */
     data object DragCanceled : DragChanges
+
+    /**
+     * Represents the start of a horizontal drag gesture originating from the top side.
+     * This event is typically dispatched when a drag gesture is initiated from the top edge
+     * and moves horizontally.
+     */
+    data object HorizontalTopStart: DragChanges
+
+    /**
+     * Represents the start of a horizontal drag gesture originating from the bottom side.
+     * This event is typically dispatched when a drag gesture is initiated from the bottom edge
+     * and moves horizontally.
+     */
+    data object HorizontalBottomStart: DragChanges
 
     /**
      * Represents horizontal drag changes originating from the top side.
