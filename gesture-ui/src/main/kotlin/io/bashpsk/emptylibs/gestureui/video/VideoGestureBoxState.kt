@@ -107,6 +107,13 @@ class VideoGestureBoxState(
     internal var swipeAmount by mutableStateOf(Offset.Zero)
 
     /**
+     * A flag indicating whether the `onDragStart` event has been sent for the current drag
+     * gesture.
+     * This is used to ensure that `onDragStart` is called only once per drag.
+     */
+    internal var isDragStartSend by mutableStateOf(false)
+
+    /**
      * Initiates a delayed reset of the [dragGestureAction].
      * If a new drag action occurs before the delay completes, the previous reset is cancelled.
      * The delay is 1000 milliseconds.
@@ -127,6 +134,16 @@ class VideoGestureBoxState(
     internal fun onResetDragAction() {
 
         dragGestureAction = null
+    }
+
+    /**
+     * Resets the flag indicating whether the drag start event has been sent.
+     * This is typically called when a drag gesture ends or is reset, ensuring that
+     * a new "drag start" event can be correctly identified for subsequent gestures.
+     */
+    internal fun onResetDragStartEvent() {
+
+        isDragStartSend = false
     }
 
     /**
@@ -237,6 +254,7 @@ class VideoGestureBoxState(
     internal fun onDragStart() {
 
         onResetSwipeAmount()
+        onResetDragStartEvent()
     }
 
     /**
@@ -247,6 +265,7 @@ class VideoGestureBoxState(
 
         onResetSwipeAmount()
         onResetDragGestureAction()
+        onResetDragStartEvent()
     }
 
     /**

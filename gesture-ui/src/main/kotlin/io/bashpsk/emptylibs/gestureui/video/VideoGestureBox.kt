@@ -183,6 +183,12 @@ fun VideoGestureBox(
 
                     state.hasHorizontalTopSwipe() -> {
 
+                        state.isDragStartSend.takeIf { hasSend -> hasSend.not() }?.run {
+
+                            onDragChanges(DragChanges.HorizontalBottomStart)
+                            state.isDragStartSend = true
+                        }
+
                         state.dragGestureAction = DragGestureAction.HorizontalTop
                         change.consume()
                         onDragChanges(DragChanges.HorizontalTopChanges(state.swipeAmount.x))
@@ -194,6 +200,12 @@ fun VideoGestureBox(
                 direction.hasHorizontalBottom() && state.hasHorizontalSwipe() -> when {
 
                     state.hasHorizontalBottomSwipe() -> {
+
+                        state.isDragStartSend.takeIf { hasSend -> hasSend.not() }?.run {
+
+                            onDragChanges(DragChanges.HorizontalBottomStart)
+                            state.isDragStartSend = true
+                        }
 
                         state.dragGestureAction = DragGestureAction.HorizontalBottom
                         change.consume()
