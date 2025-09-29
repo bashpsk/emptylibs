@@ -35,12 +35,12 @@ import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -869,7 +869,7 @@ private fun InputEditText(state: ImageEditState) {
                 ),
                 text = state.textEditInput.content,
                 style = state.textEditInput.style,
-                onTextChange = {newContent->
+                onTextChange = { newContent ->
 
                     state.apply {
 
@@ -1102,7 +1102,7 @@ private fun ShapeSelectionView(
         ) {
 
             OutlinedTextField(
-                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                 value = imageShape.toLabel(),
                 onValueChange = {},
                 readOnly = true,
@@ -1184,8 +1184,8 @@ private fun TextSelectionView(
     modifier: Modifier = Modifier,
     text: String,
     style: TextStyle,
-    onTextChange:(text: String)-> Unit,
-    onStyleChange:(style: TextStyle)-> Unit
+    onTextChange: (text: String) -> Unit,
+    onStyleChange: (style: TextStyle) -> Unit
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -1237,7 +1237,7 @@ private fun TextSelectionView(
             modifier = Modifier.fillMaxWidth(),
             label = "Text Color",
             color = style.color,
-            onColorChange = { newColor->
+            onColorChange = { newColor ->
 
                 onStyleChange(style.copy(color = newColor))
             }
@@ -1250,7 +1250,7 @@ private fun TextSelectionView(
             label = "Font Size",
             value = style.fontSize.value,
             valueRange = 2.0F..64.0F,
-            onValueChange = {newSize->
+            onValueChange = { newSize ->
 
                 onStyleChange(style.copy(fontSize = newSize.sp))
             }
