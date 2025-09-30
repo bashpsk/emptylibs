@@ -2,27 +2,25 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
+    id("maven-publish")
 }
 
 android {
 
-    namespace = "io.bashpsk.emptylibs"
+    namespace = "io.bashpsk.emptylibs.imagewallpaper"
     compileSdk = 36
 
     defaultConfig {
 
-        applicationId = "io.bashpsk.emptylibs"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -49,9 +47,9 @@ android {
         compilerOptions.jvmTarget = JvmTarget.JVM_17
     }
 
-    buildFeatures {
+    publishing {
 
-        compose = true
+        singleVariant("release")
     }
 }
 
@@ -67,6 +65,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.window.size)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,31 +77,35 @@ dependencies {
     //  ICON            :
     implementation(libs.androidx.material.icons.extended)
 
-    //  DATASTORE       :
-    implementation(libs.androidx.datastore.preferences)
-
     //  KOTLINX         :
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.datetime)
 
-    //  NAVIGATION      :
-    implementation(libs.androidx.navigation.compose)
+    //  COIL            :
+    implementation(libs.coil3.compose)
 
     //  MODULE          :
-    implementation(project(":canvas-slate"))
     implementation(project(":compose-utils"))
-    implementation(project(":datastore-ui"))
-    implementation(project(":formatter"))
-    implementation(project(":gesture-ui"))
-    implementation(project(":image-edit"))
-    implementation(project(":image-kolor"))
-    implementation(project(":image-krop"))
     implementation(project(":image-utils"))
     implementation(project(":image-view"))
-    implementation(project(":image-wallpaper"))
-    implementation(project(":jetpack-ui"))
-    implementation(project(":kolor-picker"))
     implementation(project(":lrucache-manager"))
-    implementation(project(":storage"))
+}
+
+publishing {
+
+    publications {
+
+        register<MavenPublication>("release") {
+
+            groupId = "io.bashpsk.emptylibs"
+            artifactId = "image-wallpaper"
+            version = "1.0.0"
+
+            afterEvaluate {
+
+                from(components["release"])
+            }
+        }
+    }
 }
