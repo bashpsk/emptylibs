@@ -4,7 +4,7 @@ import android.util.Log
 
 internal const val LOG_TAG = "Image-Wallpaper"
 
-fun String.setDebug() {
+internal fun String.setDebug() {
 
     Log.d("PSK", this)
 }
