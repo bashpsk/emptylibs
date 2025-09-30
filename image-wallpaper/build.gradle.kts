@@ -87,8 +87,10 @@ dependencies {
 
     //  MODULE          :
     implementation(project(":compose-utils"))
+    implementation(project(":formatter"))
     implementation(project(":image-utils"))
     implementation(project(":image-view"))
+    implementation(project(":image-krop"))
     implementation(project(":lrucache-manager"))
 }
 

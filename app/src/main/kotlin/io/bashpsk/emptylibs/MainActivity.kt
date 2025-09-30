@@ -43,10 +43,11 @@ class MainActivity : ComponentActivity() {
 //                    ImageEditScreen()
 //                    ImageFilterScreen()
 //                    ImageKolorScreen()
+                    ImageWallpaperScreen()
 //                    LruCacheScreen()
 //                    StorageScreen()
 //                    TransformImageScreen()
-                    VideoGestureScreen()
+//                    VideoGestureScreen()
 //                    WheelTextPickerScreen()
                 }
             }

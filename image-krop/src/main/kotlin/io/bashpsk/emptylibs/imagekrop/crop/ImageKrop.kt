@@ -32,6 +32,14 @@ import kotlinx.collections.immutable.ImmutableList
  * @param modifier Optional [Modifier] for the root Composable.
  * @param state The [ImageKropState] that holds the current state of the cropping UI,
  * including the image bitmap, configuration, and crop selection.
+ * @param aspectList A list of [KropAspectRatio] options to be displayed to the user.
+ * Defaults to [KropAspectRatio.Basic].
+ * @param topBar An optional Composable lambda to replace the default top bar.
+ * If null, [ImageKropTopBar] will be used.
+ * @param bottomBar An optional Composable lambda to replace the default bottom bar.
+ * If null, [ImageKropBottomBar] will be used.
+ * @param onKropFinished A callback function that is invoked when the user finishes the
+ * cropping process, typically by pressing a confirmation button.
  * @param onNavigateBack A callback function that is invoked when the user initiates a back
  * navigation action, typically by pressing a back button in the UI.
  */
@@ -42,6 +50,8 @@ fun ImageKrop(
     modifier: Modifier = Modifier,
     state: ImageKropState,
     aspectList: ImmutableList<KropAspectRatio> = KropAspectRatio.Basic,
+    topBar: (@Composable () -> Unit)? = null,
+    bottomBar: (@Composable () -> Unit)? = null,
     onKropFinished: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
 ) {
@@ -110,13 +120,16 @@ fun ImageKrop(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
 
-        ImageKropTopBar(
-            modifier = Modifier.fillMaxWidth(),
-            state = state,
-            imagePreviewSheetState = imagePreviewSheetState,
-            onKropFinished = onKropFinished,
-            onNavigateBack = onNavigateBack
-        )
+        topBar?.invoke() ?: run {
+
+            ImageKropTopBar(
+                modifier = Modifier.fillMaxWidth(),
+                state = state,
+                imagePreviewSheetState = imagePreviewSheetState,
+                onKropFinished = onKropFinished,
+                onNavigateBack = onNavigateBack
+            )
+        }
 
         BoxWithConstraints(
             modifier = Modifier.weight(weight = 1.0F),
@@ -134,10 +147,13 @@ fun ImageKrop(
             )
         }
 
-        ImageKropBottomBar(
-            modifier = Modifier.fillMaxWidth(),
-            state = state,
-            aspectList = aspectList
-        )
+        bottomBar?.invoke() ?: run {
+
+            ImageKropBottomBar(
+                modifier = Modifier.fillMaxWidth(),
+                state = state,
+                aspectList = aspectList
+            )
+        }
     }
 }

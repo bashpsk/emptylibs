@@ -24,7 +24,6 @@ import io.bashpsk.emptylibs.imagekrop.crop.KropCorner.Companion.hasCornerCenter
 import io.bashpsk.emptylibs.imagekrop.offset.coerceAtLeast
 import io.bashpsk.emptylibs.imagekrop.offset.getKropCorner
 import io.bashpsk.emptylibs.imagekrop.offset.itemRect
-import io.bashpsk.emptylibs.imagekrop.utils.setDebug
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
 import io.bashpsk.emptylibs.imageutils.shape.BasicImageShapes
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
@@ -284,8 +283,6 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
                 updateOriginalImage(bitmap)
             }
         }
-
-        "$imageList".setDebug()
     }
 
     /**
@@ -988,7 +985,9 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      *    and adjusted dimensions.
      *    - Coerces the new rectangle within the canvas boundaries and `minSize`.
      *    - If an aspect ratio is provided, performs a final adjustment to ensure the aspect ratio
-     *    is strictly maintained while respecting boundaries and `minSize`. This involves checking if adjusting width or height to match the ratio is more appropriate based on which dimension is currently further from the target ratio.
+     *    is strictly maintained while respecting boundaries and `minSize`. This involves checking
+     *    if adjusting width or height to match the ratio is more appropriate based on which
+     *    dimension is currently further from the target ratio.
      *
      * 2. Dragging an edge center ([KropCorner.TOP_CENTRE], [KropCorner.BOTTOM_CENTRE],
      * [KropCorner.LEFT_CENTRE], [KropCorner.RIGHT_CENTRE]):
