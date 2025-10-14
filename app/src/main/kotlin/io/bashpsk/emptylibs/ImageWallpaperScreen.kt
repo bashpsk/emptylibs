@@ -2,6 +2,7 @@ package io.bashpsk.emptylibs
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -51,7 +52,8 @@ fun ImageWallpaperScreen() {
                 .fillMaxSize()
                 .padding(innerPadding),
             imageBitmap = imageBitmap,
-            config = kropConfig
+            config = kropConfig,
+            dialogContainerColor = AlertDialogDefaults.containerColor.copy(alpha = 0.75F)
         )
     }
 }

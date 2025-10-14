@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
@@ -35,18 +36,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 internal fun WallpaperTypeDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
-    imageBitmap: ImageBitmap
+    imageBitmap: ImageBitmap,
+    containerColor: Color = AlertDialogDefaults.containerColor
 ) {
 
     val context = LocalContext.current
@@ -73,6 +77,7 @@ internal fun WallpaperTypeDialog(
                 usePlatformDefaultWidth = false
             ),
             shape = MaterialTheme.shapes.small,
+            containerColor = containerColor,
             title = {
 
                 Row(
@@ -122,7 +127,7 @@ internal fun WallpaperTypeDialog(
                             enabled = isWallpaperLoading.not(),
                             onClick = {
 
-                                coroutineScope.launch {
+                                coroutineScope.launch(context = Dispatchers.IO) {
 
                                     wallpaperManager.setImageWallpaper(
                                         imageBitmap,
@@ -149,7 +154,7 @@ internal fun WallpaperTypeDialog(
                             enabled = isWallpaperLoading.not(),
                             onClick = {
 
-                                coroutineScope.launch {
+                                coroutineScope.launch(context = Dispatchers.IO) {
 
                                     wallpaperManager.setImageWallpaper(
                                         imageBitmap,
@@ -176,7 +181,7 @@ internal fun WallpaperTypeDialog(
                             enabled = isWallpaperLoading.not(),
                             onClick = {
 
-                                coroutineScope.launch {
+                                coroutineScope.launch(context = Dispatchers.IO) {
 
                                     wallpaperManager.setImageWallpaper(
                                         imageBitmap,

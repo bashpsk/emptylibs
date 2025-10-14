@@ -18,7 +18,16 @@ suspend fun WallpaperManager.setImageWallpaper(image: ImageBitmap?, type: Wallpa
 
             val result = image?.asAndroidBitmap()?.let { bitmap ->
 
-                this@setImageWallpaper.setBitmap(bitmap, null, true, type.flag)
+                when (type) {
+
+                    WallpaperType.HomeAndLock -> {
+
+                        setBitmap(bitmap, null, true, WallpaperType.Home.flag)
+                        setBitmap(bitmap, null, true, WallpaperType.Lock.flag)
+                    }
+
+                    else -> setBitmap(bitmap, null, true, type.flag)
+                }
             }
 
             continuation.resume(value = result != 0)

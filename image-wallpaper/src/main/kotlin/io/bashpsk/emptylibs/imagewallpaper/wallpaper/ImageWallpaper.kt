@@ -3,12 +3,14 @@ package io.bashpsk.emptylibs.imagewallpaper.wallpaper
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -24,6 +26,7 @@ fun ImageWallpaper(
     modifier: Modifier = Modifier,
     imageBitmap: ImageBitmap,
     config: KropConfig = KropConfig.surfaceBased(),
+    dialogContainerColor: Color = AlertDialogDefaults.containerColor,
     onNavigateBack: () -> Unit = {}
 ) {
 
@@ -49,7 +52,8 @@ fun ImageWallpaper(
 
         WallpaperTypeDialog(
             dialogVisibleState = wallpaperTypeDialogVisibleState,
-            imageBitmap = bitmap
+            imageBitmap = bitmap,
+            containerColor = dialogContainerColor
         )
     } ?: run {
 
