@@ -9,6 +9,22 @@ import io.bashpsk.emptylibs.imagewallpaper.utils.LOG_TAG
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+/**
+ * Sets the device wallpaper from an [ImageBitmap].
+ *
+ * This is a suspend function that wraps the [WallpaperManager.setBitmap] call in a coroutine.
+ * It handles setting the wallpaper for the home screen, lock screen, or both.
+ *
+ * @receiver The [WallpaperManager] instance.
+ * @param image The [ImageBitmap] to set as the wallpaper. If null, the function will do nothing and
+ * return false.
+ * @param type The type of wallpaper to set, which can be
+ * [WallpaperType.Home], [WallpaperType.Lock], or [WallpaperType.HomeAndLock].
+ * @return `true` if the wallpaper was set successfully, `false`
+ * otherwise (e.g., if the image is null or an exception occurs).
+ * @see WallpaperManager.setBitmap
+ * @see WallpaperType
+ */
 @SuppressLint("MissingPermission")
 suspend fun WallpaperManager.setImageWallpaper(image: ImageBitmap?, type: WallpaperType): Boolean {
 

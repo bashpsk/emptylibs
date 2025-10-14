@@ -20,6 +20,24 @@ import io.bashpsk.emptylibs.imagekrop.crop.KropAspectRatio
 import io.bashpsk.emptylibs.imagekrop.crop.KropConfig
 import io.bashpsk.emptylibs.imagekrop.crop.rememberImageKropState
 
+/**
+ * A composable that provides an interface for cropping an image to fit the device's screen
+ * dimensions and then setting it as the wallpaper. It utilizes [ImageKrop] for the cropping
+ * functionality and presents a [WallpaperTypeDialog] to choose the wallpaper type
+ * (e.g., home screen, lock screen, or both) after cropping is complete.
+ *
+ * The aspect ratio for cropping is automatically determined based on the device's screen size
+ * and orientation.
+ *
+ * @param modifier The [Modifier] to be applied to the [ImageKrop] composable.
+ * @param imageBitmap The [ImageBitmap] to be cropped and set as wallpaper.
+ * @param config The [KropConfig] to customize the behavior and appearance of the cropping view.
+ * Defaults to [KropConfig.surfaceBased].
+ * @param dialogContainerColor The background color for the wallpaper type selection dialog.
+ * Defaults to [AlertDialogDefaults.containerColor].
+ * @param onNavigateBack A callback invoked when the user requests to navigate back from the
+ * cropping screen, for example, by pressing the back button.
+ */
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
 fun ImageWallpaper(

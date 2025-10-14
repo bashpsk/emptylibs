@@ -46,6 +46,22 @@ import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * A composable function that displays a dialog to select the wallpaper type.
+ *
+ * This dialog allows the user to choose whether to set a given image as the home screen wallpaper,
+ * the lock screen wallpaper, or both. It handles the wallpaper setting process in a coroutine
+ * and displays a loading indicator while the operation is in progress. The dialog can be
+ * dismissed via a close button, the back press, or by clicking the cancel button.
+ *
+ * The dialog's visibility is controlled by an external `MutableTransitionState`, allowing for
+ * animated appearance and disappearance.
+ *
+ * @param dialogVisibleState A [MutableTransitionState] to control the visibility of the dialog.
+ * @param imageBitmap The [ImageBitmap] to be set as the wallpaper.
+ * @param containerColor The background color of the dialog container.
+ * Defaults to `AlertDialogDefaults.containerColor`.
+ */
 @Composable
 internal fun WallpaperTypeDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
