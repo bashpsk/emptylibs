@@ -8,8 +8,10 @@ import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.toColorInt
 import androidx.core.graphics.toColorLong
+import io.bashpsk.emptylibs.formatter.format.EmptyFormat.duration
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.time
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.toRoundedDecimal
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DateTimeUnit
@@ -68,223 +70,10 @@ import kotlin.time.toDuration
  * diverse formatting requirements within their applications.
  */
 @OptIn(ExperimentalTime::class)
+@Suppress("unused")
 object EmptyFormat {
 
     private const val LOG_TAG = "EmptyFormat"
-
-    /**
-     * Enum class defining the various formatting patterns supported by `EmptyFormat`.
-     */
-    enum class DateTimePattern {
-
-        /**
-         * Time in 12-hour format.
-         * Example: 07:30.
-         */
-        TIME_HH_MM,
-
-        /**
-         * Time in 24-hour format.
-         * Example: 19:30.
-         */
-        TIME_HH_MM_24,
-
-        /**
-         * Time in 12-hour format, including seconds.
-         * Example: 07:30:33.
-         */
-        TIME_HH_MM_SS,
-
-        /**
-         * Time in 24-hour format, including seconds.
-         * Example: 19:30:33.
-         */
-        TIME_HH_MM_SS_24,
-
-        /**
-         * Time in 12-hour format with AM/PM indicator.
-         * Example: 07:30:33 PM.
-         */
-        TIME_12,
-
-        /**
-         * Time in 24-hour format.
-         * Example: 19:30:33.
-         */
-        TIME_24,
-
-        /**
-         * Short date format.
-         * Example: 09:12:2000.
-         */
-        SHORT_DATE,
-
-        /**
-         * Human-readable full date format.
-         * Example: Dec 09, 2000.
-         */
-        LONG_DATE,
-
-        /**
-         * Short date and time in 12-hour format.
-         * Example: 09:12:2000 07:30 PM.
-         */
-        SHORT_DATE_TIME,
-
-        /**
-         * Short date and time in 24-hour format.
-         * Example: 09:12:2000 19:30.
-         */
-        SHORT_DATE_TIME_24,
-
-        /**
-         * Full date and time in 12-hour format.
-         * Example: Sun, Dec 09, 2000 07:30 PM.
-         */
-        LONG_DATE_TIME,
-
-        /**
-         * Full date and time in 24-hour format.
-         * Example: Sun, Dec 09, 2000 19:30.
-         */
-        LONG_DATE_TIME_24,
-
-        /**
-         * Extended full date-time format with milliseconds.
-         * Example: Sun, Dec 09, 2000 07:30:33.333 PM.
-         */
-        LONG_DATE_TIME_MILLIS,
-
-        /**
-         * Extended full date-time format with milliseconds in 24-hour format.
-         * Example: Sun, Dec 09, 2000 19:30:33.333.
-         */
-        LONG_DATE_TIME_MILLIS_24,
-
-        /**
-         * Date and time format suitable for file names, in 24-hour format.
-         * Example: 19-30-33 09-12-2000.
-         */
-        FILE_NAME,
-
-        /**
-         * Day of the week only.
-         * Example: Mon.
-         */
-        DAY_ONLY,
-
-        /**
-         * Month of the year only.
-         * Example: Dec.
-         */
-        MONTH_ONLY,
-
-        /**
-         * Year only.
-         * Example: 2000.
-         */
-        YEAR_ONLY,
-
-        /**
-         * Month and Year only.
-         * Example: Dec 09.
-         */
-        MONTH_DAY,
-
-        /**
-         * Short year and month format.
-         * Example: 12/00.
-         */
-        SHORT_MONTH_YEAR,
-
-        /**
-         * Month and Year only.
-         * Example: Dec 2000.
-         */
-        MONTH_YEAR,
-
-        /**
-         * Day-of-year format.
-         * Example: 343 (343rd day of the year).
-         */
-        DAY_OF_YEAR,
-
-        /**
-         * Day-of-month format.
-         * Example: 09 (09th day of the month).
-         */
-        DAY_OF_MONTH,
-
-        /**
-         * Month of the year format.
-         * Example: 12 (12th month of the year).
-         */
-        MONTH_OF_YEAR,
-
-        /**
-         * Compact timestamp format.
-         * Example: 20001209193033 (YYYYMMDDHHMMSS).
-         */
-        TIMESTAMP_COMPACT,
-    }
-
-    /**
-     * Enum class defining patterns for formatting durations.
-     *
-     * This enum provides various predefined formats for displaying time durations.
-     * Each pattern specifies how hours, minutes, seconds, and milliseconds
-     * should be represented in the output string.
-     */
-    enum class DurationPattern {
-
-        /**
-         * Duration format : Seconds.Milliseconds. Example: "05.333".
-         *
-         * Displays seconds (zero-padded to 2 digits) and milliseconds (zero-padded to 3 digits).
-         */
-        SS_MS,
-
-        /**
-         * Duration format : Minutes:Seconds. Example: "40:33".
-         *
-         * Displays minutes (zero-padded to 2 digits) and seconds (zero-padded to 2 digits).
-         */
-        MM_SS,
-
-        /**
-         * Duration format : Minutes:Seconds.Milliseconds. Example: "40:30.333".
-         *
-         * Displays minutes (zero-padded to 2 digits), seconds (zero-padded to 2 digits),
-         * and milliseconds (zero-padded to 3 digits).
-         */
-        MM_SS_MS,
-
-        /**
-         * Duration format : Hours:Minutes:Seconds. Example: "03:40:33".
-         *
-         * Displays hours (zero-padded to 2 digits), minutes (zero-padded to 2 digits),
-         * and seconds (zero-padded to 2 digits).
-         */
-        HH_MM_SS,
-
-        /**
-         * Duration format : Hours:Minutes:Seconds.Milliseconds. Example: "03:40:43.333".
-         *
-         * Displays hours (zero-padded to 2 digits), minutes (zero-padded to 2 digits),
-         * seconds (zero-padded to 2 digits), and milliseconds (zero-padded to 3 digits).
-         */
-        HH_MM_SS_MS,
-
-        /**
-         * Automatically determines the format based on the duration value:
-         *
-         * - If the duration is exactly 0, returns "00".
-         * - If the duration is less than 1 hour, returns in "MM:SS" format (Minutes:Seconds).
-         * - Otherwise (if the duration is 1 hour or more), returns in "HH:MM:SS" format
-         * (Hours:Minutes:Seconds).
-         */
-        AUTO;
-    }
 
     private val dayOfWeekNames = DayOfWeekNames(
         monday = "Mon",
@@ -815,7 +604,7 @@ object EmptyFormat {
      *
      * @param time The integer representing the time value to format.
      * @return A string representing the formatted time, always two digits long.
-     *         Returns "00" in case of an exception.
+     * Returns "00" in case of an exception.
      */
     @JvmStatic
     fun toRoundTime(time: Int): String {
@@ -831,63 +620,145 @@ object EmptyFormat {
     }
 
     /**
-     * Formats a duration value into a string representation based on the specified pattern.
+     * Formats a `Duration` object into a human-readable string based on the specified
+     * `DurationPattern`.
      *
-     * This function takes a `durationValue` (a [Long] representing the duration magnitude),
-     * its `unit` (a [DurationUnit]), and a `pattern` (a [DurationPattern]) to determine
-     * the output string format.
+     * This function automatically selects the most appropriate format depending on the length of
+     * the `Duration` and the type of `DurationPattern` provided.
      *
-     * It first converts the input `durationValue` and `unit` into a `kotlin.time.Duration` object.
-     * Then, it extracts the whole hours, minutes (modulo 60), seconds (modulo 60), and
-     * milliseconds (modulo 1000) from this duration.
+     * Supported pattern types:
      *
-     * Based on the provided `pattern`, it formats these components into a string:
-     * - [DurationPattern.SS_MS]: Formats as "SS.mmm" (e.g., "05.333").
-     * - [DurationPattern.MM_SS]: Formats as "MM:SS" (e.g., "40:33").
-     * - [DurationPattern.MM_SS_MS]: Formats as "MM:SS.mmm" (e.g., "40:30.333").
-     * - [DurationPattern.HH_MM_SS]: Formats as "HH:MM:SS" (e.g., "03:40:33").
-     * - [DurationPattern.HH_MM_SS_MS]: Formats as "HH:MM:SS.mmm" (e.g., "03:40:43.333").
-     * - [DurationPattern.AUTO]: Automatically selects the format:
-     *     - If `durationValue` is 0, returns "00".
-     *     - If `durationValue` is less than 1 hour (3,600,000 milliseconds), formats as "MM:SS".
-     *     - Otherwise, formats as "HH:MM:SS".
+     * 1. `DurationPattern.Separator`: Uses a character (e.g., `:`) to separate time components.
+     *    - If the duration is less than 1 hour: formatted as `MM:SS`
+     *    - If the duration is less than 1 day: formatted as `HH:MM:SS`
+     *    - If the duration is 1 day or more: formatted as `D:HH:MM:SS`
      *
-     * All numerical components in the formatted string are zero-padded to ensure consistent length
-     * (e.g., seconds are "05", not "5").
+     * 2. `DurationPattern.TimeLabel`: Uses localized labels (e.g., "d", "h", "m", "s") to separate
+     * components.
+     *    - If the duration is less than 1 hour: formatted as `MMm SSs`
+     *    - If the duration is less than 1 day: formatted as `HHh MMm SSs`
+     *    - If the duration is 1 day or more: formatted as `Dd HHh MMm SSs`
      *
-     * @param durationValue The magnitude of the duration.
-     * @param unit The unit of the `durationValue` (e.g., [DurationUnit.MILLISECONDS],
-     * [DurationUnit.SECONDS]).
-     * @param pattern The [DurationPattern] to use for formatting.
-     * @return A string representation of the formatted duration.
+     * Formatting rules:
+     * - All numerical components are zero-padded to two digits where applicable
+     * (e.g., `05` instead of `5`), except for days.
+     * - For a zero duration, the output is `"0"` followed by the seconds label if provided
+     * (e.g., `"0s"`), or just `"0"` otherwise.
+     *
+     * Example usage:
+     * ```
+     * duration(3723, DurationUnit.SECONDS, DurationPattern.Separator(':')) // returns "01:02:03"
+     * ```
+     *
+     * @param durationValue the numeric value of the duration
+     * @param unit the unit of time for the duration value (e.g., seconds, minutes)
+     * @param pattern the formatting pattern to apply
+     * @return a human-readable string representation of the duration
      */
     @JvmStatic
     fun duration(durationValue: Long, unit: DurationUnit, pattern: DurationPattern): String {
 
-        val duration = durationValue.toDuration(unit)
-        val hours = duration.inWholeHours
-        val minutes = duration.inWholeMinutes % 60
-        val seconds = duration.inWholeSeconds % 60
-        val millis = duration.inWholeMilliseconds % 1000
+        return duration(duration = durationValue.toDuration(unit), pattern = pattern)
+    }
 
-        return when (pattern) {
+    /**
+     * Formats a `Duration` object into a human-readable string based on the specified
+     * `DurationPattern`.
+     *
+     * This function automatically selects the most appropriate format depending on the length of
+     * the `Duration` and the type of `DurationPattern` provided.
+     *
+     * Supported pattern types:
+     *
+     * 1. `DurationPattern.Separator`: Uses a character (e.g., `:`) to separate time components.
+     *    - If the duration is less than 1 hour: formatted as `MM:SS`
+     *    - If the duration is less than 1 day: formatted as `HH:MM:SS`
+     *    - If the duration is 1 day or more: formatted as `D:HH:MM:SS`
+     *
+     * 2. `DurationPattern.TimeLabel`: Uses localized labels (e.g., "d", "h", "m", "s") to separate
+     * components.
+     *    - If the duration is less than 1 hour: formatted as `MMm SSs`
+     *    - If the duration is less than 1 day: formatted as `HHh MMm SSs`
+     *    - If the duration is 1 day or more: formatted as `Dd HHh MMm SSs`
+     *
+     * Formatting rules:
+     * - All numerical components are zero-padded to two digits where applicable
+     * (e.g., `05` instead of `5`), except for days.
+     * - For a zero duration, the output is `"0"` followed by the seconds label if provided
+     * (e.g., `"0s"`), or just `"0"` otherwise.
+     *
+     * Example usage:
+     * ```
+     * duration(3723, DurationUnit.SECONDS, DurationPattern.Separator(':')) // returns "01:02:03"
+     * ```
+     *
+     * @param duration the `Duration` to format
+     * @param pattern the formatting pattern to apply
+     * @return a human-readable string representation of the duration
+     */
+    @JvmStatic
+    fun duration(duration: Duration, pattern: DurationPattern): String {
 
-            DurationPattern.SS_MS -> "%02d.%03d".format(seconds, millis)
-            DurationPattern.MM_SS -> "%02d:%02d".format(minutes, seconds)
-            DurationPattern.MM_SS_MS -> "%02d:%02d.%03d".format(minutes, seconds, millis)
-            DurationPattern.HH_MM_SS -> "%02d:%02d:%02d".format(hours, minutes, seconds)
-            DurationPattern.HH_MM_SS_MS -> "%02d:%02d:%02d.%03d".format(
-                hours,
-                minutes,
-                seconds,
-                millis
+        val patternMap = when (pattern) {
+
+            is DurationPattern.TimeLabel -> findDurationPattern(
+                duration = duration,
+                daysLabel = "${pattern.days} ",
+                hoursLabel = "${pattern.hours} ",
+                minutesLabel = "${pattern.minutes} ",
+                secondsLabel = pattern.seconds
             )
 
-            DurationPattern.AUTO -> when {
+            is DurationPattern.Separator -> findDurationPattern(
+                duration = duration,
+                daysLabel = pattern.char,
+                hoursLabel = pattern.char,
+                minutesLabel = pattern.char,
+                secondsLabel = null
+            )
+        }
 
-                durationValue == 0L -> "00"
-                duration.inWholeMilliseconds < 3_600_000L -> "%02d:%02d".format(minutes, seconds)
-                else -> "%02d:%02d:%02d".format(hours, minutes, seconds)
+        return patternMap.first.format(
+            locale = Locale.getDefault(),
+            *patternMap.second.toTypedArray()
+        )
+    }
+
+    private fun findDurationPattern(
+        duration: Duration,
+        daysLabel: String,
+        hoursLabel: String,
+        minutesLabel: String,
+        secondsLabel: String?
+    ): Pair<String, PersistentList<Any>> {
+
+        return when {
+
+            duration == Duration.ZERO -> "%01d${secondsLabel ?: ""}" to persistentListOf(0)
+
+            duration < 1.toDuration(
+                DurationUnit.HOURS
+            ) -> duration.toComponents { minutes, seconds, nanoseconds ->
+
+                "%02d${minutesLabel}%02d${secondsLabel ?: ""}" to persistentListOf(minutes, seconds)
+            }
+
+            duration < 1.toDuration(
+                DurationUnit.DAYS
+            ) -> duration.toComponents { hours, minutes, seconds, nanoseconds ->
+
+                "%02d${hoursLabel}%02d${minutesLabel}%02d${secondsLabel ?: ""}" to persistentListOf(
+                    hours,
+                    minutes,
+                    seconds
+                )
+            }
+
+            else -> duration.toComponents { days, hours, minutes, seconds, nanoseconds ->
+
+                "%01d${daysLabel}%02d${hoursLabel}%02d${minutesLabel}%02d${
+                    secondsLabel ?: ""
+                }" to persistentListOf(days, hours, minutes, seconds)
             }
         }
     }

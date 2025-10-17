@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.formatter.format.DurationPattern
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import io.bashpsk.emptylibs.formatter.meter.FileSpeedData
 import io.bashpsk.emptylibs.formatter.meter.fileSpeedMeter
@@ -59,7 +60,7 @@ fun FileWriteSpeedScreen() {
                 EmptyFormat.duration(
                     durationValue = fileSpeedData.eta,
                     unit = DurationUnit.SECONDS,
-                    pattern = EmptyFormat.DurationPattern.AUTO
+                    pattern = DurationPattern.TimeLabel()
                 )
             }"
         }

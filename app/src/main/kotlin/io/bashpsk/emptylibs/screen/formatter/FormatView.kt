@@ -17,15 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.formatter.format.DateTimePattern
+import io.bashpsk.emptylibs.formatter.format.DurationPattern
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 @Composable
 fun FormatView(
     modifier: Modifier = Modifier,
-    pattern: EmptyFormat.DateTimePattern
+    pattern: DateTimePattern
 ) {
 
     val dateTimeInMillis by remember(pattern) {
@@ -42,7 +45,7 @@ fun FormatView(
     ) {
 
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp, horizontal = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -50,7 +53,7 @@ fun FormatView(
         ) {
 
             Text(
-                modifier = modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = pattern.name,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.titleMedium,
@@ -58,8 +61,55 @@ fun FormatView(
             )
 
             Text(
-                modifier = modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 text = formattedDateTime,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalTime::class)
+@Composable
+fun FormatView(
+    modifier: Modifier = Modifier,
+    duration: Duration
+) {
+
+    val durationFormatted by remember(duration) {
+        derivedStateOf { EmptyFormat.duration(duration, DurationPattern.TimeLabel()) }
+    }
+
+    val durationFormattedWithLabel by remember(duration) {
+        derivedStateOf { EmptyFormat.duration(duration, DurationPattern.Separator(char = ":")) }
+    }
+
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraSmall
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = durationFormatted,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = durationFormattedWithLabel,
                 textAlign = TextAlign.Start,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
