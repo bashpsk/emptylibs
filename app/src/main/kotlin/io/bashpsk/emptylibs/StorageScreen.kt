@@ -67,7 +67,7 @@ fun StorageScreen() {
     val context = LocalContext.current
     val fileCoroutineScope = rememberCoroutineScope()
 
-    val storageVolumeList by StorageExt.getStorageVolumes(
+    val storageVolumeList by StorageExt.getStorageVolumeFlow(
         context = context
     ).collectAsStateWithLifecycle(initialValue = persistentListOf())
 
@@ -104,7 +104,7 @@ fun StorageScreen() {
 
                         fileCoroutineScope.launch(Dispatchers.IO) {
 
-                            StorageExt.getDirectoryFiles(
+                            StorageExt.getDirectoryFileFlow(
                                 context = context,
                                 path = volume.path
                             ).collectLatest { files ->

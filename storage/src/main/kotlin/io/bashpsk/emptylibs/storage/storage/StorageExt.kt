@@ -1,29 +1,22 @@
 package io.bashpsk.emptylibs.storage.storage
 
 import android.content.Context
-import android.os.Build
-import android.os.Environment
 import android.os.storage.StorageManager
 import android.util.Log
-import androidx.core.net.toUri
-import androidx.core.text.isDigitsOnly
 import io.bashpsk.emptylibs.storage.storage.StorageExt.getDirectoryData
+import io.bashpsk.emptylibs.storage.storage.StorageExt.getDirectoryFileFlow
 import io.bashpsk.emptylibs.storage.storage.StorageExt.getFileSize
 import io.bashpsk.emptylibs.storage.storage.StorageExt.getFreeMemory
+import io.bashpsk.emptylibs.storage.storage.StorageExt.getStorageVolumeFlow
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
-import kotlin.coroutines.coroutineContext
 
 /**
  * Provides utility functions for interacting with device storage.
@@ -38,7 +31,10 @@ import kotlin.coroutines.coroutineContext
  * Many operations are performed on the [Dispatchers.IO] thread to avoid blocking the main thread.
  * Error handling is implemented, with relevant messages logged for debugging.
  */
+@Suppress("unused")
 object StorageExt {
+
+    private val emptyStorage: EmptyStorage = EmptyStorageImpl()
 
     /**
      * Retrieves a list of available storage volumes on the device.
@@ -56,60 +52,35 @@ object StorageExt {
      * available storage volumes.
      * Emits an empty list if an error occurs or no volumes are found.
      */
-    fun getStorageVolumes(context: Context): Flow<ImmutableList<StorageVolumeData>> {
+    fun getStorageVolumeFlow(context: Context): Flow<ImmutableList<StorageVolumeData>> {
 
         return flow {
 
-            val storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
-
-            val storageVolumeList = try {
-
-                when {
-
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-
-                        storageManager.storageVolumes.map { volume ->
-
-                            val path = volume.directory?.path ?: ""
-
-                            StorageVolumeData(
-                                title = volume.getDescription(context),
-                                path = path,
-                                totalSize = getTotalMemory(path = path),
-                                availableSize = getFreeMemory(path = path),
-                                usedSize = getUsedMemory(path = path),
-                                volumeType = StorageVolumeType.getVolumeType(volume = volume)
-                            )
-                        }.toImmutableList()
-                    }
-
-                    else -> {
-
-                        getStorageDirectories(context = context).map { path ->
-
-                            storageManager.getStorageVolume(File(path))?.let { volume ->
-
-                                StorageVolumeData(
-                                    title = volume.getDescription(context),
-                                    path = path,
-                                    totalSize = getTotalMemory(path = path),
-                                    availableSize = getFreeMemory(path = path),
-                                    usedSize = getUsedMemory(path = path),
-                                    volumeType = StorageVolumeType.getVolumeType(volume = volume)
-                                )
-                            } ?: StorageVolumeData()
-                        }.toImmutableList()
-                    }
-                }.filter { volumeData -> volumeData.path.isNotEmpty() }.toImmutableList()
-            } catch (exception: Exception) {
-
-                coroutineContext.ensureActive()
-                Log.w("StorageExt", exception.message, exception)
-                persistentListOf()
-            }
-
-            emit(value = storageVolumeList)
+            emit(value = emptyStorage.getStorageVolumeList(context = context))
         }.flowOn(context = Dispatchers.IO)
+    }
+
+    /**
+     * Retrieves a list of available storage volumes on the device.
+     *
+     * This function is a synchronous call that fetches information about the device's storage
+     * volumes using the [StorageManager]. For a non-blocking, asynchronous alternative,
+     * see [getStorageVolumeFlow].
+     *
+     * It wraps the underlying storage access logic and returns the result directly.
+     * If an error occurs during the process, it will be handled by the underlying
+     * implementation, which typically logs a warning and returns an empty list.
+     *
+     * Each storage volume is represented by a [StorageVolumeData] object, which contains
+     * details like its path, description, state, and storage capacity.
+     *
+     * @param context The application context, used to access system services like [StorageManager].
+     * @return An [ImmutableList] of [StorageVolumeData] representing the available storage volumes.
+     * Returns an empty list if no volumes are found or an error occurs.
+     */
+    suspend fun getStorageVolumeList(context: Context): ImmutableList<StorageVolumeData> {
+
+        return emptyStorage.getStorageVolumeList(context = context)
     }
 
     /**
@@ -126,68 +97,35 @@ object StorageExt {
      * @param path The absolute path of the directory to list files from.
      * @return A [Flow] that emits a single [DirectoryFileData] object.
      */
-    fun getDirectoryFiles(context: Context, path: String): Flow<DirectoryFileData> {
+    fun getDirectoryFileFlow(context: Context, path: String): Flow<DirectoryFileData> {
 
         return flow {
 
-            val folderList = MutableStateFlow(value = persistentListOf<DirectoryData>())
-            val fileList = MutableStateFlow(value = persistentListOf<FileData>())
-
-            try {
-
-                val storageVolumeList = getStorageVolumes(
-                    context = context
-                ).toList().flatten().distinctBy { storage -> storage.path }.toImmutableList()
-
-                File(path).listFiles()?.forEach { fileItem ->
-
-                    when (fileItem.isFile) {
-
-                        true -> getFileData(
-                            file = fileItem,
-                            storageVolumes = storageVolumeList
-                        )?.let { newFileData ->
-
-                            fileList.update { filesOld -> filesOld.add(element = newFileData) }
-                        }
-
-                        false -> getDirectoryData(
-                            file = fileItem,
-                            storageVolumes = storageVolumeList
-                        )?.let { newDirectoryData ->
-
-                            folderList.update { foldersOld -> foldersOld.add(newDirectoryData) }
-                        }
-                    }
-                }
-
-                val directoryData = getDirectoryData(
-                    path = path,
-                    storageVolumes = storageVolumeList
-                ) ?: DirectoryData()
-
-                val storageVolume = findStorageVolumeData(
-                    path = path,
-                    storageVolumes = storageVolumeList
-                ) ?: StorageVolumeData()
-
-                val newDirectoryFileData = DirectoryFileData(
-                    folders = folderList.value.toImmutableList(),
-                    files = fileList.value.toImmutableList(),
-                    storage = storageVolume,
-                    directory = directoryData
-                )
-
-                emit(value = newDirectoryFileData)
-            } catch (exception: Exception) {
-
-                val newDirectoryFileData = DirectoryFileData()
-
-                coroutineContext.ensureActive()
-                Log.w("StorageExt", exception.message, exception)
-                emit(value = newDirectoryFileData)
-            }
+            emit(value = emptyStorage.getDirectoryFileData(context = context, path = path))
         }.flowOn(context = Dispatchers.IO)
+    }
+
+    /**
+     * Retrieves information about the contents of a specified directory.
+     *
+     * This function lists the files and subdirectories within the given `path`,
+     * gathers their metadata (such as name, path, size, and type), and returns
+     * the result in a [DirectoryFileData] object.
+     *
+     * The operation is performed synchronously on the calling thread. For a non-blocking
+     * version that returns a [Flow] and operates on [Dispatchers.IO], see [getDirectoryFileFlow].
+     *
+     * In case of an exception (e.g., the path does not exist or is not a directory),
+     * an empty [DirectoryFileData] object is returned, and a warning is logged.
+     *
+     * @param context The application [Context].
+     * @param path The absolute path of the directory to analyze.
+     * @return A [DirectoryFileData] object containing lists of files and subdirectories.
+     * Returns an empty object on error.
+     */
+    suspend fun getDirectoryFileData(context: Context, path: String): DirectoryFileData {
+
+        return emptyStorage.getDirectoryFileData(context = context, path = path)
     }
 
     /**
@@ -203,7 +141,7 @@ object StorageExt {
         storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
     ): StorageVolumeData? {
 
-        return findStorageVolumeData(file = File(path), storageVolumes = storageVolumes)
+        return emptyStorage.findStorageVolumeData(path = path, storageVolumes = storageVolumes)
     }
 
     /**
@@ -219,7 +157,7 @@ object StorageExt {
         storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
     ): StorageVolumeData? {
 
-        return storageVolumes.find { storage -> file.path.startsWith(storage.path) }
+        return emptyStorage.findStorageVolumeData(path = file.path, storageVolumes = storageVolumes)
     }
 
     /**
@@ -236,12 +174,12 @@ object StorageExt {
      * @return A [DirectoryData] object containing information about the directory,
      * or null if an error occurs (e.g., the path does not exist or is not a directory).
      */
-    fun getDirectoryData(
+    suspend fun getDirectoryData(
         path: String,
         storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
     ): DirectoryData? {
 
-        return getDirectoryData(file = File(path), storageVolumes = storageVolumes)
+        return emptyStorage.getDirectoryData(path = path, storageVolumes = storageVolumes)
     }
 
     /**
@@ -259,36 +197,12 @@ object StorageExt {
      * @return A [DirectoryData] object containing the information about the directory if
      * successful, or `null` if an exception occurs during the process.
      */
-    fun getDirectoryData(
+    suspend fun getDirectoryData(
         file: File,
         storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
     ): DirectoryData? {
 
-        return try {
-
-            val storageVolume = findStorageVolumeData(
-                file = file,
-                storageVolumes = storageVolumes
-            ) ?: StorageVolumeData()
-
-            val folders = file.listFiles()?.count { folder -> folder.isDirectory } ?: 0
-            val files = file.listFiles()?.count { file -> file.isFile } ?: 0
-
-            DirectoryData(
-                title = file.name,
-                path = file.path,
-                uri = file.toUri().toString(),
-                visibleType = FileVisibleType.Companion.getFileVisibleType(file = file),
-                folders = folders,
-                files = files,
-                modifiedDate = file.lastModified(),
-                storage = storageVolume
-            )
-        } catch (exception: Exception) {
-
-            Log.w("StorageExt", exception.message, exception)
-            null
-        }
+        return emptyStorage.getDirectoryData(path = file.path, storageVolumes = storageVolumes)
     }
 
     /**
@@ -304,12 +218,12 @@ object StorageExt {
      * @return A [FileData] object if the file exists and its information can be retrieved,
      * otherwise `null`.
      */
-    fun getFileData(
+    suspend fun getFileData(
         path: String,
         storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
     ): FileData? {
 
-        return getFileData(file = File(path), storageVolumes = storageVolumes)
+        return emptyStorage.getFileData(path = path, storageVolumes = storageVolumes)
     }
 
     /**
@@ -326,34 +240,128 @@ object StorageExt {
      * @return A [FileData] object containing the file's metadata if successful,
      * or `null` if an error occurs during the process (e.g., file not found, permission issues).
      */
-    fun getFileData(
+    suspend fun getFileData(
         file: File,
         storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
     ): FileData? {
 
-        return try {
+        return emptyStorage.getFileData(path = file.path, storageVolumes = storageVolumes)
+    }
 
-            val storageVolume = findStorageVolumeData(
-                file = file,
-                storageVolumes = storageVolumes
-            ) ?: StorageVolumeData()
+    /**
+     * Retrieves the total memory space of a storage volume.
+     *
+     * @param path The path to the storage volume.
+     * @return The total memory space in bytes, or 0L if an error occurs.
+     */
+    fun getTotalMemory(path: String): Long {
 
-            FileData(
-                title = file.name,
-                path = file.path,
-                uri = file.toUri().toString(),
-                extension = file.extension,
-                visibleType = FileVisibleType.Companion.getFileVisibleType(file = file),
-                fileType = FileType.Companion.getFileType(extension = file.extension),
-                size = file.length(),
-                modifiedDate = file.lastModified(),
-                storage = storageVolume
-            )
-        } catch (exception: Exception) {
+        return emptyStorage.getTotalMemory(path = path)
+    }
 
-            Log.w("StorageExt", exception.message, exception)
-            null
-        }
+    /**
+     * Retrieves the total memory space of the storage volume associated with the given file.
+     *
+     * @param file The file representing the storage volume.
+     * @return The total memory space in bytes, or 0L if an error occurs.
+     */
+    fun getTotalMemory(file: File): Long {
+
+        return emptyStorage.getTotalMemory(path = file.path)
+    }
+
+    /**
+     * Retrieves the free memory space available at the specified path.
+     *
+     * This function is a convenience wrapper around [getFreeMemory] that accepts a [File] object.
+     * It creates a [File] object from the given [path] and then calls the other overload.
+     *
+     * @param path The absolute path to the storage volume or directory.
+     * @return The free memory space in bytes. Returns 0L if an error occurs or the path is invalid.
+     */
+    fun getFreeMemory(path: String): Long {
+
+        return emptyStorage.getFreeMemory(path = path)
+    }
+
+    /**
+     * Retrieves the free memory space of a storage volume.
+     *
+     * @param file The [File] object representing the storage volume.
+     * @return The free memory space in bytes. Returns 0L if an error occurs.
+     */
+    fun getFreeMemory(file: File): Long {
+
+        return emptyStorage.getFreeMemory(path = file.path)
+    }
+
+    /**
+     * Retrieves the used memory size of a storage volume or directory specified by its path.
+     *
+     * @param path The path of the storage volume or directory.
+     * @return The used memory size in bytes, or 0L if an error occurs.
+     */
+    fun getUsedMemory(path: String): Long {
+
+        return emptyStorage.getUsedMemory(path = path)
+    }
+
+    /**
+     * Calculates the used memory space for a given file or directory.
+     *
+     * This function subtracts the free space from the total space of the file system
+     * where the given [file] resides to determine the used space.
+     *
+     * @param file The [File] object representing the file or directory.
+     * @return The used memory space in bytes. Returns 0L if an error occurs
+     * (e.g., if the file does not exist or if there are permission issues).
+     */
+    fun getUsedMemory(file: File): Long {
+
+        return emptyStorage.getUsedMemory(path = file.path)
+    }
+
+    /**
+     * Calculates the total size of a file or directory at the given path.
+     *
+     * This function is a suspend function and should be called from a coroutine.
+     * It internally calls [getFileSize] with a list containing only the provided path.
+     *
+     * @param path The absolute path to the file or directory.
+     * @return The total size of the file or directory in bytes. Returns 0L if an error occurs or
+     * the path does not exist.
+     */
+    suspend fun getFileSize(path: String): Long {
+
+        return emptyStorage.getFileSize(paths = persistentListOf(path))
+    }
+
+    /**
+     * Calculates the total size of files and folders at the given paths.
+     *
+     * This function operates on the [Dispatchers.IO] context.
+     * This function is a suspending function, meaning it can perform long-running operations
+     * without blocking the main thread.
+     *
+     * It iterates through the provided list of paths:
+     * - For each path that represents a directory, it recursively walks through the directory
+     *   to find all files and sums their sizes.
+     * - For each path that represents a file, it directly gets its size.
+     *
+     * The function then returns the sum of all calculated file and folder sizes.
+     *
+     * If any error occurs during the process (e.g., a file or folder is not accessible),
+     * it logs a warning and returns 0L.
+     *
+     * @param paths An immutable list of strings, where each string is an absolute path
+     * to a file or directory.
+     * @return The total size in bytes of all files and files within directories specified by the
+     * paths.
+     * Returns 0L if an error occurs or if no files are found.
+     */
+    suspend fun getFileSize(paths: ImmutableList<String>): Long {
+
+        return emptyStorage.getFileSize(paths = paths)
     }
 
     /**
@@ -397,7 +405,7 @@ object StorageExt {
                     FileVisibleType.UNKNOWN -> File(parentPath, fileName)
                 }
 
-                makeFolderOrFile(destination = sourceFile.path, isFolder = isFolder)
+                emptyStorage.makeFolderOrFile(destination = sourceFile.path, isFolder = isFolder)
             } catch (exception: Exception) {
 
                 coroutineContext.ensureActive()
@@ -427,342 +435,6 @@ object StorageExt {
      */
     suspend fun makeFolderOrFile(destination: String, isFolder: Boolean): MakeFileResult {
 
-        return withContext(context = Dispatchers.IO) {
-
-            try {
-
-                val sourceFile = File(destination)
-
-                when (sourceFile.exists()) {
-
-                    true -> MakeFileResult.Exist(path = sourceFile.path, name = sourceFile.name)
-
-                    false -> {
-
-                        val result = when (isFolder) {
-
-                            true -> sourceFile.mkdirs()
-                            false -> sourceFile.createNewFile()
-                        }
-
-                        when (result) {
-
-                            true -> MakeFileResult.Success(sourceFile.path, sourceFile.name)
-                            false -> MakeFileResult.Failed("Directory File Does Not Created!")
-                        }
-                    }
-                }
-            } catch (exception: Exception) {
-
-                coroutineContext.ensureActive()
-                Log.e("StorageExt", exception.message, exception)
-                MakeFileResult.Failed(message = exception.message ?: "Unknown Error")
-            }
-        }
-    }
-
-    /**
-     * Retrieves a list of storage directories available on the device.
-     *
-     * This function attempts to identify both primary and secondary storage locations.
-     * It checks for emulated storage and external storage (like SD cards).
-     *
-     * @param context The application context.
-     * @return An [ImmutableList] of strings, where each string is the absolute path to a storage
-     * directory.
-     * Returns an empty list if an error occurs or no storage directories are found.
-     */
-    private fun getStorageDirectories(context: Context): ImmutableList<String> {
-
-        return try {
-
-            val emulatedStorage = System.getenv("EMULATED_STORAGE_TARGET")
-            val availableDirectories = hashSetOf<String>()
-
-            when (emulatedStorage?.isNotEmpty() == true) {
-
-                true -> getEmulatedStorageTarget()?.let(availableDirectories::add)
-                false -> availableDirectories.addAll(elements = getExternalStorage(context))
-            }
-
-            availableDirectories.addAll(elements = getAllSecondaryStorages().toList())
-            availableDirectories.toImmutableList()
-        } catch (exception: Exception) {
-
-            Log.w("StorageExt", exception.message, exception)
-            persistentListOf()
-        }
-    }
-
-    /**
-     * Retrieves a list of external storage paths.
-     *
-     * This function calls `getExternalFilesDirs` to get a list of application-specific
-     * directories on all shared/external storage devices. It then extracts the root path
-     * of each storage device by removing the "Android/data" suffix from the absolute path.
-     *
-     * @param context The application context.
-     * @return An immutable list of strings, where each string is the root path of an external
-     * storage device. Returns an empty list if no external storage is found or an error occurs.
-     */
-    private fun getExternalStorage(context: Context): ImmutableList<String> {
-
-        return getExternalFilesDirs(context = context).map { file ->
-
-            file.absolutePath.substring(0, file.absolutePath.indexOf(string = "Android/data"))
-        }.toImmutableList()
-    }
-
-    /**
-     * Retrieves the emulated storage target path.
-     *
-     * This function attempts to determine the path for emulated storage. It checks the
-     * "EMULATED_STORAGE_TARGET" environment variable.
-     *
-     * It also analyzes the path of the primary external storage directory. If the last segment
-     * of this path is a digit (indicating a user ID for multi-user setups), it appends
-     * this ID to the "EMULATED_STORAGE_TARGET" path.
-     *
-     * @return The emulated storage target path as a [String], or `null` if it cannot be determined
-     * or an error occurs.
-     */
-    private fun getEmulatedStorageTarget(): String? {
-
-        return try {
-
-            val emulatedStorage = System.getenv("EMULATED_STORAGE_TARGET")
-            val path = Environment.getExternalStorageDirectory().absolutePath
-            val folders = path.split(File.separator)
-            val lastSegment = folders.lastOrNull()
-            val isNotEmpty = lastSegment?.isNotEmpty() == true
-            val isDigit = lastSegment?.isDigitsOnly() == true
-            var rawStorageId = ""
-
-            when {
-
-                isNotEmpty && isDigit -> rawStorageId = lastSegment
-            }
-
-            when (rawStorageId.isEmpty()) {
-
-                true -> emulatedStorage
-                else -> "$emulatedStorage/$rawStorageId"
-            }
-        } catch (exception: Exception) {
-
-            Log.w("StorageExt", exception.message, exception)
-            null
-        }
-    }
-
-    /**
-     * Retrieves a list of all secondary storage paths.
-     *
-     * This function attempts to read the "SECONDARY_STORAGE" environment variable.
-     * If the variable is set and not empty, it splits the value by the file path separator
-     * and returns an immutable list of the resulting paths.
-     * If the environment variable is not set, empty, or an exception occurs during the process,
-     * an empty immutable list is returned.
-     *
-     * @return An [ImmutableList] of [String] objects, where each string is a path to a secondary
-     * storage.
-     * Returns an empty list if no secondary storage is found or an error occurs.
-     */
-    private fun getAllSecondaryStorages(): ImmutableList<String> {
-
-        return try {
-
-            val secondaryStorage = System.getenv("SECONDARY_STORAGE")
-
-            when (secondaryStorage?.isNotEmpty() == true) {
-
-                true -> secondaryStorage.split(File.pathSeparator).toImmutableList()
-                else -> persistentListOf()
-            }
-        } catch (exception: Exception) {
-
-            Log.w("StorageExt", exception.message, exception)
-            persistentListOf()
-        }
-    }
-
-    /**
-     * Returns absolute paths to application-specific directories on all shared/external storage
-     * devices where the application can place persistent files it owns.
-     *
-     * These directories are located under Android/data/package_name/files.
-     *
-     * @param context The context to use.
-     * @return A list of [File] objects representing the directories. Returns an empty list if no
-     * such directories are found.
-     */
-    private fun getExternalFilesDirs(context: Context): ImmutableList<File> {
-
-        return context.getExternalFilesDirs(null).toList().toImmutableList()
-    }
-
-    /**
-     * Retrieves the total memory space of a storage volume.
-     *
-     * @param path The path to the storage volume.
-     * @return The total memory space in bytes, or 0L if an error occurs.
-     */
-    fun getTotalMemory(path: String): Long {
-
-        return getTotalMemory(file = File(path))
-    }
-
-    /**
-     * Retrieves the total memory space of the storage volume associated with the given file.
-     *
-     * @param file The file representing the storage volume.
-     * @return The total memory space in bytes, or 0L if an error occurs.
-     */
-    fun getTotalMemory(file: File): Long {
-
-        return try {
-
-            file.totalSpace
-        } catch (exception: Exception) {
-
-            Log.w("StorageExt", exception.message, exception)
-            0L
-        }
-    }
-
-    /**
-     * Retrieves the free memory space available at the specified path.
-     *
-     * This function is a convenience wrapper around [getFreeMemory] that accepts a [File] object.
-     * It creates a [File] object from the given [path] and then calls the other overload.
-     *
-     * @param path The absolute path to the storage volume or directory.
-     * @return The free memory space in bytes. Returns 0L if an error occurs or the path is invalid.
-     */
-    fun getFreeMemory(path: String): Long {
-
-        return getFreeMemory(file = File(path))
-    }
-
-    /**
-     * Retrieves the free memory space of a storage volume.
-     *
-     * @param file The [File] object representing the storage volume.
-     * @return The free memory space in bytes. Returns 0L if an error occurs.
-     */
-    fun getFreeMemory(file: File): Long {
-
-        return try {
-
-            file.freeSpace
-        } catch (exception: Exception) {
-
-            Log.w("StorageExt", exception.message, exception)
-            0L
-        }
-    }
-
-    /**
-     * Retrieves the used memory size of a storage volume or directory specified by its path.
-     *
-     * @param path The path of the storage volume or directory.
-     * @return The used memory size in bytes, or 0L if an error occurs.
-     */
-    fun getUsedMemory(path: String): Long {
-
-        return getUsedMemory(file = File(path))
-    }
-
-    /**
-     * Calculates the used memory space for a given file or directory.
-     *
-     * This function subtracts the free space from the total space of the file system
-     * where the given [file] resides to determine the used space.
-     *
-     * @param file The [File] object representing the file or directory.
-     * @return The used memory space in bytes. Returns 0L if an error occurs
-     * (e.g., if the file does not exist or if there are permission issues).
-     */
-    fun getUsedMemory(file: File): Long {
-
-        return try {
-
-            file.totalSpace - file.freeSpace
-        } catch (exception: Exception) {
-
-            Log.w("StorageExt", exception.message, exception)
-            0L
-        }
-    }
-
-    /**
-     * Calculates the total size of a file or directory at the given path.
-     *
-     * This function is a suspend function and should be called from a coroutine.
-     * It internally calls [getFileSize] with a list containing only the provided path.
-     *
-     * @param path The absolute path to the file or directory.
-     * @return The total size of the file or directory in bytes. Returns 0L if an error occurs or
-     * the path does not exist.
-     */
-    suspend fun getFileSize(path: String): Long {
-
-        return getFileSize(paths = persistentListOf(path))
-    }
-
-    /**
-     * Calculates the total size of files and folders at the given paths.
-     *
-     * This function operates on the [Dispatchers.IO] context.
-     * This function is a suspending function, meaning it can perform long-running operations
-     * without blocking the main thread.
-     *
-     * It iterates through the provided list of paths:
-     * - For each path that represents a directory, it recursively walks through the directory
-     *   to find all files and sums their sizes.
-     * - For each path that represents a file, it directly gets its size.
-     *
-     * The function then returns the sum of all calculated file and folder sizes.
-     *
-     * If any error occurs during the process (e.g., a file or folder is not accessible),
-     * it logs a warning and returns 0L.
-     *
-     * @param paths An immutable list of strings, where each string is an absolute path
-     * to a file or directory.
-     * @return The total size in bytes of all files and files within directories specified by the
-     * paths.
-     * Returns 0L if an error occurs or if no files are found.
-     */
-    suspend fun getFileSize(paths: ImmutableList<String>): Long {
-
-        return withContext(context = Dispatchers.IO) {
-
-            try {
-
-                val files = paths.map { path -> File(path) }
-
-                val foldersFileSize = files.filter { folder ->
-
-                    folder.isDirectory
-                }.map { folder ->
-
-                    folder.walkTopDown().filter { file ->
-
-                        file.isFile
-                    }.map { file ->
-
-                        file.length()
-                    }.toImmutableList()
-                }.flatten().sum()
-
-                val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.length() }
-
-                foldersFileSize + fileSize
-            } catch (exception: Exception) {
-
-                Log.w("StorageExt", exception.message, exception)
-                0L
-            }
-        }
+        return emptyStorage.makeFolderOrFile(destination = destination, isFolder = isFolder)
     }
 }
