@@ -79,10 +79,10 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val folderList = MutableStateFlow(value = persistentListOf<DirectoryData>())
-            val fileList = MutableStateFlow(value = persistentListOf<FileData>())
+            val folderList = MutableStateFlow(persistentListOf<DirectoryData>())
+            val fileList = MutableStateFlow(persistentListOf<FileData>())
 
-            val storageVolumeList = getStorageVolumeList(context = context)
+            val storageVolumes = getStorageVolumeList(context = context)
 
             File(path).listFiles()?.forEach { fileItem ->
 
@@ -90,7 +90,7 @@ internal class EmptyStorageImpl : EmptyStorage {
 
                     true -> getFileData(
                         path = fileItem.path,
-                        storageVolumes = storageVolumeList
+                        storageVolumes = storageVolumes
                     )?.let { newFileData ->
 
                         fileList.update { filesOld -> filesOld.add(element = newFileData) }
@@ -98,7 +98,7 @@ internal class EmptyStorageImpl : EmptyStorage {
 
                     false -> getDirectoryData(
                         path = fileItem.path,
-                        storageVolumes = storageVolumeList
+                        storageVolumes = storageVolumes
                     )?.let { newDirectoryData ->
 
                         folderList.update { foldersOld -> foldersOld.add(newDirectoryData) }
@@ -108,12 +108,12 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             val directoryData = getDirectoryData(
                 path = path,
-                storageVolumes = storageVolumeList
+                storageVolumes = storageVolumes
             ) ?: DirectoryData()
 
             val storageVolume = findStorageVolumeData(
                 path = path,
-                storageVolumes = storageVolumeList
+                storageVolumes = storageVolumes
             ) ?: StorageVolumeData()
 
             DirectoryFileData(
@@ -203,6 +203,34 @@ internal class EmptyStorageImpl : EmptyStorage {
             coroutineContext.ensureActive()
             Log.w("StorageExt", exception.message, exception)
             null
+        }
+    }
+
+    override suspend fun getFileListByExtensions(
+        context: Context,
+        path: String,
+        extensions: ImmutableList<String>
+    ): ImmutableList<FileData> = withContext(context = Dispatchers.IO) {
+
+        return@withContext try {
+
+            val storageVolumes = getStorageVolumeList(context)
+
+            File(path).walkTopDown().filter { file ->
+
+                extensions.any { extension -> file.extension.equals(extension, ignoreCase = true) }
+            }.toImmutableList().mapNotNull { file ->
+
+                getFileData(path = file.path, storageVolumes = storageVolumes)?.takeIf { fileData ->
+
+                    fileData.path.isNotEmpty()
+                }
+            }.toImmutableList()
+        } catch (exception: Exception) {
+
+            coroutineContext.ensureActive()
+            Log.w("StorageExt", exception.message, exception)
+            persistentListOf()
         }
     }
 

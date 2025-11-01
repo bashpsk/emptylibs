@@ -29,6 +29,12 @@ internal interface EmptyStorage {
         storageVolumes: ImmutableList<StorageVolumeData>
     ): FileData?
 
+    suspend fun getFileListByExtensions(
+        context: Context,
+        path: String,
+        extensions: ImmutableList<String>
+    ): ImmutableList<FileData>
+
     fun getTotalMemory(path: String): Long
 
     fun getFreeMemory(path: String): Long

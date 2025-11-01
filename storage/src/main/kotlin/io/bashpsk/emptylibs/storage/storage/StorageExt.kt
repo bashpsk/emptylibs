@@ -249,6 +249,75 @@ object StorageExt {
     }
 
     /**
+     * Recursively scans a directory and its subdirectories to find files with specified extensions.
+     *
+     * This function traverses the file system starting from the given `path`, collects all files
+     * that match any of the provided `extensions`, and emits the results as a `Flow` of
+     * `ImmutableList<FileData>`. The scan is performed on the [Dispatchers.IO] thread.
+     *
+     * The search is case-insensitive for file extensions. For example, providing "jpg" will match
+     * ".jpg", ".JPG", and ".jPg".
+     *
+     * This operation can be resource-intensive for large directories. The `Flow` allows for
+     * handling the results as they are found without blocking the UI.
+     *
+     * @param path The absolute path of the root directory to start the scan from.
+     * @param extensions A list of file extensions to search for (e.g., "txt", "jpg", "pdf").
+     * The leading dot should be omitted.
+     * @return A [Flow] that emits an [ImmutableList] of [FileData] objects for the matching files
+     * found. If an error occurs or no files are found, it may emit an empty list.
+     */
+    fun getFileListByExtensionsFlow(
+        context: Context,
+        path: String,
+        extensions: ImmutableList<String>
+    ): Flow<ImmutableList<FileData>> {
+
+        return flow {
+
+            val fileList = emptyStorage.getFileListByExtensions(
+                context = context,
+                path = path,
+                extensions = extensions
+            )
+
+            emit(value = fileList)
+        }.flowOn(context = Dispatchers.IO)
+    }
+
+    /**
+     * Searches for files with specific extensions within a given directory and its subdirectories.
+     *
+     * This function traverses the file system starting from the given `path`.
+     * It collects all files that match any of the provided `extensions` and emits them as an
+     * immutable list of [FileData] objects.
+     *
+     * The search is performed asynchronously on the [Dispatchers.IO] thread to avoid blocking
+     * the main thread.
+     *
+     * If an error occurs (e.g., the path is invalid, not a directory, or inaccessible),
+     * it logs the error and emits an empty list.
+     *
+     * @param path The absolute path of the root directory to start the search from.
+     * @param extensions An immutable list of file extensions to search for (e.g., "txt", "jpg").
+     * The matching is case-insensitive.
+     * @return A [ImmutableList] of [FileData] for all matching files found.
+     * Emits an empty list if no files are found or an error occurs.
+     */
+    suspend fun getFileListByExtensions(
+        context: Context,
+        path: String,
+        extensions: ImmutableList<String>
+    ): ImmutableList<FileData> {
+
+        return emptyStorage.getFileListByExtensions(
+            context = context,
+            path = path,
+            extensions = extensions
+        )
+    }
+
+    /**
      * Retrieves the total memory space of a storage volume.
      *
      * @param path The path to the storage volume.

@@ -3,6 +3,7 @@ package io.bashpsk.emptylibs
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
+import android.os.Environment
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.SdCard
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Usb
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -51,6 +53,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.storage.storage.FileData
+import io.bashpsk.emptylibs.storage.storage.FileType
 import io.bashpsk.emptylibs.storage.storage.FileVisibleType
 import io.bashpsk.emptylibs.storage.storage.StorageExt
 import io.bashpsk.emptylibs.storage.storage.StorageVolumeData
@@ -72,6 +76,16 @@ fun StorageScreen() {
     ).collectAsStateWithLifecycle(initialValue = persistentListOf())
 
     var selectedVolumeData by remember { mutableStateOf<StorageVolumeData?>(null) }
+
+    val dcimDirectory = remember {
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+    }
+
+    val imageFileList by StorageExt.getFileListByExtensionsFlow(
+        context = context,
+        dcimDirectory?.path ?: "",
+        extensions = FileType.IMAGE.extension
+    ).collectAsStateWithLifecycle(initialValue = persistentListOf())
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -234,6 +248,14 @@ fun StorageScreen() {
                         Text("Make File as Hidden")
                     }
                 }
+            }
+
+            items(
+                items = imageFileList,
+                key = { fileData -> fileData.path }
+            ) { fileData ->
+
+                FileView(fileData = fileData)
             }
         }
     }
@@ -410,5 +432,32 @@ private fun StorageSpaceRow(title: () -> String, space: () -> String) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+private fun FileView(fileData: FileData) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraSmall
+    ) {
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(all = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+
+            Text(
+                text = fileData.title,
+                maxLines = 1,
+                overflow = TextOverflow.MiddleEllipsis
+            )
+
+            Text(text = fileData.path)
+        }
     }
 }
