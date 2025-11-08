@@ -9,8 +9,10 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.toColorInt
 import androidx.core.graphics.toColorLong
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.duration
+import io.bashpsk.emptylibs.formatter.format.EmptyFormat.findResolutionLabel
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.time
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.toRoundedDecimal
+import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.DatePeriod
@@ -111,7 +113,7 @@ object EmptyFormat {
     @JvmStatic
     fun dateTime(millis: Long, pattern: DateTimePattern): String {
 
-        val instant = Instant.Companion.fromEpochMilliseconds(epochMilliseconds = millis)
+        val instant = Instant.fromEpochMilliseconds(epochMilliseconds = millis)
         val localDateTime = instant.toLocalDateTime(timeZone = TimeZone.currentSystemDefault())
 
         return dateTime(localDateTime = localDateTime, pattern = pattern)
@@ -143,10 +145,10 @@ object EmptyFormat {
 
         return try {
 
-            LocalDateTime.Companion.parse(
+            LocalDateTime.parse(
                 input = dateTime,
                 format = findDateTimeFormat(pattern = pattern)
-            ).toInstant(timeZone = TimeZone.Companion.currentSystemDefault()).toEpochMilliseconds()
+            ).toInstant(timeZone = TimeZone.currentSystemDefault()).toEpochMilliseconds()
         } catch (exception: Exception) {
 
             Log.e(LOG_TAG, exception.message, exception)
@@ -216,21 +218,21 @@ object EmptyFormat {
 
         return when (pattern) {
 
-            DateTimePattern.TIME_HH_MM -> LocalTime.Companion.Format {
+            DateTimePattern.TIME_HH_MM -> LocalTime.Format {
 
                 amPmHour(padding = Padding.ZERO)
                 char(value = ':')
                 minute(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIME_HH_MM_24 -> LocalTime.Companion.Format {
+            DateTimePattern.TIME_HH_MM_24 -> LocalTime.Format {
 
                 hour(padding = Padding.ZERO)
                 char(value = ':')
                 minute(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIME_HH_MM_SS -> LocalTime.Companion.Format {
+            DateTimePattern.TIME_HH_MM_SS -> LocalTime.Format {
 
                 amPmHour(padding = Padding.ZERO)
                 char(value = ':')
@@ -239,7 +241,7 @@ object EmptyFormat {
                 second(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIME_HH_MM_SS_24 -> LocalTime.Companion.Format {
+            DateTimePattern.TIME_HH_MM_SS_24 -> LocalTime.Format {
 
                 hour(padding = Padding.ZERO)
                 char(value = ':')
@@ -248,7 +250,7 @@ object EmptyFormat {
                 second(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIME_12 -> LocalTime.Companion.Format {
+            DateTimePattern.TIME_12 -> LocalTime.Format {
 
                 amPmHour(padding = Padding.ZERO)
                 char(value = ':')
@@ -259,7 +261,7 @@ object EmptyFormat {
                 amPmMarker(am = "AM", pm = "PM")
             }
 
-            DateTimePattern.TIME_24 -> LocalTime.Companion.Format {
+            DateTimePattern.TIME_24 -> LocalTime.Format {
 
                 hour(padding = Padding.ZERO)
                 char(value = ':')
@@ -268,7 +270,7 @@ object EmptyFormat {
                 second(padding = Padding.ZERO)
             }
 
-            else -> LocalTime.Companion.Format {
+            else -> LocalTime.Format {
 
                 amPmHour(padding = Padding.ZERO)
                 char(value = ':')
@@ -294,21 +296,21 @@ object EmptyFormat {
 
         return when (pattern) {
 
-            DateTimePattern.TIME_HH_MM -> LocalDateTime.Companion.Format {
+            DateTimePattern.TIME_HH_MM -> LocalDateTime.Format {
 
                 amPmHour(padding = Padding.ZERO)
                 char(value = ':')
                 minute(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIME_HH_MM_24 -> LocalDateTime.Companion.Format {
+            DateTimePattern.TIME_HH_MM_24 -> LocalDateTime.Format {
 
                 hour(padding = Padding.ZERO)
                 char(value = ':')
                 minute(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIME_HH_MM_SS -> LocalDateTime.Companion.Format {
+            DateTimePattern.TIME_HH_MM_SS -> LocalDateTime.Format {
 
                 amPmHour(padding = Padding.ZERO)
                 char(value = ':')
@@ -317,7 +319,7 @@ object EmptyFormat {
                 second(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIME_HH_MM_SS_24 -> LocalDateTime.Companion.Format {
+            DateTimePattern.TIME_HH_MM_SS_24 -> LocalDateTime.Format {
 
                 hour(padding = Padding.ZERO)
                 char(value = ':')
@@ -326,7 +328,7 @@ object EmptyFormat {
                 second(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIME_12 -> LocalDateTime.Companion.Format {
+            DateTimePattern.TIME_12 -> LocalDateTime.Format {
 
                 amPmHour(padding = Padding.ZERO)
                 char(value = ':')
@@ -337,7 +339,7 @@ object EmptyFormat {
                 amPmMarker(am = "AM", pm = "PM")
             }
 
-            DateTimePattern.TIME_24 -> LocalDateTime.Companion.Format {
+            DateTimePattern.TIME_24 -> LocalDateTime.Format {
 
                 hour(padding = Padding.ZERO)
                 char(value = ':')
@@ -346,7 +348,7 @@ object EmptyFormat {
                 second(padding = Padding.ZERO)
             }
 
-            DateTimePattern.SHORT_DATE -> LocalDateTime.Companion.Format {
+            DateTimePattern.SHORT_DATE -> LocalDateTime.Format {
 
                 day(padding = Padding.ZERO)
                 char(value = ':')
@@ -355,7 +357,7 @@ object EmptyFormat {
                 year(padding = Padding.ZERO)
             }
 
-            DateTimePattern.LONG_DATE -> LocalDateTime.Companion.Format {
+            DateTimePattern.LONG_DATE -> LocalDateTime.Format {
 
                 monthName(names = monthNames)
                 char(value = ' ')
@@ -365,7 +367,7 @@ object EmptyFormat {
                 year(padding = Padding.ZERO)
             }
 
-            DateTimePattern.SHORT_DATE_TIME -> LocalDateTime.Companion.Format {
+            DateTimePattern.SHORT_DATE_TIME -> LocalDateTime.Format {
 
                 day(padding = Padding.ZERO)
                 char(value = ':')
@@ -380,7 +382,7 @@ object EmptyFormat {
                 amPmMarker(am = "AM", pm = "PM")
             }
 
-            DateTimePattern.SHORT_DATE_TIME_24 -> LocalDateTime.Companion.Format {
+            DateTimePattern.SHORT_DATE_TIME_24 -> LocalDateTime.Format {
 
                 day(padding = Padding.ZERO)
                 char(value = ':')
@@ -393,7 +395,7 @@ object EmptyFormat {
                 minute(padding = Padding.ZERO)
             }
 
-            DateTimePattern.LONG_DATE_TIME -> LocalDateTime.Companion.Format {
+            DateTimePattern.LONG_DATE_TIME -> LocalDateTime.Format {
 
                 dayOfWeek(names = dayOfWeekNames)
                 char(value = ',')
@@ -412,7 +414,7 @@ object EmptyFormat {
                 amPmMarker(am = "AM", pm = "PM")
             }
 
-            DateTimePattern.LONG_DATE_TIME_24 -> LocalDateTime.Companion.Format {
+            DateTimePattern.LONG_DATE_TIME_24 -> LocalDateTime.Format {
 
                 dayOfWeek(names = dayOfWeekNames)
                 char(value = ',')
@@ -429,7 +431,7 @@ object EmptyFormat {
                 minute(padding = Padding.ZERO)
             }
 
-            DateTimePattern.LONG_DATE_TIME_MILLIS -> LocalDateTime.Companion.Format {
+            DateTimePattern.LONG_DATE_TIME_MILLIS -> LocalDateTime.Format {
 
                 dayOfWeek(names = dayOfWeekNames)
                 char(value = ',')
@@ -452,7 +454,7 @@ object EmptyFormat {
                 amPmMarker(am = "AM", pm = "PM")
             }
 
-            DateTimePattern.LONG_DATE_TIME_MILLIS_24 -> LocalDateTime.Companion.Format {
+            DateTimePattern.LONG_DATE_TIME_MILLIS_24 -> LocalDateTime.Format {
 
                 dayOfWeek(names = dayOfWeekNames)
                 char(value = ',')
@@ -473,7 +475,7 @@ object EmptyFormat {
                 secondFraction(fixedLength = 3)
             }
 
-            DateTimePattern.FILE_NAME -> LocalDateTime.Companion.Format {
+            DateTimePattern.FILE_NAME -> LocalDateTime.Format {
 
                 day(padding = Padding.ZERO)
                 char(value = '-')
@@ -488,58 +490,58 @@ object EmptyFormat {
                 second(padding = Padding.ZERO)
             }
 
-            DateTimePattern.DAY_ONLY -> LocalDateTime.Companion.Format {
+            DateTimePattern.DAY_ONLY -> LocalDateTime.Format {
 
                 dayOfWeek(names = dayOfWeekNames)
             }
 
-            DateTimePattern.MONTH_ONLY -> LocalDateTime.Companion.Format {
+            DateTimePattern.MONTH_ONLY -> LocalDateTime.Format {
 
                 monthName(names = monthNames)
             }
 
-            DateTimePattern.YEAR_ONLY -> LocalDateTime.Companion.Format {
+            DateTimePattern.YEAR_ONLY -> LocalDateTime.Format {
 
                 year(padding = Padding.ZERO)
             }
 
-            DateTimePattern.MONTH_DAY -> LocalDateTime.Companion.Format {
+            DateTimePattern.MONTH_DAY -> LocalDateTime.Format {
 
                 monthName(names = monthNames)
                 char(value = ' ')
                 day(padding = Padding.ZERO)
             }
 
-            DateTimePattern.SHORT_MONTH_YEAR -> LocalDateTime.Companion.Format {
+            DateTimePattern.SHORT_MONTH_YEAR -> LocalDateTime.Format {
 
                 monthName(names = monthNames)
                 char(value = ' ')
                 yearTwoDigits(baseYear = 1960)
             }
 
-            DateTimePattern.MONTH_YEAR -> LocalDateTime.Companion.Format {
+            DateTimePattern.MONTH_YEAR -> LocalDateTime.Format {
 
                 monthName(names = monthNames)
                 char(value = ' ')
                 year(padding = Padding.ZERO)
             }
 
-            DateTimePattern.DAY_OF_YEAR -> LocalDateTime.Companion.Format {
+            DateTimePattern.DAY_OF_YEAR -> LocalDateTime.Format {
 
                 dayOfYear(padding = Padding.ZERO)
             }
 
-            DateTimePattern.DAY_OF_MONTH -> LocalDateTime.Companion.Format {
+            DateTimePattern.DAY_OF_MONTH -> LocalDateTime.Format {
 
                 day(padding = Padding.ZERO)
             }
 
-            DateTimePattern.MONTH_OF_YEAR -> LocalDateTime.Companion.Format {
+            DateTimePattern.MONTH_OF_YEAR -> LocalDateTime.Format {
 
                 monthNumber(padding = Padding.ZERO)
             }
 
-            DateTimePattern.TIMESTAMP_COMPACT -> LocalDateTime.Companion.Format {
+            DateTimePattern.TIMESTAMP_COMPACT -> LocalDateTime.Format {
 
                 year(padding = Padding.ZERO)
                 monthNumber(padding = Padding.ZERO)
@@ -566,19 +568,19 @@ object EmptyFormat {
 
         return try {
 
-            val hourMillis = Duration.Companion.convert(
+            val hourMillis = Duration.convert(
                 value = hours.toDouble(),
                 sourceUnit = DurationUnit.HOURS,
                 targetUnit = DurationUnit.MILLISECONDS
             ).toLong()
 
-            val minuteMillis = Duration.Companion.convert(
+            val minuteMillis = Duration.convert(
                 value = minutes.toDouble(),
                 sourceUnit = DurationUnit.MINUTES,
                 targetUnit = DurationUnit.MILLISECONDS
             ).toLong()
 
-            val secondMillis = Duration.Companion.convert(
+            val secondMillis = Duration.convert(
                 value = seconds.toDouble(),
                 sourceUnit = DurationUnit.SECONDS,
                 targetUnit = DurationUnit.MILLISECONDS
@@ -779,7 +781,7 @@ object EmptyFormat {
     @JvmStatic
     fun getTodayStartMillis(): Long {
 
-        val timeZone = TimeZone.Companion.currentSystemDefault()
+        val timeZone = TimeZone.currentSystemDefault()
         val localDateTime = Clock.System.now().toLocalDateTime(timeZone = timeZone)
         val startOfDay = localDateTime.date.atStartOfDayIn(timeZone = timeZone)
 
@@ -798,12 +800,12 @@ object EmptyFormat {
     @JvmStatic
     fun getTodayEndMillis(): Long {
 
-        val timeZone = TimeZone.Companion.currentSystemDefault()
+        val timeZone = TimeZone.currentSystemDefault()
         val localDateTime = Clock.System.now().toLocalDateTime(timeZone = timeZone)
 
         val endOfDay = localDateTime.date.plus(period = DatePeriod(days = 1)).atStartOfDayIn(
             timeZone = timeZone
-        ).minus(value = 1, unit = DateTimeUnit.Companion.NANOSECOND)
+        ).minus(value = 1, unit = DateTimeUnit.NANOSECOND)
 
         return endOfDay.toEpochMilliseconds()
     }
@@ -821,7 +823,7 @@ object EmptyFormat {
     @JvmStatic
     fun getDayStartMillis(localDateTime: LocalDateTime): Long {
 
-        val timeZone = TimeZone.Companion.currentSystemDefault()
+        val timeZone = TimeZone.currentSystemDefault()
         val startOfDay = localDateTime.date.atStartOfDayIn(timeZone = timeZone)
 
         return startOfDay.toEpochMilliseconds()
@@ -840,11 +842,11 @@ object EmptyFormat {
     @JvmStatic
     fun getDayEndMillis(localDateTime: LocalDateTime): Long {
 
-        val timeZone = TimeZone.Companion.currentSystemDefault()
+        val timeZone = TimeZone.currentSystemDefault()
 
         val endOfDay = localDateTime.date.plus(period = DatePeriod(days = 1)).atStartOfDayIn(
             timeZone = timeZone
-        ).minus(value = 1, unit = DateTimeUnit.Companion.NANOSECOND)
+        ).minus(value = 1, unit = DateTimeUnit.NANOSECOND)
 
         return endOfDay.toEpochMilliseconds()
     }
@@ -1130,7 +1132,7 @@ object EmptyFormat {
      * - "#RRGGBBAA" (e.g., "#FF0000FF" for red with full opacity)
      *
      * If the input string is not in a valid hexadecimal format, or if it does not represent
-     * a valid color, the function will return an [Color.Companion.Unspecified].
+     * a valid color, the function will return an [Color.Unspecified].
      *
      * @param hex The hexadecimal color string.
      * @return The Android color integer.
@@ -1217,56 +1219,64 @@ object EmptyFormat {
     }
 
     /**
-     * Returns a human-readable resolution label (e.g., "1080p", "4K UHD", "16K") based on screen
-     * width and height.
+     * Finds a human-readable resolution label (e.g., "1080p HD", "4K UHD") for a given width and
+     * height.
      *
-     * This function identifies common video and display resolutions including SD, HD, Full HD,
-     * Ultra HD,
-     * cinema-grade resolutions, and even ultra-high formats like 12K and 16K. If the resolution
-     * doesn't match
-     * a known label, it falls back to raw pixel dimensions (e.g., "1234x567").
+     * This function maps common video and display resolutions to their standard labels, such as
+     * SD, HD, Full HD (FHD), Quad HD (QHD), and various Ultra HD (UHD) standards up to 16K.
+     * It prioritizes the vertical dimension (height) for labeling, which is a common convention
+     * (e.g., 1080p refers to 1080 pixels of vertical resolution).
      *
-     * @param width  The width of the resolution in pixels.
+     * If a resolution does not match any predefined standard, the function returns a string
+     * representing the raw dimensions in the format `"width x height"`.
+     *
+     * @param width The width of the resolution in pixels.
      * @param height The height of the resolution in pixels.
-     * @return A string describing the resolution in standard format.
+     * @return A `String` containing the standard resolution label (e.g., "1080p FHD") or the
+     * raw dimensions (e.g., "1366x768").
      *
-     * Example:
+     * @sample
      * ```
-     * formatResolutionLabel(1920, 1080) // returns "1080p HD"
-     * formatResolutionLabel(15360, 8640) // returns "16K UHD"
+     * findResolutionLabel(1920, 1080) // returns "1080p FHD"
+     * findResolutionLabel(3840, 2160) // returns "4K UHD"
+     * findResolutionLabel(1366, 768)  // returns "1366x768"
      * ```
      */
     @JvmStatic
     fun findResolutionLabel(width: Int, height: Int): String {
 
-        val resolution = maxOf(width, height)
+        return findResolutionLabelOrNull(width = width, height = height) ?: "${width}x${height}"
+    }
 
-        return when {
+    /**
+     * Finds a human-readable resolution label (e.g., "1080p HD", "4K UHD") for a given width and
+     * height, returning null if no standard match is found.
+     *
+     * This function maps common video and display resolutions to their standard labels, such as
+     * SD, HD, Full HD (FHD), Quad HD (QHD), and various Ultra HD (UHD) standards up to 16K.
+     * It prioritizes the vertical dimension (height) for labeling, which is a common convention
+     * (e.g., 1080p refers to 1080 pixels of vertical resolution).
+     *
+     * Unlike `findResolutionLabel`, this function returns `null` if the resolution does not match
+     * any predefined standard, allowing for custom fallback handling.
+     *
+     * @param width The width of the resolution in pixels.
+     * @param height The height of the resolution in pixels.
+     * @return A `String` containing the standard resolution label (e.g., "1080p FHD"), or `null`
+     * if the resolution is not a recognized standard.
+     *
+     * @sample
+     * ```
+     * findResolutionLabelOrNull(1920, 1080) // returns "1080p FHD"
+     * findResolutionLabelOrNull(3840, 2160) // returns "4K UHD"
+     * findResolutionLabelOrNull(1366, 768)  // returns null
+     * ```
+     * @see findResolutionLabel
+     */
+    @JvmStatic
+    fun findResolutionLabelOrNull(width: Int, height: Int): String? {
 
-            resolution >= 15360 -> "16K UHD"
-            resolution >= 11520 -> "12K UHD"
-            resolution >= 8192 -> "8K UHD"
-            resolution >= 7680 -> "8K"
-            resolution >= 5120 -> "5K"
-            resolution >= 4096 -> "4K DCI"
-            resolution >= 3840 -> "4K UHD"
-            resolution >= 3200 -> "3K"
-            resolution >= 2880 -> "WQHD+"
-            resolution >= 2560 -> "2.5K"
-            resolution >= 2048 -> "2K DCI"
-            resolution >= 1920 -> "1080p HD"
-            resolution >= 1600 -> "UXGA"
-            resolution >= 1440 -> "HD+"
-            resolution >= 1366 -> "HD"
-            resolution >= 1280 -> "720p"
-            resolution >= 1024 -> "XGA"
-            resolution >= 960 -> "FWVGA"
-            resolution >= 854 -> "480p"
-            resolution >= 640 -> "360p"
-            resolution >= 426 -> "240p"
-            resolution >= 256 -> "144p"
-            else -> "${width}x$height"
-        }
+        return ResolutionType.findOrNull(width = width, height = height)?.label
     }
 
     /**
@@ -1326,9 +1336,7 @@ object EmptyFormat {
         }
 
         val divisor = gcd(width, height)
-        val ratioWidth = width / divisor
-        val ratioHeight = height / divisor
 
-        return "$ratioWidth:$ratioHeight"
+        return "${width / divisor}:${height / divisor}"
     }
 }

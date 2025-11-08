@@ -11,6 +11,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -66,7 +67,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             }.filter { volumeData -> volumeData.path.isNotEmpty() }.toImmutableList()
         } catch (exception: Exception) {
 
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             Log.w("StorageExt", exception.message, exception)
             persistentListOf()
         }
@@ -124,7 +125,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             )
         } catch (exception: Exception) {
 
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             Log.w("StorageExt", exception.message, exception)
             DirectoryFileData()
         }
@@ -167,7 +168,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             )
         } catch (exception: Exception) {
 
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             Log.w("StorageExt", exception.message, exception)
             null
         }
@@ -200,7 +201,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             )
         } catch (exception: Exception) {
 
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             Log.w("StorageExt", exception.message, exception)
             null
         }
@@ -228,7 +229,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             }.toImmutableList()
         } catch (exception: Exception) {
 
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             Log.w("StorageExt", exception.message, exception)
             persistentListOf()
         }
@@ -299,7 +300,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             foldersFileSize + fileSize
         } catch (exception: Exception) {
 
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             Log.w("StorageExt", exception.message, exception)
             0L
         }
@@ -335,7 +336,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             }
         } catch (exception: Exception) {
 
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             Log.e("StorageExt", exception.message, exception)
             MakeFileResult.Failed(message = exception.message ?: "Unknown Error")
         }

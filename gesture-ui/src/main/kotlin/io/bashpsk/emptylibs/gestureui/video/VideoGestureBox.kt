@@ -309,7 +309,7 @@ fun VideoGestureBox(
 
             when (state.dragGestureAction) {
 
-                DragGestureAction.Transform -> null
+                DragGestureAction.Transform ->  state.dragGestureAction = null
                 else -> {}
             }
 

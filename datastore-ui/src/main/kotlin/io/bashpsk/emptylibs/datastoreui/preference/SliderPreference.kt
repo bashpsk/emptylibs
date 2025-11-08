@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -161,14 +160,14 @@ fun SliderPreference(
                     },
                     colors = sliderColors,
                     interactionSource = sliderInteractionSource,
-                    thumb = { sliderState: SliderState ->
+                    thumb = { sliderState ->
 
                         SliderDefaults.Thumb(
                             interactionSource = sliderInteractionSource,
                             colors = sliderColors
                         )
                     },
-                    track = { sliderState: SliderState ->
+                    track = { sliderState ->
 
                         SliderDefaults.Track(
                             modifier = Modifier.fillMaxWidth(),

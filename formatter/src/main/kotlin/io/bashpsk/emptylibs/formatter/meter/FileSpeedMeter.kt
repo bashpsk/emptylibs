@@ -1,12 +1,12 @@
 package io.bashpsk.emptylibs.formatter.meter
 
 import io.bashpsk.emptylibs.formatter.extension.fileLength
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
-import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -24,7 +24,7 @@ fun fileSpeedMeter(
 
                 val previous = destination.fileLength()
 
-                coroutineContext.ensureActive()
+                currentCoroutineContext().ensureActive()
                 delay(duration = interval)
 
                 val newSpeedData = fileSpeedMeter(
@@ -37,7 +37,7 @@ fun fileSpeedMeter(
             }
         } catch (exception: Exception) {
 
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             emit(value = null)
         }
     }
