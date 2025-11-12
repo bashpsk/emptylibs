@@ -3,7 +3,6 @@ package io.bashpsk.emptylibs.imageview.transform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.mapSaver
@@ -20,17 +19,13 @@ import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
  * This function is a composable function that uses [rememberSaveable] to ensure that the
  * [ImageTransformState] is preserved across recompositions and configuration changes.
  *
- * @param config The configuration for image transformation. Defaults to a default
- * [TransformImageConfig].
  * @return An [ImageTransformState] instance.
  */
 @Composable
-fun rememberImageTransformState(
-    config: TransformImageConfig = TransformImageConfig()
-): ImageTransformState {
+fun rememberImageTransformState(): ImageTransformState {
 
-    return rememberSaveable(config, saver = ImageTransformState.StateSaver(config = config)) {
-        ImageTransformState(config = config)
+    return rememberSaveable(saver = ImageTransformState.StateSaver()) {
+        ImageTransformState()
     }
 }
 
@@ -42,7 +37,7 @@ fun rememberImageTransformState(
  *
  * @param config The configuration for image transformations.
  */
-class ImageTransformState(val config: TransformImageConfig) {
+class ImageTransformState() {
 
     /**
      * The current zoom level of the image.
@@ -57,7 +52,7 @@ class ImageTransformState(val config: TransformImageConfig) {
      * This property can be observed for changes.
      * methods.
      */
-    var rotation by mutableIntStateOf(0)
+    var rotation by mutableFloatStateOf(0F)
 
     /**
      * The current position offset of the image.
@@ -71,9 +66,9 @@ class ImageTransformState(val config: TransformImageConfig) {
      */
     fun resetAllValues() {
 
-        zoom = 1.0F
-        rotation = 0
-        position = Offset.Zero
+        resetZoom()
+        resetRotation()
+        resetPosition()
     }
 
     /**
@@ -89,7 +84,7 @@ class ImageTransformState(val config: TransformImageConfig) {
      */
     fun resetRotation() {
 
-        rotation = 0
+        rotation = 0F
     }
 
     /**
@@ -106,7 +101,7 @@ class ImageTransformState(val config: TransformImageConfig) {
         private const val KEY_ROTATION = "IMAGE-TRANSFORM-ROTATION"
         private const val KEY_POSITION = "IMAGE-TRANSFORM-POSITION"
 
-        fun StateSaver(config: TransformImageConfig): Saver<ImageTransformState, Any> = mapSaver(
+        fun StateSaver(): Saver<ImageTransformState, Any> = mapSaver(
             save = { state ->
 
                 mapOf(
@@ -117,10 +112,10 @@ class ImageTransformState(val config: TransformImageConfig) {
             },
             restore = { elements ->
 
-                ImageTransformState(config = config).apply {
+                ImageTransformState().apply {
 
                     zoom = elements.getOrElse(KEY_ZOOM) { 1.0F } as Float
-                    rotation = elements.getOrElse(KEY_ROTATION) { 0 } as Int
+                    rotation = elements.getOrElse(KEY_ROTATION) { 0F } as Float
 
                     position = (elements.getOrElse(
                         KEY_POSITION

@@ -43,7 +43,6 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.imageview.transform.TransformImageConfig
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
 import io.bashpsk.emptylibs.imageview.transform.rememberImageTransformState
 import kotlinx.coroutines.launch
@@ -63,8 +62,7 @@ internal fun KropImagePreview(
 ) {
 
     val sheetCoroutineScope = rememberCoroutineScope()
-    val transformConfig = rememberSaveable { TransformImageConfig(enableRotation = false) }
-    val imageTransformState = rememberImageTransformState(config = transformConfig)
+    val imageTransformState = rememberImageTransformState()
 
     var isOriginalImage by rememberSaveable { mutableStateOf(value = false) }
 
@@ -127,16 +125,10 @@ internal fun KropImagePreview(
                                 .aspectRatio(bitmap.width.toFloat() / bitmap.height),
                             imageModel = bitmap.asAndroidBitmap(),
                             state = imageTransformState,
-                            onLeftSwipe = {
-
-                                imageTransformState.resetAllValues()
-                                isOriginalImage = isOriginalImage.not()
-                            },
-                            onRightSwipe = {
-
-                                imageTransformState.resetAllValues()
-                                isOriginalImage = isOriginalImage.not()
-                            }
+                            enableZoom = false,
+                            enableDoubleTapZoom = false,
+                            enablePan = false,
+                            enableRotation = false
                         )
 
                         Card(

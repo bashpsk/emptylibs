@@ -33,7 +33,6 @@ import io.bashpsk.emptylibs.imagekrop.crop.ImageKrop
 import io.bashpsk.emptylibs.imagekrop.crop.KropConfig
 import io.bashpsk.emptylibs.imagekrop.crop.rememberImageKropState
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
-import io.bashpsk.emptylibs.imageview.transform.rememberImageTransformState
 import io.bashpsk.emptylibs.screen.imageedit.saveAsFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,7 +42,6 @@ fun ImageCropScreen() {
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val imageTransformState = rememberImageTransformState()
 
     val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
 
@@ -133,13 +131,11 @@ fun ImageCropScreen() {
 
                     TransformImageView(
                         modifier = Modifier.weight(weight = 1.0F),
-                        imageModel = bitmap.asAndroidBitmap(),
-                        state = imageTransformState
+                        imageModel = bitmap.asAndroidBitmap()
                     )
                 } ?: TransformImageView(
                     modifier = Modifier.weight(weight = 1.0F),
-                    imageModel = imageBitmap.asAndroidBitmap(),
-                    state = imageTransformState
+                    imageModel = imageBitmap.asAndroidBitmap()
                 )
 
                 Button(

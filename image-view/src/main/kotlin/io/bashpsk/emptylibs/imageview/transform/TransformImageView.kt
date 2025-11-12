@@ -1,15 +1,18 @@
 package io.bashpsk.emptylibs.imageview.transform
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material3.CircularProgressIndicator
@@ -17,80 +20,141 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
-import kotlin.math.abs
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * A Composable that displays an image with support for various transformations like
- * zoom, pan, rotation, and swipe gestures.
+ * A Composable that displays an image with support for transformations like
+ * zoom, pan, and rotation. It also handles click and long-click events.
  *
- * @param modifier The modifier to be applied to the layout.
- * @param imageModel A lambda that returns the image model to be displayed. This can be a URL,
- * a local file path, or any other model supported by Coil.
- * @param state The [ImageTransformState] which holds the current state of zoom, pan, and rotation.
- * Defaults to a remembered [ImageTransformState] instance.
- * @param onLeftSwipe A lambda that is invoked when a left swipe gesture is detected.
- * @param onRightSwipe A lambda that is invoked when a right swipe gesture is detected.
- * @param onClick A lambda that is invoked when the image is clicked. It receives the [Offset]
- * of the click.
- * @param onLongClick A lambda that is invoked when the image is long-clicked. It receives the
- * [Offset] of the long click.
- * @param contentScale The scaling to be applied to the image when displayed.
- * Defaults to [ContentScale.Fit].
+ * This view integrates with Coil for image loading and allows users to
+ * interact with the image using gestures:
+ * - **Pinch-to-zoom:** Use two fingers to zoom in and out.
+ * - **Double-tap to zoom:** Quickly zoom to predefined levels.
+ * - **Pan:** Drag with one finger to move around a zoomed-in image.
+ * - **Rotate:** Twist with two fingers to rotate the image.
+ *
+ * This is a convenience overload for displaying a single image. For displaying a
+ * swipeable gallery, use the overload that accepts an `imageModelList`.
+ *
+ * @param modifier The [Modifier] to be applied to the composable.
+ * @param state The [ImageTransformState] that holds and manages the current transformation
+ *   state (zoom, pan, rotation). A default state is remembered if not provided.
+ * @param imageModel The image model to be displayed. This can be a URL, a local
+ *   file path, or any other type supported by the image loading library (Coil).
+ * @param contentScale The scaling to be applied to the image to fit within the composable's
+ *   bounds. Defaults to [ContentScale.Fit].
+ * @param zoomRange The allowed range for zooming. Defaults to `0.4F..8.0F`.
+ * @param enableZoom Toggles whether pinch-to-zoom is enabled. Defaults to `true`.
+ * @param enableDoubleTapZoom Toggles whether double-tap to zoom is enabled. Defaults to `true`.
+ * @param enableRotation Toggles whether two-finger rotation is enabled. Defaults to `true`.
  */
 @Composable
 fun TransformImageView(
     modifier: Modifier = Modifier,
-    imageModel: Any?,
     state: ImageTransformState = rememberImageTransformState(),
+    imageModel: Any?,
+    contentScale: ContentScale = ContentScale.Fit,
     zoomRange: ClosedFloatingPointRange<Float> = 0.4F..8.0F,
-    onLeftSwipe: () -> Unit = {},
-    onRightSwipe: () -> Unit = {},
+    enableZoom: Boolean = true,
+    enableDoubleTapZoom: Boolean = true,
+    enableRotation: Boolean = true,
+    enablePan: Boolean = true,
     onClick: (offset: Offset) -> Unit = {},
     onLongClick: (offset: Offset) -> Unit = {},
-    contentScale: ContentScale = ContentScale.Fit,
 ) {
 
-    val gestureCoroutineScope = rememberCoroutineScope()
+    TransformImageView(
+        modifier = modifier,
+        state = state,
+        imageModelList = persistentListOf(imageModel),
+        initialImage = imageModel,
+        contentScale = contentScale,
+        zoomRange = zoomRange,
+        enableControls = false,
+        enableZoom = enableZoom,
+        enableDoubleTapZoom = enableDoubleTapZoom,
+        enableRotation = enableRotation,
+        enablePan = enablePan,
+        onClick = onClick,
+        onLongClick = onLongClick
+    )
+}
 
-    var resetImageGestureJob by remember { mutableStateOf<Job?>(null) }
-    var imageGesture by remember { mutableStateOf<TransformImageGesture?>(null) }
-    var dragSwipeMinimum by remember { mutableFloatStateOf(0.0F) }
-    var touchCount by remember { mutableIntStateOf(0) }
-    val isOneTouch by remember(touchCount) { derivedStateOf { touchCount == 1 } }
-    val isTwoTouch by remember(touchCount) { derivedStateOf { touchCount == 2 } }
-    val isZoomed by remember(state) { derivedStateOf { state.zoom != 1.0F } }
+/**
+ * A Composable that displays a swipeable gallery of images with support for
+ * transformations like zoom, pan, and rotation.
+ *
+ * This view integrates with Coil for image loading and uses a `HorizontalPager`
+ * to display a list of images. It allows users to interact with each image
+ * using gestures:
+ * - **Pinch-to-zoom:** Use two fingers to zoom in and out.
+ * - **Double-tap to zoom:** Quickly zoom to predefined levels.
+ * - **Pan:** Drag with one finger to move around a zoomed-in image.
+ * - **Rotate:** Twist with two fingers to rotate the image.
+ * - **Swipe:** Swipe horizontally to navigate between images when not zoomed in.
+ *
+ * This overload is suitable for displaying a gallery of multiple images.
+ *
+ * @param modifier The [Modifier] to be applied to the layout.
+ * @param state The [ImageTransformState] which holds and manages the current state of zoom,
+ *   pan, and rotation for the active image. A default state is remembered by default.
+ * @param imageModelList An immutable list of image models to be displayed in the pager.
+ *   Models can be URLs, local file paths, or any other type supported by Coil.
+ * @param initialImage The specific image model from [imageModelList] that should be displayed
+ *   initially. If not found or null, the first image is shown.
+ * @param contentScale The scaling to be applied to the image to fit within the bounds of the
+ *   composable. Defaults to [ContentScale.Fit].
+ * @param zoomRange The allowed range for zooming. Defaults to `0.4F..8.0F`.
+ * @param enableControls Toggles the visibility of built-in controls for navigation and
+ *   resetting transformations. Defaults to `false`.
+ */
+@Composable
+fun TransformImageView(
+    modifier: Modifier = Modifier,
+    state: ImageTransformState = rememberImageTransformState(),
+    imageModelList: ImmutableList<Any?>,
+    initialImage: Any? = null,
+    contentScale: ContentScale = ContentScale.Fit,
+    zoomRange: ClosedFloatingPointRange<Float> = 0.4F..8.0F,
+    enableControls: Boolean = false,
+    enableZoom: Boolean = true,
+    enableDoubleTapZoom: Boolean = true,
+    enableRotation: Boolean = true,
+    enablePan: Boolean = true,
+    enableSwipe: Boolean = true,
+    onClick: (offset: Offset) -> Unit = {},
+    onLongClick: (offset: Offset) -> Unit = {}
+) {
 
-    val isCanSwipe by remember(state) {
-        derivedStateOf { state.zoom == 1.0F && state.config.enableSwipe }
+    val pagerCoroutineScope = rememberCoroutineScope()
+
+    val initialPage by remember(imageModelList, initialImage) {
+        derivedStateOf { imageModelList.indexOf(initialImage).coerceIn(imageModelList.indices) }
     }
 
-    fun resetDragGestureAction() {
+    val pagerState = rememberPagerState(initialPage = initialPage) { imageModelList.size }
 
-        resetImageGestureJob?.cancel()
-        resetImageGestureJob = gestureCoroutineScope.launch(context = Dispatchers.Default) {
+    var touchCount by rememberSaveable { mutableIntStateOf(0) }
+    val isOneTouch by remember(touchCount) { derivedStateOf { touchCount == 1 } }
+    val isTwoTouch by remember(touchCount) { derivedStateOf { touchCount == 2 } }
 
-            delay(duration = 1000.milliseconds)
-            imageGesture = null
-        }
+    val isCanSwipe by remember(state) {
+        derivedStateOf { state.zoom == 1.0F && enableSwipe }
     }
 
     val touchModifier = Modifier.pointerInput(Unit) {
@@ -111,254 +175,135 @@ fun TransformImageView(
         detectTapGestures(
             onDoubleTap = { position ->
 
-                val zoomFactor = when (state.zoom) {
+                if (enableDoubleTapZoom) {
 
-                    in 0.80F..1.40F -> 2.0F
-                    in 1.80F..2.40F -> 3.0F
-                    in 2.80F..3.40F -> 4.0F
-                    else -> 1.0F
-                }.coerceIn(range = zoomRange)
+                    val zoomFactor = when (state.zoom) {
 
-                state.zoom = zoomFactor
+                        in 0.80F..1.40F -> 2.0F
+                        in 1.80F..2.40F -> 3.0F
+                        in 2.80F..3.40F -> 4.0F
+                        else -> 1.0F
+                    }.coerceIn(range = zoomRange)
+
+                    state.apply {
+
+                        resetAllValues()
+                        zoom = zoomFactor
+                    }
+                }
             },
             onTap = onClick,
             onLongPress = onLongClick
         )
     }
 
-    val dragPointerInput = Modifier.pointerInput(Unit) {
-
-        detectHorizontalDragGestures(
-            onDragCancel = {
-
-                resetDragGestureAction()
-            },
-            onDragEnd = {
-
-                resetDragGestureAction()
-            }
-        ) { change, dragAmount ->
-
-            change.consume()
-            dragSwipeMinimum += dragAmount
-
-            when {
-
-                isTwoTouch -> {
-
-                    dragSwipeMinimum = 0.0F
-                    imageGesture = TransformImageGesture.INIT
-                    change.changedToUp()
-                    return@detectHorizontalDragGestures
-                }
-
-                isOneTouch && abs(x = dragSwipeMinimum) > 75.0F && isCanSwipe -> {
-
-                    imageGesture = when (imageGesture) {
-
-                        TransformImageGesture.INIT -> when {
-
-                            dragSwipeMinimum > 0 -> TransformImageGesture.RIGHT_SWIPE
-                            dragSwipeMinimum < 0 -> TransformImageGesture.LEFT_SWIPE
-                            else -> TransformImageGesture.INIT
-                        }
-
-                        else -> imageGesture
-                    }
-
-                    when (imageGesture) {
-
-                        TransformImageGesture.LEFT_SWIPE -> {
-
-                            onLeftSwipe()
-                            change.changedToUp()
-                        }
-
-                        TransformImageGesture.RIGHT_SWIPE -> {
-
-                            onRightSwipe()
-                            change.changedToUp()
-                        }
-
-                        else -> {}
-                    }
-
-                    dragSwipeMinimum = 0.0F
-                }
-
-                else -> {
-
-                    dragSwipeMinimum = 0.0F
-                    imageGesture = TransformImageGesture.INIT
-                    change.changedToUp()
-                    return@detectHorizontalDragGestures
-                }
-            }
-        }
-    }
-
     val transformableState = rememberTransformableState { zoomChange, panChange, rotationChange ->
 
         when {
 
-            isTwoTouch -> when (imageGesture) {
+            isTwoTouch -> state.apply {
 
-                TransformImageGesture.INIT -> when {
-
-                    abs(rotationChange) >= 1.0F -> if (state.config.enableRotation) {
-
-                        imageGesture = TransformImageGesture.ROTATION
-                    }
-
-                    zoomChange >= 0.10F -> if (state.config.enableZoom) {
-
-                        imageGesture = TransformImageGesture.ZOOM
-                    }
-                }
-
-                TransformImageGesture.ZOOM -> {
-
-                    val newZoom = (state.zoom * zoomChange).coerceIn(range = zoomRange)
-
-                    val newPan = Offset(
-                        x = state.position.x,
-                        y = state.position.y
-                    ) + panChange
-
-                    state.zoom = newZoom
-                    state.position = newPan
-                    resetDragGestureAction()
-                }
-
-                TransformImageGesture.ROTATION -> {
-
-                    val newPan = Offset(
-                        x = state.position.x,
-                        y = state.position.y
-                    ) + panChange
-
-                    val newRotation = (state.rotation + rotationChange).toInt().coerceIn(
-                        range = 0..360
-                    )
-
-                    state.position = newPan
-                    state.rotation = newRotation
-                    resetDragGestureAction()
-                }
-
-                TransformImageGesture.RIGHT_SWIPE, TransformImageGesture.LEFT_SWIPE -> {
-
-                    return@rememberTransformableState
-                }
-
-                else -> {
-
-                    imageGesture = TransformImageGesture.INIT
-                    return@rememberTransformableState
-                }
+                if (enableZoom) zoom = (state.zoom * zoomChange).coerceIn(zoomRange)
+                if (enablePan) position = state.position + panChange
+                if (enableRotation) rotation = state.rotation + rotationChange
             }
 
-            isOneTouch && isZoomed -> when (imageGesture) {
-
-                TransformImageGesture.INIT -> if (state.config.enablePan) {
-
-                    imageGesture = TransformImageGesture.PAN
-                }
-
-                TransformImageGesture.PAN -> {
-
-                    val newPan = Offset(
-                        x = state.position.x,
-                        y = state.position.y
-                    ) + panChange
-
-                    state.position = newPan
-                    resetDragGestureAction()
-                }
-
-                TransformImageGesture.RIGHT_SWIPE, TransformImageGesture.LEFT_SWIPE -> {
-
-                    return@rememberTransformableState
-                }
-
-                else -> {
-
-                    imageGesture = TransformImageGesture.INIT
-                    return@rememberTransformableState
-                }
-            }
-
-            isCanSwipe -> return@rememberTransformableState
-
-            else -> {
-
-                imageGesture = TransformImageGesture.INIT
-                return@rememberTransformableState
-            }
+            isOneTouch && state.zoom != 1.0F && enablePan -> state.position += panChange
+            else -> return@rememberTransformableState
         }
     }
 
-    BoxWithConstraints(
+    Box(
         modifier = modifier
             .then(touchModifier)
             .transformable(state = transformableState)
-            .then(tapPointerInput)
-            .then(dragPointerInput),
+            .then(if (enableZoom) tapPointerInput else Modifier),
         contentAlignment = Alignment.Center
     ) {
 
-        SubcomposeAsyncImage(
+        HorizontalPager(
+            modifier = Modifier.fillMaxSize(),
+            state = pagerState,
+            userScrollEnabled = isCanSwipe,
+            verticalAlignment = Alignment.CenterVertically
+        ) { page ->
+
+            SubcomposeAsyncImage(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = state.zoom.coerceIn(range = zoomRange),
+                        scaleY = state.zoom.coerceIn(range = zoomRange),
+                        translationX = state.position.x,
+                        translationY = state.position.y,
+                        rotationZ = state.rotation
+                    ),
+                model = imageModelList.getOrNull(index = page),
+                contentScale = contentScale,
+                loading = {
+
+                    Column(
+                        modifier = Modifier.matchParentSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        CircularProgressIndicator()
+                    }
+                },
+                error = {
+
+                    Column(
+                        modifier = Modifier.matchParentSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        Icon(
+                            modifier = Modifier.fillMaxSize(fraction = 0.4F),
+                            imageVector = Icons.Filled.BrokenImage,
+                            contentDescription = "Image View"
+                        )
+                    }
+                },
+                contentDescription = "Image View"
+            )
+        }
+
+        if (enableControls) TransformImageControls(
             modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer(
-                    scaleX = state.zoom.coerceIn(range = zoomRange),
-                    scaleY = state.zoom.coerceIn(range = zoomRange),
-                    translationX = state.position.x,
-                    translationY = state.position.y,
-                    rotationZ = state.rotation.toFloat()
-                ),
-            model = imageModel,
-            contentScale = contentScale,
-            loading = {
+                .align(alignment = Alignment.BottomCenter)
+                .offset(y = (-32).dp),
+            onPreviousImage = {
 
-                Column(
-                    modifier = Modifier.matchParentSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                pagerCoroutineScope.launch {
 
-                    CircularProgressIndicator()
-                }
-            },
-            error = {
-
-                Column(
-                    modifier = Modifier.matchParentSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Icon(
-                        modifier = Modifier.size(size = this@BoxWithConstraints.maxWidth / 4),
-                        imageVector = Icons.Filled.BrokenImage,
-                        contentDescription = "Image View"
+                    pagerState.animateScrollToPage(
+                        page = (pagerState.currentPage - 1).coerceAtLeast(0),
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
                     )
                 }
             },
-            contentDescription = "Image View"
+            onNextImage = {
+
+                pagerCoroutineScope.launch {
+
+                    pagerState.animateScrollToPage(
+                        page = (pagerState.currentPage + 1).coerceAtMost(pagerState.pageCount - 1),
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    )
+                }
+            },
+            onResetTransform = {
+
+                state.resetAllValues()
+            }
         )
     }
-}
-
-/**
- * Enum class representing the possible gestures for transforming an image.
- */
-private enum class TransformImageGesture {
-
-    INIT,
-    PAN,
-    ZOOM,
-    ROTATION,
-    LEFT_SWIPE,
-    RIGHT_SWIPE;
 }

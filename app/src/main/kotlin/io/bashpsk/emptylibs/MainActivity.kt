@@ -46,8 +46,8 @@ class MainActivity : ComponentActivity() {
 //                    ImageKolorScreen()
 //                    ImageWallpaperScreen()
 //                    LruCacheScreen()
-                    StorageScreen()
-//                    TransformImageScreen()
+//                    StorageScreen()
+                    TransformImageScreen()
 //                    VideoGestureScreen()
 //                    WheelTextPickerScreen()
                 }

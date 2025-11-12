@@ -9,17 +9,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.res.imageResource
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
-import io.bashpsk.emptylibs.imageview.transform.rememberImageTransformState
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun TransformImageScreen() {
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.empty_layer)
+    val simpleList = persistentListOf(
+        R.drawable.wallpaper01,
+        R.drawable.wallpaper02,
+        R.drawable.empty_layer,
+        333
+    )
 
-    val imageTransformState = rememberImageTransformState()
+    val tooLongList = (0..333).map { simpleList }.flatten().toImmutableList()
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -35,8 +39,9 @@ fun TransformImageScreen() {
 
             TransformImageView(
                 modifier = Modifier.fillMaxWidth(),
-                imageModel = R.drawable.empty_layer,
-                state = imageTransformState
+                imageModelList = simpleList,
+                initialImage = R.drawable.wallpaper02,
+                enableControls = true
             )
         }
     }
