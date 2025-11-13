@@ -99,7 +99,10 @@ fun KolorAdjustmentSliders(modifier: Modifier = Modifier, state: ImageKolorState
     Column(
         modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(space = 8.dp)
+        verticalArrangement = Arrangement.spacedBy(
+            space = 8.dp,
+            alignment = Alignment.CenterVertically
+        )
     ) {
 
         state.imageBitmap?.run {

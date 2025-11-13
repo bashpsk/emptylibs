@@ -47,7 +47,7 @@ import io.bashpsk.emptylibs.imagekolor.R
  * the selected [ImageFilterType].
  */
 @Composable
-fun KolorFilterView(
+inline fun KolorFilterView(
     modifier: Modifier = Modifier,
     kolorFilter: ImageFilterType,
     imageModel: ImageBitmap?,
@@ -56,7 +56,7 @@ fun KolorFilterView(
     borderWidth: Dp = if (isSelected) 2.dp else 0.2.dp,
     borderColor: Color = MaterialTheme.colorScheme.error,
     shape: Shape = MaterialTheme.shapes.extraSmall,
-    onFilterClick: (filter: ImageFilterType) -> Unit
+    crossinline onFilterClick: (filter: ImageFilterType) -> Unit
 ) {
 
     val imageBitmap = ImageBitmap.imageResource(R.drawable.flower_01)

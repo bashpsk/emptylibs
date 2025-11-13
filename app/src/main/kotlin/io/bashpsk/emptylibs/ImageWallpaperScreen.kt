@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialogDefaults
@@ -15,11 +16,14 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.imagekrop.crop.KropConfig
 import io.bashpsk.emptylibs.imagewallpaper.wallpaper.ImageWallpaper
+import io.bashpsk.emptylibs.utils.setDebug
 
 @Composable
 fun ImageWallpaperScreen() {
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
+    val activity = LocalActivity.current
+
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper02)
 
     val handleColor = MaterialTheme.colorScheme.onSurface
     val targetColor = MaterialTheme.colorScheme.surfaceTint
@@ -34,7 +38,7 @@ fun ImageWallpaperScreen() {
     ) {
         derivedStateOf {
             KropConfig(
-                minimumCropSize = 100.dp,
+                minimumCropSize = 40.dp,
                 handleColor = handleColor,
                 targetColor = targetColor,
                 borderColor = borderColor,
@@ -53,7 +57,15 @@ fun ImageWallpaperScreen() {
                 .padding(innerPadding),
             imageBitmap = imageBitmap,
             config = kropConfig,
-            dialogContainerColor = AlertDialogDefaults.containerColor.copy(alpha = 0.75F)
+            dialogContainerColor = AlertDialogDefaults.containerColor.copy(alpha = 0.75F),
+            onWallpaperResult = { type, result ->
+
+                setDebug("${type.label} Wallpaper set result: $result")
+            },
+            onNavigateBack = {
+
+                activity?.finishAfterTransition()
+            }
         )
     }
 }

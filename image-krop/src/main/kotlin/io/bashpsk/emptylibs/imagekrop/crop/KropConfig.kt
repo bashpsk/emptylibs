@@ -31,7 +31,7 @@ data class KropConfig(
     val handleWidth: Dp = 20.dp,
     val handleHeight: Dp = 4.dp,
     val centerHandleWidth: Dp = 16.dp,
-    val minimumCropSize: Dp = 160.dp,
+    val minimumCropSize: Dp = 40.dp,
     val handleColor: Color = Color.White,
     val borderThickness: Dp = 2.dp,
     val borderColor: Color = Color.Cyan,
@@ -70,7 +70,6 @@ data class KropConfig(
             val overlayColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5F)
 
             return KropConfig(
-                minimumCropSize = 100.dp,
                 handleColor = handleColor,
                 targetColor = targetColor,
                 borderColor = borderColor,

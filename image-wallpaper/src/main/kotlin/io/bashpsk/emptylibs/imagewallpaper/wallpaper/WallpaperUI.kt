@@ -60,13 +60,16 @@ import kotlinx.coroutines.launch
  * @param dialogVisibleState A [MutableTransitionState] to control the visibility of the dialog.
  * @param imageBitmap The [ImageBitmap] to be set as the wallpaper.
  * @param containerColor The background color of the dialog container.
+ * @param onWallpaperResult A callback function to be invoked when the wallpaper setting is
+ * completed. It takes a [Boolean] parameter indicating whether the setting was successful.
  * Defaults to `AlertDialogDefaults.containerColor`.
  */
 @Composable
 internal fun WallpaperTypeDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
     imageBitmap: ImageBitmap,
-    containerColor: Color = AlertDialogDefaults.containerColor
+    containerColor: Color = AlertDialogDefaults.containerColor,
+    onWallpaperResult: ((type: WallpaperType, result: Boolean) -> Unit)? = null
 ) {
 
     val context = LocalContext.current
@@ -112,6 +115,7 @@ internal fun WallpaperTypeDialog(
                     )
 
                     IconButton(
+                        enabled = isWallpaperLoading.not(),
                         onClick = {
 
                             dialogVisibleState.targetState = false
@@ -143,6 +147,8 @@ internal fun WallpaperTypeDialog(
                             enabled = isWallpaperLoading.not(),
                             onClick = {
 
+                                isWallpaperLoading = true
+
                                 coroutineScope.launch(context = Dispatchers.IO) {
 
                                     wallpaperManager.setImageWallpaper(
@@ -151,7 +157,7 @@ internal fun WallpaperTypeDialog(
                                     ).let { result ->
 
                                         isWallpaperLoading = false
-                                        dialogVisibleState.targetState = false
+                                        onWallpaperResult?.invoke(WallpaperType.Home, result)
                                     }
                                 }
                             }
@@ -170,6 +176,8 @@ internal fun WallpaperTypeDialog(
                             enabled = isWallpaperLoading.not(),
                             onClick = {
 
+                                isWallpaperLoading = true
+
                                 coroutineScope.launch(context = Dispatchers.IO) {
 
                                     wallpaperManager.setImageWallpaper(
@@ -178,7 +186,7 @@ internal fun WallpaperTypeDialog(
                                     ).let { result ->
 
                                         isWallpaperLoading = false
-                                        dialogVisibleState.targetState = false
+                                        onWallpaperResult?.invoke(WallpaperType.Lock, result)
                                     }
                                 }
                             }
@@ -197,6 +205,8 @@ internal fun WallpaperTypeDialog(
                             enabled = isWallpaperLoading.not(),
                             onClick = {
 
+                                isWallpaperLoading = true
+
                                 coroutineScope.launch(context = Dispatchers.IO) {
 
                                     wallpaperManager.setImageWallpaper(
@@ -205,7 +215,7 @@ internal fun WallpaperTypeDialog(
                                     ).let { result ->
 
                                         isWallpaperLoading = false
-                                        dialogVisibleState.targetState = false
+                                        onWallpaperResult?.invoke(WallpaperType.HomeAndLock, result)
                                     }
                                 }
                             }
@@ -225,6 +235,7 @@ internal fun WallpaperTypeDialog(
                             modifier = Modifier.fillMaxWidth(fraction = 0.85F),
                             onClick = {
 
+                                isWallpaperLoading = false
                                 dialogVisibleState.targetState = false
                             }
                         ) {

@@ -35,6 +35,8 @@ import io.bashpsk.emptylibs.imagekrop.crop.rememberImageKropState
  * Defaults to [KropConfig.surfaceBased].
  * @param dialogContainerColor The background color for the wallpaper type selection dialog.
  * Defaults to [AlertDialogDefaults.containerColor].
+ * @param onWallpaperResult A callback function to be invoked when the wallpaper setting is
+ * completed. It takes a [Boolean] parameter indicating whether the setting was successful.
  * @param onNavigateBack A callback invoked when the user requests to navigate back from the
  * cropping screen, for example, by pressing the back button.
  */
@@ -45,6 +47,7 @@ fun ImageWallpaper(
     imageBitmap: ImageBitmap,
     config: KropConfig = KropConfig.surfaceBased(),
     dialogContainerColor: Color = AlertDialogDefaults.containerColor,
+    onWallpaperResult: ((type: WallpaperType, result: Boolean) -> Unit)? = null,
     onNavigateBack: () -> Unit = {}
 ) {
 
@@ -71,7 +74,8 @@ fun ImageWallpaper(
         WallpaperTypeDialog(
             dialogVisibleState = wallpaperTypeDialogVisibleState,
             imageBitmap = bitmap,
-            containerColor = dialogContainerColor
+            containerColor = dialogContainerColor,
+            onWallpaperResult = onWallpaperResult
         )
     } ?: run {
 
@@ -80,8 +84,11 @@ fun ImageWallpaper(
 
     LaunchedEffect(imageKropState, wallpaperAspectRatio) {
 
-        imageKropState.updateAspectRatio(aspect = KropAspectRatio(ratio = wallpaperAspectRatio))
-        imageKropState.updateAspectLocked(locked = true)
+        imageKropState.apply {
+
+            updateAspectRatio(aspect = KropAspectRatio(ratio = wallpaperAspectRatio))
+            imageKropState.updateAspectLocked(locked = true)
+        }
     }
 
     ImageKrop(

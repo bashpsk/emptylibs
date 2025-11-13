@@ -43,7 +43,7 @@ fun ImageCropScreen() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper02)
 
     var isImageEdit by rememberSaveable { mutableStateOf(false) }
 
@@ -60,7 +60,7 @@ fun ImageCropScreen() {
     ) {
         derivedStateOf {
             KropConfig(
-                minimumCropSize = 100.dp,
+                minimumCropSize = 40.dp,
                 handleColor = handleColor,
                 targetColor = targetColor,
                 borderColor = borderColor,
