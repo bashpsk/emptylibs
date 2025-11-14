@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
                 EmptyLibsTheme(darkTheme = AppTheme.getTheme(theme = getAppTheme)) {
 
-                    BasicTextEditorScreen()
+//                    BasicTextEditorScreen()
 //                    BottomOptionBarScreen()
 //                    CanvasSlateScreen()
 //                    ColorPickerScreen()
@@ -41,6 +41,8 @@ class MainActivity : ComponentActivity() {
 //                    DialTextPickerScreen()
 //                    FileWriteSpeedScreen()
 //                    FormatterScreen()
+//                    ImageColorPickerScreen()
+                    ImageColorPickerDialogScreen()
 //                    ImageCropScreen()
 //                    ImageEditScreen()
 //                    ImageFilterScreen()

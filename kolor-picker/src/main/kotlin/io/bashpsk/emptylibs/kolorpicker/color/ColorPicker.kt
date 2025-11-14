@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -33,26 +34,36 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.get
+import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 
 /**
@@ -156,6 +167,136 @@ fun ColorPicker(
                 state = state
             )
         }
+    }
+}
+
+/**
+ * A composable that allows picking a color from a provided [ImageBitmap].
+ *
+ * This composable displays the image, fitting it within the layout while preserving its
+ * aspect ratio. It listens for tap and drag gestures, and a draggable handle indicates
+ * the selected pixel. The selected color is updated in the provided [state].
+ *
+ * @param modifier The modifier to be applied to this composable.
+ * @param imageBitmap The [ImageBitmap] to display and pick colors from.
+ * @param state The [ColorPickerState] to update with the selected color.
+ */
+@Composable
+fun ImageColorPicker(
+    modifier: Modifier = Modifier,
+    imageBitmap: ImageBitmap,
+    state: ColorPickerState = rememberColorPickerState()
+) {
+
+    val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val thumbRadius = 10.dp
+    val thumbWidth = 2.4.dp
+
+    var thumbPosition by rememberSaveable {
+        mutableStateOf(Offset.Unspecified.toOffsetData())
+    }
+
+    val scaledBitmap by remember(imageBitmap) { derivedStateOf { imageBitmap.asAndroidBitmap() } }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
+    ) {
+
+        BoxWithConstraints(
+            modifier = Modifier
+                .weight(weight = 1.0F)
+                .clip(shape = MaterialTheme.shapes.extraSmall)
+                .border(
+                    width = 0.6.dp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.65F),
+                    shape = MaterialTheme.shapes.extraSmall
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+
+            val boxWidth = constraints.maxWidth.toFloat()
+            val boxHeight = constraints.maxHeight.toFloat()
+            val bitmapWidth = imageBitmap.width.toFloat()
+            val bitmapHeight = imageBitmap.height.toFloat()
+
+            val scale = minOf(boxWidth / bitmapWidth, boxHeight / bitmapHeight)
+            val scaledWidth = bitmapWidth * scale
+            val scaledHeight = bitmapHeight * scale
+            val offsetX = (boxWidth - scaledWidth) / 2
+            val offsetY = (boxHeight - scaledHeight) / 2
+
+            val handleColorSelection = { touchOffset: Offset ->
+
+                val imageX = touchOffset.x - offsetX
+                val imageY = touchOffset.y - offsetY
+
+                val bitmapX = (imageX / scale).coerceIn(0f, bitmapWidth - 1)
+                val bitmapY = (imageY / scale).coerceIn(0f, bitmapHeight - 1)
+
+                if (imageX in 0f..scaledWidth && imageY in 0f..scaledHeight) {
+
+                    thumbPosition = touchOffset.toOffsetData()
+
+                    state.updateColor(Color(scaledBitmap[bitmapX.toInt(), bitmapY.toInt()]))
+                }
+            }
+
+            val tapPointerInput = Modifier.pointerInput(Unit) {
+
+                detectTapGestures(
+                    onPress = { offset ->
+
+                        handleColorSelection(offset)
+                    }
+                )
+            }
+
+            val dragPointerInput = Modifier.pointerInput(Unit) {
+
+                detectDragGestures { change, _ ->
+
+                    change.consume()
+                    handleColorSelection(change.position)
+                }
+            }
+
+            Image(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(shape = MaterialTheme.shapes.extraSmall)
+                    .then(tapPointerInput)
+                    .then(dragPointerInput)
+                    .drawWithContent {
+
+                        drawContent()
+
+                        thumbPosition.toOffset().takeIf { position ->
+
+                            position.isSpecified
+                        }?.let { position ->
+
+                            drawDragHandle(
+                                position = position,
+                                radius = thumbRadius,
+                                color = thumbColor,
+                                width = thumbWidth
+                            )
+                        }
+                    },
+                bitmap = imageBitmap,
+                contentScale = ContentScale.Fit,
+                contentDescription = "Image Color Picker"
+            )
+        }
+
+        ColorPreview(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = TrackHeight / 2),
+            color = state.selectedColor
+        )
     }
 }
 
