@@ -196,17 +196,24 @@ fun ImageColorPicker(
         mutableStateOf(Offset.Unspecified.toOffsetData())
     }
 
+    val imageAspectRatio by remember(imageBitmap) {
+        derivedStateOf {
+            EmptyFormat.findAspectRatio(width = imageBitmap.width, height = imageBitmap.height)
+        }
+    }
+
     val scaledBitmap by remember(imageBitmap) { derivedStateOf { imageBitmap.asAndroidBitmap() } }
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
 
         BoxWithConstraints(
             modifier = Modifier
                 .weight(weight = 1.0F)
+                .aspectRatio(ratio = imageAspectRatio)
                 .clip(shape = MaterialTheme.shapes.extraSmall)
                 .border(
                     width = 0.6.dp,
@@ -232,13 +239,12 @@ fun ImageColorPicker(
                 val imageX = touchOffset.x - offsetX
                 val imageY = touchOffset.y - offsetY
 
-                val bitmapX = (imageX / scale).coerceIn(0f, bitmapWidth - 1)
-                val bitmapY = (imageY / scale).coerceIn(0f, bitmapHeight - 1)
+                val bitmapX = (imageX / scale).coerceIn(0.0F, bitmapWidth - 1)
+                val bitmapY = (imageY / scale).coerceIn(0.0F, bitmapHeight - 1)
 
-                if (imageX in 0f..scaledWidth && imageY in 0f..scaledHeight) {
+                if (imageX in 0.0F..scaledWidth && imageY in 0.0F..scaledHeight) {
 
                     thumbPosition = touchOffset.toOffsetData()
-
                     state.updateColor(Color(scaledBitmap[bitmapX.toInt(), bitmapY.toInt()]))
                 }
             }
@@ -290,6 +296,8 @@ fun ImageColorPicker(
                 contentDescription = "Image Color Picker"
             )
         }
+
+        Spacer(modifier = Modifier.height(height = 4.dp))
 
         ColorPreview(
             modifier = Modifier
