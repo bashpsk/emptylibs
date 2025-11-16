@@ -196,14 +196,14 @@ private fun createStarPath(rect: Rect, edges: Int, distance: Float): Path {
     val innerRadius = outerRadius / distance
     val points = edges * 2
 
-    for (i in 0 until points) {
+    (0 until points).forEach { point ->
 
-        val radius = if (i % 2 == 0) outerRadius else innerRadius
-        val angle = Math.toRadians((i * 360.0 / points) - 90)
+        val radius = if (point % 2 == 0) outerRadius else innerRadius
+        val angle = Math.toRadians((point * 360.0 / points) - 90)
         val x = centerX + radius * cos(angle).toFloat()
         val y = centerY + radius * sin(angle).toFloat()
 
-        if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+        if (point == 0) path.moveTo(x, y) else path.lineTo(x, y)
     }
 
     path.close()

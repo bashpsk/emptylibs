@@ -506,7 +506,7 @@ class CanvasSlateState(
      * @return An [ImageBitmap] containing the rendered canvas content, or `null` if the canvas size
      * is zero (i.e., not yet measured or invalid).
      */
-    suspend fun getImageBitmap(): ImageBitmap? = withContext(Dispatchers.Default) {
+    suspend fun getImageBitmap(): ImageBitmap? = withContext(Dispatchers.IO) {
 
         return@withContext canvasSize.takeIf { size -> size != Size.Zero }?.let { size ->
 

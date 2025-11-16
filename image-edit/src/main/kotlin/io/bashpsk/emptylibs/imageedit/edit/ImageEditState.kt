@@ -557,7 +557,7 @@ class ImageEditState(
      * @return A new [ImageBitmap] containing the original image with all edits applied,
      * or `null` if the original [imageBitmap] is `null`.
      */
-    suspend fun getEditedImageBitmap(): ImageBitmap? = withContext(Dispatchers.Default) {
+    suspend fun getEditedImageBitmap(): ImageBitmap? = withContext(Dispatchers.IO) {
 
         return@withContext imageBitmap?.let { bitmap ->
 

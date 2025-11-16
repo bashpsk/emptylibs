@@ -60,14 +60,14 @@ fun <T> rememberDialTextPickerState(
             textList = textList,
             initial = initial,
             coroutineScope = coroutineScope,
-            animationSpec=animationSpec
+            animationSpec = animationSpec
         )
     ) {
         DialTextPickerState(
             textList = textList,
             initial = initial,
             coroutineScope = coroutineScope,
-            animationSpec= animationSpec
+            animationSpec = animationSpec
         )
     }
 }

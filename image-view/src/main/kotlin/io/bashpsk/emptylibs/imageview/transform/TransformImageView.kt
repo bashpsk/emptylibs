@@ -152,10 +152,7 @@ fun TransformImageView(
     var touchCount by rememberSaveable { mutableIntStateOf(0) }
     val isOneTouch by remember(touchCount) { derivedStateOf { touchCount == 1 } }
     val isTwoTouch by remember(touchCount) { derivedStateOf { touchCount == 2 } }
-
-    val isCanSwipe by remember(state) {
-        derivedStateOf { state.zoom == 1.0F && enableSwipe }
-    }
+    val isCanSwipe by remember(state) { derivedStateOf { state.zoom == 1.0F && enableSwipe } }
 
     val touchModifier = Modifier.pointerInput(Unit) {
 
