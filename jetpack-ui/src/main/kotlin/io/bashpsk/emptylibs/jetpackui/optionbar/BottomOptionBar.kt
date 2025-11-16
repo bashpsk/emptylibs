@@ -100,14 +100,17 @@ fun BottomOptionBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) { itemIndex ->
 
-            OptionBarItem(
-                optionData = optionList[itemIndex],
-                onOptionClick = { operation ->
+            optionList.getOrNull(index = itemIndex)?.let { optionItem ->
 
-                    onOptionClick(operation)
-                    isMoreOptionMenuExpanded = false
-                }
-            )
+                OptionBarItem(
+                    optionData = optionItem,
+                    onOptionClick = { operation ->
+
+                        onOptionClick(operation)
+                        isMoreOptionMenuExpanded = false
+                    }
+                )
+            }
         }
 
         DropdownMenu(

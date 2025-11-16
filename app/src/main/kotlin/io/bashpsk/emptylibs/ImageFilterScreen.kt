@@ -29,7 +29,7 @@ fun ImageFilterScreen() {
     val context = LocalContext.current
     val bitmapCoroutineScope = rememberCoroutineScope()
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.bash_psk)
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
     val imageFilterState = rememberImageFilterState()
 
     Scaffold(
@@ -39,7 +39,7 @@ fun ImageFilterScreen() {
             TopAppBar(
                 title = {
 
-                    Text(text = "Image Kolor")
+                    Text(text = "Image Filter")
                 },
                 actions = {
 

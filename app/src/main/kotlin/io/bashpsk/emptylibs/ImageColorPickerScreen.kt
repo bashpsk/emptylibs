@@ -13,7 +13,7 @@ import io.bashpsk.emptylibs.kolorpicker.color.ImageColorPicker
 @Composable
 fun ImageColorPickerScreen() {
 
-    val imageBitmap = ImageBitmap.imageResource(id = R.drawable.wallpaper01)
+    val imageBitmap = ImageBitmap.imageResource(id = R.drawable.wallpaper02)
 
     Scaffold(
         modifier = Modifier.fillMaxSize()

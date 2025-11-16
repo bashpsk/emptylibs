@@ -23,7 +23,7 @@ fun ImageWallpaperScreen() {
 
     val activity = LocalActivity.current
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper02)
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
 
     val handleColor = MaterialTheme.colorScheme.onSurface
     val targetColor = MaterialTheme.colorScheme.surfaceTint

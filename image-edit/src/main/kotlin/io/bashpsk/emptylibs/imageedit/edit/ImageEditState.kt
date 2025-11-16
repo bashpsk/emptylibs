@@ -1242,6 +1242,24 @@ class ImageEditState(
         return Pair(resultTopLeft, resultBottomRight)
     }
 
+    internal fun clearState() {
+
+        ImageInputCacheManager.evictAll()
+        ImageEditCacheManager.evictAll()
+
+        imageEditItemList = persistentListOf()
+        currentImageEditItem = null
+        isToolBarMenuExpanded = false
+        canvasSize = Size.Zero
+        currentCorner = null
+
+        brushEditInput = ImageEditInput.BrushItem()
+        eraseEditInput = ImageEditInput.EraseItem()
+        imageEditInput = ImageEditInput.ImageItem()
+        shapeEditInput = ImageEditInput.ShapeItem()
+        textEditInput = ImageEditInput.TextItem()
+    }
+
     companion object {
 
         private const val KEY_EDIT_ITEM_LIST = "IMAGE-EDIT-ITEM-LIST"

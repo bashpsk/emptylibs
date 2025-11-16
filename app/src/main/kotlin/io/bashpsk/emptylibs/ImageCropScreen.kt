@@ -47,10 +47,10 @@ fun ImageCropScreen() {
 
     var isImageEdit by rememberSaveable { mutableStateOf(false) }
 
-    val handleColor = MaterialTheme.colorScheme.onSurface
-    val targetColor = MaterialTheme.colorScheme.surfaceTint
-    val borderColor = MaterialTheme.colorScheme.errorContainer
-    val overlayColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5F)
+    val handleColor = MaterialTheme.colorScheme.primary
+    val targetColor = MaterialTheme.colorScheme.primaryContainer
+    val borderColor = MaterialTheme.colorScheme.surface
+    val overlayColor = MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.5F)
 
     val kropConfig by remember(
         handleColor,
@@ -71,6 +71,8 @@ fun ImageCropScreen() {
 
     val imageKropState = rememberImageKropState(imageBitmap = imageBitmap, config = kropConfig)
 
+    var finalImage by remember { mutableStateOf<ImageBitmap?>(imageBitmap) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
@@ -90,6 +92,8 @@ fun ImageCropScreen() {
 
                     coroutineScope.launch(Dispatchers.IO) {
 
+                        finalImage = imageKropState.modifiedImage
+
                         imageKropState.modifiedImage?.saveAsFile(
                             context,
                             "PSK-Cropped"
@@ -103,6 +107,8 @@ fun ImageCropScreen() {
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
+
+                            isImageEdit = false
                         }
                     }
                 },
@@ -127,15 +133,9 @@ fun ImageCropScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                imageKropState.modifiedImage?.let { bitmap ->
-
-                    TransformImageView(
-                        modifier = Modifier.weight(weight = 1.0F),
-                        imageModel = bitmap.asAndroidBitmap()
-                    )
-                } ?: TransformImageView(
+                TransformImageView(
                     modifier = Modifier.weight(weight = 1.0F),
-                    imageModel = imageBitmap.asAndroidBitmap()
+                    imageModel = finalImage?.asAndroidBitmap()
                 )
 
                 Button(

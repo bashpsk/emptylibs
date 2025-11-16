@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -68,7 +68,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import kotlinx.coroutines.launch
 
 /**
@@ -156,16 +155,9 @@ internal fun ImageEditUI(
 
         state.imageBitmap?.let { bitmap ->
 
-            val aspectRatio by remember(bitmap) {
-                derivedStateOf {
-                    EmptyFormat.findAspectRatio(width = bitmap.width, height = bitmap.height)
-                }
-            }
-
             Image(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(ratio = aspectRatio)
+                    .fillMaxSize()
                     .then(sizeChangedModifier)
                     .then(drawCanvasModifier)
                     .then(tapPointerInputModifier)

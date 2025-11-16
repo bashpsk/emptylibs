@@ -88,7 +88,7 @@ fun BasicTextEditorScreen() {
                 }
             )
 
-            BasicTextEditor(
+            /*BasicTextEditor(
                 modifier = Modifier.fillMaxWidth(),
                 inputContent = inputContent2,
                 onContentChange = { newValue -> inputContent2 = newValue },
@@ -104,7 +104,7 @@ fun BasicTextEditorScreen() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45F)
                     )
                 }
-            )
+            )*/
         }
     }
 }

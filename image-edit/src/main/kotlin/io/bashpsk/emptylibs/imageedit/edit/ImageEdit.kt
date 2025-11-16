@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +39,11 @@ fun ImageEdit(
     LaunchedEffect(editToolInputSheetState.isVisible) {
 
         state.onRefreshEditItem()
+    }
+
+    DisposableEffect(Unit) {
+
+        onDispose { state.clearState() }
     }
 
     ImageEditInputSheet(editToolInputSheetState = editToolInputSheetState, state = state)

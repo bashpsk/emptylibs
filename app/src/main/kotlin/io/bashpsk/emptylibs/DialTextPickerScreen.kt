@@ -73,7 +73,7 @@ fun DialTextPickerScreen() {
                     modifier = Modifier.fillMaxSize(),
                     state = textPickerState3,
                     textStyle = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     selectedTextStyle = MaterialTheme.typography.labelSmall.copy(
                         color = MaterialTheme.colorScheme.primary
@@ -90,7 +90,7 @@ fun DialTextPickerScreen() {
                     ),
                     state = textPickerState2,
                     textStyle = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     selectedTextStyle = MaterialTheme.typography.labelSmall.copy(
                         color = MaterialTheme.colorScheme.primary
@@ -107,7 +107,7 @@ fun DialTextPickerScreen() {
                     ),
                     state = textPickerState1,
                     textStyle = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     selectedTextStyle = MaterialTheme.typography.labelSmall.copy(
                         color = MaterialTheme.colorScheme.primary

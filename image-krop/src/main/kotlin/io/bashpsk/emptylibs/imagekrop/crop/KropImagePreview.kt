@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -67,7 +66,7 @@ internal fun KropImagePreview(
     var isOriginalImage by rememberSaveable { mutableStateOf(value = false) }
 
     val selectedImage by remember(state) {
-        derivedStateOf { if (isOriginalImage) state.originalImage else state.previewImage }
+        derivedStateOf { if (isOriginalImage) state.imageBitmap else state.previewImage }
     }
 
     val titleCardColors = CardDefaults.cardColors(
@@ -92,8 +91,8 @@ internal fun KropImagePreview(
 
             Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(space = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(space = 8.dp)
             ) {
 
                 selectedImage?.let { bitmap ->
@@ -115,14 +114,12 @@ internal fun KropImagePreview(
                     }
 
                     Box(
-                        modifier = Modifier.wrapContentSize(),
+                        modifier = Modifier.weight(weight = 1.0F),
                         contentAlignment = Alignment.TopCenter
                     ) {
 
                         TransformImageView(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(bitmap.width.toFloat() / bitmap.height),
+                            modifier = Modifier.fillMaxWidth(),
                             imageModel = bitmap.asAndroidBitmap(),
                             state = imageTransformState,
                             enableZoom = false,

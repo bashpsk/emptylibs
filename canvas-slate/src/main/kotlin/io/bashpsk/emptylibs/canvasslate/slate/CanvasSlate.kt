@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,11 @@ fun CanvasSlate(
     val foregroundColorPickerDialog = remember { MutableTransitionState(false) }
     val penStrokeDialogVisibleState = remember { MutableTransitionState(false) }
     val penThicknessDialogVisibleState = remember { MutableTransitionState(false) }
+
+    DisposableEffect(Unit) {
+
+        onDispose { state.clearState() }
+    }
 
     ColorPickerDialog(
         dialogVisibleState = backgroundColorPickerDialog,

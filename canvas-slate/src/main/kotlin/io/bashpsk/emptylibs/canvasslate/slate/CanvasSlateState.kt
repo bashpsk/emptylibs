@@ -188,6 +188,7 @@ class CanvasSlateState(
      * This list is used to redraw the canvas when needed and to implement undo functionality.
      */
     var allPathList by mutableStateOf(persistentListOf<CanvasSlatePath>())
+        internal set
 
     /**
      * Represents whether the toolbar menu is expanded or not.
@@ -528,6 +529,23 @@ class CanvasSlateState(
         }
     }
 
+    internal fun clearState() {
+
+        canvasSize = Size.Zero
+        selectedBackgroundColor = background
+        selectedBrushColor = initial
+        selectedStrokeCap = StrokeCap.Round
+        selectedStrokeJoin = StrokeJoin.Round
+        brushThickness = 4.0F
+        currentPath = null
+        isDrawingMode = true
+        allPathList = persistentListOf()
+
+        isToolBarMenuExpanded = false
+        editCanvasSlatePath = null
+        previewPathList = persistentListOf()
+    }
+
     companion object {
 
         private const val KEY_CANVAS_SIZE = "CANVAS-SLATE-CANVAS-SIZE"
@@ -571,11 +589,13 @@ class CanvasSlateState(
                         KEY_CANVAS_SIZE
                     ) { Size.Zero.toSizeData() } as SizeData).toSize()
 
-                    selectedBackgroundColor = Color(elements.getOrElse(
+                    selectedBackgroundColor = Color(
+                        elements.getOrElse(
                         KEY_BACKGROUND_COLOR
                     ) { background.toArgb() } as Int)
 
-                    selectedBrushColor = Color(elements.getOrElse(
+                    selectedBrushColor = Color(
+                        elements.getOrElse(
                         KEY_BRUSH_COLOR
                     ) { initial.toArgb() } as Int)
 

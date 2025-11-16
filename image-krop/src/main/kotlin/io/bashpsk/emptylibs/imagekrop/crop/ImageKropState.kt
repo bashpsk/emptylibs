@@ -970,7 +970,6 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         return Pair(calculatedTopLeft, calculatedSize)
     }
 
-
     /**
      * Calculates the new top-left and bottom-right points of a rectangle
      * after a corner or edge drag, maintaining a given aspect ratio if specified.
@@ -1285,6 +1284,30 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         }?.run { return null }
 
         return Pair(resultTopLeft, resultBottomRight)
+    }
+
+    internal fun clearState() {
+
+        BitmapCacheManager.evictAll()
+        BitmapListCacheManager.evictAll()
+        BitmapListCacheManager.add(key = KEY_ORIGINAL_IMAGE, value = imageBitmap)
+
+        shapeList = BasicImageShapes
+        originalImage = imageBitmap
+        modifiedImage = null
+        previewImage = null
+        imageList = persistentListOf(KEY_ORIGINAL_IMAGE)
+        kropAspectRatio = KropAspectRatio.Ratio1to1
+        isAspectLocked = false
+        kropShape = ImageShape.None
+
+        currentCorner = null
+        canvasSize = Size.Zero
+        kropRectPosition = Offset.Zero
+        kropRectSize = Size.Zero
+        isAspectRatioMenuExpanded = false
+        isShapeMenuExpanded = false
+        isShapeCustomizeDialog = false
     }
 
     companion object {

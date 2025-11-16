@@ -1,0 +1,53 @@
+package io.bashpsk.emptylibs.ui.theme
+
+internal object DarkTheme {
+
+    val Background = PaletteTokens.Neutral2
+    val Error = PaletteTokens.Error80
+    val ErrorContainer = PaletteTokens.Error30
+    val InverseOnSurface = PaletteTokens.Neutral20
+    val InversePrimary = PaletteTokens.Primary40
+    val InverseSurface = PaletteTokens.Neutral90
+    val OnBackground = PaletteTokens.Neutral99
+    val OnError = PaletteTokens.Error20
+    val OnErrorContainer = PaletteTokens.Error90
+    val OnPrimary = PaletteTokens.Primary20
+    val OnPrimaryContainer = PaletteTokens.Primary95
+    val OnPrimaryFixed = PaletteTokens.Primary10
+    val OnPrimaryFixedVariant = PaletteTokens.Primary50
+    val OnSecondary = PaletteTokens.Secondary20
+    val OnSecondaryContainer = PaletteTokens.Secondary90
+    val OnSecondaryFixed = PaletteTokens.Secondary10
+    val OnSecondaryFixedVariant = PaletteTokens.Secondary40
+    val OnSurface = PaletteTokens.Neutral92
+    val OnSurfaceVariant = PaletteTokens.NeutralVariant95
+    val OnTertiary = PaletteTokens.Tertiary20
+    val OnTertiaryContainer = PaletteTokens.Tertiary90
+    val OnTertiaryFixed = PaletteTokens.Tertiary10
+    val OnTertiaryFixedVariant = PaletteTokens.Tertiary40
+    val Outline = PaletteTokens.NeutralVariant60
+    val OutlineVariant = PaletteTokens.NeutralVariant30
+    val Primary = PaletteTokens.Primary80
+    val PrimaryContainer = PaletteTokens.Primary30
+    val PrimaryFixed = PaletteTokens.Primary90
+    val PrimaryFixedDim = PaletteTokens.Primary70
+    val Scrim = PaletteTokens.Neutral0
+    val Secondary = PaletteTokens.Secondary80
+    val SecondaryContainer = PaletteTokens.Secondary30
+    val SecondaryFixed = PaletteTokens.Secondary95
+    val SecondaryFixedDim = PaletteTokens.Secondary70
+    val Surface = PaletteTokens.Neutral6
+    val SurfaceBright = PaletteTokens.Neutral24
+    val SurfaceContainer = PaletteTokens.Neutral12
+    val SurfaceContainerHigh = PaletteTokens.Neutral17
+    val SurfaceContainerHighest = PaletteTokens.Neutral22
+    val SurfaceContainerLow = PaletteTokens.Neutral10
+    val SurfaceContainerLowest = PaletteTokens.Neutral4
+    val SurfaceDim = PaletteTokens.Neutral30
+    val SurfaceTint = PaletteTokens.Primary60
+    val SurfaceVariant = PaletteTokens.NeutralVariant40
+    val Tertiary = PaletteTokens.Tertiary80
+    val TertiaryContainer = PaletteTokens.Tertiary30
+    val TertiaryFixed = PaletteTokens.Tertiary95
+    val TertiaryFixedDim = PaletteTokens.Tertiary70
+}
