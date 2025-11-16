@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 
 @Composable
 fun ImageColorPickerDialogScreen() {
@@ -38,7 +38,7 @@ fun ImageColorPickerDialogScreen() {
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 
-        ColorPickerDialog(
+        KolorPickerDialog(
             dialogVisibleState = pickerDialog,
             imageBitmap = imageBitmap,
             onSelectedColor = { newColor ->

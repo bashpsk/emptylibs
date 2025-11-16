@@ -68,8 +68,8 @@ import androidx.compose.ui.window.DialogProperties
 import io.bashpsk.emptylibs.composeutils.stroke.toStrokeCap
 import io.bashpsk.emptylibs.composeutils.stroke.toStrokeJoin
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
-import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
-import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
@@ -438,13 +438,13 @@ private fun PenColorSelectionView(
     onSelectedColor: (color: Color) -> Unit
 ) {
 
-    val colorPickerState = rememberColorPickerState(initialColor = color)
+    val colorPickerState = rememberKolorPickerState(initialColor = color)
 
     val colorPickerDialog = remember { MutableTransitionState(false) }
 
     val colorBoxShape = MaterialTheme.shapes.extraSmall
 
-    ColorPickerDialog(
+    KolorPickerDialog(
         dialogVisibleState = colorPickerDialog,
         state = colorPickerState,
         enableAlphaPanel = true,

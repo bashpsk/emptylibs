@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.kolorpicker.color.ImageColorPicker
+import io.bashpsk.emptylibs.kolorpicker.color.ImageKolorPicker
 
 @Composable
 fun ImageColorPickerScreen() {
@@ -19,7 +19,7 @@ fun ImageColorPickerScreen() {
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 
-        ImageColorPicker(
+        ImageKolorPicker(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)

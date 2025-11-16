@@ -4,38 +4,38 @@ A powerful and versatile color picker library for Jetpack Compose, offering mult
 colors, including a classic HSL panel, an image-based dropper tool, and a ready-to-use dialog.
 
 `kolor-picker` provides a suite of composables to handle all your color selection needs. It features
-a standard `ColorPicker` with hue, saturation, and lightness controls, an `ImageColorPicker` to
-extract colors directly from a bitmap, and a pre-built `ColorPickerDialog` for quick and easy
+a standard `KolorPicker` with hue, saturation, and lightness controls, an `ImageKolorPicker` to
+extract colors directly from a bitmap, and a pre-built `KolorPickerDialog` for quick and easy
 integration. The library is built with a robust, hoistable state management system
-(`ColorPickerState`) that makes it easy to control and observe color changes.
+(`KolorPickerState`) that makes it easy to control and observe color changes.
 
 ---
 
 ## Features
 
-- **Classic HSL Color Picker (`ColorPicker`)**:
+- **Classic HSL Color Picker (`KolorPicker`)**:
 
     - A draggable saturation/lightness panel.
     - A horizontal slider for hue selection.
     - An optional horizontal slider for alpha/transparency.
     - A live preview of the selected color with its `HEX` and `ARGB` codes.
 
-- **Image Dropper Tool (`ImageColorPicker`)**:
+- **Image Dropper Tool (`ImageKolorPicker`)**:
 
     - Pick a color directly from an `ImageBitmap` by tapping or dragging.
     - A draggable handle indicates the exact pixel being sampled.
     - The UI automatically adapts to the image's aspect ratio.
 
-- **Ready-to-Use Dialog (`ColorPickerDialog`)**:
+- **Ready-to-Use Dialog (`KolorPickerDialog`)**:
 
-    - A pre-built, animated `AlertDialog` that wraps the `ColorPicker` or `ImageColorPicker`.
+    - A pre-built, animated `AlertDialog` that wraps the `KolorPicker` or `ImageKolorPicker`.
     - Comes with "Done", "Close" and optional "Reset" buttons.
     - Handles its own visibility state and provides callbacks for color selection.
 
 - **Robust State Management**:
 
-    - Uses `rememberColorPickerState()` to create a hoistable, saveable state (`ColorPickerState`).
-    - `ColorPickerState` holds the `selectedColor` and can be updated programmatically.
+    - Uses `rememberKolorPickerState()` to create a hoistable, saveable state (`KolorPickerState`).
+    - `KolorPickerState` holds the `selectedColor` and can be updated programmatically.
 
 - **Utility Features**:
 
@@ -86,9 +86,9 @@ dependencies {
 Use this for a standard HSL-based color selection UI.
 
 ```kotlin
-val colorPickerState = rememberColorPickerState(initialColor = MaterialTheme.colorScheme.primary)
+val colorPickerState = rememberKolorPickerState(initialColor = MaterialTheme.colorScheme.primary)
 
-ColorPicker(
+KolorPicker(
     state = colorState,
     enableAlphaPanel = true, // Enable transparency slider
     enableCopyButtons = true // Show copy/paste buttons
@@ -106,9 +106,9 @@ Box(
 Use this to let users pick a color directly from an image.
 
 ```kotlin
-val colorPickerState = rememberColorPickerState()
+val colorPickerState = rememberKolorPickerState()
 
-ImageColorPicker(
+ImageKolorPicker(
     imageBitmap = sourceBitmap,
     state = colorPickerState
 )
@@ -124,7 +124,7 @@ Box(
 
 ```kotlin
 val dialogVisibleState = remember { MutableTransitionState(false) }
-val colorPickerState = rememberColorPickerState()
+val colorPickerState = rememberKolorPickerState()
 
 // Button to open the dialog
 Button(onClick = { dialogVisibleState.targetState = true }) {
@@ -132,7 +132,7 @@ Button(onClick = { dialogVisibleState.targetState = true }) {
 }
 
 // The dialog itself
-ColorPickerDialog(
+KolorPickerDialog(
     dialogVisibleState = dialogVisibleState,
     state = colorPickerState,
     onSelectedColor = { newColor ->
@@ -141,7 +141,7 @@ ColorPickerDialog(
 )
 
 // Image Color Picker Dialog
-ColorPickerDialog(
+KolorPickerDialog(
     dialogVisibleState = dialogVisibleState,
     state = colorPickerState,
     imageBitmap = baseImage,

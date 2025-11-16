@@ -6,19 +6,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.kolorpicker.color.ColorPicker
-import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPicker
+import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 
 @Composable
 fun ColorPickerScreen() {
 
-    val state = rememberColorPickerState()
+    val state = rememberKolorPickerState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 
-        ColorPicker(
+        KolorPicker(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)

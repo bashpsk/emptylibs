@@ -90,9 +90,9 @@ import io.bashpsk.emptylibs.imageutils.extension.toSize
 import io.bashpsk.emptylibs.imageutils.shape.BasicImageShapes
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import io.bashpsk.emptylibs.imageutils.shape.toLabel
-import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.ColorPreview
-import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
+import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ensureActive
@@ -1022,10 +1022,10 @@ private fun ColorSelectionView(
     onColorChange: (color: Color) -> Unit
 ) {
 
-    val colorPickerState = rememberColorPickerState(initialColor = color)
+    val colorPickerState = rememberKolorPickerState(initialColor = color)
     val colorPickerDialogState = remember { MutableTransitionState(false) }
 
-    ColorPickerDialog(
+    KolorPickerDialog(
         dialogVisibleState = colorPickerDialogState,
         state = colorPickerState,
         enableAlphaPanel = true,

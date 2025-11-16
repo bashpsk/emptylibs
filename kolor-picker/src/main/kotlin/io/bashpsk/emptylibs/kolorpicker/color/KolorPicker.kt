@@ -73,9 +73,9 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat
  * components. The selected color is displayed in a preview area, along with its HEX and ARGB
  * representations.
  *
- * @param modifier The modifier to be applied to the ColorPicker.
+ * @param modifier The modifier to be applied to the KolorPicker.
  * @param state The state object that holds the current color selection and configuration.
- * Defaults to a new `rememberColorPickerState()` if not provided.
+ * Defaults to a new `rememberKolorPickerState()` if not provided.
  * @param enableAlphaPanel A boolean indicating whether to show the alpha panel for transparency
  * selection. Defaults to `false`.
  * @param enableCopyButtons A boolean indicating whether to show copy and paste buttons for the
@@ -83,9 +83,9 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat
  */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun ColorPicker(
+fun KolorPicker(
     modifier: Modifier = Modifier,
-    state: ColorPickerState = rememberColorPickerState(),
+    state: KolorPickerState = rememberKolorPickerState(),
     enableAlphaPanel: Boolean = false,
     enableCopyButtons: Boolean = false
 ) {
@@ -179,13 +179,13 @@ fun ColorPicker(
  *
  * @param modifier The modifier to be applied to this composable.
  * @param imageBitmap The [ImageBitmap] to display and pick colors from.
- * @param state The [ColorPickerState] to update with the selected color.
+ * @param state The [KolorPickerState] to update with the selected color.
  */
 @Composable
-fun ImageColorPicker(
+fun ImageKolorPicker(
     modifier: Modifier = Modifier,
     imageBitmap: ImageBitmap,
-    state: ColorPickerState = rememberColorPickerState()
+    state: KolorPickerState = rememberKolorPickerState()
 ) {
 
     val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -892,17 +892,17 @@ private fun ColorInfoItem(modifier: Modifier = Modifier, infoItem: Pair<String, 
  * A composable function that displays "Copy" and "Paste" buttons for color operations.
  *
  * The "Paste" button attempts to read a HEX color string from the clipboard. If a valid
- * HEX color is found, it updates the [ColorPickerState] with the pasted color.
+ * HEX color is found, it updates the [KolorPickerState] with the pasted color.
  *
- * The "Copy" button takes the currently selected color from the [ColorPickerState],
+ * The "Copy" button takes the currently selected color from the [KolorPickerState],
  * converts it to a HEX string, and copies it to the clipboard.
  *
  * @param modifier The modifier to be applied to the row containing the buttons.
- * @param state The [ColorPickerState] that holds the current selected color and will be
+ * @param state The [KolorPickerState] that holds the current selected color and will be
  * updated when a color is pasted.
  */
 @Composable
-private fun ColorCopyPasteButtons(modifier: Modifier = Modifier, state: ColorPickerState) {
+private fun ColorCopyPasteButtons(modifier: Modifier = Modifier, state: KolorPickerState) {
 
     val context = LocalContext.current
 

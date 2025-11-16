@@ -22,7 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 
 @Composable
 fun ColorPickerDialogScreen() {
@@ -35,7 +35,7 @@ fun ColorPickerDialogScreen() {
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
 
-        ColorPickerDialog(
+        KolorPickerDialog(
             dialogVisibleState = pickerDialog,
             onSelectedColor = { newColor ->
 

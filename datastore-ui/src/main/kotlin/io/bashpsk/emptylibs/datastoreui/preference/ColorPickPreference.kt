@@ -30,8 +30,8 @@ import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
 import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
-import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
-import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -82,7 +82,7 @@ fun ColorPickPreference(
     val datastore = LocalDatastore.current
     val coroutineScope = rememberCoroutineScope()
     val dialogVisibleState = remember { MutableTransitionState(false) }
-    val colorPickerState = rememberColorPickerState()
+    val colorPickerState = rememberKolorPickerState()
 
     val getColorArgb by datastore.getPreference(
         key = key,
@@ -91,7 +91,7 @@ fun ColorPickPreference(
 
     when (enableResetButton) {
 
-        true -> ColorPickerDialog(
+        true -> KolorPickerDialog(
             dialogVisibleState = dialogVisibleState,
             state = colorPickerState,
             enableAlphaPanel = enableAlphaPanel,
@@ -112,7 +112,7 @@ fun ColorPickPreference(
             }
         )
 
-        false -> ColorPickerDialog(
+        false -> KolorPickerDialog(
             dialogVisibleState = dialogVisibleState,
             state = colorPickerState,
             enableAlphaPanel = enableAlphaPanel,

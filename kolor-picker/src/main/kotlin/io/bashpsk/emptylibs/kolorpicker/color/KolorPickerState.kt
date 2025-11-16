@@ -16,30 +16,30 @@ import androidx.compose.ui.graphics.toArgb
  * Remembers the state of a color picker.
  *
  * @param initialColor The initial color to be selected. Defaults to [Color.Black].
- * @return A [ColorPickerState] instance that can be used to control the color picker.
+ * @return A [KolorPickerState] instance that can be used to control the color picker.
  */
 @Composable
-fun rememberColorPickerState(
+fun rememberKolorPickerState(
     initialColor: Color = Color.Black
-): ColorPickerState {
+): KolorPickerState {
 
     return rememberSaveable(
         initialColor,
-        saver = ColorPickerState.StateSaver(initialColor = initialColor)
+        saver = KolorPickerState.StateSaver(initialColor = initialColor)
     ) {
-        ColorPickerState(initialColor = initialColor)
+        KolorPickerState(initialColor = initialColor)
     }
 }
 
 /**
  * A state object that can be hoisted to control and observe color picker changes.
  *
- * In most cases, this will be created via [rememberColorPickerState].
+ * In most cases, this will be created via [rememberKolorPickerState].
  *
  * @param initialColor the initial color to set on the picker
  */
 @Stable
-class ColorPickerState(val initialColor: Color) {
+class KolorPickerState(val initialColor: Color) {
 
     /**
      * Represents the currently selected color in the color picker.
@@ -49,7 +49,7 @@ class ColorPickerState(val initialColor: Color) {
      * with the color picker UI.
      *
      * The setter for this property is private, meaning it can only be modified internally by the
-     * [ColorPickerState] class, typically through methods like [updateColor] or [updateHslA].
+     * [KolorPickerState] class, typically through methods like [updateColor] or [updateHslA].
      */
     var selectedColor by mutableStateOf(initialColor)
         private set
@@ -70,7 +70,7 @@ class ColorPickerState(val initialColor: Color) {
     /**
      * The current lightness value of the color picker, ranging from 0.0 to 1.0.
      * This property is observed by Compose and will trigger recomposition when its value changes.
-     * It can only be set internally within the `ColorPickerState` class.
+     * It can only be set internally within the `KolorPickerState` class.
      */
     internal var lightnessValue by mutableFloatStateOf(0F)
         private set
@@ -129,7 +129,7 @@ class ColorPickerState(val initialColor: Color) {
         private const val KEY_LIGHTNESS = "COLOR-PICKER-LIGHTNESS"
         private const val KEY_ALPHA = "COLOR-PICKER-ALPHA"
 
-        fun StateSaver(initialColor: Color): Saver<ColorPickerState, Any> = mapSaver(
+        fun StateSaver(initialColor: Color): Saver<KolorPickerState, Any> = mapSaver(
             save = { state ->
 
                 mapOf(
@@ -142,7 +142,7 @@ class ColorPickerState(val initialColor: Color) {
             },
             restore = { elements ->
 
-                ColorPickerState(initialColor = initialColor).apply {
+                KolorPickerState(initialColor = initialColor).apply {
 
                     hueValue = elements.getOrElse(KEY_HUE) { 0.0F } as Float
                     saturationValue = elements.getOrElse(KEY_SATURATION) { 0.0F } as Float

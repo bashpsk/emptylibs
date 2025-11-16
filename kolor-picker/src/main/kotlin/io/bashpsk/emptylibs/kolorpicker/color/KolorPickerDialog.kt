@@ -39,9 +39,9 @@ import androidx.compose.ui.window.DialogProperties
  * @param onSelectedColor A callback that is invoked when the user selects a color.
  */
 @Composable
-fun ColorPickerDialog(
+fun KolorPickerDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
-    state: ColorPickerState = rememberColorPickerState(),
+    state: KolorPickerState = rememberKolorPickerState(),
     enableAlphaPanel: Boolean = false,
     enableCopyButtons: Boolean = false,
     onSelectedColor: (color: Color) -> Unit
@@ -104,7 +104,7 @@ fun ColorPickerDialog(
 
                     item {
 
-                        ColorPicker(
+                        KolorPicker(
                             modifier = Modifier.fillParentMaxSize(),
                             state = state,
                             enableAlphaPanel = enableAlphaPanel,
@@ -175,9 +175,9 @@ fun ColorPickerDialog(
  * @param onSelectedColor A callback that is invoked when a color is selected.
  */
 @Composable
-fun ColorPickerDialog(
+fun KolorPickerDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
-    state: ColorPickerState = rememberColorPickerState(),
+    state: KolorPickerState = rememberKolorPickerState(),
     enableAlphaPanel: Boolean = false,
     enableCopyButtons: Boolean = false,
     onResetClick: () -> Unit,
@@ -241,7 +241,7 @@ fun ColorPickerDialog(
 
                     item {
 
-                        ColorPicker(
+                        KolorPicker(
                             modifier = Modifier.fillParentMaxSize(),
                             state = state,
                             enableAlphaPanel = enableAlphaPanel,
@@ -314,9 +314,9 @@ fun ColorPickerDialog(
  * @param onSelectedColor A callback that is invoked when a color is selected.
  */
 @Composable
-fun ColorPickerDialog(
+fun KolorPickerDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
-    state: ColorPickerState = rememberColorPickerState(),
+    state: KolorPickerState = rememberKolorPickerState(),
     imageBitmap: ImageBitmap,
     onSelectedColor: (color: Color) -> Unit
 ) {
@@ -378,7 +378,7 @@ fun ColorPickerDialog(
 
                     item {
 
-                        ImageColorPicker(
+                        ImageKolorPicker(
                             modifier = Modifier.fillParentMaxSize(),
                             imageBitmap = imageBitmap,
                             state = state

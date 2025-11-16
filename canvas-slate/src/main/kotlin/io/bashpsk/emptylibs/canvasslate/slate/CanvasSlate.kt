@@ -12,8 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.kolorpicker.color.ColorPickerDialog
-import io.bashpsk.emptylibs.kolorpicker.color.rememberColorPickerState
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 
 /**
  * A composable function that provides a canvas slate for drawing and editing paths.
@@ -39,7 +39,7 @@ fun CanvasSlate(
 ) {
 
     val pathEditSheetState = rememberModalBottomSheetState()
-    val colorPickerState = rememberColorPickerState()
+    val colorPickerState = rememberKolorPickerState()
     val backgroundColorPickerDialog = remember { MutableTransitionState(false) }
     val foregroundColorPickerDialog = remember { MutableTransitionState(false) }
     val penStrokeDialogVisibleState = remember { MutableTransitionState(false) }
@@ -50,7 +50,7 @@ fun CanvasSlate(
         onDispose { state.clearState() }
     }
 
-    ColorPickerDialog(
+    KolorPickerDialog(
         dialogVisibleState = backgroundColorPickerDialog,
         state = colorPickerState,
         enableAlphaPanel = true,
@@ -60,7 +60,7 @@ fun CanvasSlate(
         }
     )
 
-    ColorPickerDialog(
+    KolorPickerDialog(
         dialogVisibleState = foregroundColorPickerDialog,
         state = colorPickerState,
         enableAlphaPanel = true,
