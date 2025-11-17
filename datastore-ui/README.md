@@ -299,3 +299,13 @@ Box {
 ```
 
 ---
+
+## Screenshots & Demo
+
+| Settings UI                                       |
+|---------------------------------------------------|
+| ![Screenshot 01](../screenshots/datastore_ui.jpg) |
+
+https://github.com/user-attachments/assets/64f4902b-2fe0-4a2e-88c9-5851d0ca22e0
+
+---

@@ -123,3 +123,13 @@ val imageKropState = rememberImageKropState(
 ```
 
 ---
+
+## Screenshots & Demo
+
+| Image Krop - UI                                   | Shape Customization                               |
+|---------------------------------------------------|---------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_krop_1.jpg) | ![Screenshot 02](../screenshots/image_krop_2.jpg) |
+
+https://github.com/user-attachments/assets/d02eaaba-b8cb-41c8-aeb6-1eef8459b8f4
+
+---

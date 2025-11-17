@@ -182,3 +182,33 @@ BasicTextEditor(
 ```
 
 ---
+
+## Screenshots & Demo
+
+### Bottom Option Bar:
+
+| Adaptive Bottom Bar                                      | Adaptive Bottom Bar - Overflow Menu                      | Adaptive Bottom Bar - Landscape                          |
+|----------------------------------------------------------|----------------------------------------------------------|----------------------------------------------------------|
+| ![Screenshot 01](../screenshots/bottom_option_bar_1.jpg) | ![Screenshot 02](../screenshots/bottom_option_bar_2.jpg) | ![Screenshot 03](../screenshots/bottom_option_bar_3.jpg) |
+
+https://github.com/user-attachments/assets/ef8c7860-e472-438f-99ce-5d9490a39e04
+
+### Text Picker:
+
+| Dial Text Picker                                      | Wheel Text Picker                                      |
+|-------------------------------------------------------|--------------------------------------------------------|
+| ![Screenshot 01](../screenshots/dial_text_picker.jpg) | ![Screenshot 02](../screenshots/wheel_text_picker.jpg) |
+
+https://github.com/user-attachments/assets/0cb6bdc0-6b7a-4ce7-85dc-939bacbc5541
+
+https://github.com/user-attachments/assets/250bbce5-b6c3-47cc-af90-63bf8898c0f3
+
+### Text Editor:
+
+| Basic Text Editor                                      |
+|--------------------------------------------------------|
+| ![Screenshot 01](../screenshots/basic_text_editor.jpg) |
+
+https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729
+
+---

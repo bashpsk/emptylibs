@@ -106,3 +106,13 @@ ImageWallpaper(
 ```
 
 ---
+
+## Screenshots & Demo
+
+| Image Wallpaper - UI                                   | Wallpaper Type Selection                               |
+|--------------------------------------------------------|--------------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_wallpaper_1.jpg) | ![Screenshot 02](../screenshots/image_wallpaper_2.jpg) |
+
+https://github.com/user-attachments/assets/5f5a510b-4e7a-41d2-aa43-1d456199b609
+
+---

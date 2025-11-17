@@ -136,3 +136,23 @@ Button(
 ```
 
 ---
+
+## Screenshots & Demo
+
+### Image Kolor:
+
+| Color Adjust - Before                              | Color Adjust - After                               | Color Adjust - Landscape                           |
+|----------------------------------------------------|----------------------------------------------------|----------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_kolor_1.jpg) | ![Screenshot 02](../screenshots/image_kolor_2.jpg) | ![Screenshot 03](../screenshots/image_kolor_3.jpg) |
+
+https://github.com/user-attachments/assets/9e9baaa1-4a2a-4817-88a2-e94da71fa71e
+
+### Image Filter:
+
+| Color Filter - Before                               | Color Filter - After                                | Color Filter - Landscape                            |
+|-----------------------------------------------------|-----------------------------------------------------|-----------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_filter_1.jpg) | ![Screenshot 02](../screenshots/image_filter_2.jpg) | ![Screenshot 03](../screenshots/image_filter_3.jpg) |
+
+https://github.com/user-attachments/assets/a60003cd-a616-4a4c-a86e-e8fa180d123f
+
+---

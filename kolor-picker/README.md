@@ -152,3 +152,23 @@ KolorPickerDialog(
 ```
 
 ---
+
+## Screenshots & Demo
+
+| Color Picker - UI                                 | Color Picker - Dialog                                    |
+|---------------------------------------------------|----------------------------------------------------------|
+| ![Screenshot 01](../screenshots/kolor_picker.jpg) | ![Screenshot 02](../screenshots/kolor_picker_dialog.jpg) |
+
+https://github.com/user-attachments/assets/a821af0d-cff9-4525-9f92-40529549bdb8
+
+https://github.com/user-attachments/assets/7d6babb8-2350-42aa-b2c5-f012155c584a
+
+| Image Color Picker - UI                                 | Image Color Picker - Dialog                                    |
+|---------------------------------------------------------|----------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_kolor_picker.jpg) | ![Screenshot 02](../screenshots/image_kolor_picker_dialog.jpg) |
+
+https://github.com/user-attachments/assets/5dbc8819-d72e-4eef-ab15-4169ef8345ff
+
+https://github.com/user-attachments/assets/e073fa98-94ba-4240-95a3-35a0188b97cc
+
+---
