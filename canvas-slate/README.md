@@ -97,10 +97,16 @@ CanvasSlate(
 
 ---
 
-## Screenshots
+## Screenshots & Demo
 
-![canvas_slate.jpg](../screenshots/images/canvas_slate.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/bashpsk/emptylibs/main/screenshots/images/canvas_slate.jpg" alt="Canvas Slate Screenshot" width="720" height="1600" />
+</p>
 
-[canvas_slate.mp4](../screenshots/videos/canvas_slate.mp4)
+<p align="center">
+  <video src="https://raw.githubusercontent.com/bashpsk/emptylibs/main/screenshots/videos/canvas_slate.mp4#t=0.1" autoplay loop muted playsinline width="720" height="1600">
+    Canvas Slate Preview
+  </video>
+</p>
 
 ---
