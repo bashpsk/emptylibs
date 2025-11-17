@@ -88,25 +88,12 @@ CanvasSlate(
 )
 ```
 
-### Parameters:
-
-- `modifier`: The `Modifier` to be applied to the `CanvasSlate` container.
-- `state`: The `CanvasSlateState` object that manages the canvas state.
-- `onDoneClick`: A lambda function that is triggered when the "Done" button is clicked.
-- `onNavigateBack`: A lambda function that is triggered when the back button is clicked.
-
 ---
 
 ## Screenshots & Demo
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/bashpsk/emptylibs/main/screenshots/images/canvas_slate.jpg" alt="Canvas Slate Screenshot" width="720" height="1600" />
-</p>
+![Canvas Slate Screenshot](https://raw.githubusercontent.com/bashpsk/emptylibs/master/screenshots/images/canvas_slate.jpg)
 
-<p align="center">
-  <video src="https://raw.githubusercontent.com/bashpsk/emptylibs/main/screenshots/videos/canvas_slate.mp4#t=0.1" autoplay loop muted playsinline width="720" height="1600">
-    Canvas Slate Preview
-  </video>
-</p>
+![Canvas Slate Preview](https://raw.githubusercontent.com/bashpsk/emptylibs/master/screenshots/videos/canvas_slate.mp4)
 
 ---
