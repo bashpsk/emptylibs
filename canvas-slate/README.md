@@ -92,8 +92,8 @@ CanvasSlate(
 
 ## Screenshots & Demo
 
-| Images                                                                                                                     | Videos                                                                                         |
-|----------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
-| ![Canvas Slate Screenshot](https://raw.githubusercontent.com/bashpsk/emptylibs/master/screenshots/images/canvas_slate.jpg) | https://raw.githubusercontent.com/bashpsk/emptylibs/master/screenshots/videos/canvas_slate.mp4 |
+[Canvas Slate Screenshot](https://raw.githubusercontent.com/bashpsk/emptylibs/master/screenshots/images/canvas_slate.jpg)
+
+https://github.com/user-attachments/assets/07ffb810-a1bb-4db2-b50b-dea5fdc1a626
 
 ---
