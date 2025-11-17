@@ -3,7 +3,8 @@
 A powerful and customizable canvas library for Jetpack Compose, designed for an intuitive drawing
 and path editing experience.
 
-`canvas-slate` is a feature-rich composable that provides a complete drawing solution out of the box.
+`canvas-slate` is a feature-rich composable that provides a complete drawing solution out of the
+box.
 It allows users to draw free-form paths, customize canvas and brush colors, adjust stroke
 properties, and even select and edit individual paths after they have been drawn. The library is
 built with a robust state management system (`CanvasSlateState`) and is easy to integrate into any
@@ -20,8 +21,8 @@ Jetpack Compose project.
   stroke join (e.g., Bevel, Miter) through built-in dialogs.
 - **Path Editing**: An integrated `ModalBottomSheet` allows users to select and modify the
   properties (color, thickness, etc.) of individual paths after they are drawn.
-- **State Management**: A robust `CanvasSlateState` that can be remembered across recompositions (
-  `rememberCanvasSlateState`) to manage the canvas, tools, and all drawn paths.
+- **State Management**: A robust `CanvasSlateState` that can be remembered across recompositions
+  (`rememberCanvasSlateState`) to manage the canvas, tools, and all drawn paths.
 - **Undo/Redo & Clear**: Easily undo or redo the last action, or clear the entire canvas.
 - **Export**: Capture the final drawing as an `ImageBitmap` to save or share.
 
@@ -93,5 +94,13 @@ CanvasSlate(
 - `state`: The `CanvasSlateState` object that manages the canvas state.
 - `onDoneClick`: A lambda function that is triggered when the "Done" button is clicked.
 - `onNavigateBack`: A lambda function that is triggered when the back button is clicked.
+
+---
+
+## Screenshots
+
+![canvas_slate.jpg](../screenshots/images/canvas_slate.jpg)
+
+[canvas_slate.mp4](../screenshots/videos/canvas_slate.mp4)
 
 ---
