@@ -111,3 +111,19 @@ fun IntOffset.toIntOffsetData(): IntOffsetData {
 
     return IntOffsetData(x, y)
 }
+
+/**
+ * Constrains the x and y components of this [Offset] to be within the range defined by the
+ * corresponding components of [minimum] and [maximum].
+ *
+ * This function returns a new [Offset] where the x-coordinate is clamped between `minimum.x` and
+ * `maximum.x`, and the y-coordinate is clamped between `minimum.y` and `maximum.y`.
+ *
+ * @param minimum The [Offset] representing the lower bounds for the x and y components.
+ * @param maximum The [Offset] representing the upper bounds for the x and y components.
+ * @return A new [Offset] with its components coerced to the specified range.
+ */
+fun Offset.coerceIn(minimum: Offset, maximum: Offset): Offset {
+
+    return this.copy(x = x.coerceIn(minimum.x, maximum.x), y = y.coerceIn(minimum.y, maximum.y))
+}

@@ -1,8 +1,6 @@
 package io.bashpsk.emptylibs.imageview.transform
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
@@ -10,32 +8,30 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.center
+import androidx.compose.ui.unit.toOffset
 import coil3.compose.SubcomposeAsyncImage
+import io.bashpsk.emptylibs.composeutils.offset.coerceIn
+import io.bashpsk.emptylibs.imageview.R
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 /**
  * A Composable that displays an image with support for transformations like
@@ -138,10 +134,20 @@ fun TransformImageView(
     enablePan: Boolean = true,
     enableSwipe: Boolean = true,
     onClick: (offset: Offset) -> Unit = {},
-    onLongClick: (offset: Offset) -> Unit = {}
-) {
+    onLongClick: (offset: Offset) -> Unit = {},
+    loadingIndicator: (@Composable () -> Unit)? = {
 
-    val pagerCoroutineScope = rememberCoroutineScope()
+        CircularProgressIndicator()
+    },
+    errorContent: (@Composable () -> Unit)? = {
+
+        Image(
+            modifier = Modifier.fillMaxSize(fraction = 0.65F),
+            painter = painterResource(id = R.drawable.image_broken),
+            contentDescription = "Image Load Failed"
+        )
+    }
+) {
 
     val initialPage by remember(imageModelList, initialImage) {
         derivedStateOf { imageModelList.indexOf(initialImage).coerceIn(imageModelList.indices) }
@@ -149,43 +155,44 @@ fun TransformImageView(
 
     val pagerState = rememberPagerState(initialPage = initialPage) { imageModelList.size }
 
-    var touchCount by rememberSaveable { mutableIntStateOf(0) }
-    val isOneTouch by remember(touchCount) { derivedStateOf { touchCount == 1 } }
-    val isTwoTouch by remember(touchCount) { derivedStateOf { touchCount == 2 } }
-    val isCanSwipe by remember(state) { derivedStateOf { state.zoom == 1.0F && enableSwipe } }
+    val isCanSwipe by remember(state) { derivedStateOf { state.zoom <= 1.0F && enableSwipe } }
 
-    val touchModifier = Modifier.pointerInput(Unit) {
-
-        awaitEachGesture {
-
-            do {
-
-                val event = awaitPointerEvent()
-
-                touchCount = event.changes.size
-            } while (event.changes.any { change -> change.pressed })
-        }
-    }
-
-    val tapPointerInput = Modifier.pointerInput(Unit) {
+    val tapPointerInput = Modifier.pointerInput(enableDoubleTapZoom) {
 
         detectTapGestures(
-            onDoubleTap = { position ->
+            onDoubleTap = { tapPosition ->
 
                 if (enableDoubleTapZoom) {
 
-                    val zoomFactor = when (state.zoom) {
-
-                        in 0.80F..1.40F -> 2.0F
-                        in 1.80F..2.40F -> 3.0F
-                        in 2.80F..3.40F -> 4.0F
-                        else -> 1.0F
-                    }.coerceIn(range = zoomRange)
-
                     state.apply {
 
-                        resetAllValues()
-                        zoom = zoomFactor
+                        when (zoom) {
+
+                            in 0.80F..1.40F -> 2.0F
+                            in 1.80F..2.40F -> 3.0F
+                            in 2.80F..3.40F -> 4.0F
+                            else -> 1.0F
+                        }.coerceIn(range = zoomRange).takeIf { zoomFactor ->
+
+                            zoomFactor > 1.0F
+                        }?.let { zoomFactor ->
+
+                            val boundCenter = boundSize.center.toOffset()
+                            val maxPosition = boundCenter * (zoomFactor - 1.0F)
+
+                            val newPosition = (tapPosition - boundCenter) * (1 - zoomFactor / zoom
+                                    ) + position * (zoomFactor / zoom)
+
+                            position = newPosition.coerceIn(
+                                minimum = Offset(x = -abs(maxPosition.x), y = -abs(maxPosition.x)),
+                                maximum = Offset(x = maxPosition.x, y = maxPosition.y)
+                            )
+
+                            zoom = zoomFactor
+                        } ?: run {
+
+                            resetAllValues()
+                        }
                     }
                 }
             },
@@ -196,30 +203,36 @@ fun TransformImageView(
 
     val transformableState = rememberTransformableState { zoomChange, panChange, rotationChange ->
 
-        when {
+        state.apply {
 
-            isTwoTouch -> state.apply {
+            if (enableZoom) zoom = (zoom * zoomChange).coerceIn(zoomRange)
+            if (enableRotation) rotation += rotationChange
 
-                if (enableZoom) zoom = (state.zoom * zoomChange).coerceIn(zoomRange)
-                if (enablePan) position = state.position + panChange
-                if (enableRotation) rotation = state.rotation + rotationChange
-            }
+            if (enablePan) if (zoom > 1.0F) {
 
-            isOneTouch && state.zoom != 1.0F && enablePan -> state.position += panChange
-            else -> return@rememberTransformableState
+                val newPosition = position + panChange
+                val maxPosition = boundSize.center.toOffset() * (zoom - 1.0F)
+
+                position = newPosition.coerceIn(
+                    minimum = Offset(x = -abs(maxPosition.x), y = -abs(maxPosition.x)),
+                    maximum = Offset(x = maxPosition.x, y = maxPosition.y)
+                )
+            } else resetPosition()
         }
     }
 
     Box(
         modifier = modifier
-            .then(touchModifier)
+            .onSizeChanged { size -> state.boundSize = size }
             .transformable(state = transformableState)
-            .then(if (enableZoom) tapPointerInput else Modifier),
+            .then(tapPointerInput),
         contentAlignment = Alignment.Center
     ) {
 
         HorizontalPager(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .clipToBounds(),
             state = pagerState,
             userScrollEnabled = isCanSwipe,
             verticalAlignment = Alignment.CenterVertically
@@ -245,7 +258,7 @@ fun TransformImageView(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                        CircularProgressIndicator()
+                        loadingIndicator?.invoke()
                     }
                 },
                 error = {
@@ -256,51 +269,13 @@ fun TransformImageView(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                        Icon(
-                            modifier = Modifier.fillMaxSize(fraction = 0.4F),
-                            imageVector = Icons.Filled.BrokenImage,
-                            contentDescription = "Image View"
-                        )
+                        errorContent?.invoke()
                     }
                 },
                 contentDescription = "Image View"
             )
         }
 
-        if (enableControls) TransformImageControls(
-            modifier = Modifier
-                .align(alignment = Alignment.BottomCenter)
-                .offset(y = (-32).dp),
-            onPreviousImage = {
-
-                pagerCoroutineScope.launch {
-
-                    pagerState.animateScrollToPage(
-                        page = (pagerState.currentPage - 1).coerceAtLeast(0),
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
-                    )
-                }
-            },
-            onNextImage = {
-
-                pagerCoroutineScope.launch {
-
-                    pagerState.animateScrollToPage(
-                        page = (pagerState.currentPage + 1).coerceAtMost(pagerState.pageCount - 1),
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        )
-                    )
-                }
-            },
-            onResetTransform = {
-
-                state.resetAllValues()
-            }
-        )
+        if (enableControls) DefaultImageControls(state = state, pagerState = pagerState)
     }
 }

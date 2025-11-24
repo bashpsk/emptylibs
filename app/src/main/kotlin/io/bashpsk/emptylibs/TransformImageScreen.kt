@@ -41,7 +41,8 @@ fun TransformImageScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 imageModelList = simpleList,
                 initialImage = R.drawable.wallpaper02,
-                enableControls = true
+                enableControls = true,
+                enableRotation = false
             )
         }
     }

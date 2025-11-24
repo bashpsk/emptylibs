@@ -9,12 +9,14 @@ import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntSize
 import io.bashpsk.emptylibs.composeutils.offset.OffsetData
 import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
+import io.bashpsk.emptylibs.composeutils.size.IntSizeData
+import io.bashpsk.emptylibs.composeutils.size.toIntSizeData
 
 /**
- * Remembers and creates an [ImageTransformState] with the given [config]
- * that survives configuration changes.
+ * Remembers and creates an [ImageTransformState] that survives configuration changes.
  *
  * This function is a composable function that uses [rememberSaveable] to ensure that the
  * [ImageTransformState] is preserved across recompositions and configuration changes.
@@ -34,8 +36,6 @@ fun rememberImageTransformState(): ImageTransformState {
  *
  * This class holds the current zoom, rotation, and position of the image.
  * It provides methods to update these values and reset them to their defaults.
- *
- * @param config The configuration for image transformations.
  */
 class ImageTransformState() {
 
@@ -59,6 +59,13 @@ class ImageTransformState() {
      * This value represents the translation of the image from its original position.
      */
     var position by mutableStateOf(Offset.Zero)
+
+    /**
+     * The size of the container that bounds the image, used for calculating
+     * transformation limits. This is typically the size of the Composable
+     * that displays the image.
+     */
+    internal var boundSize by mutableStateOf(IntSize.Zero)
 
     /**
      * Resets all transformation values (zoom, rotation, and position) to their default states.
@@ -100,6 +107,7 @@ class ImageTransformState() {
         private const val KEY_ZOOM = "IMAGE-TRANSFORM-ZOOM"
         private const val KEY_ROTATION = "IMAGE-TRANSFORM-ROTATION"
         private const val KEY_POSITION = "IMAGE-TRANSFORM-POSITION"
+        private const val KEY_BOUNDS = "IMAGE-TRANSFORM-BOUNDS"
 
         fun StateSaver(): Saver<ImageTransformState, Any> = mapSaver(
             save = { state ->
@@ -107,7 +115,8 @@ class ImageTransformState() {
                 mapOf(
                     KEY_ZOOM to state.zoom,
                     KEY_ROTATION to state.rotation,
-                    KEY_POSITION to state.position.toOffsetData()
+                    KEY_POSITION to state.position.toOffsetData(),
+                    KEY_BOUNDS to state.boundSize.toIntSizeData()
                 )
             },
             restore = { elements ->
@@ -120,6 +129,10 @@ class ImageTransformState() {
                     position = (elements.getOrElse(
                         KEY_POSITION
                     ) { Offset.Zero.toOffsetData() } as OffsetData).toOffset()
+
+                    boundSize = (elements.getOrElse(
+                        KEY_BOUNDS
+                    ) { IntSize.Zero.toIntSizeData() } as IntSizeData).toIntSize()
                 }
             }
         )
