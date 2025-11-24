@@ -72,6 +72,18 @@ fun TransformImageView(
     enablePan: Boolean = true,
     onClick: (offset: Offset) -> Unit = {},
     onLongClick: (offset: Offset) -> Unit = {},
+    loadingIndicator: (@Composable () -> Unit)? = {
+
+        CircularProgressIndicator()
+    },
+    errorIndicator: (@Composable () -> Unit)? = {
+
+        Image(
+            modifier = Modifier.fillMaxSize(fraction = 0.65F),
+            painter = painterResource(id = R.drawable.image_broken),
+            contentDescription = "Image Load Failed"
+        )
+    }
 ) {
 
     TransformImageView(
@@ -87,7 +99,9 @@ fun TransformImageView(
         enableRotation = enableRotation,
         enablePan = enablePan,
         onClick = onClick,
-        onLongClick = onLongClick
+        onLongClick = onLongClick,
+        loadingIndicator = loadingIndicator,
+        errorIndicator = errorIndicator
     )
 }
 
@@ -139,7 +153,7 @@ fun TransformImageView(
 
         CircularProgressIndicator()
     },
-    errorContent: (@Composable () -> Unit)? = {
+    errorIndicator: (@Composable () -> Unit)? = {
 
         Image(
             modifier = Modifier.fillMaxSize(fraction = 0.65F),
@@ -251,25 +265,31 @@ fun TransformImageView(
                 model = imageModelList.getOrNull(index = page),
                 contentScale = contentScale,
                 loading = {
+                    
+                    loadingIndicator?.let { content ->
 
-                    Column(
-                        modifier = Modifier.matchParentSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                        Column(
+                            modifier = Modifier.matchParentSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
 
-                        loadingIndicator?.invoke()
+                            content()
+                        }
                     }
                 },
                 error = {
 
-                    Column(
-                        modifier = Modifier.matchParentSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    errorIndicator?.let { content ->
 
-                        errorContent?.invoke()
+                        Column(
+                            modifier = Modifier.matchParentSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+
+                            content()
+                        }
                     }
                 },
                 contentDescription = "Image View"
