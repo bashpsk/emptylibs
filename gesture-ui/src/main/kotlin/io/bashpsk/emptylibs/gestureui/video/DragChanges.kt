@@ -46,32 +46,34 @@ sealed interface DragChanges {
      * This event is typically dispatched when a drag gesture is initiated from the top edge
      * and moves horizontally.
      */
-    data object HorizontalTopStart: DragChanges
+    data object HorizontalTopStart : DragChanges
 
     /**
      * Represents the start of a horizontal drag gesture originating from the bottom side.
      * This event is typically dispatched when a drag gesture is initiated from the bottom edge
      * and moves horizontally.
      */
-    data object HorizontalBottomStart: DragChanges
+    data object HorizontalBottomStart : DragChanges
 
     /**
      * Represents horizontal drag changes originating from the top side.
      *
-     * @param changes The amount of change in the horizontal direction.
+     * @param amount The amount of change in the horizontal direction.
      * A positive value indicates a drag towards the right, and a negative value indicates a drag
      * towards the left.
+     * @property changes The amount of change in the horizontal direction since the last event.
      */
-    data class HorizontalTopChanges(val changes: Float) : DragChanges
+    data class HorizontalTopChanges(val amount: Float, val changes: Float) : DragChanges
 
     /**
      * Represents horizontal drag changes originating from the bottom side.
      *
-     * @param changes The amount of change in the horizontal direction.
+     * @param amount The amount of change in the horizontal direction.
      * A positive value indicates a drag towards the right, and a negative value indicates a drag
      * towards the left.
+     * @property changes The amount of change in the horizontal direction since the last event.
      */
-    data class HorizontalBottomChanges(val changes: Float) : DragChanges
+    data class HorizontalBottomChanges(val amount: Float, val changes: Float) : DragChanges
 
     /**
      * Represents the end of a horizontal drag gesture originating from the top side.

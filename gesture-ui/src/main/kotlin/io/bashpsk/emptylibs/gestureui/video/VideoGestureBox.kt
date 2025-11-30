@@ -191,7 +191,9 @@ fun VideoGestureBox(
 
                         state.dragGestureAction = DragGestureAction.HorizontalTop
                         change.consume()
-                        onDragChanges(DragChanges.HorizontalTopChanges(state.swipeAmount.x))
+                        onDragChanges(
+                            DragChanges.HorizontalTopChanges(state.swipeAmount.x, dragAmount.x)
+                        )
                     }
 
                     else -> {}
@@ -209,7 +211,9 @@ fun VideoGestureBox(
 
                         state.dragGestureAction = DragGestureAction.HorizontalBottom
                         change.consume()
-                        onDragChanges(DragChanges.HorizontalBottomChanges(state.swipeAmount.x))
+                        onDragChanges(
+                            DragChanges.HorizontalBottomChanges(state.swipeAmount.x, dragAmount.x)
+                        )
                     }
 
                     else -> {}
