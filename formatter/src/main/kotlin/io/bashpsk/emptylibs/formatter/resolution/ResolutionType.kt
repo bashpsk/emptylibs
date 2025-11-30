@@ -240,7 +240,11 @@ enum class ResolutionType(val label: String = "", val width: Int = 0, val height
 
             return hasValid(width = width, height = height).takeIf { isValid -> isValid }?.let {
 
-                entries.find { type -> type.width == width && type.height == height }
+                entries.find { type ->
+
+                    (type.width == width && type.height == height)
+                            || (type.width == height && type.height == width)
+                }
             }
         }
     }
