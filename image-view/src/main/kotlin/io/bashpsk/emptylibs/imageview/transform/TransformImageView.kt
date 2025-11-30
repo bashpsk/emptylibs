@@ -12,6 +12,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -233,6 +235,16 @@ fun TransformImageView(
                 )
             } else resetPosition()
         }
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+
+        state.resetAllValues()
+    }
+
+    DisposableEffect(Unit) {
+
+        onDispose { state.resetState() }
     }
 
     Box(

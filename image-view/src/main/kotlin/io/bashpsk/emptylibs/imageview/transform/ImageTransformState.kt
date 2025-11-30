@@ -102,6 +102,12 @@ class ImageTransformState() {
         position = Offset.Zero
     }
 
+    internal fun resetState() {
+
+        resetAllValues()
+        boundSize = IntSize.Zero
+    }
+
     companion object {
 
         private const val KEY_ZOOM = "IMAGE-TRANSFORM-ZOOM"
