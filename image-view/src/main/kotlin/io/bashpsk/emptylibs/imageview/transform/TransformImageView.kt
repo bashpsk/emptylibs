@@ -166,7 +166,7 @@ fun TransformImageView(
 ) {
 
     val initialPage by remember(imageModelList, initialImage) {
-        derivedStateOf { imageModelList.indexOf(initialImage).coerceIn(imageModelList.indices) }
+        derivedStateOf { imageModelList.indexOf(initialImage).takeIf { index -> index >= 0 } ?: 0 }
     }
 
     val pagerState = rememberPagerState(initialPage = initialPage) { imageModelList.size }
@@ -277,7 +277,7 @@ fun TransformImageView(
                 model = imageModelList.getOrNull(index = page),
                 contentScale = contentScale,
                 loading = {
-                    
+
                     loadingIndicator?.let { content ->
 
                         Column(

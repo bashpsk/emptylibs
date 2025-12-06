@@ -7,23 +7,37 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun TransformImageScreen() {
 
-    val simpleList = persistentListOf(
-        R.drawable.wallpaper01,
-        R.drawable.wallpaper02,
-        R.drawable.empty_layer,
-        333
-    )
+    var simpleList by remember { mutableStateOf(persistentListOf<Any?>()) }
 
     val tooLongList = (0..333).map { simpleList }.flatten().toImmutableList()
+
+    LaunchedEffect(Unit) {
+
+        delay(2.seconds)
+
+        simpleList = persistentListOf(
+            R.drawable.wallpaper01,
+            R.drawable.wallpaper02,
+            R.drawable.empty_layer,
+            333
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -40,7 +54,7 @@ fun TransformImageScreen() {
             TransformImageView(
                 modifier = Modifier.fillMaxWidth(),
                 imageModelList = simpleList,
-                initialImage = R.drawable.wallpaper02,
+                initialImage = simpleList.firstOrNull(),
                 enableControls = true,
                 enableRotation = false
             )
