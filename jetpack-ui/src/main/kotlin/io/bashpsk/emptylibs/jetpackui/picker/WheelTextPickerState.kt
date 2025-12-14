@@ -3,6 +3,7 @@ package io.bashpsk.emptylibs.jetpackui.picker
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,6 +63,7 @@ fun <T> rememberWheelTextPickerState(
  * @param initial The initially selected text. If null, the first text in `textList` will be
  * selected.
  */
+@Stable
 class WheelTextPickerState<T>(
     val textList: ImmutableList<T>,
     val initial: T?,

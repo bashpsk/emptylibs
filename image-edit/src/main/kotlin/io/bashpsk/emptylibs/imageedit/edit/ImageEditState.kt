@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.imageedit.edit
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -127,6 +128,7 @@ fun rememberImageEditState(
  * ([ImageEditInput.TextItem]).
  */
 @OptIn(ExperimentalTime::class)
+@Stable
 class ImageEditState(
     val imageBitmap: ImageBitmap?,
     val config: ImageEditConfig,

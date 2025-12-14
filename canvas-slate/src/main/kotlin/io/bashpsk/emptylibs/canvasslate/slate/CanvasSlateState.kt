@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.canvasslate.slate
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -83,6 +84,7 @@ fun rememberCanvasSlateState(
  * @param density The density of the display.
  */
 @OptIn(ExperimentalTime::class)
+@Stable
 class CanvasSlateState(
     private val background: Color,
     private val initial: Color,

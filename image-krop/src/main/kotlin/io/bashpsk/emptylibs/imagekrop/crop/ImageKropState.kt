@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.imagekrop.crop
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -82,6 +83,7 @@ fun rememberImageKropState(
  * @param config The [KropConfig] to be used for the cropping operations.
  */
 @OptIn(ExperimentalUuidApi::class)
+@Stable
 class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val density: Density) {
 
     /**

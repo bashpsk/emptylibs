@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.imageview.transform
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +38,7 @@ fun rememberImageTransformState(): ImageTransformState {
  * This class holds the current zoom, rotation, and position of the image.
  * It provides methods to update these values and reset them to their defaults.
  */
+@Stable
 class ImageTransformState() {
 
     /**
