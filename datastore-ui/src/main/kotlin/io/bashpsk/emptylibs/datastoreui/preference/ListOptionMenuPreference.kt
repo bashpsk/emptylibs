@@ -35,9 +35,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.bashpsk.emptylibs.datastoreui.extension.LocalDatastore
+import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
@@ -66,6 +67,8 @@ import kotlinx.coroutines.launch
  * @param onMenuDismiss A lambda function to be called when the dialog is dismissed.
  * @param enableResetButton A lambda function that determines whether a reset button should be shown
  * in the dialog.
+ *
+ * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun <K, V> ListOptionMenuPreference(
@@ -84,6 +87,65 @@ fun <K, V> ListOptionMenuPreference(
 ) {
 
     val datastore = LocalDatastore.current
+
+    ListOptionMenuPreference(
+        modifier = modifier,
+        datastore = datastore,
+        key = key,
+        initialValue = initialValue,
+        entities = entities,
+        title = title,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        colors = colors,
+        isDismissOnBackPress = isDismissOnBackPress,
+        isDismissOnClickOutside = isDismissOnClickOutside,
+        onMenuDismiss = onMenuDismiss,
+        enableResetButton = enableResetButton
+    )
+}
+
+/**
+ * A Composable function that displays a list of options in a drop-down menu items,
+ * allowing the user to select one. The selected option is saved to DataStore.
+ *
+ * @param modifier Modifier to be applied to the drop-down menu.
+ * @param datastore The DataStore instance to use for this preference.
+ * @param key A lambda function that returns the DataStore key for this preference.
+ * @param initialValue A lambda function that returns the initial value for this preference.
+ * @param entities A lambda function that returns a map of options, where the key is the display
+ * name and the value is the actual value to be stored.
+ * @param title A lambda function that returns the title to be displayed for the preference.
+ * @param leadingContent A Composable lambda function to display content at the beginning of the
+ * menu item.
+ * @param trailingContent A Composable lambda function to display content at the end of the menu
+ * item.
+ * @param colors Colors to be used for the menu item.
+ * @param isDismissOnBackPress Whether the dialog should be dismissed when the back button is
+ * pressed.
+ * @param isDismissOnClickOutside Whether the dialog should be dismissed when clicking outside the
+ * dialog.
+ * @param onMenuDismiss A lambda function to be called when the dialog is dismissed.
+ * @param enableResetButton A lambda function that determines whether a reset button should be shown
+ * in the dialog.
+ */
+@Composable
+fun <K, V> ListOptionMenuPreference(
+    modifier: Modifier = Modifier,
+    datastore: DataStore<Preferences>,
+    key: Preferences.Key<V>,
+    initialValue: V,
+    entities: Map<K, V> = emptyMap(),
+    title: String,
+    leadingContent: @Composable (() -> Unit) = {},
+    trailingContent: @Composable (() -> Unit) = {},
+    colors: MenuItemColors = MenuDefaults.itemColors(),
+    isDismissOnBackPress: Boolean = true,
+    isDismissOnClickOutside: Boolean = true,
+    onMenuDismiss: () -> Unit = {},
+    enableResetButton: Boolean = false
+) {
+
     val coroutineScope = rememberCoroutineScope()
     val dialogVisibleState = remember { MutableTransitionState(initialState = false) }
 

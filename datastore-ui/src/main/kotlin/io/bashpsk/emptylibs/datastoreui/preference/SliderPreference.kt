@@ -28,9 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.bashpsk.emptylibs.datastoreui.extension.LocalDatastore
+import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
 import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
@@ -70,6 +71,8 @@ import kotlinx.coroutines.launch
  * [SliderDefaults.colors].
  * @param summaryAlpha The alpha (transparency) of the summary text, ranging from `0.0`
  * (fully transparent) to `1.0` (fully opaque). Defaults to [DatastoreUIDefaults.SUMMARY_ALPHA].
+ *
+ * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,6 +96,83 @@ fun SliderPreference(
 ) {
 
     val datastore = LocalDatastore.current
+
+    SliderPreference(
+        modifier = modifier,
+        datastore = datastore,
+        key = key,
+        initialValue = initialValue,
+        title = title,
+        summary = summary,
+        leadingContent = leadingContent,
+        colors = colors,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        valueRange = valueRange,
+        steps = steps,
+        isValueVisible = isValueVisible,
+        decimalFraction = decimalFraction,
+        sliderColors = sliderColors,
+        summaryAlpha = summaryAlpha
+    )
+}
+
+/**
+ * A Composable function that displays a slider preference.
+ * This preference allows the user to select a float value within a specified range using a slider.
+ * The selected value is stored in and retrieved from DataStore.
+ *
+ * @param modifier Optional [Modifier] for this Composable.
+ * @param datastore The DataStore instance to use for this preference.
+ * @param key A lambda function that returns the [Preferences.Key] for storing the float value.
+ * @param initialValue A lambda function that returns the initial float value if no value is found
+ * in DataStore. Defaults to `0.0F`.
+ * @param title A lambda function that returns the title of the preference.
+ * @param summary A lambda function that returns a brief summary or description of the preference.
+ * Defaults to an empty string.
+ * @param leadingContent A Composable lambda for content to be displayed at the leading edge of the
+ * preference item. Defaults to an empty Composable.
+ * @param colors [ListItemColors] to be used for this preference item. Defaults to
+ * [ListItemDefaults.colors].
+ * @param tonalElevation The tonal elevation of this preference item. Defaults to
+ * [ListItemDefaults.Elevation].
+ * @param shadowElevation The shadow elevation of this preference item. Defaults to
+ * [ListItemDefaults.Elevation].
+ * @param valueRange The [ClosedFloatingPointRange] representing the valid range of values for the
+ * slider.
+ * @param steps The number of discrete steps the slider can take. If `0`, the slider is continuous.
+ * Defaults to `0`.
+ * @param isValueVisible A boolean indicating whether the current slider value should be displayed.
+ * Defaults to `false`.
+ * @param decimalFraction The number of decimal places to display for the slider value if
+ * `isValueVisible` is true. Defaults to `1`.
+ * @param sliderColors [SliderColors] to be used for the slider. Defaults to
+ * [SliderDefaults.colors].
+ * @param summaryAlpha The alpha (transparency) of the summary text, ranging from `0.0`
+ * (fully transparent) to `1.0` (fully opaque). Defaults to [DatastoreUIDefaults.SUMMARY_ALPHA].
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SliderPreference(
+    modifier: Modifier = Modifier,
+    datastore: DataStore<Preferences>,
+    key: Preferences.Key<Float>,
+    initialValue: Float = 0.0F,
+    title: String,
+    summary: String = "",
+    leadingContent: @Composable (() -> Unit) = {},
+    colors: ListItemColors = ListItemDefaults.colors(),
+    tonalElevation: Dp = ListItemDefaults.Elevation,
+    shadowElevation: Dp = ListItemDefaults.Elevation,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int = 0,
+    isValueVisible: Boolean = false,
+    decimalFraction: Int = 1,
+    sliderColors: SliderColors = SliderDefaults.colors(),
+    @FloatRange(from = 0.0, to = 1.0)
+    summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA
+) {
+
     val coroutineScope = rememberCoroutineScope()
     val sliderInteractionSource = remember { MutableInteractionSource() }
 

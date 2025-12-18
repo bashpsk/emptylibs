@@ -35,9 +35,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.bashpsk.emptylibs.datastoreui.extension.LocalDatastore
+import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
@@ -76,6 +77,8 @@ import kotlinx.coroutines.launch
  *   "Reset" button in the dialog. Defaults to `false`.
  * @param K The type of the key in the `entities` map (usually the display name).
  * @param V The type of the value in the `entities` map and the type of the preference value.
+ *
+ * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun <K, V> ListOptionPreference(
@@ -94,10 +97,85 @@ fun <K, V> ListOptionPreference(
     isDismissOnClickOutside: Boolean = true,
     @FloatRange(from = 0.0, to = 1.0)
     summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
-    enableResetButton:Boolean = false
+    enableResetButton: Boolean = false
 ) {
 
     val datastore = LocalDatastore.current
+
+    ListOptionPreference(
+        modifier = modifier,
+        datastore = datastore,
+        key = key,
+        initialValue = initialValue,
+        entities = entities,
+        title = title,
+        summary = summary,
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        colors = colors,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        isDismissOnBackPress = isDismissOnBackPress,
+        isDismissOnClickOutside = isDismissOnClickOutside,
+        summaryAlpha = summaryAlpha,
+        enableResetButton = enableResetButton
+    )
+}
+
+/**
+ * A Composable function that displays a list of options as a preference.
+ *
+ * This preference allows the user to select one option from a list. The selected
+ * option is saved to DataStore.
+ *
+ * @param modifier Modifier to be applied to the underlying `ListItem`.
+ * @param datastore The DataStore instance to use for this preference.
+ * @param key A lambda function that returns the [Preferences.Key] for this preference.
+ * @param initialValue A lambda function that returns the initial value for this preference.
+ * @param entities A lambda function that returns a [Map] of options, where the key (`K`)
+ *   is typically the display name and the value (`V`) is the value to be stored.
+ * @param title A lambda function that returns the title of the preference.
+ * @param summary A lambda function that returns the summary text for the preference.
+ *   Defaults to an empty string.
+ * @param leadingContent A Composable lambda for displaying content at the beginning of the list
+ * item. Defaults to an empty Composable.
+ * @param trailingContent A Composable lambda for displaying content at the end of the list item.
+ *   Defaults to an empty Composable.
+ * @param colors [ListItemColors] to be used for the underlying `ListItem`.
+ * @param tonalElevation The tonal elevation of the `ListItem`.
+ * @param shadowElevation The shadow elevation of the `ListItem`.
+ * @param isDismissOnBackPress Whether the dialog should be dismissed when the back button is
+ * pressed. Defaults to `true`.
+ * @param isDismissOnClickOutside Whether the dialog should be dismissed when clicking outside its
+ * bounds. Defaults to `true`.
+ * @param summaryAlpha The alpha (transparency) of the summary text. Defaults to
+ *   [DatastoreUIDefaults.SUMMARY_ALPHA].
+ * @param enableResetButton A lambda function that returns a boolean indicating whether to show a
+ *   "Reset" button in the dialog. Defaults to `false`.
+ * @param K The type of the key in the `entities` map (usually the display name).
+ * @param V The type of the value in the `entities` map and the type of the preference value.
+ */
+@Composable
+fun <K, V> ListOptionPreference(
+    modifier: Modifier = Modifier,
+    datastore: DataStore<Preferences>,
+    key: Preferences.Key<V>,
+    initialValue: V,
+    entities: Map<K, V> = emptyMap(),
+    title: String,
+    summary: String = "",
+    leadingContent: @Composable (() -> Unit) = {},
+    trailingContent: @Composable (() -> Unit) = {},
+    colors: ListItemColors = ListItemDefaults.colors(),
+    tonalElevation: Dp = ListItemDefaults.Elevation,
+    shadowElevation: Dp = ListItemDefaults.Elevation,
+    isDismissOnBackPress: Boolean = true,
+    isDismissOnClickOutside: Boolean = true,
+    @FloatRange(from = 0.0, to = 1.0)
+    summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
+    enableResetButton: Boolean = false
+) {
+
     val coroutineScope = rememberCoroutineScope()
     val dialogVisibleState = remember { MutableTransitionState(false) }
 

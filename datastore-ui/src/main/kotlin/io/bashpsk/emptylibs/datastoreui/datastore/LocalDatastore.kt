@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.datastoreui.extension
+package io.bashpsk.emptylibs.datastoreui.datastore
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.datastore.core.DataStore
@@ -15,8 +15,8 @@ import androidx.datastore.preferences.core.Preferences
  *
  * Example usage:
  * ```kotlin
- * val dataStore = LocalDatastore.current
- * // Now you can use dataStore to interact with preferences
+ * val datastore = LocalDatastore.current
+ * // Now you can use `datastore` to interact with preferences
  * ```
  *
  * If no DataStore is provided, accessing `LocalDatastore.current` will result

@@ -18,9 +18,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.bashpsk.emptylibs.datastoreui.extension.LocalDatastore
+import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
 import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
@@ -47,6 +48,8 @@ import kotlinx.coroutines.launch
  * @param shadowElevation The shadow elevation of this list item.
  * @param summaryAlpha The alpha transparency for the summary text.
  * Must be a float between 0.0 and 1.0. Defaults to [DatastoreUIDefaults.SUMMARY_ALPHA].
+ *
+ * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun SwitchPreference(
@@ -64,6 +67,60 @@ fun SwitchPreference(
 ) {
 
     val datastore = LocalDatastore.current
+
+    SwitchPreference(
+        modifier = modifier,
+        datastore = datastore,
+        key = key,
+        initialValue = initialValue,
+        title = title,
+        summary = summary,
+        leadingContent = leadingContent,
+        colors = colors,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        summaryAlpha = summaryAlpha
+    )
+}
+
+/**
+ * A Composable function that displays a switch preference item.
+ * This preference allows users to toggle a boolean value which is stored in DataStore.
+ *
+ * @param modifier Optional [Modifier] for this Composable.
+ * @param datastore The DataStore instance to use for this preference.
+ * @param key A lambda function that returns the [Preferences.Key] for this preference.
+ * This key is used to store and retrieve the boolean value from DataStore.
+ * @param initialValue A lambda function that returns the initial boolean value of the preference
+ * if it's not already set in DataStore. Defaults to `false`.
+ * @param title A lambda function that returns the title string for the preference.
+ * @param summary A lambda function that returns the summary string for the preference.
+ * Displayed below the title. Defaults to an empty string.
+ * @param leadingContent An optional Composable lambda to display content at the start of the
+ * preference item.
+ * Defaults to an empty Composable.
+ * @param colors [ListItemColors] to be used for this list item.
+ * @param tonalElevation The tonal elevation of this list item.
+ * @param shadowElevation The shadow elevation of this list item.
+ * @param summaryAlpha The alpha transparency for the summary text.
+ * Must be a float between 0.0 and 1.0. Defaults to [DatastoreUIDefaults.SUMMARY_ALPHA].
+ */
+@Composable
+fun SwitchPreference(
+    modifier: Modifier = Modifier,
+    datastore: DataStore<Preferences>,
+    key: Preferences.Key<Boolean>,
+    initialValue: Boolean = false,
+    title: String,
+    summary: String = "",
+    leadingContent: @Composable (() -> Unit) = {},
+    colors: ListItemColors = ListItemDefaults.colors(),
+    tonalElevation: Dp = ListItemDefaults.Elevation,
+    shadowElevation: Dp = ListItemDefaults.Elevation,
+    @FloatRange(from = 0.0, to = 1.0)
+    summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA
+) {
+
     val coroutineScope = rememberCoroutineScope()
 
     val getSwitchState by datastore.getPreference(

@@ -60,7 +60,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.bashpsk.emptylibs.datastoreui.extension.LocalDatastore
+import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.toReverseMap
 import io.bashpsk.emptylibs.datastoreui.preference.CardPreference
@@ -76,6 +76,7 @@ import io.bashpsk.emptylibs.datastoreui.preference.SwitchMenuPreference
 import io.bashpsk.emptylibs.datastoreui.preference.SwitchPreference
 import io.bashpsk.emptylibs.datastoreui.preference.TextFieldPreference
 import io.bashpsk.emptylibs.screen.datastoreui.AppTheme
+import io.bashpsk.emptylibs.screen.datastoreui.datastore2
 import io.bashpsk.emptylibs.screen.datastoreui.fontEntities
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,6 +85,7 @@ fun DatastoreUIScreen() {
 
     val context = LocalContext.current
     val datastore = LocalDatastore.current
+    val datastore2 = context.datastore2
     val optionMenuVisibleState = remember { MutableTransitionState(initialState = false) }
 
     val getFieldText by datastore.getPreference(
@@ -264,6 +266,7 @@ fun DatastoreUIScreen() {
                             dampingRatio = Spring.DampingRatioMediumBouncy
                         )
                     ),
+                    datastore = datastore2,
                     key = booleanPreferencesKey("CHECK-BOX-PREFERENCE"),
                     initialValue = false,
                     title = "Check Box Preference",

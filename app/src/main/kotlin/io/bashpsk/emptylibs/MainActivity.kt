@@ -8,7 +8,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.bashpsk.emptylibs.datastoreui.extension.LocalDatastore
+import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.screen.datastoreui.AppTheme
 import io.bashpsk.emptylibs.screen.datastoreui.datastore
@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 //                    CanvasSlateScreen()
 //                    ColorPickerScreen()
 //                    ColorPickerDialogScreen()
-//                    DatastoreUIScreen()
+                    DatastoreUIScreen()
 //                    DialTextPickerScreen()
 //                    FileWriteSpeedScreen()
 //                    FormatterScreen()
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 //                    ImageWallpaperScreen()
 //                    LruCacheScreen()
 //                    StorageScreen()
-                    TransformImageScreen()
+//                    TransformImageScreen()
 //                    VideoGestureScreen()
 //                    WheelTextPickerScreen()
                 }

@@ -89,3 +89,21 @@ suspend fun <T> DataStore<Preferences>.resetPreference(key: Preferences.Key<T>) 
         Log.e(LOG_TAG, exception.message, exception)
     }
 }
+
+/**
+ * Clears all preferences from the DataStore.
+ *
+ * This suspend function removes all key-value pairs stored in the DataStore.
+ * It's a destructive operation and should be used with caution.
+ * If an exception occurs during the clear operation, it is caught and logged.
+ */
+suspend fun DataStore<Preferences>.clearAllPreference() {
+
+    try {
+
+        this@clearAllPreference.edit { preferences -> preferences.clear() }
+    } catch (exception: Exception) {
+
+        Log.e(LOG_TAG, exception.message, exception)
+    }
+}
