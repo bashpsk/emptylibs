@@ -95,6 +95,7 @@ dependencies {
     implementation(project(":datastore-ui"))
     implementation(project(":formatter"))
     implementation(project(":gesture-ui"))
+    implementation(project(":glance-widgets"))
     implementation(project(":image-edit"))
     implementation(project(":image-kolor"))
     implementation(project(":image-krop"))

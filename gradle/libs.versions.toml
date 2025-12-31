@@ -15,6 +15,7 @@ kotlinx-datetime = "0.7.1"
 datastore-preferences = "1.2.0"
 navigation-compose = "2.9.6"
 coil-kt = "3.3.0"
+androidx-glance = "1.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -40,6 +41,8 @@ kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime",
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore-preferences" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
 coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil-kt" }
+androidx-glance = { group = "androidx.glance", name = "glance", version.ref = "androidx-glance" }
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "androidx-glance" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
