@@ -26,10 +26,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentPaste
-import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -78,8 +78,10 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat
  * Defaults to a new `rememberKolorPickerState()` if not provided.
  * @param enableAlphaPanel A boolean indicating whether to show the alpha panel for transparency
  * selection. Defaults to `false`.
- * @param enableCopyButtons A boolean indicating whether to show copy and paste buttons for the
- * color. Defaults to `false`.
+ * @param enableCopyButton A boolean indicating whether to show copy button for the color.
+ * Defaults to `false`.
+ * @param enablePasteButton A boolean indicating whether to show paste button for the color.
+ * Defaults to `false`.
  */
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -87,8 +89,13 @@ fun KolorPicker(
     modifier: Modifier = Modifier,
     state: KolorPickerState = rememberKolorPickerState(),
     enableAlphaPanel: Boolean = false,
-    enableCopyButtons: Boolean = false
+    enableCopyButton: Boolean = false,
+    enablePasteButton: Boolean = false
 ) {
+
+    val isCopyPasteButtons by remember(enableCopyButton, enablePasteButton) {
+        derivedStateOf { enableCopyButton || enablePasteButton }
+    }
 
     Column(
         modifier = modifier,
@@ -158,13 +165,15 @@ fun KolorPicker(
             color = state.selectedColor
         )
 
-        if (enableCopyButtons) {
+        if (isCopyPasteButtons) {
 
             ColorCopyPasteButtons(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = TrackHeight / 2),
-                state = state
+                state = state,
+                enableCopyButton = enableCopyButton,
+                enablePasteButton = enablePasteButton
             )
         }
     }
@@ -180,12 +189,15 @@ fun KolorPicker(
  * @param modifier The modifier to be applied to this composable.
  * @param imageBitmap The [ImageBitmap] to display and pick colors from.
  * @param state The [KolorPickerState] to update with the selected color.
+ * @param enableCopyButton A boolean indicating whether to show copy button for the color.
+ * Defaults to `false`.
  */
 @Composable
 fun ImageKolorPicker(
     modifier: Modifier = Modifier,
     imageBitmap: ImageBitmap,
-    state: KolorPickerState = rememberKolorPickerState()
+    state: KolorPickerState = rememberKolorPickerState(),
+    enableCopyButton: Boolean = false
 ) {
 
     val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -305,6 +317,20 @@ fun ImageKolorPicker(
                 .padding(horizontal = TrackHeight / 2),
             color = state.selectedColor
         )
+
+        if (enableCopyButton) {
+
+            Spacer(modifier = Modifier.height(height = 4.dp))
+
+            ColorCopyPasteButtons(
+                modifier = Modifier
+                    .padding(horizontal = TrackHeight / 2)
+                    .align(alignment = Alignment.End),
+                state = state,
+                enableCopyButton = enableCopyButton,
+                enablePasteButton = false
+            )
+        }
     }
 }
 
@@ -328,6 +354,14 @@ private fun SaturationLightnessPanel(
     onSelectionChanged: (saturation: Float, lightness: Float) -> Unit
 ) {
 
+    val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val thumbRadius = 10.dp
+    val thumbWidth = 2.4.dp
+
+    val horizontalGradientBrushColors by remember(hueValue) {
+        derivedStateOf { listOf(Color.hsl(hueValue, 0F, 0.5F), Color.hsl(hueValue, 1F, 0.5F)) }
+    }
+
     BoxWithConstraints(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -336,15 +370,11 @@ private fun SaturationLightnessPanel(
         val panelWidth = constraints.maxWidth.toFloat()
         val panelHeight = constraints.maxHeight.toFloat()
 
-        val thumbPosition = Offset(
-            x = saturationValue * panelWidth,
-            y = (1F - lightnessValue) * panelHeight
-        )
-
-        val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant
-
-        val thumbRadius = 10.dp
-        val thumbWidth = 2.4.dp
+        val thumbPosition by remember(panelWidth, panelHeight, saturationValue, lightnessValue) {
+            derivedStateOf {
+                Offset(x = saturationValue * panelWidth, y = (1F - lightnessValue) * panelHeight)
+            }
+        }
 
         val tapPointerInput = Modifier.pointerInput(panelWidth, panelHeight) {
 
@@ -387,11 +417,7 @@ private fun SaturationLightnessPanel(
             contentDescription = "Saturation Lightness Panel"
         ) {
 
-            drawRect(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(Color.hsl(hueValue, 0F, 0.5F), Color.hsl(hueValue, 1F, 0.5F))
-                )
-            )
+            drawRect(brush = Brush.horizontalGradient(colors = horizontalGradientBrushColors))
 
             drawRect(
                 brush = Brush.verticalGradient(
@@ -539,6 +565,7 @@ private fun HuePanel(
                 val trackStartX = thumbRadiusPx
                 val trackEndX = size.width - thumbRadiusPx
                 val cornerRadius = 4.dp.toPx()
+                val thumbPosition = Offset(currentThumbX, centerY)
 
                 drawRoundRect(
                     topLeft = Offset(trackStartX, centerY - (trackHeightPx / 2)),
@@ -554,8 +581,6 @@ private fun HuePanel(
                     cornerRadius = CornerRadius(x = cornerRadius, y = cornerRadius),
                     style = Stroke(width = 0.6.dp.toPx())
                 )
-
-                val thumbPosition = Offset(currentThumbX, centerY)
 
                 drawDragHandle(
                     position = thumbPosition,
@@ -902,12 +927,16 @@ private fun ColorInfoItem(modifier: Modifier = Modifier, infoItem: Pair<String, 
  * updated when a color is pasted.
  */
 @Composable
-private fun ColorCopyPasteButtons(modifier: Modifier = Modifier, state: KolorPickerState) {
+private fun ColorCopyPasteButtons(
+    modifier: Modifier = Modifier,
+    state: KolorPickerState,
+    enableCopyButton: Boolean,
+    enablePasteButton: Boolean
+) {
 
     val context = LocalContext.current
 
-    val clipboardManager by lazy {
-
+    val clipboardManager = remember {
         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     }
 
@@ -917,7 +946,7 @@ private fun ColorCopyPasteButtons(modifier: Modifier = Modifier, state: KolorPic
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        OutlinedButton(
+        if (enablePasteButton) ElevatedButton(
             onClick = {
 
                 clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()?.let { hexString ->
@@ -945,7 +974,7 @@ private fun ColorCopyPasteButtons(modifier: Modifier = Modifier, state: KolorPic
             )
         }
 
-        Button(
+        if (enableCopyButton) FilledTonalButton(
             onClick = {
 
                 val colorHex = EmptyFormat.toColorHex(color = state.selectedColor)

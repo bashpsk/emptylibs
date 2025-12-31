@@ -98,8 +98,14 @@ fun <T> DialTextPicker(
 
         val canvasWidth = constraints.maxWidth.toFloat()
         val canvasHeight = constraints.maxHeight.toFloat()
-        val center = Offset(canvasWidth / 2, canvasHeight / 2)
-        val dialRadius = (minOf(canvasWidth, canvasHeight) / 2F)
+
+        val center by remember(canvasWidth, canvasHeight) {
+            derivedStateOf { Offset(canvasWidth / 2, canvasHeight / 2) }
+        }
+
+        val dialRadius by remember(canvasWidth, canvasHeight) {
+            derivedStateOf { (minOf(canvasWidth, canvasHeight) / 2F) }
+        }
 
         Canvas(
             modifier = Modifier.fillMaxSize(),

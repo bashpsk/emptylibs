@@ -311,11 +311,11 @@ class DialTextPickerState<T>(
      */
     internal fun onDialDrag(position: Offset) {
 
-        val currentAngle = atan2(position.x, position.y) * (180F / PI.toFloat())
-        val angleChange = currentAngle - previousAngle
+        val newAngle = atan2(position.x, position.y) * (180F / PI.toFloat())
+        val angleChange = newAngle - previousAngle
 
-        updateRotation(this@DialTextPickerState.currentAngle.value + angleChange)
-        previousAngle = currentAngle
+        updateRotation(currentAngle.value + angleChange)
+        previousAngle = newAngle
     }
 
     companion object {

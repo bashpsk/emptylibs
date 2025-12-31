@@ -20,7 +20,7 @@ class BottomOptionBarViewModel : ViewModel() {
     private val _selectedPaths = MutableStateFlow(value = persistentListOf<String>())
     val selectedPaths = _selectedPaths.asStateFlow()
 
-    val optionList = _selectedPaths.flatMapLatest { paths ->
+    val optionList = selectedPaths.flatMapLatest { paths ->
 
         val newOptionList = when (paths.size) {
 

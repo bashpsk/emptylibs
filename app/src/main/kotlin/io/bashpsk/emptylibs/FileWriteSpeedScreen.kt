@@ -45,16 +45,16 @@ fun FileWriteSpeedScreen() {
     val downloadedFormatted by remember {
         derivedStateOf {
             "Progress : ${
-                EmptyFormat.toFileSize(context, current)
+                EmptyFormat.toFileSize(context, fileSpeedData.current)
             } / ${
-                EmptyFormat.toFileSize(context, total)
+                EmptyFormat.toFileSize(context, fileSpeedData.total)
             } (${
                 EmptyFormat.toFileSize(context, fileSpeedData.speed)
             }/s)"
         }
     }
 
-    val etaFormatted by remember {
+    val etaFormatted by remember(fileSpeedData) {
         derivedStateOf {
             "ETA : ${
                 EmptyFormat.duration(
@@ -79,7 +79,13 @@ fun FileWriteSpeedScreen() {
 
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
-                progress = { current / total.toFloat() }
+                progress =  {
+
+                    EmptyFormat.findPercentage(
+                        total = fileSpeedData.total,
+                        obtained = fileSpeedData.current
+                    ) / 100F
+                }
             )
 
             Text(text = downloadedFormatted)
@@ -99,7 +105,8 @@ fun FileWriteSpeedScreen() {
 
                         while (current <= total) {
 
-                            val increment = (100000..500000).randomOrNull() ?: 0
+                            val increment = total / 10
+//                            val increment = (100 * 1024..500 * 1024).randomOrNull() ?: 0
 
                             previous = current
                             current = (current + increment).coerceAtMost(total)

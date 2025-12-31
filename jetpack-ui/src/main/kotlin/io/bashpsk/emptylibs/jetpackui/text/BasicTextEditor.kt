@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -49,6 +49,14 @@ fun BasicTextEditor(
 
     var textFieldValue by remember { mutableStateOf(TextFieldValue(inputContent)) }
 
+    val onTextContentChange = remember<(TextFieldValue)-> Unit> {
+        { newValue ->
+
+            textFieldValue = newValue
+            onContentChange(newValue.text)
+        }
+    }
+
     LaunchedEffect(inputContent) {
 
         inputContent.takeIf { text -> text != textFieldValue.text }?.let { text ->
@@ -60,11 +68,7 @@ fun BasicTextEditor(
     BasicTextEditor(
         modifier = modifier,
         inputContent = textFieldValue,
-        onContentChange = { newValue ->
-
-            textFieldValue = newValue
-            onContentChange(newValue.text)
-        },
+        onContentChange = onTextContentChange,
         textStyle = textStyle,
         numberColor = numberColor,
         cursorBrush = cursorBrush,
@@ -91,8 +95,12 @@ fun BasicTextEditor(
     val verticalScrollState = rememberScrollState()
     var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
 
-    val currentLine by remember(inputContent.selection, textLayoutResult) {
+    val currentLine by remember(textLayoutResult, inputContent.selection) {
         derivedStateOf { textLayoutResult?.getLineForOffset(inputContent.selection.start) }
+    }
+
+    val totalLines by remember(inputContent, inputContent.text) {
+        derivedStateOf { inputContent.text.lines().indices }
     }
 
     val drawLineHighlighter = Modifier.drawBehind {
@@ -119,42 +127,48 @@ fun BasicTextEditor(
     }
 
     Row(
-        modifier = modifier
-            .verticalScroll(state = verticalScrollState)
-            .height(intrinsicSize = IntrinsicSize.Max),
+        modifier = modifier.verticalScroll(state = verticalScrollState),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(space = itemSpace)
     ) {
 
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.End
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(space = itemSpace)
         ) {
 
-            inputContent.text.lines().indices.forEach { line ->
+            Column(
+                modifier = Modifier.width(IntrinsicSize.Max),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.End
+            ) {
 
-                val numberStyle by remember(currentLine, textStyle, numberColor, line) {
-                    derivedStateOf {
-                        if (line == currentLine) textStyle else textStyle.copy(color = numberColor)
+                totalLines.forEach { line ->
+
+                    val numberStyle by remember(currentLine, textStyle, numberColor, line) {
+                        derivedStateOf {
+                            if (line == currentLine) textStyle else textStyle.copy(
+                                color = numberColor
+                            )
+                        }
                     }
+
+                    Text(
+                        text = "${line + 1}",
+                        textAlign = TextAlign.End,
+                        style = numberStyle,
+                        maxLines = 1,
+                        overflow = TextOverflow.MiddleEllipsis
+                    )
                 }
-
-                Text(
-                    text = "${line + 1}",
-                    textAlign = TextAlign.End,
-                    style = numberStyle,
-                    maxLines = 1,
-                    overflow = TextOverflow.MiddleEllipsis
-                )
             }
-        }
 
-        dividerContent()
+            dividerContent()
+        }
 
         BasicTextField(
             modifier = Modifier
-                .fillMaxHeight()
                 .weight(weight = 1.0F)
                 .horizontalScroll(state = horizontalScrollState)
                 .then(drawLineHighlighter),
@@ -163,10 +177,7 @@ fun BasicTextEditor(
             singleLine = false,
             textStyle = textStyle,
             cursorBrush = cursorBrush,
-            onTextLayout = { result ->
-
-                textLayoutResult = result
-            }
+            onTextLayout = { result -> textLayoutResult = result }
         )
     }
 }

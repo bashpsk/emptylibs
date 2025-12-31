@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -445,6 +446,9 @@ private fun PenColorSelectionView(
     val colorBoxShape = MaterialTheme.shapes.extraSmall
 
     KolorPickerDialog(
+        modifier = Modifier
+            .fillMaxSize()
+            .safeContentPadding(),
         dialogVisibleState = colorPickerDialog,
         state = colorPickerState,
         enableAlphaPanel = true,

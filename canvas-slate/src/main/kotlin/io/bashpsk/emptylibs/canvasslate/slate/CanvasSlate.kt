@@ -3,7 +3,9 @@ package io.bashpsk.emptylibs.canvasslate.slate
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -11,6 +13,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
@@ -45,29 +48,37 @@ fun CanvasSlate(
     val penStrokeDialogVisibleState = remember { MutableTransitionState(false) }
     val penThicknessDialogVisibleState = remember { MutableTransitionState(false) }
 
+    val onBackgroundColorSelected = remember<(Color) -> Unit> {
+        state::updateBackgroundColor
+    }
+
+    val onForegroundColorSelected = remember<(Color) -> Unit> {
+        state::updateBrushColor
+    }
+
     DisposableEffect(Unit) {
 
         onDispose { state.clearState() }
     }
 
     KolorPickerDialog(
+        modifier = Modifier
+            .fillMaxSize()
+            .safeContentPadding(),
         dialogVisibleState = backgroundColorPickerDialog,
         state = colorPickerState,
         enableAlphaPanel = true,
-        onSelectedColor = { color ->
-
-            state.updateBackgroundColor(color = color)
-        }
+        onSelectedColor = onBackgroundColorSelected
     )
 
     KolorPickerDialog(
+        modifier = Modifier
+            .fillMaxSize()
+            .safeContentPadding(),
         dialogVisibleState = foregroundColorPickerDialog,
         state = colorPickerState,
         enableAlphaPanel = true,
-        onSelectedColor = { color ->
-
-            state.updateBrushColor(color = color)
-        }
+        onSelectedColor = onForegroundColorSelected
     )
 
     PenStrokeDialog(dialogVisibleState = penStrokeDialogVisibleState, state = state)

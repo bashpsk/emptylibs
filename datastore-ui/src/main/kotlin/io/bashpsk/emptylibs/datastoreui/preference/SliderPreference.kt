@@ -18,9 +18,12 @@ import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -181,6 +184,32 @@ fun SliderPreference(
         initial = initialValue
     ).collectAsStateWithLifecycle(initialValue = initialValue)
 
+    var sliderPosition by remember { mutableFloatStateOf(getPosition) }
+
+    val sliderValueLabel by remember(sliderPosition, decimalFraction) {
+        derivedStateOf {
+            "${
+                EmptyFormat.toRoundedDecimal(decimal = sliderPosition, fraction = decimalFraction)
+            }"
+        }
+    }
+
+    val onValueChange = remember<(Float) -> Unit> {
+        { position ->
+            sliderPosition = position
+        }
+    }
+
+    val onValueChangeFinish = remember<() -> Unit>(sliderPosition) {
+        {
+
+            coroutineScope.launch(context = Dispatchers.IO) {
+
+                datastore.setPreference(key = key, value = sliderPosition)
+            }
+        }
+    }
+
     ListItem(
         modifier = modifier,
         colors = colors,
@@ -192,12 +221,7 @@ fun SliderPreference(
             AnimatedVisibility(visible = isValueVisible, enter = fadeIn(), exit = fadeOut()) {
 
                 Text(
-                    text = "${
-                        EmptyFormat.toRoundedDecimal(
-                            decimal = getPosition,
-                            fraction = decimalFraction
-                        )
-                    }",
+                    text = sliderValueLabel,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     style = MaterialTheme.typography.labelMedium,
@@ -228,16 +252,11 @@ fun SliderPreference(
 
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
-                    value = getPosition,
+                    value = sliderPosition,
                     valueRange = valueRange,
                     steps = steps,
-                    onValueChange = { position ->
-
-                        coroutineScope.launch(context = Dispatchers.IO) {
-
-                            datastore.setPreference(key = key, value = position)
-                        }
-                    },
+                    onValueChange = onValueChange,
+                    onValueChangeFinished = onValueChangeFinish,
                     colors = sliderColors,
                     interactionSource = sliderInteractionSource,
                     thumb = { sliderState ->

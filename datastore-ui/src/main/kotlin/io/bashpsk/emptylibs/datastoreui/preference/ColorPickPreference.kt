@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
@@ -32,6 +34,7 @@ import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
 import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialogDefault
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -156,43 +159,43 @@ fun ColorPickPreference(
         initial = initialValue
     ).collectAsStateWithLifecycle(initialValue = initialValue)
 
-    when (enableResetButton) {
+    KolorPickerDialog(
+        modifier = Modifier
+            .fillMaxSize()
+            .safeContentPadding(),
+        dialogVisibleState = dialogVisibleState,
+        state = colorPickerState,
+        enableAlphaPanel = enableAlphaPanel,
+        enableCopyButton = true,
+        dismissButton = {
 
-        true -> KolorPickerDialog(
-            dialogVisibleState = dialogVisibleState,
-            state = colorPickerState,
-            enableAlphaPanel = enableAlphaPanel,
-            enableCopyButtons = true,
-            onResetClick = {
+            when (enableResetButton) {
 
-                coroutineScope.launch(context = Dispatchers.IO) {
+                true -> KolorPickerDialogDefault.ResetButton(
+                    dialogVisibleState = dialogVisibleState,
+                    state = colorPickerState,
+                    onSelectedColor = {
 
-                    datastore.resetPreference(key = key)
-                }
-            },
-            onSelectedColor = { color ->
+                        coroutineScope.launch(context = Dispatchers.IO) {
 
-                coroutineScope.launch(context = Dispatchers.IO) {
+                            datastore.resetPreference(key = key)
+                        }
+                    }
+                )
 
-                    datastore.setPreference(key = key, value = color.toArgb())
-                }
+                false -> KolorPickerDialogDefault.DismissButton(
+                    dialogVisibleState = dialogVisibleState
+                )
             }
-        )
+        },
+        onSelectedColor = { color ->
 
-        false -> KolorPickerDialog(
-            dialogVisibleState = dialogVisibleState,
-            state = colorPickerState,
-            enableAlphaPanel = enableAlphaPanel,
-            enableCopyButtons = true,
-            onSelectedColor = { color ->
+            coroutineScope.launch(context = Dispatchers.IO) {
 
-                coroutineScope.launch(context = Dispatchers.IO) {
-
-                    datastore.setPreference(key = key, value = color.toArgb())
-                }
+                datastore.setPreference(key = key, value = color.toArgb())
             }
-        )
-    }
+        }
+    )
 
     ListItem(
         modifier = modifier

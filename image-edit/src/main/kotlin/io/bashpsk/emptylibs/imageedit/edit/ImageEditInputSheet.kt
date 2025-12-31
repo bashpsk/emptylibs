@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
@@ -90,8 +91,8 @@ import io.bashpsk.emptylibs.imageutils.extension.toSize
 import io.bashpsk.emptylibs.imageutils.shape.BasicImageShapes
 import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import io.bashpsk.emptylibs.imageutils.shape.toLabel
-import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.ColorPreview
+import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -1026,10 +1027,13 @@ private fun ColorSelectionView(
     val colorPickerDialogState = remember { MutableTransitionState(false) }
 
     KolorPickerDialog(
+        modifier = Modifier
+            .fillMaxSize()
+            .safeContentPadding(),
         dialogVisibleState = colorPickerDialogState,
         state = colorPickerState,
         enableAlphaPanel = true,
-        enableCopyButtons = true,
+        enableCopyButton = true,
         onSelectedColor = onColorChange
     )
 

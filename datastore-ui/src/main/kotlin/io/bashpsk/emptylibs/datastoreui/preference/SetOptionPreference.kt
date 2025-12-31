@@ -259,8 +259,6 @@ fun <K> SetOptionPreference(
 
                                     datastore.setPreference(key = key, value = newEntities)
                                 }
-
-                                dialogVisibleState.targetState = false
                             }
                         )
                     }

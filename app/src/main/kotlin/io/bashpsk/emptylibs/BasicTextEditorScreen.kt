@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,10 +49,11 @@ fun BasicTextEditorScreen() {
             "pm uninstall --user 0 com.heytap.cloud\n" +
             "pm uninstall --user 0 com.opos.cs"
 
-    val tooLongText = (0..3).joinToString(separator = "\n") { sampleText }
+    val tooLongText by remember(sampleText) {
+        derivedStateOf { (0..10).joinToString(separator = "\n") { sampleText } }
+    }
 
     var inputContent by remember { mutableStateOf(sampleText) }
-
     var inputContent2 by remember { mutableStateOf(TextFieldValue(sampleText)) }
 
     val textStyle = MaterialTheme.typography.bodyMedium

@@ -39,6 +39,7 @@ import kotlinx.collections.immutable.persistentListOf
  *
  * @param modifier The modifier to be applied to the bottom option bar.
  * @param optionList The list of options to be displayed.
+ * @param moreOption The option to be displayed in the overflow menu item.
  * @param onOptionClick A callback that is invoked when an option is clicked.
  * @param maxLines The maximum number of lines to be used for the options.
  */
@@ -47,6 +48,7 @@ import kotlinx.collections.immutable.persistentListOf
 fun BottomOptionBar(
     modifier: Modifier = Modifier,
     optionList: ImmutableList<OptionBarData> = persistentListOf(),
+    moreOption: OptionBarData = OptionBarData(label = "More", icon = Icons.Filled.MoreVert),
     onOptionClick: (option: OptionBarData) -> Unit = {},
     maxLines: Int = 1,
 ) {
@@ -59,17 +61,26 @@ fun BottomOptionBar(
         derivedStateOf { optionList.subList(shownItemCount, optionList.size) }
     }
 
+    val onOptionItemClick = remember<(OptionBarData) -> Unit> {
+        { option ->
+
+            onOptionClick(option)
+            isMoreOptionMenuExpanded = false
+        }
+    }
+
+    val onMoreOptionItemClick = remember<(OptionBarData) -> Unit> {
+        { option ->
+
+            onOptionClick(option)
+            isMoreOptionMenuExpanded = true
+        }
+    }
+
     val expandIndicator = @Composable { scope: ContextualFlowRowOverflowScope ->
 
         shownItemCount = scope.shownItemCount
-
-        OptionBarItem(
-            optionData = OptionBarData(label = "More", icon = Icons.Filled.MoreVert),
-            onOptionClick = { operation ->
-
-                isMoreOptionMenuExpanded = true
-            }
-        )
+        OptionBarItem(optionData = moreOption, onClick = onMoreOptionItemClick)
     }
 
     Box(
@@ -100,16 +111,13 @@ fun BottomOptionBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) { itemIndex ->
 
-            optionList.getOrNull(index = itemIndex)?.let { optionItem ->
+            val option by remember(optionList, itemIndex) {
+                derivedStateOf { optionList.getOrNull(index = itemIndex) }
+            }
 
-                OptionBarItem(
-                    optionData = optionItem,
-                    onOptionClick = { operation ->
+            option?.let { optionItem ->
 
-                        onOptionClick(operation)
-                        isMoreOptionMenuExpanded = false
-                    }
-                )
+                OptionBarItem(optionData = optionItem, onClick = onOptionItemClick)
             }
         }
 
@@ -126,14 +134,7 @@ fun BottomOptionBar(
 
             remainingItems.forEach { item ->
 
-                OptionMenuItem(
-                    optionData = item,
-                    onOptionClick = { option ->
-
-                        onOptionClick(option)
-                        isMoreOptionMenuExpanded = false
-                    }
-                )
+                OptionMenuItem(optionData = item, onClick = onOptionItemClick)
             }
 
             HorizontalDivider()

@@ -12,6 +12,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,15 +29,21 @@ import androidx.compose.ui.unit.dp
  * @param modifier Optional [Modifier] to be applied to the composable.
  * @param optionData The [OptionBarData] object containing the icon, label, and enabled state for
  * this item.
- * @param onOptionClick A lambda function that will be invoked when this option item is clicked.
+ * @param onClick A lambda function that will be invoked when this option item is clicked.
  * It receives the [OptionBarData] of the clicked item as a parameter.
  */
 @Composable
 internal fun OptionBarItem(
     modifier: Modifier = Modifier,
     optionData: OptionBarData = OptionBarData(),
-    onOptionClick: (option: OptionBarData) -> Unit = {}
+    onClick: (option: OptionBarData) -> Unit = {}
 ) {
+
+    val onOptionClick = remember {
+        {
+            onClick(optionData)
+        }
+    }
 
     val cardColors = CardDefaults.cardColors(
         containerColor = Color.Transparent,
@@ -50,10 +57,7 @@ internal fun OptionBarItem(
         shape = MaterialTheme.shapes.extraSmall,
         enabled = optionData.isEnable,
         colors = cardColors,
-        onClick = {
-
-            onOptionClick(optionData)
-        }
+        onClick = onOptionClick
     ) {
 
         Column(

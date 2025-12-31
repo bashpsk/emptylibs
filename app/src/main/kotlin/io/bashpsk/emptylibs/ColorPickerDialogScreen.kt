@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -36,11 +37,17 @@ fun ColorPickerDialogScreen() {
     ) { paddingValues ->
 
         KolorPickerDialog(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeContentPadding(),
             dialogVisibleState = pickerDialog,
             onSelectedColor = { newColor ->
 
                 selectedColor = newColor
-            }
+            },
+            enableAlphaPanel = true,
+            enableCopyButton = true,
+            enablePasteButton = true
         )
 
         Column(
@@ -48,7 +55,10 @@ fun ColorPickerDialogScreen() {
                 .fillMaxSize()
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(
+                space = 12.dp,
+                alignment = Alignment.CenterVertically
+            )
         ) {
 
             Button(
