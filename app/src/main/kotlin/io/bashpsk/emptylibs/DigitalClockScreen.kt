@@ -120,6 +120,19 @@ fun DigitalClockScreen() {
                 colors = colors
             ) {
 
+                DigitalClock(
+                    modifier = Modifier,
+                    localDateTime = currentDateTime,
+                    itemSize = 72.dp,
+                    itemSpace = 0.dp
+                )
+            }
+
+            ElevatedCard(
+                shape = shape,
+                colors = colors
+            ) {
+
                 DigitalClockWithWeekDays(
                     modifier = Modifier,
                     localDateTime = currentDateTime,

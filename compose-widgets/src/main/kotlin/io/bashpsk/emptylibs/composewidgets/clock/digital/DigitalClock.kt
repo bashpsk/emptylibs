@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.composewidgets.clock.digital
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,11 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.composewidgets.extension.hasAM
 import io.bashpsk.emptylibs.composewidgets.extension.hasPM
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentColors
+import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentDefault
+import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentDisplay
+import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentProperties
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -150,5 +156,107 @@ fun DigitalClock(
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+/**
+ * A digital clock composable that displays the time using a seven-segment display.
+ *
+ * @param modifier The modifier to be applied to the composable.
+ * @param localDateTime The local date and time to display, in milliseconds.
+ * @param timeZone The time zone to use.
+ * @param clockPattern The pattern for formatting the time.
+ * @param colors The colors for the seven-segment display.
+ * @param properties The properties for the seven-segment display.
+ * @param itemSize The size of each segment in the display.
+ * @param itemSpace The space between each segment in the display.
+ * @param radius The corner radius of the segments.
+ */
+@Composable
+fun DigitalClock(
+    modifier: Modifier = Modifier,
+    localDateTime: Long,
+    timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
+    colors: SevenSegmentColors = SevenSegmentDefault.colors(),
+    properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
+    itemSize: Dp = 60.dp,
+    itemSpace: Dp = 2.dp,
+    @FloatRange(from = 0.0, to = 1.0)
+    radius: Float = 1.0F
+) {
+
+    val currentDateTime by remember(localDateTime, timeZone) {
+        derivedStateOf {
+            Instant.fromEpochMilliseconds(localDateTime).toLocalDateTime(timeZone = timeZone)
+        }
+    }
+
+    DigitalClock(
+        modifier = modifier,
+        localDateTime = currentDateTime,
+        clockPattern = clockPattern,
+        colors = colors,
+        properties = properties,
+        itemSize = itemSize,
+        itemSpace = itemSpace,
+        radius = radius
+    )
+}
+
+/**
+ * A digital clock composable that displays the time using a seven-segment display.
+ *
+ * @param modifier The modifier to be applied to the composable.
+ * @param localDateTime The local date and time to display.
+ * @param clockPattern The pattern for formatting the time.
+ * @param colors The colors for the seven-segment display.
+ * @param properties The properties for the seven-segment display.
+ * @param itemSize The size of each segment in the display.
+ * @param itemSpace The space between each segment in the display.
+ * @param radius The corner radius of the segments.
+ */
+@Composable
+fun DigitalClock(
+    modifier: Modifier = Modifier,
+    localDateTime: LocalDateTime,
+    clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
+    colors: SevenSegmentColors = SevenSegmentDefault.colors(),
+    properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
+    itemSize: Dp = 60.dp,
+    itemSpace: Dp = 2.dp,
+    @FloatRange(from = 0.0, to = 1.0)
+    radius: Float = 1.0F
+){
+
+    val currentTimeFormatted by remember(localDateTime, clockPattern) {
+        derivedStateOf {
+            EmptyFormat.dateTime(
+                localDateTime = localDateTime,
+                pattern = clockPattern
+            )
+        }
+    }
+
+    Row(
+        modifier = modifier
+            .clipToBounds()
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = 8.dp,
+            alignment = Alignment.CenterHorizontally
+        ),
+        verticalAlignment = Alignment.Bottom
+    ) {
+
+        SevenSegmentDisplay(
+            modifier = Modifier,
+            data = currentTimeFormatted,
+            colors = colors,
+            properties = properties,
+            itemSize = itemSize,
+            itemSpace = itemSpace,
+            radius = radius
+        )
     }
 }
