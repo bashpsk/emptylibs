@@ -20,7 +20,6 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.composewidgets.extension.getSystemDateTime
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import kotlinx.collections.immutable.toImmutableList
@@ -28,7 +27,6 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
 import kotlin.time.Instant
 
 /**
@@ -46,7 +44,7 @@ import kotlin.time.Instant
 fun DigitalClockWithWeekDays(
     modifier: Modifier = Modifier,
     textStyles: DigitalClockTextStyles = DigitalClockDefault.textStyles(),
-    localDateTime: Long = Clock.System.now().toEpochMilliseconds(),
+    localDateTime: Long,
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA,
@@ -90,7 +88,7 @@ fun DigitalClockWithWeekDays(
 fun DigitalClockWithWeekDays(
     modifier: Modifier = Modifier,
     textStyles: DigitalClockTextStyles = DigitalClockDefault.textStyles(),
-    localDateTime: LocalDateTime = Clock.System.now().getSystemDateTime(),
+    localDateTime: LocalDateTime,
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA,
     clockIcon: @Composable (() -> Unit)? = {

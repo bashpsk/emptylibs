@@ -271,10 +271,10 @@ private fun DrawScope.drawHand(
     rotate(degrees = (angleInRad * 180.0F / PI).toFloat() + 90.0F, pivot = center) {
 
         drawRoundRect(
-            color = color,
-            topLeft = Offset(x = center.x - (thickness / 2), y = center.y - tailLength),
+            topLeft = Offset(x = center.x - (thickness / 2), y = center.y - handLength),
             size = Size(width = thickness, height = totalHandLength),
-            cornerRadius = CornerRadius(x = thickness / 2, y = thickness / 2)
+            cornerRadius = CornerRadius(x = thickness / 2, y = thickness / 2),
+            color = color
         )
     }
 
