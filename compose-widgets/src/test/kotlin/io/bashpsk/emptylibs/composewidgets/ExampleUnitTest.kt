@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.glancewidgets
+package io.bashpsk.emptylibs.composewidgets
 
 import org.junit.Test
 

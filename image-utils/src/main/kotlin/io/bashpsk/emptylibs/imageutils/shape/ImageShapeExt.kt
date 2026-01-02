@@ -231,3 +231,30 @@ fun ImageShape.toLabel(): String {
         is ImageShape.Star -> "Star"
     }
 }
+
+/**
+ * Gets the minimum radius for a given [ImageShape].
+ *
+ * This function returns the corner radius or equivalent proportional value for shapes
+ * that have rounded or cut corners, such as [ImageShape.Rectangle] and [ImageShape.CutCorner].
+ * For other shapes, it returns `0.0F`.
+ *
+ * The radius is calculated as a proportion of the smaller dimension of the canvas the shape is
+ * drawn on.
+ *
+ * @return The radius as a [Float]. This value represents a proportion (e.g., 0.2F for 20%)
+ * of the smaller dimension of the canvas the shape is drawn on.
+ */
+fun ImageShape.getMinimumRadius(boundingRadius: Float): Float {
+
+    return when (this) {
+
+        is ImageShape.None -> boundingRadius
+        is ImageShape.Circle -> boundingRadius
+        is ImageShape.Triangle -> boundingRadius * cos(PI / 3).toFloat()
+        is ImageShape.Polygon -> boundingRadius * cos(PI / sides).toFloat()
+        is ImageShape.Rectangle -> boundingRadius
+        is ImageShape.CutCorner -> boundingRadius
+        is ImageShape.Star -> boundingRadius / distance
+    }
+}

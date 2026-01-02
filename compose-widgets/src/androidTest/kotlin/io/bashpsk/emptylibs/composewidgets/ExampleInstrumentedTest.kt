@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.glancewidgets
+package io.bashpsk.emptylibs.composewidgets
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
