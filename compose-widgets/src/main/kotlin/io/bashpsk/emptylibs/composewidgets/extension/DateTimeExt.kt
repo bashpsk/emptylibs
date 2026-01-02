@@ -14,7 +14,7 @@ import kotlin.time.Instant
  * @return A [LocalDateTime] object representing the date and time in the system's default time
  * zone.
  */
-internal fun Instant.getSystemDateTime(): LocalDateTime {
+fun Instant.getSystemDateTime(): LocalDateTime {
 
     return toLocalDateTime(timeZone = TimeZone.currentSystemDefault())
 }

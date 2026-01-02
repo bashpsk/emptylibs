@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
                 EmptyLibsTheme(darkTheme = AppTheme.getTheme(theme = getAppTheme)) {
 
-                    AnalogClockScreen()
+//                    AnalogClockScreen()
 //                    BasicTextEditorScreen()
 //                    BottomOptionBarScreen()
 //                    CanvasSlateScreen()
@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
 //                    DatastoreUIScreen()
 //                    DialClockScreen()
 //                    DialTextPickerScreen()
+                    DigitalClockScreen()
 //                    FileCopySpeedScreen()
 //                    FileWriteSpeedScreen()
 //                    FormatterScreen()
