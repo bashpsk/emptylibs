@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -19,33 +20,29 @@ import io.bashpsk.emptylibs.composewidgets.extension.hasAM
 import io.bashpsk.emptylibs.composewidgets.extension.hasPM
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
 
 /**
- * A digital clock composable that displays the time and highlights the current day of the week.
+ * A digital clock composable that displays the time.
  *
  * @param modifier The modifier to be applied to the composable.
- * @param textStyles The styles for the text elements in the clock.
  * @param localDateTime The local date and time to display, in milliseconds.
  * @param timeZone The time zone to use.
  * @param clockPattern The pattern for formatting the time.
+ * @param textStyles The styles for the text elements in the clock.
  * @param disableTextAlpha The alpha value for disabled text.
- * @param clockIcon An optional icon to display next to the time.
  */
 @Composable
-fun DigitalClockWithWeekDays(
+fun DigitalClock(
     modifier: Modifier = Modifier,
     localDateTime: Long,
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     textStyles: DigitalClockTextStyles = DigitalClockDefault.textStyles(),
-    disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA,
-    clockIcon: @Composable (() -> Unit)? = {}
+    disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA
 ) {
 
     val currentDateTime by remember(localDateTime, timeZone) {
@@ -54,41 +51,32 @@ fun DigitalClockWithWeekDays(
         }
     }
 
-    DigitalClockWithWeekDays(
+    DigitalClock(
         modifier = modifier,
         localDateTime = currentDateTime,
         clockPattern = clockPattern,
         textStyles = textStyles,
-        disableTextAlpha = disableTextAlpha,
-        clockIcon = clockIcon
+        disableTextAlpha = disableTextAlpha
     )
 }
 
 /**
- * A digital clock composable that displays the time and highlights the current day of the week.
+ * A digital clock composable that displays the time.
  *
  * @param modifier The modifier to be applied to the composable.
- * @param textStyles The styles for the text elements in the clock.
  * @param localDateTime The local date and time to display.
  * @param clockPattern The pattern for formatting the time.
+ * @param textStyles The styles for the text elements in the clock.
  * @param disableTextAlpha The alpha value for disabled text.
- * @param clockIcon An optional icon to display next to the time.
  */
 @Composable
-fun DigitalClockWithWeekDays(
+fun DigitalClock(
     modifier: Modifier = Modifier,
     localDateTime: LocalDateTime,
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     textStyles: DigitalClockTextStyles = DigitalClockDefault.textStyles(),
-    disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA,
-    clockIcon: @Composable (() -> Unit)? = {}
+    disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA
 ) {
-
-    val weekDaysList by remember {
-        derivedStateOf {
-            DayOfWeek.entries.map { day -> day.name.substring(0..2) }.toImmutableList()
-        }
-    }
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
         derivedStateOf {
@@ -119,95 +107,48 @@ fun DigitalClockWithWeekDays(
         }
     }
 
-    Column(
+    Row(
         modifier = modifier
             .clipToBounds()
             .padding(horizontal = 12.dp, vertical = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.spacedBy(
+            space = 8.dp,
+            alignment = Alignment.CenterHorizontally
+        ),
+        verticalAlignment = Alignment.Bottom
     ) {
 
-        Row(
-            modifier = Modifier,
-            horizontalArrangement = Arrangement.spacedBy(space = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Text(
+            text = currentTimeFormatted,
+            textAlign = TextAlign.Center,
+            style = textStyles.time,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Column(
+            modifier = Modifier
+                .wrapContentWidth()
+                .padding(bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(space = 2.dp)
         ) {
-
-            weekDaysList.forEach { day ->
-
-                val isToday by remember(localDateTime, day) {
-                    derivedStateOf {
-                        localDateTime.dayOfWeek.name.startsWith(day, ignoreCase = true)
-                    }
-                }
-
-                val dayTextStyle by remember(textStyles, isToday, disableTextAlpha) {
-                    derivedStateOf {
-                        DigitalClockDefault.getTextStyle(
-                            textStyle = textStyles.days,
-                            enabled = isToday,
-                            alpha = disableTextAlpha
-                        )
-                    }
-                }
-
-                Text(
-                    text = day.uppercase(),
-                    textAlign = TextAlign.Center,
-                    style = dayTextStyle,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(
-                space = 8.dp,
-                alignment = Alignment.CenterHorizontally
-            ),
-            verticalAlignment = Alignment.Bottom
-        ) {
-
-            Column(
-                modifier = Modifier.padding(bottom = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(space = 2.dp)
-            ) {
-
-                clockIcon?.invoke()
-            }
 
             Text(
-                text = currentTimeFormatted,
+                text = "AM",
                 textAlign = TextAlign.Center,
-                style = textStyles.time,
+                style = amIndicatorTextStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
 
-            Column(
-                modifier = Modifier.padding(bottom = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(space = 2.dp)
-            ) {
-
-                Text(
-                    text = "AM",
-                    textAlign = TextAlign.Center,
-                    style = amIndicatorTextStyle,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Text(
-                    text = "PM",
-                    textAlign = TextAlign.Center,
-                    style = pmIndicatorTextStyle,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            Text(
+                text = "PM",
+                textAlign = TextAlign.Center,
+                style = pmIndicatorTextStyle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

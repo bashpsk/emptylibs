@@ -3,7 +3,6 @@ package io.bashpsk.emptylibs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import io.bashpsk.emptylibs.composewidgets.clock.digital.DigitalClock
 import io.bashpsk.emptylibs.composewidgets.clock.digital.DigitalClockDefault
 import io.bashpsk.emptylibs.composewidgets.clock.digital.DigitalClockWithWeekDays
 import kotlinx.coroutines.Dispatchers
@@ -47,8 +47,10 @@ fun DigitalClockScreen() {
         mutableLongStateOf(Clock.System.now().toEpochMilliseconds())
     }
 
-    val elevatedCardColors = CardDefaults.elevatedCardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    val shape = MaterialTheme.shapes.extraSmall
+
+    val colors = CardDefaults.elevatedCardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceBright,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
     )
 
@@ -92,7 +94,8 @@ fun DigitalClockScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
                 space = 8.dp,
@@ -101,20 +104,26 @@ fun DigitalClockScreen() {
         ) {
 
             ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                shape = MaterialTheme.shapes.extraSmall,
-                colors = elevatedCardColors
+                shape = shape,
+                colors = colors
+            ) {
+
+                DigitalClock(
+                    modifier = Modifier,
+                    localDateTime = currentDateTime,
+                    textStyles = DigitalClockDefault.textStyles()
+                )
+            }
+
+            ElevatedCard(
+                shape = shape,
+                colors = colors
             ) {
 
                 DigitalClockWithWeekDays(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    modifier = Modifier,
                     localDateTime = currentDateTime,
-                    textStyles = DigitalClockDefault.textStyles(),
-//                    disableTextAlpha = 0.5F
+                    textStyles = DigitalClockDefault.textStyles()
                 )
             }
         }
