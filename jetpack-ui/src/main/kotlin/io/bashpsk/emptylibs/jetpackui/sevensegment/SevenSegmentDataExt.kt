@@ -49,3 +49,13 @@ fun String?.findSegmentData(
         char.findSegmentData(model = model)
     }?.toImmutableList() ?: persistentListOf(Empty)
 }
+
+/**
+ * Checks if the 7-segment data represents a dot or a colon.
+ *
+ * @return True if the data is a dot or a colon, false otherwise.
+ */
+fun SevenSegmentData.hasDotOrColon(): Boolean {
+
+    return this == SevenSegmentData.Dot || this == SevenSegmentData.Colon
+}

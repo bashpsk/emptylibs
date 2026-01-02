@@ -101,6 +101,22 @@ data class SevenSegmentData(
         )
 
         /**
+         * 7-segment data for the dot(`.`).
+         */
+        val Dot = SevenSegmentData(
+            activeElements = SevenSegmentElement.DotActiveElements,
+            inactiveElements = SevenSegmentElement.DotInactiveElements
+        )
+
+        /**
+         * 7-segment data for the colon(`:`) / semi-colon(`;`).
+         */
+        val Colon = SevenSegmentData(
+            activeElements = SevenSegmentElement.ColonActiveElements,
+            inactiveElements = SevenSegmentElement.ColonInactiveElements
+        )
+
+        /**
          * Empty 7-segment data.
          */
         val Empty = SevenSegmentData(
@@ -122,7 +138,10 @@ data class SevenSegmentData(
             '6' to Six,
             '7' to Seven,
             '8' to Eight,
-            '9' to Nine
+            '9' to Nine,
+            '.' to Dot,
+            ':' to Colon,
+            ';' to Colon,
         )
     }
 }

@@ -76,6 +76,12 @@ enum class SevenSegmentElement {
         internal val NineActiveElements = persistentListOf(_1, _2, _3, _4, _6, _7)
         internal val NineInactiveElements = persistentListOf(_5)
 
+        internal val DotActiveElements = persistentListOf(_2)
+        internal val DotInactiveElements = persistentListOf<SevenSegmentElement>()
+
+        internal val ColonActiveElements = persistentListOf(_1, _2)
+        internal val ColonInactiveElements = persistentListOf<SevenSegmentElement>()
+
         /**
          * Converts a list of [SevenSegmentElement] to a [SevenSegmentData] object.
          *

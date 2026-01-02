@@ -11,15 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentData
 import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentDefault
 import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentDisplay
 
 @Composable
 fun SevenSegmentDisplayScreen() {
 
-    val itemSize = 64.dp
-    val itemSpace = 4.dp
+    val itemSize = 60.dp
+    val itemSpace = 2.dp
 
     val colors = SevenSegmentDefault.colors()
     val properties = SevenSegmentDefault.properties()
@@ -38,10 +37,12 @@ fun SevenSegmentDisplayScreen() {
         ) {
 
             SevenSegmentDisplay(
-                modifier = Modifier.width(width = itemSize / 2),
-                data = SevenSegmentData.Nine,
+                modifier = Modifier,
+                data = "07:30:45.369",
                 colors = colors,
-                properties = properties
+                properties = properties,
+                itemSize = itemSize,
+                itemSpace = itemSpace
             )
 
             SevenSegmentDisplay(
@@ -52,15 +53,8 @@ fun SevenSegmentDisplayScreen() {
             )
 
             SevenSegmentDisplay(
-                modifier = Modifier.width(width = itemSize / 2),
-                data = 'K',
-                colors = colors,
-                properties = properties
-            )
-
-            SevenSegmentDisplay(
                 modifier = Modifier.fillMaxWidth(),
-                data = "0123456789 ",
+                data = "0123456789",
                 colors = colors,
                 properties = properties,
                 itemSize = itemSize,

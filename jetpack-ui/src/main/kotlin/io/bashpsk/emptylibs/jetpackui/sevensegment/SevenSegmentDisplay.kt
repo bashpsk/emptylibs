@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.jetpackui.sevensegment
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import kotlinx.collections.immutable.ImmutableMap
  * @param model A map of characters to their corresponding 7-segment data.
  * @param itemSize The size of each 7-segment display item.
  * @param itemSpace The space between each 7-segment display item.
+ * @param radius The radius of dot/colon.
  */
 @Composable
 fun SevenSegmentDisplay(
@@ -36,7 +38,9 @@ fun SevenSegmentDisplay(
     properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
     model: ImmutableMap<Char, SevenSegmentData> = SevenSegmentDefault.SegmentDataModel,
     itemSize: Dp = 64.dp,
-    itemSpace: Dp = 4.dp
+    itemSpace: Dp = 4.dp,
+    @FloatRange(from = 0.0, to = 1.0)
+    radius: Float = 0.0F
 ) {
 
     val segmentData by remember(data, model) {
@@ -49,7 +53,8 @@ fun SevenSegmentDisplay(
         colors = colors,
         properties = properties,
         itemSize = itemSize,
-        itemSpace = itemSpace
+        itemSpace = itemSpace,
+        radius = radius
     )
 }
 
@@ -61,6 +66,7 @@ fun SevenSegmentDisplay(
  * @param colors The colors to be used for the active and inactive segments.
  * @param properties The properties of the segments, such as thickness and spacing.
  * @param model A map of characters to their corresponding 7-segment data.
+ * @param radius The radius of dot/colon.
  */
 @Composable
 fun SevenSegmentDisplay(
@@ -68,19 +74,33 @@ fun SevenSegmentDisplay(
     data: Char?,
     colors: SevenSegmentColors = SevenSegmentDefault.colors(),
     properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
-    model: ImmutableMap<Char, SevenSegmentData> = SevenSegmentDefault.SegmentDataModel
+    model: ImmutableMap<Char, SevenSegmentData> = SevenSegmentDefault.SegmentDataModel,
+    @FloatRange(from = 0.0, to = 1.0)
+    radius: Float = 0.0F
 ) {
 
     val segmentData by remember(data, model) {
         derivedStateOf { data.findSegmentData(model = model) }
     }
 
-    SevenSegmentDisplay(
-        modifier = modifier,
-        data = segmentData,
-        colors = colors,
-        properties = properties
-    )
+    segmentData.takeIf { segment -> segment.hasDotOrColon() }?.let { segment ->
+
+        SevenSegmentDot(
+            modifier = modifier,
+            data = segment,
+            colors = colors,
+            properties = properties,
+            radius = radius
+        )
+    } ?: run {
+
+        SevenSegmentNumber(
+            modifier = modifier,
+            data = segmentData,
+            colors = colors,
+            properties = properties
+        )
+    }
 }
 
 /**
@@ -92,15 +112,18 @@ fun SevenSegmentDisplay(
  * @param properties The properties of the segments, such as thickness and spacing.
  * @param itemSize The size of each 7-segment display item.
  * @param itemSpace The space between each 7-segment display item.
+ * @param radius The radius of dot/colon.
  */
 @Composable
-fun SevenSegmentDisplay(
+private fun SevenSegmentDisplay(
     modifier: Modifier = Modifier,
     data: ImmutableList<SevenSegmentData>,
     colors: SevenSegmentColors = SevenSegmentDefault.colors(),
     properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
     itemSize: Dp = 64.dp,
-    itemSpace: Dp = 4.dp
+    itemSpace: Dp = 4.dp,
+    @FloatRange(from = 0.0, to = 1.0)
+    radius: Float = 0.0F
 ) {
 
     Row(
@@ -114,12 +137,24 @@ fun SevenSegmentDisplay(
 
         data.forEach { segmentData ->
 
-            SevenSegmentDisplay(
-                modifier = Modifier.size(width = itemSize / 2, height = itemSize),
-                data = segmentData,
-                colors = colors,
-                properties = properties
-            )
+            segmentData.takeIf { segment -> segment.hasDotOrColon() }?.let { segment ->
+
+                SevenSegmentDot(
+                    modifier = Modifier.size(width = itemSize / 4, height = itemSize),
+                    data = segment,
+                    colors = colors,
+                    properties = properties,
+                    radius = radius
+                )
+            } ?: run {
+
+                SevenSegmentNumber(
+                    modifier = Modifier.size(width = itemSize / 2, height = itemSize),
+                    data = segmentData,
+                    colors = colors,
+                    properties = properties
+                )
+            }
         }
     }
 }
@@ -133,7 +168,7 @@ fun SevenSegmentDisplay(
  * @param properties The properties of the segments, such as thickness and spacing.
  */
 @Composable
-fun SevenSegmentDisplay(
+private fun SevenSegmentNumber(
     modifier: Modifier = Modifier,
     data: SevenSegmentData = SevenSegmentData.Empty,
     colors: SevenSegmentColors = SevenSegmentDefault.colors(),
@@ -147,6 +182,36 @@ fun SevenSegmentDisplay(
         contentDescription = "7 Segment Display"
     ) {
 
-        drawSegmentElement(data = data, colors = colors, properties = properties)
+        drawSegmentElements(data = data, colors = colors, properties = properties)
+    }
+}
+
+/**
+ * A composable that displays a dot or a colon for a 7-segment display.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param data The 7-segment data to be displayed, which should be a dot or a colon.
+ * @param colors The colors to be used for the active and inactive segments.
+ * @param properties The properties of the segments, such as thickness.
+ * @param radius The corner radius of the dots, as a fraction of the dot size.
+ */
+@Composable
+private fun SevenSegmentDot(
+    modifier: Modifier = Modifier,
+    data: SevenSegmentData = SevenSegmentData.Empty,
+    colors: SevenSegmentColors = SevenSegmentDefault.colors(),
+    properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
+    @FloatRange(from = 0.0, to = 1.0)
+    radius: Float = 0.0F
+) {
+
+    Canvas(
+        modifier = modifier
+            .aspectRatio(ratio = 0.25F)
+            .clipToBounds(),
+        contentDescription = "7 Segment Dot"
+    ) {
+
+        drawDotElements(data = data, colors = colors, properties = properties, radius = radius)
     }
 }
