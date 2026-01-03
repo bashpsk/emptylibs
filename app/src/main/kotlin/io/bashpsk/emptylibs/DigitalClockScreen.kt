@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import io.bashpsk.emptylibs.composewidgets.clock.digital.DigitalClock
 import io.bashpsk.emptylibs.composewidgets.clock.digital.DigitalClockDefault
 import io.bashpsk.emptylibs.composewidgets.clock.digital.DigitalClockWithWeekDays
+import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentDefault
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -123,8 +124,7 @@ fun DigitalClockScreen() {
                 DigitalClock(
                     modifier = Modifier,
                     localDateTime = currentDateTime,
-                    itemSize = 72.dp,
-                    itemSpace = 0.dp
+                    properties = SevenSegmentDefault.properties()
                 )
             }
 

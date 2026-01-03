@@ -21,7 +21,11 @@ fun SevenSegmentDisplayScreen() {
     val itemSpace = 2.dp
 
     val colors = SevenSegmentDefault.colors()
-    val properties = SevenSegmentDefault.properties()
+
+    val properties = SevenSegmentDefault.properties(
+        width = itemSize,
+        itemSpace = itemSpace
+    )
 
     Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
 
@@ -40,9 +44,7 @@ fun SevenSegmentDisplayScreen() {
                 modifier = Modifier,
                 data = "07:30:45.369",
                 colors = colors,
-                properties = properties,
-                itemSize = itemSize,
-                itemSpace = itemSpace
+                properties = properties
             )
 
             SevenSegmentDisplay(
@@ -56,9 +58,7 @@ fun SevenSegmentDisplayScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 data = "0123456789",
                 colors = colors,
-                properties = properties,
-                itemSize = itemSize,
-                itemSpace = itemSpace
+                properties = properties
             )
         }
     }

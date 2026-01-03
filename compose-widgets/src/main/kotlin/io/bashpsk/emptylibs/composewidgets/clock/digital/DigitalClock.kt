@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.composewidgets.clock.digital
 
-import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.composewidgets.extension.hasAM
 import io.bashpsk.emptylibs.composewidgets.extension.hasPM
@@ -168,9 +166,6 @@ fun DigitalClock(
  * @param clockPattern The pattern for formatting the time.
  * @param colors The colors for the seven-segment display.
  * @param properties The properties for the seven-segment display.
- * @param itemSize The size of each segment in the display.
- * @param itemSpace The space between each segment in the display.
- * @param radius The corner radius of the segments.
  */
 @Composable
 fun DigitalClock(
@@ -179,11 +174,7 @@ fun DigitalClock(
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     colors: SevenSegmentColors = SevenSegmentDefault.colors(),
-    properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
-    itemSize: Dp = 60.dp,
-    itemSpace: Dp = 2.dp,
-    @FloatRange(from = 0.0, to = 1.0)
-    radius: Float = 1.0F
+    properties: SevenSegmentProperties = SevenSegmentDefault.properties()
 ) {
 
     val currentDateTime by remember(localDateTime, timeZone) {
@@ -197,10 +188,7 @@ fun DigitalClock(
         localDateTime = currentDateTime,
         clockPattern = clockPattern,
         colors = colors,
-        properties = properties,
-        itemSize = itemSize,
-        itemSpace = itemSpace,
-        radius = radius
+        properties = properties
     )
 }
 
@@ -212,9 +200,6 @@ fun DigitalClock(
  * @param clockPattern The pattern for formatting the time.
  * @param colors The colors for the seven-segment display.
  * @param properties The properties for the seven-segment display.
- * @param itemSize The size of each segment in the display.
- * @param itemSpace The space between each segment in the display.
- * @param radius The corner radius of the segments.
  */
 @Composable
 fun DigitalClock(
@@ -223,10 +208,6 @@ fun DigitalClock(
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     colors: SevenSegmentColors = SevenSegmentDefault.colors(),
     properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
-    itemSize: Dp = 60.dp,
-    itemSpace: Dp = 2.dp,
-    @FloatRange(from = 0.0, to = 1.0)
-    radius: Float = 1.0F
 ){
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
@@ -253,10 +234,7 @@ fun DigitalClock(
             modifier = Modifier,
             data = currentTimeFormatted,
             colors = colors,
-            properties = properties,
-            itemSize = itemSize,
-            itemSpace = itemSpace,
-            radius = radius
+            properties = properties
         )
     }
 }

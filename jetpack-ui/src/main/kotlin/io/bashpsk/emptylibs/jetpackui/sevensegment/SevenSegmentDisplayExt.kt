@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.jetpackui.sevensegment
 
-import androidx.annotation.FloatRange
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -38,29 +37,21 @@ internal fun DrawScope.drawSegmentElements(
  * @param data The 7-segment data, which should represent a dot or a colon.
  * @param colors The colors to be used for the active and inactive segments.
  * @param properties The properties of the segments, such as thickness.
- * @param radius The corner radius of the dots, as a fraction of the dot size.
  */
 internal fun DrawScope.drawDotElements(
     data: SevenSegmentData = SevenSegmentData.Empty,
     colors: SevenSegmentColors = SevenSegmentColors(),
-    properties: SevenSegmentProperties = SevenSegmentProperties(),
-    @FloatRange(from = 0.0, to = 1.0)
-    radius: Float = 0.0F
+    properties: SevenSegmentProperties = SevenSegmentProperties()
 ) {
 
     data.activeElements.forEach { element ->
 
-        drawDot(element = element, color = colors.active, properties = properties, radius = radius)
+        drawDot(element = element, color = colors.active, properties = properties)
     }
 
     data.inactiveElements.forEach { element ->
 
-        drawDot(
-            element = element,
-            color = colors.inactive,
-            properties = properties,
-            radius = radius
-        )
+        drawDot(element = element, color = colors.inactive, properties = properties)
     }
 }
 
@@ -164,20 +155,18 @@ private fun DrawScope.drawElement(
  * @param element The dot element to be drawn.
  * @param color The color of the dot.
  * @param properties The properties of the segment, such as thickness.
- * @param radius The corner radius of the dot, as a fraction of the dot size.
  */
 private fun DrawScope.drawDot(
     element: SevenSegmentElement,
     color: Color = Color.Unspecified,
-    properties: SevenSegmentProperties = SevenSegmentProperties(),
-    @FloatRange(from = 0.0, to = 1.0)
-    radius: Float = 0.0F
+    properties: SevenSegmentProperties = SevenSegmentProperties()
 ) {
 
     val segmentWidth = size.width
     val segmentHeight = size.height / 2F
     val strokeWidth = properties.thickness.toPx()
-    val dotSizeOffset = strokeWidth / 2f
+    val dotSizeOffset = strokeWidth / 2F
+    val radius = if (properties.isRoundedDot) dotSizeOffset else 0F
 
     when (element) {
 
@@ -185,11 +174,11 @@ private fun DrawScope.drawDot(
 
             drawRoundRect(
                 topLeft = Offset(
-                    x = (segmentWidth / 2f) - dotSizeOffset,
-                    y = (segmentHeight / 2f) - dotSizeOffset
+                    x = (segmentWidth / 2F) - dotSizeOffset,
+                    y = (segmentHeight / 2F) - dotSizeOffset
                 ),
                 size = Size(width = strokeWidth, height = strokeWidth),
-                cornerRadius = CornerRadius(x = radius * dotSizeOffset, y = radius * dotSizeOffset),
+                cornerRadius = CornerRadius(x = radius, y = radius),
                 color = color
             )
         }
@@ -198,11 +187,11 @@ private fun DrawScope.drawDot(
 
             drawRoundRect(
                 topLeft = Offset(
-                    x = (segmentWidth / 2f) - dotSizeOffset,
-                    y = (segmentHeight + (segmentHeight / 2f)) - dotSizeOffset
+                    x = (segmentWidth / 2F) - dotSizeOffset,
+                    y = (segmentHeight + (segmentHeight / 2F)) - dotSizeOffset
                 ),
                 size = Size(width = strokeWidth, height = strokeWidth),
-                cornerRadius = CornerRadius(x = radius * dotSizeOffset, y = radius * dotSizeOffset),
+                cornerRadius = CornerRadius(x = radius, y = radius),
                 color = color
             )
         }
