@@ -22,6 +22,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Empty Libs"
 include(":app")
+include(":animations")
 include(":canvas-slate")
 include(":compose-utils")
 include(":compose-widgets")
