@@ -87,7 +87,10 @@ dependencies {
 
     //  MODULE          :
     implementation(project(":compose-utils"))
+    implementation(project(":formatter"))
+    implementation(project(":gesture-ui"))
     implementation(project(":image-utils"))
+    implementation(project(":jetpack-ui"))
     implementation(project(":lrucache-manager"))
 }
 

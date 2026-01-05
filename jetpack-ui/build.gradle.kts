@@ -84,6 +84,7 @@ dependencies {
 
     //  MODULE          :
     implementation(project(":compose-utils"))
+    implementation(project(":lrucache-manager"))
 }
 
 publishing {

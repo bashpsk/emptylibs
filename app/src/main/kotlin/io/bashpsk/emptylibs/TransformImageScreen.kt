@@ -14,11 +14,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun TransformImageScreen() {
@@ -29,7 +28,7 @@ fun TransformImageScreen() {
 
     LaunchedEffect(Unit) {
 
-        delay(2.seconds)
+//        delay(2.seconds)
 
         simpleList = persistentListOf(
             R.drawable.wallpaper01,
@@ -47,17 +46,22 @@ fun TransformImageScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
 
             TransformImageView(
                 modifier = Modifier.fillMaxWidth(),
+                state = rememberTransformableGesturesState(enableRotation = true),
                 imageModelList = simpleList,
-                initialImage = simpleList.firstOrNull(),
-                enableControls = true,
-                enableRotation = false
+                initialImage = simpleList.firstOrNull()
             )
+
+            /*TransformImageView(
+                modifier = Modifier.fillMaxWidth(),
+                state = rememberTransformableGesturesState(enableRotation = true),
+                imageModel = simpleList.firstOrNull()
+            )*/
         }
     }
 }
