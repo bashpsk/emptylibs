@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -115,13 +116,13 @@ fun TransformImageView(
  *
  * @param modifier The [Modifier] to be applied to the layout.
  * @param state The [TransformableGesturesState] which holds and manages the current state of zoom,
- *   pan, and rotation for the active image. A default state is remembered by default.
+ * pan, and rotation for the active image. A default state is remembered by default.
  * @param imageModelList An immutable list of image models to be displayed in the pager.
- *   Models can be URLs, local file paths, or any other type supported by Coil.
+ * Models can be URLs, local file paths, or any other type supported by Coil.
  * @param initialImage The specific image model from [imageModelList] that should be displayed
- *   initially. If not found or null, the first image is shown.
+ * initially. If not found or null, the first image is shown.
  * @param contentScale The scaling to be applied to the image to fit within the bounds of the
- *   composable. Defaults to [ContentScale.Fit].
+ * composable. Defaults to [ContentScale.Fit].
  */
 @Composable
 fun TransformImageView(
@@ -144,7 +145,8 @@ fun TransformImageView(
             painter = painterResource(id = R.drawable.image_broken),
             contentDescription = "Image Load Failed"
         )
-    }
+    },
+    content: (@Composable (pagerState: PagerState) -> Unit)? = null
 ) {
 
     val initialPage by remember(imageModelList, initialImage) {
@@ -189,6 +191,8 @@ fun TransformImageView(
                 errorIndicator = errorIndicator
             )
         }
+
+        content?.invoke(pagerState)
     }
 }
 
@@ -220,7 +224,7 @@ private fun TransformImageViewLayout(
     state: TransformableGesturesState = rememberTransformableGesturesState(),
     onClick: (offset: Offset) -> Unit = {},
     onLongClick: (offset: Offset) -> Unit = {},
-    content: @Composable BoxScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit
 ) {
 
     Box(

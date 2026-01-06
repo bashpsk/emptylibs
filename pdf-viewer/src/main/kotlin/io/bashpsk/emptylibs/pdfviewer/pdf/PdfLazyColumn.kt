@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -16,9 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
+import io.bashpsk.emptylibs.jetpackui.scrollbar.LazyListScrollBar
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -49,6 +53,9 @@ fun PdfLazyColumn(
 
     val pageCount by remember(pageDataList) { derivedStateOf { pageDataList.size } }
     val isScrolling by remember { derivedStateOf { pdfLazyListState.isScrollInProgress } }
+    val visibleItemsCount by remember {
+        derivedStateOf { pdfLazyListState.layoutInfo.visibleItemsInfo.size }
+    }
 
     val isScrollEnabled by remember(state.transformableState) {
         derivedStateOf { state.transformableState.touchCount == 1 }
@@ -101,6 +108,30 @@ fun PdfLazyColumn(
                 )
             }
         }
+
+        LazyListScrollBar(
+            modifier = Modifier.align(alignment = Alignment.TopEnd),
+            state = pdfLazyListState,
+            label = { index ->
+
+                val barLabel by remember(index, pageCount, visibleItemsCount) {
+                    derivedStateOf {
+                        when (visibleItemsCount) {
+
+                            1 -> "${index + 1}/$pageCount"
+                            else -> "${index + 1}-${index + visibleItemsCount}/$pageCount"
+                        }
+                    }
+                }
+
+                Text(
+                    text = barLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.MiddleEllipsis
+                )
+            }
+        )
 
         content()
     }
