@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * A composable that displays a single page of a PDF file.
@@ -85,7 +86,7 @@ internal fun PdfPageView(
         snapshotFlow {
 
             state.transformableState.zoom
-        }.debounce(500).distinctUntilChanged().collectLatest { 
+        }.debounce(timeout = 500.milliseconds).distinctUntilChanged().collectLatest {
 
             if (isScrolling.not()) state.coroutineScope.launch(context = Dispatchers.IO) {
 

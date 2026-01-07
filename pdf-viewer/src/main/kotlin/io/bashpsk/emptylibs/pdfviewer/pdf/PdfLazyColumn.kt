@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.pdfviewer.pdf
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
@@ -24,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
 import io.bashpsk.emptylibs.jetpackui.scrollbar.LazyListScrollBar
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * A lazy column that displays PDF pages.
@@ -32,15 +32,16 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  * @param modifier The modifier to apply to this layout.
  * @param state The state of the PDF viewer.
  * @param pageSpace The space between pages.
+ * @param scrollBarAlignment The alignment of the scrollbar.
  * @param onClick A callback that is invoked when the user clicks on the PDF.
  * @param content A slot for composable content to be displayed on top of the PDF.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun PdfLazyColumn(
     modifier: Modifier = Modifier,
     state: PdfLazyColumnState,
     pageSpace: Dp = 4.dp,
+    scrollBarAlignment: Alignment = Alignment.TopEnd,
     onClick: (offset: Offset) -> Unit = {},
     content: @Composable @UiComposable BoxWithConstraintsScope.() -> Unit = {},
 ) {
@@ -110,8 +111,10 @@ fun PdfLazyColumn(
         }
 
         LazyListScrollBar(
-            modifier = Modifier.align(alignment = Alignment.TopEnd),
+            modifier = Modifier,
             state = pdfLazyListState,
+            orientation = Orientation.Vertical,
+            alignment = scrollBarAlignment,
             label = { index ->
 
                 val barLabel by remember(index, pageCount, visibleItemsCount) {
