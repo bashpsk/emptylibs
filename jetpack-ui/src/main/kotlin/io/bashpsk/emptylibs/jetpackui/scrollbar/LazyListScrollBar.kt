@@ -1,5 +1,11 @@
 package io.bashpsk.emptylibs.jetpackui.scrollbar
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -7,6 +13,7 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -27,20 +34,63 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.AndroidPath
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * A scrollbar for [LazyListState] that appears when scrolling and fades out after a short delay.
+ *
+ * @param modifier The modifier to be applied to the scrollbar.
+ * @param state The [LazyListState] to attach the scrollbar to.
+ * @param orientation The orientation of the scrollbar.
+ * Defaults to the orientation of the [LazyListState].
+ * @param alignment The alignment of the scrollbar.
+ * Defaults to [Alignment.TopEnd] for vertical lists and [Alignment.BottomStart] for horizontal
+ * lists.
+ * @param thumbColor The color of the scrollbar thumb.
+ * @param thumbNotchWidth The width of the notch on the scrollbar thumb.
+ * @param label A composable that displays the current item index.
+ * @param thumb The composable to be used as the scrollbar thumb.
+ */
+@OptIn(FlowPreview::class)
 @Composable
 inline fun BoxWithConstraintsScope.LazyListScrollBar(
     modifier: Modifier = Modifier,
     state: LazyListState,
+    orientation: Orientation = state.layoutInfo.orientation,
+    alignment: Alignment = when (orientation) {
+
+        Orientation.Vertical -> Alignment.TopEnd
+        Orientation.Horizontal -> Alignment.BottomStart
+    },
     thumbColor: Color = MaterialTheme.colorScheme.surfaceVariant,
+    thumbNotchWidth: Dp = 8.dp,
     crossinline label: @Composable (index: Int) -> Unit = {},
     crossinline thumb: @Composable () -> Unit = {
 
@@ -52,7 +102,9 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
     }
 ) {
 
+    val density = LocalDensity.current
     val listCoroutineScope = rememberCoroutineScope()
+    val scrollBarVisibleState = remember { MutableTransitionState(false) }
 
     val firstVisibleItemIndex by remember { derivedStateOf { state.firstVisibleItemIndex } }
     val totalItemsCount by remember { derivedStateOf { state.layoutInfo.totalItemsCount } }
@@ -63,79 +115,280 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
         }
     }
 
-    val scrollRatio by remember(scrollableItemsCount) {
-        derivedStateOf { state.firstVisibleItemIndex.toFloat() / scrollableItemsCount }
+    val scrollRatio by remember(scrollableItemsCount, firstVisibleItemIndex) {
+        derivedStateOf {
+            if (scrollableItemsCount > 0) {
+                firstVisibleItemIndex.toFloat() / scrollableItemsCount
+            } else 0F
+        }
     }
 
-    var barHeight by rememberSaveable { mutableStateOf(0F) }
-    var barPositionY by rememberSaveable { mutableFloatStateOf(0F) }
+    var barSize by rememberSaveable { mutableFloatStateOf(0F) }
+    var barPosition by rememberSaveable { mutableFloatStateOf(0F) }
     var isBarDragging by rememberSaveable { mutableStateOf(false) }
 
-    val maximumBarY by remember(constraints.maxHeight, barHeight) {
-        derivedStateOf { constraints.maxHeight - barHeight }
+    val maximumBarPosition by remember(constraints, orientation, barSize) {
+        derivedStateOf {
+            when (orientation) {
+
+                Orientation.Vertical -> constraints.maxHeight - barSize
+                Orientation.Horizontal -> constraints.maxWidth - barSize
+            }
+        }
+    }
+
+    val barPositionOffset by remember(orientation, alignment, barPosition, thumbNotchWidth) {
+        derivedStateOf {
+
+            val notchOffset = with(density) { thumbNotchWidth.toPx().roundToInt() }
+
+            when (orientation) {
+
+                Orientation.Vertical -> when (alignment) {
+
+                    Alignment.CenterStart, Alignment.TopStart, Alignment.BottomStart -> {
+                        IntOffset(x = -notchOffset, y = barPosition.roundToInt())
+                    }
+
+                    else -> IntOffset(x = notchOffset, y = barPosition.roundToInt())
+                }
+
+                Orientation.Horizontal -> when (alignment) {
+
+                    Alignment.TopCenter, Alignment.TopStart, Alignment.TopEnd -> {
+                        IntOffset(x = barPosition.roundToInt(), y = -notchOffset)
+                    }
+
+                    else -> IntOffset(x = barPosition.roundToInt(), y = notchOffset)
+                }
+            }
+        }
     }
 
     val barDraggableState = rememberDraggableState { delta ->
 
-        if (maximumBarY > 0) {
+        if (maximumBarPosition > 0) {
 
-            barPositionY = (barPositionY + delta).coerceIn(0F, maximumBarY)
+            barPosition = (barPosition + delta).coerceIn(0F, maximumBarPosition)
 
             listCoroutineScope.launch {
 
-                val newItem = (scrollableItemsCount * (barPositionY / maximumBarY)).roundToInt()
+                val newItem = (scrollableItemsCount * (barPosition / maximumBarPosition))
+                    .roundToInt()
 
                 state.scrollToItem(index = newItem)
             }
         }
     }
 
-    LaunchedEffect(state.firstVisibleItemIndex, totalItemsCount) {
+    val thumbShape = remember(orientation, alignment, thumbNotchWidth) {
+        object : Shape {
 
-        if (isBarDragging) return@LaunchedEffect
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ): Outline {
 
-        barPositionY = when {
+                val diameter = min(size.width, size.height)
+                val notchPx = with(density) { thumbNotchWidth.toPx() }
 
-            scrollableItemsCount > 0 -> (scrollRatio * maximumBarY).coerceIn(0F, maximumBarY)
-            else -> 0F
+                val circlePath = AndroidPath().apply {
+
+                    addOval(Rect(0F, 0F, diameter, diameter))
+                }
+
+                val notchRect = when (orientation) {
+
+                    Orientation.Vertical -> when (alignment) {
+
+                        Alignment.CenterStart, Alignment.TopStart, Alignment.BottomStart -> {
+                            Rect(0F, 0F, notchPx, diameter)
+                        }
+
+                        else -> Rect(diameter - notchPx, 0F, diameter, diameter)
+                    }
+
+                    Orientation.Horizontal -> when (alignment) {
+
+                        Alignment.TopCenter, Alignment.TopStart, Alignment.TopEnd -> {
+                            Rect(0F, 0F, diameter, notchPx)
+                        }
+
+                        else -> Rect(0F, diameter - notchPx, diameter, diameter)
+                    }
+                }
+
+                val notchPath = AndroidPath().apply {
+
+                    addRect(notchRect)
+                }
+
+                val notchedCirclePath = Path().apply {
+
+                    op(circlePath, notchPath, PathOperation.Difference)
+                }
+
+                return Outline.Generic(notchedCirclePath)
+            }
         }
     }
 
-    Row(
-        modifier = modifier
-            .offset { IntOffset(x = 8.dp.toPx().roundToInt(), y = barPositionY.roundToInt()) }
-            .onSizeChanged { size ->
+    LaunchedEffect(firstVisibleItemIndex, totalItemsCount, maximumBarPosition) {
 
-                barHeight = size.height.toFloat()
-            },
-        horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        if (isBarDragging) return@LaunchedEffect
+
+        barPosition = (scrollRatio * maximumBarPosition).coerceIn(0F, maximumBarPosition)
+    }
+
+    LaunchedEffect(state, isBarDragging) {
+
+        snapshotFlow {
+            state.isScrollInProgress || isBarDragging
+        }.debounce(timeout = 250.milliseconds).distinctUntilChanged().collectLatest { isVisible ->
+
+            if (isVisible) scrollBarVisibleState.targetState = true else {
+
+                delay(duration = 750.milliseconds)
+                scrollBarVisibleState.targetState = false
+            }
+        }
+    }
+
+    AnimatedVisibility(
+        modifier = Modifier.align(alignment = alignment),
+        visibleState = scrollBarVisibleState,
+        enter = when (orientation) {
+
+            Orientation.Vertical -> when (alignment) {
+
+                Alignment.CenterStart, Alignment.TopStart, Alignment.BottomStart -> {
+                    slideInHorizontally { -it }
+                }
+
+                else -> slideInHorizontally { it }
+            }
+
+            Orientation.Horizontal -> when (alignment) {
+
+                Alignment.TopCenter, Alignment.TopStart, Alignment.TopEnd -> {
+                    slideInVertically { -it }
+                }
+
+                else -> slideInVertically { it }
+            }
+        },
+        exit = when (orientation) {
+
+            Orientation.Vertical -> when (alignment) {
+
+                Alignment.CenterStart, Alignment.TopStart, Alignment.BottomStart -> {
+                    slideOutHorizontally { -it }
+                }
+
+                else -> slideOutHorizontally { it }
+            }
+
+            Orientation.Horizontal -> when (alignment) {
+
+                Alignment.TopCenter, Alignment.TopStart, Alignment.TopEnd -> {
+                    slideOutVertically { -it }
+                }
+
+                else -> slideOutVertically { it }
+            }
+        }
     ) {
 
-        Box(
-            modifier = Modifier
-                .background(color = thumbColor, shape = CircleShape)
-                .padding(horizontal = 6.dp, vertical = 4.dp),
-            contentAlignment = Alignment.Center
-        ) {
+        val barModifier = modifier
+            .offset { barPositionOffset }
+            .onSizeChanged { size ->
 
-            label(firstVisibleItemIndex)
+                barSize = when (orientation) {
+
+                    Orientation.Vertical -> size.height.toFloat()
+                    Orientation.Horizontal -> size.width.toFloat()
+                }
+            }
+
+        val thumbContent = @Composable {
+
+            Box(
+                modifier = Modifier
+                    .clip(shape = thumbShape)
+                    .background(color = thumbColor, shape = thumbShape)
+                    .padding(horizontal = 10.dp, vertical = 10.dp)
+                    .draggable(
+                        state = barDraggableState,
+                        orientation = orientation,
+                        onDragStarted = { isBarDragging = true },
+                        onDragStopped = { isBarDragging = false }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+
+                thumb()
+            }
         }
 
-        Box(
-            modifier = Modifier
-                .background(color = thumbColor, shape = CircleShape)
-                .padding(horizontal = 8.dp, vertical = 8.dp)
-                .draggable(
-                    state = barDraggableState,
-                    orientation = Orientation.Vertical,
-                    onDragStarted = { isBarDragging = true },
-                    onDragStopped = { isBarDragging = false }
-                ),
-            contentAlignment = Alignment.Center
-        ) {
+        val labelContent = @Composable {
 
-            thumb()
+            Box(
+                modifier = Modifier
+                    .background(color = thumbColor, shape = CircleShape)
+                    .padding(horizontal = 6.dp, vertical = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+
+                label(firstVisibleItemIndex)
+            }
+        }
+
+        when (orientation) {
+
+            Orientation.Vertical -> Row(
+                modifier = barModifier,
+                horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                when (alignment) {
+
+                    Alignment.CenterStart, Alignment.TopStart, Alignment.BottomStart -> {
+
+                        thumbContent()
+                        labelContent()
+                    }
+
+                    else -> {
+
+                        labelContent()
+                        thumbContent()
+                    }
+                }
+            }
+
+            Orientation.Horizontal -> Column(
+                modifier = barModifier,
+                verticalArrangement = Arrangement.spacedBy(space = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                when (alignment) {
+
+                    Alignment.TopCenter, Alignment.TopStart, Alignment.TopEnd -> {
+
+                        thumbContent()
+                        labelContent()
+                    }
+
+                    else -> {
+
+                        labelContent()
+                        thumbContent()
+                    }
+                }
+            }
         }
     }
 }
