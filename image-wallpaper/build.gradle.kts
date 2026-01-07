@@ -77,6 +77,9 @@ dependencies {
     //  ICON            :
     implementation(libs.androidx.material.icons.extended)
 
+    //  SHAPES          :
+    implementation(libs.androidx.graphics.shapes)
+
     //  KOTLINX         :
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.collections.immutable)
