@@ -1,7 +1,7 @@
 package io.bashpsk.emptylibs.pdfviewer.pdf
 
-import android.graphics.Bitmap
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.ImageBitmap
 
 /**
  * Represents the data for a single page in a PDF document.
@@ -16,5 +16,5 @@ internal data class PdfPageData(
     val page: Int = 0,
     val width: Int = 0,
     val height: Int = 0,
-    val bitmap: Bitmap? = null
+    val bitmap: ImageBitmap? = null
 )

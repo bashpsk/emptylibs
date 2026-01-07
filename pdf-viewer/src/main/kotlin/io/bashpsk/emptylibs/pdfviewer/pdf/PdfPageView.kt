@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.pdfviewer.pdf
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -20,7 +20,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.unit.round
@@ -47,12 +48,14 @@ internal fun PdfPageView(
     modifier: Modifier = Modifier,
     state: PdfLazyColumnState,
     pageData: PdfPageData = PdfPageData(),
-    isScrolling: Boolean = false
+    isScrolling: Boolean = false,
+    placeholder: Color = MaterialTheme.colorScheme.surface,
+    colorFilter: ColorFilter? = null
 ) {
 
-    var highQualityBitmap by retain { mutableStateOf<Bitmap?>(null) }
+    var highQualityBitmap by retain { mutableStateOf<ImageBitmap?>(null) }
 
-    val bitmap by remember(highQualityBitmap, pageData) {
+    val imageBitmap by remember(highQualityBitmap, pageData) {
         derivedStateOf { highQualityBitmap ?: pageData.bitmap }
     }
 
@@ -95,7 +98,7 @@ internal fun PdfPageView(
         }
     }
 
-    bitmap?.asImageBitmap()?.let { imageBitmap ->
+    imageBitmap?.let { bitmap ->
 
         ZoomableLayout(
             modifier = modifier
@@ -109,8 +112,9 @@ internal fun PdfPageView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(aspectRatio),
-                bitmap = imageBitmap,
+                bitmap = bitmap,
                 contentScale = ContentScale.Fit,
+                colorFilter = colorFilter,
                 contentDescription = "Page ${pageData.page}"
             )
         }
@@ -120,7 +124,7 @@ internal fun PdfPageView(
             modifier = modifier
                 .fillMaxWidth()
                 .aspectRatio(ratio = aspectRatio)
-                .background(Color.White)
+                .background(color = placeholder)
                 .then(firstVisibleModifier),
             contentAlignment = Alignment.Center
         ) {

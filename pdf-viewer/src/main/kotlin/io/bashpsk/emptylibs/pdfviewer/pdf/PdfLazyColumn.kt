@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,8 @@ fun PdfLazyColumn(
     state: PdfLazyColumnState,
     pageSpace: Dp = 4.dp,
     scrollBarAlignment: Alignment = Alignment.TopEnd,
+    colorFilter: ColorFilter? = null,
+    placeholder: Color = MaterialTheme.colorScheme.surface,
     onClick: (offset: Offset) -> Unit = {},
     content: @Composable @UiComposable BoxWithConstraintsScope.() -> Unit = {},
 ) {
@@ -105,7 +109,9 @@ fun PdfLazyColumn(
                     modifier = Modifier,
                     state = state,
                     pageData = pageData,
-                    isScrolling = isScrolling
+                    isScrolling = isScrolling,
+                    placeholder = placeholder,
+                    colorFilter = colorFilter
                 )
             }
         }
@@ -121,7 +127,7 @@ fun PdfLazyColumn(
                     derivedStateOf {
                         when (visibleItemsCount) {
 
-                            1 -> "${index + 1}/$pageCount"
+                            0, 1 -> "${index + 1}/$pageCount"
                             else -> "${index + 1}-${index + visibleItemsCount}/$pageCount"
                         }
                     }

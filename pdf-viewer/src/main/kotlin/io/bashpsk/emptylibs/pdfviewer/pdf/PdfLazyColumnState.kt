@@ -1,7 +1,6 @@
 package io.bashpsk.emptylibs.pdfviewer.pdf
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
@@ -18,6 +17,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.createBitmap
@@ -212,7 +213,7 @@ class PdfLazyColumnState(
      * @param pageIndex The index of the page.
      * @return The high-quality bitmap, or null if it's not available.
      */
-    internal suspend fun getHighQualityBitmap(pageIndex: Int): Bitmap? {
+    internal suspend fun getHighQualityBitmap(pageIndex: Int): ImageBitmap? {
 
         return coroutineScope.async(context = Dispatchers.IO) {
 
@@ -329,7 +330,7 @@ class PdfLazyColumnState(
         renderer: PdfRenderer,
         pageIndex: Int,
         targetWidth: Int
-    ): Bitmap? = withContext(context = Dispatchers.IO) {
+    ): ImageBitmap? = withContext(context = Dispatchers.IO) {
 
         return@withContext renderer.openPage(pageIndex).use { currentPage ->
 
@@ -346,7 +347,7 @@ class PdfLazyColumnState(
             }
 
             currentPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-            bitmap
+            bitmap.asImageBitmap()
         }
     }
 

@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import io.bashpsk.emptylibs.imagekolor.filter.ImageFilterType
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumn
 import io.bashpsk.emptylibs.pdfviewer.pdf.rememberPdfLazyColumnState
 
@@ -55,7 +56,8 @@ fun PdfViewerScreen() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                state = rememberPdfLazyColumnState(uri = uri)
+                state = rememberPdfLazyColumnState(uri = uri),
+                colorFilter = ImageFilterType.Invert.colorFilter
             )
         }
     }
