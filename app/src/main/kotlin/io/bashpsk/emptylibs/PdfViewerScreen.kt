@@ -29,7 +29,7 @@ import java.io.File
 @Composable
 fun PdfViewerScreen() {
 
-    val fileCoroutineScope= rememberCoroutineScope()
+    val fileCoroutineScope = rememberCoroutineScope()
 
     var pdfSource by remember { mutableStateOf<PdfSource>(PdfSource.Empty) }
 

@@ -150,6 +150,16 @@ class PdfLazyColumnState(
      */
     internal var containerHeight by mutableIntStateOf(0)
 
+    /**
+     * Sets the PDF source to be loaded.
+     *
+     * This function cancels any previous loading job, closes the current PDF, and then starts a new
+     * coroutine to load the PDF from the given source. The PDF is loaded in the IO dispatcher.
+     * After loading, the [pageDataList] is populated with the data of each page.
+     *
+     * @param source The [PdfSource] to load.
+     * It can be a [PdfSource.URI], [PdfSource.Path], or [PdfSource.Empty].
+     */
     internal fun setLoadPdfSource(source: PdfSource) {
 
         fileLoadJob?.cancel()

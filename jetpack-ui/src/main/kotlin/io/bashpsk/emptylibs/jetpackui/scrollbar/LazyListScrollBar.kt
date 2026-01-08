@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlin.math.min
@@ -108,18 +107,38 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
 
     val firstVisibleItemIndex by remember { derivedStateOf { state.firstVisibleItemIndex } }
     val totalItemsCount by remember { derivedStateOf { state.layoutInfo.totalItemsCount } }
+    val visibleItemsInfo by remember { derivedStateOf { state.layoutInfo.visibleItemsInfo } }
+    val viewportStartOffset by remember { derivedStateOf { state.layoutInfo.viewportStartOffset } }
+    val viewportEndOffset by remember { derivedStateOf { state.layoutInfo.viewportEndOffset } }
+    val firstItemScrollOffset by remember { derivedStateOf { state.firstVisibleItemScrollOffset } }
 
-    val scrollableItemsCount by remember(totalItemsCount) {
+    val scrollRatio by remember(
+        totalItemsCount,
+        viewportStartOffset,
+        viewportEndOffset,
+        visibleItemsInfo
+    ) {
         derivedStateOf {
-            (totalItemsCount - state.layoutInfo.visibleItemsInfo.size).coerceAtLeast(0)
-        }
-    }
+            when {
 
-    val scrollRatio by remember(scrollableItemsCount, firstVisibleItemIndex) {
-        derivedStateOf {
-            if (scrollableItemsCount > 0) {
-                firstVisibleItemIndex.toFloat() / scrollableItemsCount
-            } else 0F
+                visibleItemsInfo.isEmpty() || totalItemsCount == 0 -> 0F
+
+                else -> {
+
+                    val firstVisibleItem = visibleItemsInfo.first()
+                    val totalItemsSize = totalItemsCount * (firstVisibleItem.size.toFloat() / 1)
+                    val viewportSize = viewportEndOffset - viewportStartOffset
+
+                    (totalItemsSize - viewportSize).coerceAtLeast(0F).takeIf { scrollableDistance ->
+
+                        scrollableDistance > 0
+                    }?.let { distance ->
+
+                        (((firstVisibleItem.index * firstVisibleItem.size) + firstItemScrollOffset)
+                                / distance).coerceIn(0F, 1F)
+                    } ?: 0F
+                }
+            }
         }
     }
 
@@ -173,10 +192,15 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
 
             listCoroutineScope.launch {
 
-                val newItem = (scrollableItemsCount * (barPosition / maximumBarPosition))
-                    .roundToInt()
+                val totalItemsSize = totalItemsCount * visibleItemsInfo.first().size
+                val viewportSize = viewportEndOffset - viewportStartOffset
+                val scrollableDistance = (totalItemsSize - viewportSize).coerceAtLeast(0)
+                val scrollPosition = scrollableDistance * (barPosition / maximumBarPosition)
+                val itemSize = visibleItemsInfo.firstOrNull()?.size ?: 1
+                val newItem = (scrollPosition / itemSize).toInt().coerceIn(0..<totalItemsCount)
+                val targetOffset = (scrollPosition % itemSize).toInt()
 
-                state.scrollToItem(index = newItem)
+                state.scrollToItem(index = newItem, scrollOffset = targetOffset)
             }
         }
     }
@@ -234,7 +258,7 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
         }
     }
 
-    LaunchedEffect(firstVisibleItemIndex, totalItemsCount, maximumBarPosition) {
+    LaunchedEffect(scrollRatio, maximumBarPosition) {
 
         if (isBarDragging) return@LaunchedEffect
 
@@ -245,13 +269,15 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
 
         snapshotFlow {
             state.isScrollInProgress || isBarDragging
-        }.debounce(timeout = 250.milliseconds).distinctUntilChanged().collectLatest { isVisible ->
+        }.distinctUntilChanged().collectLatest { isVisible ->
 
-            if (isVisible) scrollBarVisibleState.targetState = true else {
+            when (isVisible) {
 
-                delay(duration = 750.milliseconds)
-                scrollBarVisibleState.targetState = false
+                true -> delay(duration = 10.milliseconds)
+                else -> delay(duration = 750.milliseconds)
             }
+
+            scrollBarVisibleState.targetState = isVisible
         }
     }
 
