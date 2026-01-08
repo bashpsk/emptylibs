@@ -1,0 +1,30 @@
+package io.bashpsk.emptylibs.pdfviewer.pdf
+
+import android.net.Uri
+import androidx.compose.runtime.Stable
+
+/**
+ * Represents the source of a PDF file.
+ */
+@Stable
+sealed interface PdfSource {
+
+    /**
+     * Represents an empty PDF source.
+     */
+    data object Empty : PdfSource
+
+    /**
+     * Represents a PDF source from a [Uri].
+     *
+     * @param uri The URI of the PDF file.
+     */
+    data class URI(val uri: Uri?) : PdfSource
+
+    /**
+     * Represents a PDF source from a file path.
+     *
+     * @param path The path to the PDF file.
+     */
+    data class Path(val path: String?) : PdfSource
+}

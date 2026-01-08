@@ -1,6 +1,6 @@
 package io.bashpsk.emptylibs
 
-import android.net.Uri
+import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -14,31 +14,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.bashpsk.emptylibs.imagekolor.filter.ImageFilterType
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumn
+import io.bashpsk.emptylibs.pdfviewer.pdf.PdfSource
 import io.bashpsk.emptylibs.pdfviewer.pdf.rememberPdfLazyColumnState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun PdfViewerScreen() {
 
-    var uri by remember { mutableStateOf<Uri?>(null) }
+    val fileCoroutineScope= rememberCoroutineScope()
+
+    var pdfSource by remember { mutableStateOf<PdfSource>(PdfSource.Empty) }
 
     val pdfPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { resultUri ->
 
-            if (resultUri != null) uri = resultUri
+            if (resultUri != null) pdfSource = PdfSource.URI(resultUri)
         }
     )
 
     Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
 
-        when (uri) {
+        when (pdfSource) {
 
-            null -> Column(
+            PdfSource.Empty -> Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
@@ -48,7 +55,27 @@ fun PdfViewerScreen() {
 
                 Button(onClick = { pdfPicker.launch("application/pdf") }) {
 
-                    Text(text = "Pick PDF")
+                    Text(text = "Pick PDF Uri")
+                }
+
+                Button(
+                    onClick = {
+
+                        fileCoroutineScope.launch(context = Dispatchers.IO) {
+
+                            val pdfFile = File(
+                                Environment.getExternalStoragePublicDirectory(
+                                    Environment.DIRECTORY_DOWNLOADS
+                                ),
+                                "Empty Libs.pdf"
+                            )
+
+                            pdfSource = PdfSource.Path(pdfFile.path)
+                        }
+                    }
+                ) {
+
+                    Text(text = "Pick PDF Path")
                 }
             }
 
@@ -56,7 +83,7 @@ fun PdfViewerScreen() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                state = rememberPdfLazyColumnState(uri = uri),
+                state = rememberPdfLazyColumnState(source = pdfSource),
                 colorFilter = ImageFilterType.Invert.colorFilter
             )
         }

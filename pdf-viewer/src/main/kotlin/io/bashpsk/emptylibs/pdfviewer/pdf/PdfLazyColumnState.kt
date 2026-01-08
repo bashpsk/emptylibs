@@ -3,7 +3,6 @@ package io.bashpsk.emptylibs.pdfviewer.pdf
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.pdf.PdfRenderer
-import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.compose.runtime.Composable
@@ -38,11 +37,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * Creates and remembers a [PdfLazyColumnState] instance.
  *
- * @param uri The URI of the PDF file.
+ * @param source The source of the PDF file.
  * @param cacheSize The size of the bitmap cache.
  * @param enableZoom Whether to enable zoom gestures.
  * @param enableDoubleTapZoom Whether to enable double-tap to zoom.
@@ -51,7 +51,7 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun rememberPdfLazyColumnState(
-    uri: Uri?,
+    source: PdfSource,
     cacheSize: Int = 10,
     enableZoom: Boolean = true,
     enableDoubleTapZoom: Boolean = true,
@@ -77,9 +77,9 @@ fun rememberPdfLazyColumnState(
         )
     }
 
-    LaunchedEffect(uri) {
+    LaunchedEffect(source) {
 
-        uri?.let { state.loadPdfFile(it) }
+        state.setLoadPdfSource(source = source)
     }
 
     LaunchedEffect(cacheSize) {
@@ -150,23 +150,33 @@ class PdfLazyColumnState(
      */
     internal var containerHeight by mutableIntStateOf(0)
 
-    /**
-     * Loads a PDF file from a URI.
-     *
-     * @param uri The URI of the PDF file.
-     */
-    internal fun loadPdfFile(uri: Uri) {
+    internal fun setLoadPdfSource(source: PdfSource) {
 
         fileLoadJob?.cancel()
         close()
 
-        fileLoadJob = coroutineScope.launch {
+        fileLoadJob = coroutineScope.launch(context = Dispatchers.IO) {
 
             mutex.withLock {
 
                 try {
 
-                    fileDescriptor = context.contentResolver.openFileDescriptor(uri, "r")
+                    fileDescriptor = when (source) {
+
+                        is PdfSource.Empty -> null
+
+                        is PdfSource.URI -> source.uri?.let { uri ->
+                            context.contentResolver.openFileDescriptor(uri, "r")
+                        }
+
+                        is PdfSource.Path -> source.path?.let { path ->
+                            ParcelFileDescriptor.open(
+                                File(path),
+                                ParcelFileDescriptor.MODE_READ_ONLY
+                            )
+                        }
+                    }
+
                     pdfRenderer = fileDescriptor?.let { descriptor -> PdfRenderer(descriptor) }
 
                     val renderer = pdfRenderer ?: return@withLock
