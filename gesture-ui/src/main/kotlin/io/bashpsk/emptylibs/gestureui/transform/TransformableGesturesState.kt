@@ -22,7 +22,7 @@ import androidx.compose.ui.geometry.center
  * @param enableDoubleTapZoom Whether to enable double-tap to zoom. Defaults to true.
  * @param enablePan Whether to enable pan gestures. Defaults to true.
  * @param enableRotation Whether to enable rotation gestures. Defaults to false.
- * @param zoomRange The allowed range for zoom levels. Defaults to 0.4F..8.0F.
+ * @param zoomRange The allowed range for zoom levels. Defaults to 0.5F..4.0F.
  * @return A new [TransformableGesturesState] instance.
  */
 @Composable
@@ -32,7 +32,7 @@ fun rememberTransformableGesturesState(
     enableDoubleTapZoom: Boolean = true,
     enablePan: Boolean = true,
     enableRotation: Boolean = false,
-    zoomRange: ClosedFloatingPointRange<Float> = 0.4F..8.0F
+    zoomRange: ClosedFloatingPointRange<Float> = 0.5F..4.0F
 ): TransformableGesturesState {
 
     val state = retain(initialZoom, zoomRange) {
@@ -151,12 +151,14 @@ class TransformableGesturesState(
 
         if (enableDoubleTapZoom) {
 
-            val newZoom = when (zoom) {
+            val intermediateZoom = zoomRange.endInclusive / 2
 
-                in 0.80F..1.40F -> 2.0F
-                in 1.80F..2.40F -> 3.0F
-                in 2.80F..3.40F -> 4.0F
-                else -> 1.0F
+            val newZoom = when {
+
+                zoom < initialZoom -> initialZoom
+                zoom < intermediateZoom -> intermediateZoom
+                zoom < zoomRange.endInclusive -> zoomRange.endInclusive
+                else -> initialZoom
             }.coerceIn(range = zoomRange)
 
             if (newZoom > 1.0F) {

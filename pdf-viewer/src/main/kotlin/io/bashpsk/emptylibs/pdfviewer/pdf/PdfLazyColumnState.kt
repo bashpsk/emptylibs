@@ -55,7 +55,7 @@ fun rememberPdfLazyColumnState(
     cacheSize: Int = 10,
     enableZoom: Boolean = true,
     enableDoubleTapZoom: Boolean = true,
-    zoomRange: ClosedFloatingPointRange<Float> = 0.4F..8.0F
+    zoomRange: ClosedFloatingPointRange<Float> = 0.5F..6.0F
 ): PdfLazyColumnState {
 
     val context = LocalContext.current

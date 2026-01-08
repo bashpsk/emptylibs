@@ -89,7 +89,7 @@ internal fun PdfPageView(
         snapshotFlow {
 
             state.transformableState.zoom
-        }.debounce(timeout = 500.milliseconds).distinctUntilChanged().collectLatest {
+        }.debounce(timeout = 200.milliseconds).distinctUntilChanged().collectLatest {
 
             if (isScrolling.not()) state.coroutineScope.launch(context = Dispatchers.IO) {
 
