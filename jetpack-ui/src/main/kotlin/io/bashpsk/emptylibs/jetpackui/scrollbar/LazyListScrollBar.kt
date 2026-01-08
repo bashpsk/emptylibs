@@ -89,12 +89,12 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
         Orientation.Horizontal -> Alignment.BottomStart
     },
     thumbColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    thumbNotchWidth: Dp = 8.dp,
+    thumbNotchWidth: Dp = 12.dp,
     crossinline label: @Composable (index: Int) -> Unit = {},
     crossinline thumb: @Composable () -> Unit = {
 
         Icon(
-            modifier = Modifier.size(size = 24.dp),
+            modifier = Modifier.size(size = 28.dp),
             imageVector = Icons.Filled.DragIndicator,
             contentDescription = "Drag Indicator"
         )
@@ -343,7 +343,7 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
                 modifier = Modifier
                     .clip(shape = thumbShape)
                     .background(color = thumbColor, shape = thumbShape)
-                    .padding(horizontal = 10.dp, vertical = 10.dp)
+                    .padding(horizontal = 12.dp, vertical = 12.dp)
                     .draggable(
                         state = barDraggableState,
                         orientation = orientation,
