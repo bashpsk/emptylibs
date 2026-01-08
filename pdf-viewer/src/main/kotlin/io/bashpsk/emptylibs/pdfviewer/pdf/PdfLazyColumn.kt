@@ -62,13 +62,13 @@ fun PdfLazyColumn(
         derivedStateOf { pdfLazyListState.layoutInfo.visibleItemsInfo.size }
     }
 
-    val isScrollEnabled by remember(state.transformableState) {
-        derivedStateOf { state.transformableState.touchCount == 1 }
+    val isScrollEnabled by remember(state.transformable) {
+        derivedStateOf { state.transformable.touchCount == 1 }
     }
 
     BoxWithConstraints(
         modifier = modifier.transformableGestures(
-            state = state.transformableState,
+            state = state.transformable,
             onClick = onClick,
             onLongClick = {}
         ),
@@ -81,14 +81,6 @@ fun PdfLazyColumn(
 
                 containerWidth = constraints.maxWidth
                 containerHeight = constraints.maxHeight
-            }
-        }
-
-        LaunchedEffect(constraints.maxWidth, pageCount) {
-
-            for (page in 0 until pageCount) {
-
-                state.setRenderLowQuality(pageIndex = page)
             }
         }
 

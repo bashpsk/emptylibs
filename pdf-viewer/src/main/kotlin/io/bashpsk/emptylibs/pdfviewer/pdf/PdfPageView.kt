@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.unit.round
+import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -55,24 +56,32 @@ internal fun PdfPageView(
     colorFilter: ColorFilter? = null
 ) {
 
-    var highQualityBitmap by retain { mutableStateOf<ImageBitmap?>(null) }
+    var scaledBitmap by retain { mutableStateOf<ImageBitmap?>(null) }
 
-    val imageBitmap by remember(highQualityBitmap, pageData) {
-        derivedStateOf { highQualityBitmap ?: pageData.bitmap }
+    val isImageZoomed by remember(state.transformable) {
+        derivedStateOf { state.hasImageZoomed() }
+    }
+
+    val imageBitmap by remember(pageData, isImageZoomed, scaledBitmap) {
+        derivedStateOf { scaledBitmap.takeIf { isImageZoomed } ?: pageData.bitmap }
     }
 
     val aspectRatio by remember(pageData) {
         derivedStateOf {
             when (pageData.width > 0 && pageData.height > 0) {
 
-                true -> pageData.width.toFloat() / pageData.height.toFloat()
+                true -> EmptyFormat.findAspectRatio(
+                    width = pageData.width,
+                    height = pageData.height
+                )
+
                 false -> 1F / 1.41F
             }
         }
     }
 
-    val layoutPosition by remember(state.transformableState) {
-        derivedStateOf { state.transformableState.position.round().copy(y = 0) }
+    val layoutPosition by remember(state.transformable) {
+        derivedStateOf { state.transformable.position.round().copy(y = 0) }
     }
 
     val firstVisibleModifier = Modifier.onFirstVisible(
@@ -82,20 +91,20 @@ internal fun PdfPageView(
 
         state.coroutineScope.launch(context = Dispatchers.IO) {
 
-            highQualityBitmap = state.getHighQualityBitmap(pageIndex = pageData.page)
+            state.setRenderNormalBitmap(pageIndex = pageData.page)
         }
     }
 
-    LaunchedEffect(state.transformableState) {
+    LaunchedEffect(state.transformable, isScrolling, isImageZoomed) {
 
         snapshotFlow {
 
-            state.transformableState.zoom
-        }.debounce(timeout = 200.milliseconds).distinctUntilChanged().collectLatest {
+            state.transformable.zoom
+        }.debounce(200.milliseconds).distinctUntilChanged().collectLatest {
 
-            if (isScrolling.not()) state.coroutineScope.launch(context = Dispatchers.IO) {
+            if (isScrolling.not() && isImageZoomed) state.coroutineScope.launch(Dispatchers.IO) {
 
-                highQualityBitmap = state.getHighQualityBitmap(pageIndex = pageData.page)
+                scaledBitmap = state.getScaledImageBitmap(pageIndex = pageData.page)
             }
         }
     }
@@ -107,7 +116,7 @@ internal fun PdfPageView(
                 .fillMaxWidth()
                 .then(firstVisibleModifier)
                 .offset { layoutPosition },
-            zoomScale = state.transformableState.zoom
+            zoomScale = state.transformable.zoom
         ) {
 
             Image(

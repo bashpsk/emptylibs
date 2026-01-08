@@ -13,8 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +31,7 @@ fun PdfViewerScreen() {
 
     val fileCoroutineScope = rememberCoroutineScope()
 
-    var pdfSource by remember { mutableStateOf<PdfSource>(PdfSource.Empty) }
+    var pdfSource by retain { mutableStateOf<PdfSource>(PdfSource.Empty) }
 
     val pdfPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -84,7 +84,7 @@ fun PdfViewerScreen() {
                     .fillMaxSize()
                     .padding(paddingValues),
                 state = rememberPdfLazyColumnState(source = pdfSource),
-                colorFilter = ImageFilterType.Original.colorFilter
+                colorFilter = ImageFilterType.Invert.colorFilter
             )
         }
     }
