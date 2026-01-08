@@ -3,6 +3,7 @@ package io.bashpsk.emptylibs.imagekrop.offset
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import io.bashpsk.emptylibs.composeutils.offset.hasNeared
 import io.bashpsk.emptylibs.imagekrop.crop.KropCorner
 
 /**
@@ -140,20 +141,6 @@ internal fun Offset.toLeftCenter(size: Size): Offset {
 internal fun Offset.toRightCenter(size: Size): Offset {
 
     return Offset(x = x + size.width, y = y + size.height / 2)
-}
-
-/**
- * Checks if this offset has neared another offset within a specified threshold.
- *
- * @param point The other offset to compare with.
- * @param threshold The maximum distance allowed for the offsets to be considered "neared".
- * Defaults to 24.0F.
- * @return `true` if the distance between this offset and the given point is less than or equal
- * to the threshold, `false` otherwise.
- */
-internal fun Offset.hasNeared(point: Offset, threshold: Float = 24.0F): Boolean {
-
-    return (this - point).getDistance() <= threshold
 }
 
 /**

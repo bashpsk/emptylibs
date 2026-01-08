@@ -97,7 +97,7 @@ fun PdfLazyColumn(
             state = pdfLazyListState,
             userScrollEnabled = isScrollEnabled,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(pageSpace),
+            verticalArrangement = Arrangement.spacedBy(space = pageSpace)
         ) {
 
             items(

@@ -41,6 +41,8 @@ import kotlin.time.Duration.Companion.milliseconds
  * @param state The state of the PDF viewer.
  * @param pageData The data for the page to be displayed.
  * @param isScrolling Whether the user is currently scrolling.
+ * @param placeholder The color to use for the placeholder.
+ * @param colorFilter The color filter to apply to the image.
  */
 @OptIn(FlowPreview::class)
 @Composable
@@ -111,11 +113,11 @@ internal fun PdfPageView(
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(aspectRatio),
+                    .aspectRatio(ratio = aspectRatio),
                 bitmap = bitmap,
                 contentScale = ContentScale.Fit,
                 colorFilter = colorFilter,
-                contentDescription = "Page ${pageData.page}"
+                contentDescription = "Page ${pageData.page + 1}"
             )
         }
     } ?: run {

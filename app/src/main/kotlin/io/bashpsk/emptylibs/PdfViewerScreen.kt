@@ -84,7 +84,7 @@ fun PdfViewerScreen() {
                     .fillMaxSize()
                     .padding(paddingValues),
                 state = rememberPdfLazyColumnState(source = pdfSource),
-                colorFilter = ImageFilterType.Invert.colorFilter
+                colorFilter = ImageFilterType.Original.colorFilter
             )
         }
     }

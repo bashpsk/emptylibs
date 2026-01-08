@@ -22,7 +22,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.canvasslate.extension.hasNeared
+import io.bashpsk.emptylibs.composeutils.offset.hasNeared
 import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.composeutils.size.SizeData
 import io.bashpsk.emptylibs.composeutils.size.toSizeData
