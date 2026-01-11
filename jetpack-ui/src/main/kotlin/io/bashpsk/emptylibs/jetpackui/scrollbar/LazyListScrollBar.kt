@@ -123,21 +123,20 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
 
                 visibleItemsInfo.isEmpty() || totalItemsCount == 0 -> 0F
 
-                else -> {
+                else -> visibleItemsInfo.firstOrNull()?.let { firstVisibleItem ->
 
-                    val firstVisibleItem = visibleItemsInfo.first()
-                    val totalItemsSize = totalItemsCount * (firstVisibleItem.size.toFloat() / 1)
+                    val totalItemsSize = totalItemsCount * firstVisibleItem.size.toFloat()
                     val viewportSize = viewportEndOffset - viewportStartOffset
 
-                    (totalItemsSize - viewportSize).coerceAtLeast(0F).takeIf { scrollableDistance ->
+                    (totalItemsSize - viewportSize).coerceAtLeast(0F).takeIf { distance ->
 
-                        scrollableDistance > 0
+                        distance > 0
                     }?.let { distance ->
 
-                        (((firstVisibleItem.index * firstVisibleItem.size) + firstItemScrollOffset)
-                                / distance).coerceIn(0F, 1F)
+                        (((firstVisibleItem.index * firstVisibleItem.size)
+                                + firstItemScrollOffset) / distance).coerceIn(0F, 1F)
                     } ?: 0F
-                }
+                } ?: 0F
             }
         }
     }
@@ -192,12 +191,14 @@ inline fun BoxWithConstraintsScope.LazyListScrollBar(
 
             listCoroutineScope.launch {
 
-                val totalItemsSize = totalItemsCount * visibleItemsInfo.first().size
+                val itemSize = visibleItemsInfo.firstOrNull()?.size ?: 1
+                val totalItemsSize = totalItemsCount * itemSize
                 val viewportSize = viewportEndOffset - viewportStartOffset
                 val scrollableDistance = (totalItemsSize - viewportSize).coerceAtLeast(0)
                 val scrollPosition = scrollableDistance * (barPosition / maximumBarPosition)
-                val itemSize = visibleItemsInfo.firstOrNull()?.size ?: 1
-                val newItem = (scrollPosition / itemSize).toInt().coerceIn(0..<totalItemsCount)
+                val newItem = (scrollPosition / itemSize).toInt().coerceIn(
+                    0 until if (totalItemsCount <= 0) 1 else totalItemsCount
+                )
                 val targetOffset = (scrollPosition % itemSize).toInt()
 
                 state.scrollToItem(index = newItem, scrollOffset = targetOffset)
