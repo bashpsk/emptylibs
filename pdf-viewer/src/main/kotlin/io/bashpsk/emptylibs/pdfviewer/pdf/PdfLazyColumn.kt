@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
 import io.bashpsk.emptylibs.jetpackui.scrollbar.LazyListScrollBar
+import io.bashpsk.emptylibs.pdfviewer.page.PdfPageView
+import io.bashpsk.emptylibs.pdfviewer.utils.setDebug
 import kotlinx.collections.immutable.toImmutableList
 
 /**
@@ -36,6 +38,9 @@ import kotlinx.collections.immutable.toImmutableList
  * @param state The state of the PDF viewer.
  * @param pageSpace The space between pages.
  * @param scrollBarAlignment The alignment of the scrollbar.
+ * @param colorFilter The color filter to apply to the image.
+ * @param placeholder The color to use for the placeholder.
+ * @param properties The properties for the PDF viewer.
  * @param onClick A callback that is invoked when the user clicks on the PDF.
  * @param content A slot for composable content to be displayed on top of the PDF.
  */
@@ -47,6 +52,7 @@ fun PdfLazyColumn(
     scrollBarAlignment: Alignment = Alignment.TopEnd,
     colorFilter: ColorFilter? = null,
     placeholder: Color = MaterialTheme.colorScheme.surface,
+    properties: PdfLazyColumnProperties = PdfLazyColumnDefaults.properties(),
     onClick: (offset: Offset) -> Unit = {},
     content: @Composable @UiComposable BoxWithConstraintsScope.() -> Unit = {},
 ) {
@@ -65,6 +71,11 @@ fun PdfLazyColumn(
 
     val isScrollEnabled by remember(state.transformable) {
         derivedStateOf { state.transformable.touchCount == 1 }
+    }
+
+    LaunchedEffect(pageDataList) {
+
+        "${pageDataList.firstOrNull()}".setDebug()
     }
 
     BoxWithConstraints(
@@ -106,7 +117,8 @@ fun PdfLazyColumn(
                     pageData = pageData,
                     isScrolling = isScrolling,
                     placeholder = placeholder,
-                    colorFilter = colorFilter
+                    colorFilter = colorFilter,
+                    properties = properties
                 )
             }
         }

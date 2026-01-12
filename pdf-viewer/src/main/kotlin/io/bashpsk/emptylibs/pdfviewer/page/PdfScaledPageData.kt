@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.pdfviewer.pdf
+package io.bashpsk.emptylibs.pdfviewer.page
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.ImageBitmap
@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.ImageBitmap
  * @property bitmap A high-quality bitmap representation of the page.
  */
 @Immutable
-internal data class PdfQualityPageData(
+internal data class PdfScaledPageData(
     val page: Int = 0,
     val quality: Float = 1.0F,
     val bitmap: ImageBitmap? = null

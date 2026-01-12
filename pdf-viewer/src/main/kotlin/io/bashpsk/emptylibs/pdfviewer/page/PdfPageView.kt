@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.pdfviewer.pdf
+package io.bashpsk.emptylibs.pdfviewer.page
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
@@ -27,6 +28,9 @@ import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.unit.round
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
+import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnDefaults
+import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnProperties
+import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
@@ -44,6 +48,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * @param isScrolling Whether the user is currently scrolling.
  * @param placeholder The color to use for the placeholder.
  * @param colorFilter The color filter to apply to the image.
+ * @param properties The properties for the PDF viewer.
  */
 @OptIn(FlowPreview::class)
 @Composable
@@ -53,7 +58,8 @@ internal fun PdfPageView(
     pageData: PdfPageData = PdfPageData(),
     isScrolling: Boolean = false,
     placeholder: Color = MaterialTheme.colorScheme.surfaceVariant,
-    colorFilter: ColorFilter? = null
+    colorFilter: ColorFilter? = null,
+    properties: PdfLazyColumnProperties = PdfLazyColumnDefaults.properties()
 ) {
 
     var scaledBitmap by retain { mutableStateOf<ImageBitmap?>(null) }
@@ -122,7 +128,13 @@ internal fun PdfPageView(
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(ratio = aspectRatio),
+                    .aspectRatio(ratio = aspectRatio)
+                    .drawWithContent {
+
+                        drawContent()
+//                        drawSearchRectList(pageData = pageData, properties = properties)
+//                        drawSelectRectList(pageData = pageData, properties = properties)
+                    },
                 bitmap = bitmap,
                 contentScale = ContentScale.Fit,
                 colorFilter = colorFilter,

@@ -25,7 +25,11 @@ import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
 import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
+import io.bashpsk.emptylibs.pdfviewer.page.PdfPageData
+import io.bashpsk.emptylibs.pdfviewer.page.PdfScaledPageData
+import io.bashpsk.emptylibs.pdfviewer.search.getSearchRectList
 import io.bashpsk.emptylibs.pdfviewer.utils.LOG_TAG
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
@@ -126,6 +130,11 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
     private var fileLoadJob by mutableStateOf<Job?>(null)
 
     /**
+     * The job that performs text search.
+     */
+    private var textSearchJob by mutableStateOf<Job?>(null)
+
+    /**
      * A map of page data for each page in the PDF.
      */
     internal var pageDataList by mutableStateOf(persistentMapOf<Int, PdfPageData>())
@@ -134,7 +143,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
     /**
      * A cache for high-quality page bitmaps.
      */
-    internal val scaledBitmapManager = EmptyCacheManager<PdfQualityPageData>(maxSize = 7)
+    internal val scaledBitmapManager = EmptyCacheManager<PdfScaledPageData>()
 
     /**
      * The width of the container in pixels.
@@ -145,6 +154,18 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
      * The height of the container in pixels.
      */
     internal var containerHeight by mutableIntStateOf(0)
+
+    /**
+     * Whether the search interface is currently expanded and visible.
+     */
+    internal var isSearchExpanded by mutableStateOf(false)
+        private set
+
+    /**
+     * The current text query string used for searching within the PDF document.
+     */
+    internal var searchQuery by mutableStateOf("")
+        private set
 
     /**
      * Sets the PDF source to be loaded.
@@ -186,21 +207,22 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
 
                     pdfRenderer = fileDescriptor?.let { descriptor -> PdfRenderer(descriptor) }
 
-                    val renderer = pdfRenderer ?: return@withLock
+                    pageDataList = pdfRenderer?.let { renderer ->
 
-                    pageDataList = (0 until renderer.pageCount).associate { pageIndex ->
+                        (0 until renderer.pageCount).associate { pageIndex ->
 
-                        currentCoroutineContext().ensureActive()
+                            currentCoroutineContext().ensureActive()
 
-                        renderer.openPage(pageIndex).use { page ->
+                            renderer.openPage(pageIndex).use { page ->
 
-                            page.index to PdfPageData(
-                                page = page.index,
-                                width = page.width,
-                                height = page.height
-                            )
-                        }
-                    }.toPersistentMap()
+                                page.index to PdfPageData(
+                                    page = page.index,
+                                    width = page.width,
+                                    height = page.height
+                                )
+                            }
+                        }.toPersistentMap()
+                    } ?: persistentMapOf()
                 } catch (exception: Exception) {
 
                     currentCoroutineContext().ensureActive()
@@ -250,7 +272,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
         pageIndex: Int
     ): ImageBitmap? = coroutineScope.async(context = Dispatchers.IO) {
 
-        if (hasNeedHighQualityBitmap(pageData = getQualityPageData(pageIndex = pageIndex))) {
+        if (hasNeedScaledBitmap(pageData = getScaledPageData(pageIndex = pageIndex))) {
 
             val renderer = pdfRenderer ?: return@async null
             val pageData = pageDataList[pageIndex] ?: return@async null
@@ -268,7 +290,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
                 targetHeight = targetHeight
             )?.let { bitmap ->
 
-                val newPageData = PdfQualityPageData(
+                val newPageData = PdfScaledPageData(
                     page = pageIndex,
                     quality = quality,
                     bitmap = bitmap
@@ -278,8 +300,71 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
             }
         }
 
-        getQualityPageData(pageIndex = pageIndex)?.bitmap
+        getScaledPageData(pageIndex = pageIndex)?.bitmap
     }.await()
+
+    /**
+     * Updates the expansion state of the search interface.
+     *
+     * @param isExpanded Whether the search bar should be expanded or collapsed.
+     */
+    internal fun onSearchExpandedChange(isExpanded: Boolean) { isSearchExpanded = isExpanded }
+
+    /**
+     * Updates the current search query string.
+     *
+     * @param query The new search string to be stored in [searchQuery].
+     */
+    internal fun onSearchQueryChange(query: String) { searchQuery = query }
+
+    /**
+     * Performs a text search across all pages of the PDF.
+     *
+     * This function updates the current [searchQuery], cancels any ongoing search job, and
+     * launches a new coroutine to find matches. It first clears existing search results from
+     * [pageDataList]. If the query is not empty, it iterates through all pages using the
+     * [pdfRenderer] to identify bounding rectangles of the matching text.
+     *
+     * @param query The text string to search for within the PDF document.
+     */
+    internal fun onTextSearch(query: String) {
+
+        searchQuery = query
+        textSearchJob?.cancel()
+
+        textSearchJob = coroutineScope.launch(context = Dispatchers.IO) {
+
+            mutex.withLock {
+
+                pageDataList = pageDataList.mapValues { (page, pageData) ->
+                    pageData.copy(searchRectList = persistentListOf())
+                }.toPersistentMap()
+
+                try {
+
+                    searchQuery.takeIf { newQuery -> newQuery.isNotEmpty() }?.let { newQuery ->
+
+                        pdfRenderer?.let { renderer ->
+
+                            pageDataList = pageDataList.mapValues { (pageIndex, pageData) ->
+
+                                renderer.openPage(pageData.page).use { page ->
+
+                                    val newRectList = page.getSearchRectList(query = newQuery)
+
+                                    pageData.copy(searchRectList = newRectList)
+                                }
+                            }.toPersistentMap()
+                        }
+                    } ?: return@withLock
+                } catch (exception: Exception) {
+
+                    currentCoroutineContext().ensureActive()
+                    Log.e(LOG_TAG, exception.message, exception)
+                }
+            }
+        }
+    }
 
     /**
      * Checks if the PDF content is currently zoomed in beyond the initial zoom level.
@@ -298,7 +383,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
      * @param pageData The quality page data to check.
      * @return True if a new high-quality bitmap is needed, false otherwise.
      */
-    private fun hasNeedHighQualityBitmap(pageData: PdfQualityPageData?): Boolean {
+    private fun hasNeedScaledBitmap(pageData: PdfScaledPageData?): Boolean {
 
         return pageData == null
                 || scaledBitmapManager.exist(pageData.page.toString()).not()
@@ -322,7 +407,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
      * @param pageIndex The index of the page.
      * @return The quality page data, or null if it's not in the cache.
      */
-    private fun getQualityPageData(pageIndex: Int): PdfQualityPageData? {
+    private fun getScaledPageData(pageIndex: Int): PdfScaledPageData? {
 
         return scaledBitmapManager.get(pageIndex.toString())
     }
@@ -367,6 +452,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
     internal fun close() {
 
         fileLoadJob?.cancel()
+        textSearchJob?.cancel()
         pdfRenderer?.close()
         fileDescriptor?.close()
         pdfRenderer = null
