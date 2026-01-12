@@ -12,7 +12,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -26,11 +25,13 @@ import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
 import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
+import io.bashpsk.emptylibs.pdfviewer.utils.LOG_TAG
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -58,11 +59,10 @@ fun rememberPdfLazyColumnState(
     initialZoom: Float = 1.0F,
     enableZoom: Boolean = true,
     enableDoubleTapZoom: Boolean = true,
-    zoomRange: ClosedFloatingPointRange<Float> = 0.5F..6.0F
+    zoomRange: ClosedFloatingPointRange<Float> = 0.5F..4.0F
 ): PdfLazyColumnState {
 
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     val transformableState = rememberTransformableGesturesState(
         initialZoom = initialZoom,
@@ -74,16 +74,7 @@ fun rememberPdfLazyColumnState(
     )
 
     val state = retain(transformableState) {
-        PdfLazyColumnState(
-            context = context,
-            coroutineScope = coroutineScope,
-            transformable = transformableState
-        )
-    }
-
-    LaunchedEffect(source) {
-
-        state.setLoadPdfSource(source = source)
+        PdfLazyColumnState(transformable = transformableState)
     }
 
     LaunchedEffect(cacheSize) {
@@ -91,9 +82,11 @@ fun rememberPdfLazyColumnState(
         state.scaledBitmapManager.resize(maxSize = cacheSize)
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(context, source) {
 
-        onDispose { /*state.close()*/ }
+        state.setLoadPdfSource(context = context, source = source)
+
+        onDispose { state.close() }
     }
 
     return state
@@ -102,21 +95,20 @@ fun rememberPdfLazyColumnState(
 /**
  * A state object that can be hoisted to control and observe scrolling and zooming of a PDF.
  *
- * @param context The application context.
- * @param coroutineScope A coroutine scope for managing background tasks.
  * @param transformable The state for transformable gestures.
  */
 @Stable
-class PdfLazyColumnState(
-    private val context: Context,
-    internal val coroutineScope: CoroutineScope,
-    internal val transformable: TransformableGesturesState
-) {
+class PdfLazyColumnState(internal val transformable: TransformableGesturesState) {
 
     /**
      * A mutex to ensure thread-safe access to PDF rendering operations.
      */
     private val mutex = Mutex()
+
+    /**
+     * A coroutine scope for managing background tasks.
+     */
+    internal val coroutineScope = CoroutineScope(context = SupervisorJob() + Dispatchers.Default)
 
     /**
      * The file descriptor of the PDF file.
@@ -161,10 +153,11 @@ class PdfLazyColumnState(
      * coroutine to load the PDF from the given source. The PDF is loaded in the IO dispatcher.
      * After loading, the [pageDataList] is populated with the data of each page.
      *
+     * @param context The application context.
      * @param source The [PdfSource] to load.
      * It can be a [PdfSource.URI], [PdfSource.Path], or [PdfSource.Empty].
      */
-    internal fun setLoadPdfSource(source: PdfSource) {
+    internal fun setLoadPdfSource(context: Context, source: PdfSource) {
 
         fileLoadJob?.cancel()
         close()
@@ -197,6 +190,8 @@ class PdfLazyColumnState(
 
                     pageDataList = (0 until renderer.pageCount).associate { pageIndex ->
 
+                        currentCoroutineContext().ensureActive()
+
                         renderer.openPage(pageIndex).use { page ->
 
                             page.index to PdfPageData(
@@ -209,7 +204,7 @@ class PdfLazyColumnState(
                 } catch (exception: Exception) {
 
                     currentCoroutineContext().ensureActive()
-                    Log.e("PDF-VIEWER", exception.message, exception)
+                    Log.e(LOG_TAG, exception.message, exception)
                 }
             }
         }
@@ -220,27 +215,24 @@ class PdfLazyColumnState(
      *
      * @param pageIndex The index of the page to render.
      */
-    internal fun setRenderNormalBitmap(pageIndex: Int) {
+    internal fun setRenderNormalBitmap(pageIndex: Int) = coroutineScope.launch(Dispatchers.IO) {
 
-        coroutineScope.launch(context = Dispatchers.IO) {
+        val renderer = pdfRenderer ?: return@launch
+        val pageData = pageDataList[pageIndex] ?: return@launch
 
-            val renderer = pdfRenderer ?: return@launch
-            val pageData = pageDataList[pageIndex] ?: return@launch
+        val targetWidth = containerWidth * transformable.initialZoom.toInt()
+        val targetHeight = ((targetWidth.toFloat() / pageData.width) * pageData.height).toInt()
 
-            val targetWidth = containerWidth * transformable.initialZoom.toInt()
-            val targetHeight = ((targetWidth.toFloat() / pageData.width) * pageData.height).toInt()
+        ((targetWidth > 0 || targetHeight > 0) && pageData.bitmap == null).takeIf { it }?.run {
 
-            ((targetWidth > 0 || targetHeight > 0) && pageData.bitmap == null).takeIf { it }?.run {
+            getRenderBitmap(
+                renderer = renderer,
+                pageIndex = pageIndex,
+                targetWidth = targetWidth,
+                targetHeight = targetHeight
+            )?.let { bitmap ->
 
-                getRenderBitmap(
-                    renderer = renderer,
-                    pageIndex = pageIndex,
-                    targetWidth = targetWidth,
-                    targetHeight = targetHeight
-                )?.let { bitmap ->
-
-                    pageDataList = pageDataList.put(pageIndex, pageData.copy(bitmap = bitmap))
-                }
+                pageDataList = pageDataList.put(pageIndex, pageData.copy(bitmap = bitmap))
             }
         }
     }
@@ -254,42 +246,40 @@ class PdfLazyColumnState(
      * @param pageIndex The index of the page.
      * @return The high-quality bitmap, or null if it's not available.
      */
-    internal suspend fun getScaledImageBitmap(pageIndex: Int): ImageBitmap? {
+    internal suspend fun getScaledImageBitmap(
+        pageIndex: Int
+    ): ImageBitmap? = coroutineScope.async(context = Dispatchers.IO) {
 
-        return coroutineScope.async(context = Dispatchers.IO) {
+        if (hasNeedHighQualityBitmap(pageData = getQualityPageData(pageIndex = pageIndex))) {
 
-            if (hasNeedHighQualityBitmap(pageData = getQualityPageData(pageIndex = pageIndex))) {
+            val renderer = pdfRenderer ?: return@async null
+            val pageData = pageDataList[pageIndex] ?: return@async null
 
-                val renderer = pdfRenderer ?: return@async null
-                val pageData = pageDataList[pageIndex] ?: return@async null
+            val quality = findContentQuality()
+            val targetWidth = (containerWidth * quality).toInt().coerceAtMost(
+                ResolutionType._4K_UHD.width
+            )
+            val targetHeight = ((targetWidth.toFloat() / pageData.width) * pageData.height).toInt()
 
-                val quality = findContentQuality()
-                val targetWidth = (containerWidth * quality).toInt().coerceAtMost(
-                    ResolutionType._4K_UHD.width
+            getRenderBitmap(
+                renderer = renderer,
+                pageIndex = pageIndex,
+                targetWidth = targetWidth,
+                targetHeight = targetHeight
+            )?.let { bitmap ->
+
+                val newPageData = PdfQualityPageData(
+                    page = pageIndex,
+                    quality = quality,
+                    bitmap = bitmap
                 )
-                val targetHeight = ((targetWidth.toFloat() / pageData.width) * pageData.height)
-                    .toInt()
 
-                getRenderBitmap(
-                    renderer = renderer,
-                    pageIndex = pageIndex,
-                    targetWidth = targetWidth,
-                    targetHeight = targetHeight
-                )?.let { bitmap ->
-
-                    val newPageData = PdfQualityPageData(
-                        page = pageIndex,
-                        quality = quality,
-                        bitmap = bitmap
-                    )
-
-                    scaledBitmapManager.add(newPageData.page.toString(), newPageData)
-                }
+                scaledBitmapManager.add(newPageData.page.toString(), newPageData)
             }
+        }
 
-            getQualityPageData(pageIndex = pageIndex)?.bitmap
-        }.await()
-    }
+        getQualityPageData(pageIndex = pageIndex)?.bitmap
+    }.await()
 
     /**
      * Checks if the PDF content is currently zoomed in beyond the initial zoom level.
@@ -354,7 +344,7 @@ class PdfLazyColumnState(
 
         return@withContext mutex.withLock {
 
-            renderer.openPage(pageIndex).use { currentPage ->
+            renderer.openPage(pageIndex).use { pdfPage ->
 
                 if (targetWidth <= 0 || targetHeight <= 0) return@use null
 
@@ -365,7 +355,7 @@ class PdfLazyColumnState(
                     drawColor(Color.White.toArgb())
                 }
 
-                currentPage.render(newBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                pdfPage.render(newBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 newBitmap.asImageBitmap()
             }
         }
@@ -376,13 +366,11 @@ class PdfLazyColumnState(
      */
     internal fun close() {
 
-        transformable.resetAllValues()
         fileLoadJob?.cancel()
         pdfRenderer?.close()
         fileDescriptor?.close()
         pdfRenderer = null
         fileDescriptor = null
-        pageDataList = persistentMapOf()
         scaledBitmapManager.evictAll()
     }
 }

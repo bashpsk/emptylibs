@@ -33,6 +33,8 @@ fun PdfViewerScreen() {
 
     var pdfSource by retain { mutableStateOf<PdfSource>(PdfSource.Empty) }
 
+    val pdfLazyColumnState = rememberPdfLazyColumnState(source = pdfSource)
+
     val pdfPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { resultUri ->
@@ -83,8 +85,8 @@ fun PdfViewerScreen() {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                state = rememberPdfLazyColumnState(source = pdfSource),
-                colorFilter = ImageFilterType.Invert.colorFilter
+                state = pdfLazyColumnState,
+                colorFilter = ImageFilterType.Original.colorFilter
             )
         }
     }

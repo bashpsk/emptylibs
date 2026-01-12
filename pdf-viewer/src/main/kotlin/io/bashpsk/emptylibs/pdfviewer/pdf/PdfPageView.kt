@@ -52,7 +52,7 @@ internal fun PdfPageView(
     state: PdfLazyColumnState,
     pageData: PdfPageData = PdfPageData(),
     isScrolling: Boolean = false,
-    placeholder: Color = MaterialTheme.colorScheme.surface,
+    placeholder: Color = MaterialTheme.colorScheme.surfaceVariant,
     colorFilter: ColorFilter? = null
 ) {
 
@@ -100,7 +100,7 @@ internal fun PdfPageView(
         snapshotFlow {
 
             state.transformable.zoom
-        }.debounce(200.milliseconds).distinctUntilChanged().collectLatest {
+        }.distinctUntilChanged().debounce(200.milliseconds).collectLatest {
 
             if (isScrolling.not() && isImageZoomed) state.coroutineScope.launch(Dispatchers.IO) {
 

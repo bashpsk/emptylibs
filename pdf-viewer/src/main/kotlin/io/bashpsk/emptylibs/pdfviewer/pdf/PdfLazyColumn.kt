@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -67,11 +68,13 @@ fun PdfLazyColumn(
     }
 
     BoxWithConstraints(
-        modifier = modifier.transformableGestures(
-            state = state.transformable,
-            onClick = onClick,
-            onLongClick = {}
-        ),
+        modifier = modifier
+            .clipToBounds()
+            .transformableGestures(
+                state = state.transformable,
+                onClick = onClick,
+                onLongClick = {}
+            ),
         contentAlignment = Alignment.Center
     ) {
 
@@ -119,7 +122,8 @@ fun PdfLazyColumn(
                     derivedStateOf {
                         when (visibleItemsCount) {
 
-                            0, 1 -> "${index + 1}/$pageCount"
+                            0 -> "${index}/$pageCount"
+                            1 -> "${index + 1}/$pageCount"
                             else -> "${index + 1}-${index + visibleItemsCount}/$pageCount"
                         }
                     }
