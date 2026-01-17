@@ -13,6 +13,7 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat.findResolutionLabel
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.time
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.toRoundedDecimal
 import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
+import io.bashpsk.emptylibs.formatter.utils.LOG_TAG
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.DatePeriod
@@ -74,8 +75,6 @@ import kotlin.time.toDuration
 @OptIn(ExperimentalTime::class)
 @Suppress("unused")
 object EmptyFormat {
-
-    private const val LOG_TAG = "EmptyFormat"
 
     private val dayOfWeekNames = DayOfWeekNames(
         monday = "Mon",
@@ -705,9 +704,9 @@ object EmptyFormat {
 
             is DurationPattern.TimeLabel -> findDurationPattern(
                 duration = duration,
-                daysLabel = "${pattern.days} ",
-                hoursLabel = "${pattern.hours} ",
-                minutesLabel = "${pattern.minutes} ",
+                daysLabel = pattern.days,
+                hoursLabel = pattern.hours,
+                minutesLabel = pattern.minutes,
                 secondsLabel = pattern.seconds
             )
 
@@ -737,6 +736,13 @@ object EmptyFormat {
         return when {
 
             duration == Duration.ZERO -> "%01d${secondsLabel ?: ""}" to persistentListOf(0)
+
+            duration < 1.toDuration(
+                DurationUnit.MINUTES
+            ) -> duration.toComponents { seconds, nanoseconds ->
+
+                "%02d${secondsLabel ?: ""}" to persistentListOf(seconds)
+            }
 
             duration < 1.toDuration(
                 DurationUnit.HOURS

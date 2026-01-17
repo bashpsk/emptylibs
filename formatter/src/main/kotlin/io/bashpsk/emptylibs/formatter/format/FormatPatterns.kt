@@ -1,5 +1,7 @@
 package io.bashpsk.emptylibs.formatter.format
 
+import androidx.compose.runtime.Stable
+
 /**
  * Enum class defining the various formatting patterns supported by `EmptyFormat`.
  */
@@ -163,6 +165,7 @@ enum class DateTimePattern {
  * Each pattern specifies how hours, minutes, seconds, and milliseconds
  * should be represented in the output string.
  */
+@Stable
 sealed interface DurationPattern {
 
     /**
@@ -172,15 +175,15 @@ sealed interface DurationPattern {
      * (days, hours, minutes, seconds) is followed by a specific label. For example,
      * a duration of 1 day, 2 hours, and 30 minutes could be formatted as "1d 02h 30m 00s".
      *
-     * @property days The label for the days component. Defaults to "d".
-     * @property hours The label for the hours component. Defaults to "h".
-     * @property minutes The label for the minutes component. Defaults to "m".
+     * @property days The label for the days component. Defaults to "d ".
+     * @property hours The label for the hours component. Defaults to "h ".
+     * @property minutes The label for the minutes component. Defaults to "m ".
      * @property seconds The label for the seconds component. Defaults to "s".
      */
     data class TimeLabel(
-        val days: String = "d",
-        val hours: String = "h",
-        val minutes: String = "m",
+        val days: String = "d ",
+        val hours: String = "h ",
+        val minutes: String = "m ",
         val seconds: String = "s"
     ) : DurationPattern
 
