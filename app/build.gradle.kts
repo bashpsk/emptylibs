@@ -1,18 +1,22 @@
+import com.android.build.api.dsl.ApplicationExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
 }
 
-android {
+configure<ApplicationExtension> {
 
     namespace = "io.bashpsk.emptylibs"
-    compileSdk = 36
+
+    compileSdk {
+
+        version = release(36)
+    }
 
     defaultConfig {
 
@@ -44,15 +48,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-
-        compilerOptions.jvmTarget = JvmTarget.JVM_17
-    }
-
     buildFeatures {
 
         compose = true
     }
+}
+
+kotlin {
+
+    compilerOptions.jvmTarget = JvmTarget.JVM_17
 }
 
 dependencies {

@@ -1,19 +1,24 @@
+import com.android.build.api.dsl.LibraryExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+//    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
     id("maven-publish")
 }
 
-android {
+configure<LibraryExtension> {
 
     namespace = "io.bashpsk.emptylibs.kolorpicker"
-    compileSdk = 36
+
+    compileSdk {
+
+        version = release(36)
+    }
 
     defaultConfig {
 
@@ -42,15 +47,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-
-        compilerOptions.jvmTarget = JvmTarget.JVM_17
-    }
-
     publishing {
 
         singleVariant("release")
     }
+}
+
+kotlin {
+
+    compilerOptions.jvmTarget = JvmTarget.JVM_17
 }
 
 dependencies {
