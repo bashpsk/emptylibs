@@ -18,8 +18,8 @@ import io.bashpsk.emptylibs.imagekrop.offset.toLeftCenter
 import io.bashpsk.emptylibs.imagekrop.offset.toRightCenter
 import io.bashpsk.emptylibs.imagekrop.offset.toTopCenter
 import io.bashpsk.emptylibs.imagekrop.offset.toTopRight
-import io.bashpsk.emptylibs.imageutils.shape.ImageShape
-import io.bashpsk.emptylibs.imageutils.shape.toPath
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
+import io.bashpsk.emptylibs.composeutils.shape.toPath
 
 /**
  * Draws the complete Krop (crop) UI, including the overlay, borders, handles, and target.
@@ -28,14 +28,14 @@ import io.bashpsk.emptylibs.imageutils.shape.toPath
  * It calculates the positions of all handles and then calls individual drawing functions
  * to render each component.
  *
- * @param kropShape The [ImageShape] defining the shape of the crop area (e.g., Rectangle, Oval).
+ * @param kropShape The [PathShape] defining the shape of the crop area (e.g., Rectangle, Oval).
  * @param topLeft The [Offset] of the top-left corner of the cropping rectangle.
  * @param rectSize The [Size] of the cropping rectangle.
  * @param config The [KropConfig] object containing all the styling parameters for the
  * Krop UI elements.
  */
 internal fun DrawScope.drawKropHandle(
-    kropShape: ImageShape,
+    kropShape: PathShape,
     topLeft: Offset,
     rectSize: Size,
     config: KropConfig
@@ -251,7 +251,7 @@ internal fun DrawScope.drawKropBorder(topLeft: Offset, rectSize: Size, config: K
  * overlay color.
  */
 internal fun DrawScope.drawKropOverlay(
-    kropShape: ImageShape,
+    kropShape: PathShape,
     topLeft: Offset,
     rectSize: Size,
     config: KropConfig
@@ -279,7 +279,7 @@ internal fun DrawScope.drawKropOverlay(
  * The appearance of the border, such as its thickness and color, is determined by the
  * [KropConfig].
  *
- * @param kropShape The [ImageShape] defining the shape of the crop area (e.g., Rectangle, Oval).
+ * @param kropShape The [PathShape] defining the shape of the crop area (e.g., Rectangle, Oval).
  * @param topLeft The [Offset] of the top-left corner of the bounding box for the krop shape.
  * @param rectSize The [Size] of the bounding box for the krop shape. The shape will be drawn
  * within these dimensions.
@@ -287,7 +287,7 @@ internal fun DrawScope.drawKropOverlay(
  * such as `shapeBorder` (thickness) and `shapeColor`.
  */
 internal fun DrawScope.drawKropShapeBorder(
-    kropShape: ImageShape,
+    kropShape: PathShape,
     topLeft: Offset,
     rectSize: Size,
     config: KropConfig
@@ -331,12 +331,12 @@ private fun DrawScope.drawKropLine(start: Offset, end: Offset, config: KropConfi
  * Draws a preview of the krop shape.
  *
  * This function is used to display a visual representation of the selected crop shape.
- * It takes a [ImageShape] and a [Color] as input and draws the shape's path with a stroke style.
+ * It takes a [PathShape] and a [Color] as input and draws the shape's path with a stroke style.
  *
- * @param kropShape The [ImageShape] to draw.
+ * @param kropShape The [PathShape] to draw.
  * @param shapeColor The [Color] to use for drawing the shape's path.
  */
-internal fun DrawScope.drawKropShapePreview(kropShape: ImageShape, shapeColor: Color) {
+internal fun DrawScope.drawKropShapePreview(kropShape: PathShape, shapeColor: Color) {
 
     val shapePath = kropShape.toPath(canvasSize = size)
 

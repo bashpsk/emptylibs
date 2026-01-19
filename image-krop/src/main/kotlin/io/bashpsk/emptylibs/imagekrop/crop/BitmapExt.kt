@@ -8,8 +8,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
 import io.bashpsk.emptylibs.imagekrop.utils.LOG_TAG
-import io.bashpsk.emptylibs.imageutils.shape.ImageShape
 import io.bashpsk.emptylibs.imageutils.shape.bitmapMask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -68,8 +68,8 @@ private const val MIN_CROP_DIMENSION_PX = 1
  * defined.
  * @param imageFlip An optional [KropImageFlip] value to flip the image horizontally or vertically
  * before cropping. Defaults to `null` (no flip).
- * @param kropShape The [ImageShape] to apply to the cropped image. Defaults to
- * [ImageShape.None].
+ * @param kropShape The [PathShape] to apply to the cropped image. Defaults to
+ * [PathShape.None].
  * @return A [KropResult] which is either:
  *   - [KropResult.Success] containing the cropped and shaped [ImageBitmap] and the original
  *   [ImageBitmap].
@@ -80,7 +80,7 @@ internal suspend fun ImageBitmap.getCroppedImageBitmap(
     cropRect: Rect,
     canvasSize: Size,
     imageFlip: KropImageFlip? = null,
-    kropShape: ImageShape = ImageShape.None
+    kropShape: PathShape = PathShape.None
 ): KropResult = withContext(context = Dispatchers.IO) {
 
     val sourceImageBitmap = this@getCroppedImageBitmap

@@ -24,8 +24,8 @@ import io.bashpsk.emptylibs.imageedit.extension.toLeftCenter
 import io.bashpsk.emptylibs.imageedit.extension.toRightCenter
 import io.bashpsk.emptylibs.imageedit.extension.toTopCenter
 import io.bashpsk.emptylibs.imageedit.extension.toTopRight
-import io.bashpsk.emptylibs.imageutils.shape.ImageShape
-import io.bashpsk.emptylibs.imageutils.shape.toPath
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
+import io.bashpsk.emptylibs.composeutils.shape.toPath
 import kotlin.math.abs
 
 /**
@@ -570,12 +570,12 @@ private fun DrawScope.drawEditLine(start: Offset, end: Offset, config: ImageEdit
  * Draws a preview of the edit shape.
  *
  * This function is used to display a visual representation of the selected edit shape.
- * It takes an [ImageShape] and a [Color] as input and draws the shape's path with a fill style.
+ * It takes an [PathShape] and a [Color] as input and draws the shape's path with a fill style.
  *
- * @param shape The [ImageShape] to draw.
+ * @param shape The [PathShape] to draw.
  * @param color The [Color] to use for drawing the shape's path.
  */
-internal fun DrawScope.drawEditShapePreview(shape: ImageShape, color: Color) {
+internal fun DrawScope.drawEditShapePreview(shape: PathShape, color: Color) {
 
     val shapePath = shape.toPath(canvasSize = size)
 

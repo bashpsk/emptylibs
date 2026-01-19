@@ -88,9 +88,9 @@ import io.bashpsk.emptylibs.imageedit.utils.LOG_TAG
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
 import io.bashpsk.emptylibs.imageutils.extension.toSize
-import io.bashpsk.emptylibs.imageutils.shape.BasicImageShapes
-import io.bashpsk.emptylibs.imageutils.shape.ImageShape
-import io.bashpsk.emptylibs.imageutils.shape.toLabel
+import io.bashpsk.emptylibs.composeutils.shape.BasicPathShapes
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
+import io.bashpsk.emptylibs.composeutils.shape.toLabel
 import io.bashpsk.emptylibs.kolorpicker.color.ColorPreview
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
@@ -621,7 +621,7 @@ private fun InputEditImage(state: ImageEditState) {
                     )
                 ),
                 imageShape = state.imageEditInput.shape,
-                imageShapeList = BasicImageShapes,
+                imageShapeList = BasicPathShapes,
                 onShapeChange = { newShape ->
 
                     state.apply {
@@ -808,7 +808,7 @@ private fun InputEditShape(state: ImageEditState) {
                     )
                 ),
                 imageShape = state.shapeEditInput.shape,
-                imageShapeList = BasicImageShapes,
+                imageShapeList = BasicPathShapes,
                 onShapeChange = { newShape ->
 
                     state.apply {
@@ -1076,9 +1076,9 @@ private fun ColorSelectionView(
 @Composable
 private fun ShapeSelectionView(
     modifier: Modifier = Modifier,
-    imageShape: ImageShape,
-    imageShapeList: ImmutableList<ImageShape>,
-    onShapeChange: (shape: ImageShape) -> Unit
+    imageShape: PathShape,
+    imageShapeList: ImmutableList<PathShape>,
+    onShapeChange: (shape: PathShape) -> Unit
 ) {
 
     var isShapeMenuExpanded by rememberSaveable { mutableStateOf(false) }
@@ -1782,12 +1782,12 @@ private fun NumberInputField(
 /**
  * Composable function to display a preview of an editable shape.
  *
- * @param shape The [ImageShape] to be displayed.
+ * @param shape The [PathShape] to be displayed.
  * @param isSelected A boolean indicating whether the shape is currently selected.
  * The color of the shape will change based on this state.
  */
 @Composable
-private fun EditShapeView(shape: ImageShape, isSelected: Boolean) {
+private fun EditShapeView(shape: PathShape, isSelected: Boolean) {
 
     val unSelectedIconColor = MaterialTheme.colorScheme.onSurface
     val selectedIconColor = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.5F)

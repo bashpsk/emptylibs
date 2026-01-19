@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import io.bashpsk.emptylibs.imageutils.shape.ImageShape
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
 
 /**
  * Sealed interface representing different types of inputs for image editing.
@@ -86,7 +86,7 @@ internal sealed interface ImageEditInput {
      * Represents an image to be drawn on the canvas.
      *
      * @param bitmap The [ImageBitmap] to draw. If null, no image will be drawn.
-     * @param shape The [ImageShape] to apply to the image. Defaults to [ImageShape.None].
+     * @param shape The [PathShape] to apply to the image. Defaults to [PathShape.None].
      * @param position The [Offset] where the top-left corner of the image will be drawn.
      * Defaults to [Offset.Unspecified].
      * @param size The [Size] of the image to be drawn. Defaults to [Size.Unspecified],
@@ -94,7 +94,7 @@ internal sealed interface ImageEditInput {
      */
     data class ImageItem(
         val bitmap: ImageBitmap? = null,
-        val shape: ImageShape = ImageShape.None,
+        val shape: PathShape = PathShape.None,
         val position: Offset = Offset.Unspecified,
         val size: Size = Size.Unspecified
     ) : ImageEditInput
@@ -103,7 +103,7 @@ internal sealed interface ImageEditInput {
      * Represents a shape to be drawn on the image.
      *
      * @param shape The type of shape to draw (e.g., Rectangle, Oval).
-     * Defaults to [ImageShape.None].
+     * Defaults to [PathShape.None].
      * @param color The color of the shape. Defaults to [Color.Green].
      * @param style The drawing style for the shape (e.g., Fill, Stroke). Defaults to [Fill].
      * @param thickness The stroke thickness if the style is Stroke. Defaults to `2.0F`.
@@ -118,7 +118,7 @@ internal sealed interface ImageEditInput {
      * @param size The size of the shape. Defaults to [Size.Unspecified].
      */
     data class ShapeItem(
-        val shape: ImageShape = ImageShape.None,
+        val shape: PathShape = PathShape.None,
         val color: Color = Color.Green,
         val style: DrawStyle = Fill,
         val thickness: Float = 2.0F,

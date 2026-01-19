@@ -82,6 +82,9 @@ dependencies {
     //  ICON            :
     implementation(libs.androidx.material.icons.extended)
 
+    //  SHAPES          :
+    implementation(libs.androidx.graphics.shapes)
+
     //  DATASTORE       :
     implementation(libs.androidx.datastore.preferences)
 

@@ -10,8 +10,8 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.text.rememberTextMeasurer
-import io.bashpsk.emptylibs.imageutils.shape.getMinimumRadius
-import io.bashpsk.emptylibs.imageutils.shape.toPath
+import io.bashpsk.emptylibs.composeutils.shape.getMinimumRadius
+import io.bashpsk.emptylibs.composeutils.shape.toPath
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

@@ -54,8 +54,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import io.bashpsk.emptylibs.imageutils.shape.ImageShape
-import io.bashpsk.emptylibs.imageutils.shape.toLabel
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
+import io.bashpsk.emptylibs.composeutils.shape.toLabel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 
@@ -227,7 +227,7 @@ internal fun ImageKropBottomBar(
                         val kropResult = state.getCroppedImageBitmap(
                             imageRect = state.canvasSize.toRect(),
                             imageFlip = KropImageFlip.Horizontal,
-                            imageShape = ImageShape.None
+                            imageShape = PathShape.None
                         )
 
                         when (kropResult) {
@@ -260,7 +260,7 @@ internal fun ImageKropBottomBar(
                         val kropResult = state.getCroppedImageBitmap(
                             imageRect = state.canvasSize.toRect(),
                             imageFlip = KropImageFlip.Vertical,
-                            imageShape = ImageShape.None
+                            imageShape = PathShape.None
                         )
 
                         when (kropResult) {
@@ -425,7 +425,7 @@ internal fun ImageKropBottomBar(
  * @param isSelected A boolean indicating whether the shape is currently selected.
  */
 @Composable
-private fun KropShapeView(kropShape: ImageShape, isSelected: Boolean) {
+private fun KropShapeView(kropShape: PathShape, isSelected: Boolean) {
 
     val unSelectedIconColor = MaterialTheme.colorScheme.onSurface
     val selectedIconColor = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.5F)
@@ -558,12 +558,12 @@ private fun KropShapeCustomization(state: ImageKropState) {
 
         when (val shape = state.kropShape) {
 
-            is ImageShape.None, is ImageShape.Circle, is ImageShape.Triangle -> Text(
+            is PathShape.None, is PathShape.Circle, is PathShape.Triangle -> Text(
                 text = "Customization not available for this shape.",
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            is ImageShape.Polygon -> {
+            is PathShape.Polygon -> {
 
                 Text(
                     text = "Side Count:",
@@ -588,7 +588,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 )
             }
 
-            is ImageShape.Rectangle -> {
+            is PathShape.Rectangle -> {
 
                 Text(
                     text = "Corner Radius:",
@@ -613,7 +613,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 )
             }
 
-            is ImageShape.CutCorner -> {
+            is PathShape.CutCorner -> {
 
                 Text(
                     text = "Corner Radius:",
@@ -638,7 +638,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 )
             }
 
-            is ImageShape.Star -> {
+            is PathShape.Star -> {
 
                 Text(
                     text = "Edge Count:",

@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.text.TextStyle
-import io.bashpsk.emptylibs.imageutils.shape.ImageShape
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
 import kotlinx.collections.immutable.PersistentList
 
 /**
@@ -51,13 +51,13 @@ sealed class ImageEditItems(var uuid: String = "") {
      * Represents an image item to be drawn on the canvas.
      *
      * @property bitmap The [ImageBitmap] to be drawn. Can be null if no image is selected.
-     * @property shape The [ImageShape] defining the clipping mask for the image.
+     * @property shape The [PathShape] defining the clipping mask for the image.
      * @property position The [Offset] representing the top-left corner of the image on the canvas.
      * @property size The [Size] of the image on the canvas.
      */
     data class ImageItem(
         val bitmap: ImageBitmap?,
-        val shape: ImageShape,
+        val shape: PathShape,
         val position: Offset,
         val size: Size
     ) : ImageEditItems()
@@ -72,7 +72,7 @@ sealed class ImageEditItems(var uuid: String = "") {
      * @property size The size (width, height) of the shape.
      */
     data class ShapeItem(
-        val shape: ImageShape,
+        val shape: PathShape,
         val color: Color,
         val style: DrawStyle,
         val position: Offset,
