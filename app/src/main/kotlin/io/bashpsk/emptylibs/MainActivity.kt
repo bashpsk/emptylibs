@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
 
 //                    AnalogClockScreen()
 //                    BasicTextEditorScreen()
-//                    BottomOptionBarScreen()
+                    BottomOptionBarScreen()
 //                    CanvasSlateScreen()
 //                    ColorPickerScreen()
 //                    ColorPickerDialogScreen()
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 //                    ImageWallpaperScreen()
 //                    LruCacheScreen()
 //                    MusicPlayingAnimationScreen()
-                    PdfViewerScreen()
+//                    PdfViewerScreen()
 //                    SevenSegmentDisplayScreen()
 //                    StorageScreen()
 //                    TransformImageScreen()

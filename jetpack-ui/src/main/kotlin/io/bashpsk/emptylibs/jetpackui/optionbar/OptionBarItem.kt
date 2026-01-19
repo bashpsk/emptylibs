@@ -35,15 +35,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun OptionBarItem(
     modifier: Modifier = Modifier,
-    optionData: OptionBarData = OptionBarData(),
+    optionData: OptionBarData,
     onClick: (option: OptionBarData) -> Unit = {}
 ) {
 
-    val onOptionClick = remember {
-        {
-            onClick(optionData)
-        }
-    }
+    val onOptionClick = remember(optionData) { { onClick(optionData) } }
 
     val cardColors = CardDefaults.cardColors(
         containerColor = Color.Transparent,
@@ -55,7 +51,7 @@ internal fun OptionBarItem(
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.extraSmall,
-        enabled = optionData.isEnable,
+        enabled = optionData.enabled,
         colors = cardColors,
         onClick = onOptionClick
     ) {

@@ -2,7 +2,7 @@ package io.bashpsk.emptylibs.utils
 
 import android.util.Log
 
-internal fun setDebug(message: String) {
+internal fun String.setDebug() {
 
-    Log.d("PSK", message)
+    Log.d("PSK", this)
 }

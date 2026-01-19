@@ -137,7 +137,7 @@ fun FileCopySpeedScreen() {
 
                             progressMonitorJob = launch(context = Dispatchers.IO) {
 
-                                setDebug("PROGRESS START : ${fileItem.first.name}")
+                                "PROGRESS START : ${fileItem.first.name}".setDebug()
 
                                 fileSpeedMeter(
                                     source = fileItem.first,
@@ -146,11 +146,11 @@ fun FileCopySpeedScreen() {
                                 ).collectLatest { fileSpeedDataLatest->
 
                                     fileSpeedData = fileSpeedDataLatest ?: FileSpeedData()
-                                    setDebug("PROGRESS : $fileSpeedData")
+                                    "PROGRESS : $fileSpeedData".setDebug()
                                 }
                             }
 
-                            setDebug("COPYING : ${fileItem.first.name}")
+                            "COPYING : ${fileItem.first.name}".setDebug()
 
                             fileItem.first.inputStream().use { inputStream ->
 
@@ -172,7 +172,7 @@ fun FileCopySpeedScreen() {
                                 }
                             }
 
-                            setDebug("COPIED : ${fileItem.first.name}")
+                            "COPIED : ${fileItem.first.name}".setDebug()
                             progressMonitorJob?.cancel()
                             fileSpeedData = FileSpeedData()
                         }

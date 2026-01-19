@@ -6,16 +6,16 @@ import kotlinx.collections.immutable.toImmutableList
 object ListData {
 
     val FILE_OPERATION_LIST = persistentListOf(
-        FileOperation.SHARE,
-        FileOperation.INFO,
-        FileOperation.COPY,
-        FileOperation.MOVE,
-        FileOperation.RENAME,
-        FileOperation.DELETE,
-        FileOperation.SELECT_ALL,
-        FileOperation.SELECT_NONE,
-        FileOperation.SELECT_INVERT,
-        FileOperation.SELECT_FOLDERS,
-        FileOperation.SELECT_FILES,
+        FileOperation.Share,
+        FileOperation.Info,
+        FileOperation.Copy,
+        FileOperation.Move,
+        FileOperation.Rename,
+        FileOperation.Delete,
+        FileOperation.SelectAll,
+        FileOperation.SelectNone,
+        FileOperation.SelectInvert,
+        FileOperation.SelectFolders,
+        FileOperation.SelectFiles,
     ).toImmutableList()
 }

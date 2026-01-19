@@ -20,26 +20,22 @@ import androidx.compose.ui.unit.dp
  *
  * @param modifier Optional [Modifier] to be applied to the `DropdownMenuItem`.
  * @param optionData The [OptionBarData] containing the information for this menu item,
- *   such as its label, icon, and enabled state. Defaults to an empty [OptionBarData].
+ *   such as its label, icon, and enabled state.
  * @param onClick A lambda function that will be invoked when this menu item is clicked.
- *   It receives the `optionData` of the clicked item as a parameter. Defaults to an empty lambda.
+ *   It receives the `optionData` of the clicked item as a parameter.
  */
 @Composable
 internal fun OptionMenuItem(
     modifier: Modifier = Modifier,
-    optionData: OptionBarData = OptionBarData(),
+    optionData: OptionBarData,
     onClick: (option: OptionBarData) -> Unit = {}
 ) {
 
-    val onOptionClick = remember {
-        {
-            onClick(optionData)
-        }
-    }
+    val onOptionClick = remember(optionData) { { onClick(optionData) } }
 
     DropdownMenuItem(
         modifier = modifier,
-        enabled = optionData.isEnable,
+        enabled = optionData.enabled,
         text = {
 
             Text(

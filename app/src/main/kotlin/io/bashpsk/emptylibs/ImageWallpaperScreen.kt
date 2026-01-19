@@ -60,7 +60,7 @@ fun ImageWallpaperScreen() {
             dialogContainerColor = AlertDialogDefaults.containerColor.copy(alpha = 0.75F),
             onWallpaperResult = { type, result ->
 
-                setDebug("${type.label} Wallpaper set result: $result")
+                "${type.label} Wallpaper set result: $result".setDebug()
             },
             onNavigateBack = {
 

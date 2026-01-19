@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.ContextualFlowRowOverflow
 import androidx.compose.foundation.layout.ContextualFlowRowOverflowScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
@@ -48,7 +46,7 @@ import kotlinx.collections.immutable.persistentListOf
 fun BottomOptionBar(
     modifier: Modifier = Modifier,
     optionList: ImmutableList<OptionBarData> = persistentListOf(),
-    moreOption: OptionBarData = OptionBarData(label = "More", icon = Icons.Filled.MoreVert),
+    moreOption: OptionBarData = OptionBarData.More,
     onOptionClick: (option: OptionBarData) -> Unit = {},
     maxLines: Int = 1,
 ) {

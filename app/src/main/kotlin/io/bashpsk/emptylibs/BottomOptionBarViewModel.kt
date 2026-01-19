@@ -2,6 +2,8 @@ package io.bashpsk.emptylibs
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.bashpsk.emptylibs.jetpackui.optionbar.OptionBarData.Companion.copy
+import io.bashpsk.emptylibs.screen.jetpackui.FileOperation
 import io.bashpsk.emptylibs.screen.jetpackui.ListData
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -24,18 +26,11 @@ class BottomOptionBarViewModel : ViewModel() {
 
         val newOptionList = when (paths.size) {
 
-            1 -> ListData.FILE_OPERATION_LIST.filter { option ->
-
-                option.label != "Find" || option.label != "About"
-            }.toImmutableList()
-
             2 -> ListData.FILE_OPERATION_LIST.map { option ->
 
-                when (option.label.startsWith("Select")) {
-
-                    true -> option.copy(isEnable = false)
-                    false -> option
-                }
+                option.copy(
+                    enabled = option.label.startsWith(FileOperation.SelectFolders.label).not()
+                )
             }.toImmutableList()
 
             3 -> ListData.FILE_OPERATION_LIST.filter { option ->
@@ -65,5 +60,10 @@ class BottomOptionBarViewModel : ViewModel() {
     fun addPathSelection(path: String) {
 
         _selectedPaths.update { oldList -> oldList.add(element = path) }
+    }
+
+    fun clearPathSelection() {
+
+        _selectedPaths.update { persistentListOf() }
     }
 }

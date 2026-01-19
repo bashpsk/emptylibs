@@ -80,13 +80,13 @@ fun VideoGestureScreen() {
 
                 when (changes) {
 
-                    is TapChanges.BackwardTap -> setDebug("BackwardTap : ${changes.position}")
+                    is TapChanges.BackwardTap -> "BackwardTap : ${changes.position}".setDebug()
 
-                    is TapChanges.ForwardTap -> setDebug("ForwardTap : ${changes.position}")
+                    is TapChanges.ForwardTap -> "ForwardTap : ${changes.position}".setDebug()
 
-                    is TapChanges.SingleTap -> setDebug("SingleTap : ${changes.position}")
+                    is TapChanges.SingleTap -> "SingleTap : ${changes.position}".setDebug()
 
-                    is TapChanges.Unknown -> setDebug("Unknown")
+                    is TapChanges.Unknown -> "Unknown".setDebug()
                 }
             },
             onDragChanges = { changes ->
@@ -115,41 +115,41 @@ fun VideoGestureScreen() {
                         window?.attributes = window.attributes?.apply {
 
                             screenBrightness = brightness.coerceIn(0.0F..1.0F)
-                            setDebug("Brightness : $screenBrightness")
+                            "Brightness : $screenBrightness".setDebug()
                         }
                     }
 
-                    is DragChanges.DragCanceled -> setDebug("DragCanceled")
+                    is DragChanges.DragCanceled -> "DragCanceled".setDebug()
 
-                    is DragChanges.DragEnded -> setDebug("DragEnded")
+                    is DragChanges.DragEnded -> "DragEnded".setDebug()
 
-                    is DragChanges.DragStart -> setDebug("DragStart : ${changes.position}")
+                    is DragChanges.DragStart -> "DragStart : ${changes.position}".setDebug()
 
-                    is DragChanges.HorizontalTopStart -> setDebug("HorizontalTopStart")
+                    is DragChanges.HorizontalTopStart -> "HorizontalTopStart".setDebug()
 
-                    is DragChanges.HorizontalBottomStart -> setDebug("HorizontalBottomStart")
+                    is DragChanges.HorizontalBottomStart -> "HorizontalBottomStart".setDebug()
 
                     is DragChanges.HorizontalTopChanges -> {
 
-                        setDebug("HorizontalTopChanges : ${changes.amount}[${changes.changes}]")
+                        "HorizontalTopChanges : ${changes.amount}[${changes.changes}]".setDebug()
                     }
 
                     is DragChanges.HorizontalBottomChanges -> {
 
-                        setDebug("HorizontalBottomChanges : ${changes.amount}[${changes.changes}]")
+                        "HorizontalBottomChanges : ${changes.amount}[${changes.changes}]".setDebug()
                     }
 
                     is DragChanges.HorizontalTopEnd -> {
 
-                        setDebug("HorizontalTopEnd : ${changes.amount}")
+                        "HorizontalTopEnd : ${changes.amount}".setDebug()
                     }
 
                     is DragChanges.HorizontalBottomEnd -> {
 
-                        setDebug("HorizontalBottomEnd : ${changes.amount}")
+                        "HorizontalBottomEnd : ${changes.amount}".setDebug()
                     }
 
-                    is DragChanges.Unknown -> setDebug("Unknown")
+                    is DragChanges.Unknown -> "Unknown".setDebug()
 
                     is DragChanges.VerticalRightChanges -> {
 
@@ -171,7 +171,7 @@ fun VideoGestureScreen() {
                                             range = 0.0F..30.0F
                                         )
 
-                                        setDebug("Volume Boosted : $boostedFinish")
+                                        "Volume Boosted : $boostedFinish".setDebug()
                                     }
 
                                     isMaxVolume && isBoostLeast -> {
@@ -180,7 +180,7 @@ fun VideoGestureScreen() {
                                             range = 0.0F..30.0F
                                         )
 
-                                        setDebug("Volume Boosted : $boostedFinish")
+                                        "Volume Boosted : $boostedFinish".setDebug()
                                     }
 
                                     isMaxVolume.not() -> {
@@ -195,7 +195,7 @@ fun VideoGestureScreen() {
                                             AudioManager.STREAM_MUSIC
                                         )
 
-                                        setDebug("Volume Normal : $currentVolume")
+                                        "Volume Normal : $currentVolume".setDebug()
                                     }
 
                                     else -> {
@@ -210,7 +210,7 @@ fun VideoGestureScreen() {
                                             AudioManager.STREAM_MUSIC
                                         )
 
-                                        setDebug("Volume Normal : $currentVolume")
+                                        "Volume Normal : $currentVolume".setDebug()
                                     }
                                 }
                             }
@@ -229,7 +229,7 @@ fun VideoGestureScreen() {
                                             range = 0.0F..30.0F
                                         )
 
-                                        setDebug("Volume Boosted : $boostedFinish")
+                                        "Volume Boosted : $boostedFinish".setDebug()
                                     }
 
                                     isMaxVolume && isBoostLeast -> {
@@ -238,7 +238,7 @@ fun VideoGestureScreen() {
                                             range = 0.0F..30.0F
                                         )
 
-                                        setDebug("Volume Boosted : $boostedFinish")
+                                        "Volume Boosted : $boostedFinish".setDebug()
                                     }
 
                                     isMaxVolume.not() -> {
@@ -253,7 +253,7 @@ fun VideoGestureScreen() {
                                             AudioManager.STREAM_MUSIC
                                         )
 
-                                        setDebug("Volume Normal : $currentVolume")
+                                        "Volume Normal : $currentVolume".setDebug()
                                     }
 
                                     else -> {
@@ -268,7 +268,7 @@ fun VideoGestureScreen() {
                                             AudioManager.STREAM_MUSIC
                                         )
 
-                                        setDebug("Volume Normal : $currentVolume")
+                                        "Volume Normal : $currentVolume".setDebug()
                                     }
                                 }
                             }

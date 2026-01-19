@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.bashpsk.emptylibs.jetpackui.optionbar.BottomOptionBar
 import io.bashpsk.emptylibs.jetpackui.optionbar.OptionBarData
 import io.bashpsk.emptylibs.screen.jetpackui.FileOperation
+import io.bashpsk.emptylibs.utils.setDebug
 
 @Composable
 fun BottomOptionBarScreen() {
@@ -41,11 +42,12 @@ fun BottomOptionBarScreen() {
     val onOperationClick = remember<(OptionBarData) -> Unit> {
         { option ->
 
+            option.label.setDebug()
+
             when (option) {
 
-                FileOperation.SHARE -> {}
-
-                FileOperation.SELECT_FILES -> {}
+                FileOperation.Share -> {}
+                FileOperation.SelectFiles -> {}
             }
         }
     }
@@ -76,18 +78,18 @@ fun BottomOptionBarScreen() {
                 .fillMaxSize()
                 .padding(paddingValues = paddingValues),
             contentPadding = PaddingValues(vertical = 4.dp, horizontal = 4.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 8.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             item {
 
                 val isSelected by remember(selectedPaths) {
-                    derivedStateOf { selectedPaths.any { path -> path == "Path 1" } }
+                    derivedStateOf { selectedPaths.any { path -> path == "Path 1" }.not() }
                 }
 
                 Button(
-                    enabled = isSelected.not(),
+                    enabled = isSelected,
                     onClick = {
                         mainViewModel.addPathSelection("Path 1")
                     }
@@ -100,11 +102,11 @@ fun BottomOptionBarScreen() {
             item {
 
                 val isSelected by remember(selectedPaths) {
-                    derivedStateOf { selectedPaths.any { path -> path == "Path 2" } }
+                    derivedStateOf { selectedPaths.any { path -> path == "Path 2" }.not() }
                 }
 
                 Button(
-                    enabled = isSelected.not(),
+                    enabled = isSelected,
                     onClick = {
                         mainViewModel.addPathSelection("Path 2")
                     }
@@ -117,17 +119,32 @@ fun BottomOptionBarScreen() {
             item {
 
                 val isSelected by remember(selectedPaths) {
-                    derivedStateOf { selectedPaths.any { path -> path == "Path 3" } }
+                    derivedStateOf { selectedPaths.any { path -> path == "Path 3" }.not() }
                 }
 
                 Button(
-                    enabled = isSelected.not(),
+                    enabled = isSelected,
                     onClick = {
                         mainViewModel.addPathSelection("Path 3")
                     }
                 ) {
 
                     Text("Path 3")
+                }
+            }
+
+            item {
+
+                val isSelected by remember(selectedPaths) {
+                    derivedStateOf { selectedPaths.isNotEmpty() }
+                }
+
+                Button(
+                    enabled = isSelected,
+                    onClick = mainViewModel::clearPathSelection
+                ) {
+
+                    Text("Clear")
                 }
             }
         }
