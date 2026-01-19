@@ -45,49 +45,43 @@ import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
-import io.bashpsk.emptylibs.datastoreui.font.rememberFontRes
+import io.bashpsk.emptylibs.datastoreui.font.FontPreferenceItem
 import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
- * A Composable function that displays a font preference item.
- * This preference allows the user to select a font from a list of available fonts.
- * The selected font is saved in DataStore.
+ * A Composable function that displays a font preference item using the [LocalDatastore].
+ * This preference allows the user to select a font from a list of available [entities].
+ * The selected font label is persisted in the DataStore.
  *
- * @param modifier The modifier to be applied to the preference item.
- * @param key A lambda function that returns the DataStore key for the font preference.
- * @param initialValue A lambda function that returns the initial value of the font preference.
- * @param entities A lambda function that returns a map of font resource IDs to font names.
- * @param title A lambda function that returns the title of the preference item.
- * @param summary A lambda function that returns the summary of the preference item.
- * @param previewText A lambda function that returns the text to be displayed in the font preview.
- * @param leadingContent A Composable function that displays content at the beginning of the
- * preference item.
- * @param trailingContent A Composable function that displays content at the end of the preference
- * item.
- * @param colors The colors to be used for the preference item.
+ * @param modifier The [Modifier] to be applied to the preference item.
+ * @param key The [Preferences.Key] used to store the selected font label.
+ * @param entities An [ImmutableList] of [FontPreferenceItem] containing font resources and labels.
+ * @param title The title text for the preference item.
+ * @param summary The summary text for the preference item.
+ * @param previewText The sample text displayed in the selection dialog to preview different fonts.
+ * @param leadingContent An optional Composable to be displayed at the start of the item.
+ * @param trailingContent An optional Composable to be displayed at the end of the item.
+ * @param colors [ListItemColors] to be used for the preference item.
  * @param tonalElevation The tonal elevation of the preference item.
  * @param shadowElevation The shadow elevation of the preference item.
- * @param isDismissOnBackPress Whether the dialog should be dismissed when the back button is
- * pressed.
- * @param isDismissOnClickOutside Whether the dialog should be dismissed when the user clicks
- * outside of it.
- * @param summaryAlpha The alpha value for the summary text.
- * @param enableResetButton A lambda function that returns whether the reset button should be
- * enabled.
+ * @param isDismissOnBackPress Whether the dialog can be dismissed by pressing the back button.
+ * @param isDismissOnClickOutside Whether the dialog can be dismissed by clicking outside.
+ * @param summaryAlpha The alpha value applied to the summary text.
+ * @param enableResetButton Whether to show a reset button in the selection dialog.
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * @note This version requires [LocalDatastore] to be provided via `CompositionLocalProvider`.
  */
 @Composable
 fun FontPreference(
     modifier: Modifier = Modifier,
     key: Preferences.Key<String>,
-    initialValue: String,
-    entities: Map<Int, String> = emptyMap(),
+    entities: ImmutableList<FontPreferenceItem>,
     title: String,
     summary: String = "",
-    previewText: String = "This is sample text. Time - 3:33 AM",
+    previewText: String = "This is sample text. Time: 03:33.069 AM",
     leadingContent: @Composable (() -> Unit) = {},
     trailingContent: @Composable (() -> Unit) = {},
     colors: ListItemColors = ListItemDefaults.colors(),
@@ -106,7 +100,6 @@ fun FontPreference(
         modifier = modifier,
         datastore = datastore,
         key = key,
-        initialValue = initialValue,
         entities = entities,
         title = title,
         summary = summary,
@@ -124,40 +117,35 @@ fun FontPreference(
 }
 
 /**
- * A Composable function that displays a font preference item.
- * This preference allows the user to select a font from a list of available fonts.
- * The selected font is saved in DataStore.
+ * A Composable function that displays a font preference item using the [LocalDatastore].
+ * This preference allows the user to select a font from a list of available [entities].
+ * The selected font label is persisted in the DataStore.
  *
- * @param modifier The modifier to be applied to the preference item.
- * @param datastore The DataStore instance to use for this preference.
- * @param key A lambda function that returns the DataStore key for the font preference.
- * @param initialValue A lambda function that returns the initial value of the font preference.
- * @param entities A lambda function that returns a map of font resource IDs to font names.
- * @param title A lambda function that returns the title of the preference item.
- * @param summary A lambda function that returns the summary of the preference item.
- * @param previewText A lambda function that returns the text to be displayed in the font preview.
- * @param leadingContent A Composable function that displays content at the beginning of the
- * preference item.
- * @param trailingContent A Composable function that displays content at the end of the preference
- * item.
- * @param colors The colors to be used for the preference item.
+ * @param modifier The [Modifier] to be applied to the preference item.
+ * @param datastore The [DataStore] instance to be used for preference management.
+ * @param key The [Preferences.Key] used to store the selected font label.
+ * @param entities An [ImmutableList] of [FontPreferenceItem] containing font resources and labels.
+ * @param title The title text for the preference item.
+ * @param summary The summary text for the preference item.
+ * @param previewText The sample text displayed in the selection dialog to preview different fonts.
+ * @param leadingContent An optional Composable to be displayed at the start of the item.
+ * @param trailingContent An optional Composable to be displayed at the end of the item.
+ * @param colors [ListItemColors] to be used for the preference item.
  * @param tonalElevation The tonal elevation of the preference item.
  * @param shadowElevation The shadow elevation of the preference item.
- * @param isDismissOnBackPress Whether the dialog should be dismissed when the back button is
- * pressed.
- * @param isDismissOnClickOutside Whether the dialog should be dismissed when the user clicks
- * outside of it.
- * @param summaryAlpha The alpha value for the summary text.
- * @param enableResetButton A lambda function that returns whether the reset button should be
- * enabled.
+ * @param isDismissOnBackPress Whether the dialog can be dismissed by pressing the back button.
+ * @param isDismissOnClickOutside Whether the dialog can be dismissed by clicking outside.
+ * @param summaryAlpha The alpha value applied to the summary text.
+ * @param enableResetButton Whether to show a reset button in the selection dialog.
+ *
+ * @note This version requires [LocalDatastore] to be provided via `CompositionLocalProvider`.
  */
 @Composable
 fun FontPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>,
     key: Preferences.Key<String>,
-    initialValue: String,
-    entities: Map<Int, String> = emptyMap(),
+    entities: ImmutableList<FontPreferenceItem>,
     title: String,
     summary: String = "",
     previewText: String = "This is sample text. Time - 3:33 AM",
@@ -177,12 +165,19 @@ fun FontPreference(
 
     val getSelectedItem by datastore.getPreference(
         key = key,
-        initial = initialValue
-    ).collectAsStateWithLifecycle(initialValue = initialValue)
+        entities = entities
+    ).collectAsStateWithLifecycle(initialValue = null)
 
     val dialogVisibleState = remember { MutableTransitionState(false) }
 
-    val selectedFontRes by rememberFontRes(id = getSelectedItem, entities = entities)
+    val selectedFontRes by remember(getSelectedItem) {
+        derivedStateOf {
+            getSelectedItem?.resId?.let { fontRes ->
+
+                FontFamily(Font(resId = fontRes))
+            } ?: FontFamily.Default
+        }
+    }
 
     AnimatedVisibility(visibleState = dialogVisibleState) {
 
@@ -244,7 +239,7 @@ fun FontPreference(
                     items(items = entities.toList()) { fontItem ->
 
                         val isSelected by remember(getSelectedItem, fontItem) {
-                            derivedStateOf { getSelectedItem == fontItem.second }
+                            derivedStateOf { getSelectedItem?.label == fontItem.label }
                         }
 
                         Row(
@@ -259,7 +254,7 @@ fun FontPreference(
 
                                             datastore.setPreference(
                                                 key = key,
-                                                value = fontItem.second
+                                                value = fontItem.label
                                             )
                                         }
                                     }
@@ -275,7 +270,7 @@ fun FontPreference(
                                 text = previewText,
                                 textAlign = TextAlign.Start,
                                 style = MaterialTheme.typography.bodyMedium,
-                                fontFamily = FontFamily(Font(resId = fontItem.first))
+                                fontFamily = FontFamily(Font(resId = fontItem.resId))
                             )
                         }
                     }
@@ -335,11 +330,7 @@ fun FontPreference(
             PreferenceSummary(
                 summary = summary,
                 alpha = summaryAlpha,
-                fontFamily = when (selectedFontRes != null) {
-
-                    true -> FontFamily(Font(resId = selectedFontRes!!))
-                    false -> FontFamily.Default
-                }
+                fontFamily = selectedFontRes
             )
         }
     )

@@ -32,14 +32,13 @@ class MainActivity : ComponentActivity() {
 
                 EmptyLibsTheme(darkTheme = AppTheme.getTheme(theme = getAppTheme)) {
 
-                    ShapeScreen()
 //                    AnalogClockScreen()
 //                    BasicTextEditorScreen()
 //                    BottomOptionBarScreen()
 //                    CanvasSlateScreen()
 //                    ColorPickerScreen()
 //                    ColorPickerDialogScreen()
-//                    DatastoreUIScreen()
+                    DatastoreUIScreen()
 //                    DialClockScreen()
 //                    DialTextPickerScreen()
 //                    DigitalClockScreen()
@@ -55,6 +54,7 @@ class MainActivity : ComponentActivity() {
 //                    ImageWallpaperScreen()
 //                    LruCacheScreen()
 //                    MusicPlayingAnimationScreen()
+//                    PathShapeScreen()
 //                    PdfViewerScreen()
 //                    SevenSegmentDisplayScreen()
 //                    StorageScreen()

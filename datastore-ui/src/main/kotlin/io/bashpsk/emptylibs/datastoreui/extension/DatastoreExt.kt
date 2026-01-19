@@ -6,13 +6,50 @@ import androidx.datastore.core.IOException
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import io.bashpsk.emptylibs.datastoreui.font.FontPreferenceItem
 import io.bashpsk.emptylibs.datastoreui.utils.LOG_TAG
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
+
+/**
+ * Retrieves a preference value from the [DataStore] as a [Flow], returning `null` if not found.
+ *
+ * This function observes changes to the preference associated with the given [key].
+ * If the preference is not set, it emits `null`. Any [IOException] encountered during
+ * the read operation is caught and logged, emitting empty preferences to prevent
+ * flow interruption. The flow is executed on [Dispatchers.IO].
+ *
+ * @param T The type of the preference value.
+ * @param key The [Preferences.Key] for the desired preference.
+ * @return A [Flow] that emits the preference value of type [T], or `null` if the key is missing.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <T> DataStore<Preferences>.getPreferenceOrNull(key: Preferences.Key<T>): Flow<T?> {
+
+    return data.catch { throwable ->
+
+        when (throwable) {
+
+            is IOException -> {
+
+                Log.e(LOG_TAG, throwable.message, throwable)
+                emit(value = emptyPreferences())
+            }
+
+            else -> throw throwable
+        }
+    }.mapLatest { preferences ->
+
+        preferences[key]
+    }.flowOn(context = Dispatchers.IO)
+}
 
 /**
  * Retrieves a preference value from the DataStore as a [Flow].
@@ -30,21 +67,33 @@ import kotlinx.coroutines.flow.mapLatest
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <T> DataStore<Preferences>.getPreference(key: Preferences.Key<T>, initial: T): Flow<T> {
 
-    return this.data.catch { throwable ->
+    return getPreferenceOrNull(key = key).flatMapLatest { valueLatest ->
 
-        when (throwable) {
+        flowOf(value = valueLatest ?: initial)
+    }.flowOn(context = Dispatchers.IO)
+}
 
-            is IOException -> {
+/**
+ * Retrieves a [FontPreferenceItem] from the [DataStore] as a [Flow].
+ *
+ * This function reads a [String] value associated with the given [key] and attempts to match
+ * it against the label of an item within the [entities] list. If a match is found, that
+ * item is emitted; otherwise, `null` is emitted. Any [IOException] encountered during the
+ * read operation is caught and logged, returning an empty preference set.
+ *
+ * @param key The [Preferences.Key] associated with the [FontPreferenceItem] label.
+ * @param entities An [ImmutableList] of available [FontPreferenceItem]s to search within.
+ * @return A [Flow] emitting the matched [FontPreferenceItem], or `null` if no match is found.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+fun DataStore<Preferences>.getPreference(
+    key: Preferences.Key<String>,
+    entities: ImmutableList<FontPreferenceItem>
+): Flow<FontPreferenceItem?> {
 
-                Log.e(LOG_TAG, throwable.message, throwable)
-                emit(value = emptyPreferences())
-            }
+    return getPreferenceOrNull(key = key).flatMapLatest { labelLatest ->
 
-            else -> throw throwable
-        }
-    }.mapLatest { preferences ->
-
-        preferences[key] ?: initial
+        flowOf(value = entities.find { fontItem -> fontItem.label == labelLatest })
     }.flowOn(context = Dispatchers.IO)
 }
 

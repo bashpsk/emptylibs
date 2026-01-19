@@ -24,8 +24,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.composeutils.size.SizeData
 import io.bashpsk.emptylibs.composeutils.size.toSizeData
@@ -157,9 +157,9 @@ class ImageEditState(
     /**
      * Represents whether the toolbar menu is currently expanded or not.
      *
-     * This property is a mutable state, meaning that changes to its value will trigger recomposition
-     * in any Composable functions that observe it. It is primarily used to control the visibility
-     * of the toolbar menu within the image editing interface.
+     * This property is a mutable state, meaning that changes to its value will trigger
+     * recomposition in any Composable functions that observe it. It is primarily used to control
+     * the visibility of the toolbar menu within the image editing interface.
      *
      * @see mutableStateOf
      */
@@ -580,9 +580,9 @@ class ImageEditState(
                 drawImage(
                     image = bitmap,
                     srcOffset = IntOffset.Zero,
-                    srcSize = IntSize(bitmap.width, bitmap.height),
+                    srcSize = bitmap.toSize().toIntSize(),
                     dstOffset = IntOffset.Zero,
-                    dstSize = IntSize(size.width.toInt(), size.height.toInt())
+                    dstSize = size.toIntSize()
                 )
 
                 drawIntoCanvas { nativeCanvas ->

@@ -57,7 +57,7 @@ fun AnalogClockScreen() {
     val currentDateTimeFormatted by remember(currentDateTime) {
         derivedStateOf {
             EmptyFormat.dateTime(
-                currentDateTime,
+                millis = currentDateTime,
                 pattern = DateTimePattern.TIME_HH_MM_SS
             )
         }
@@ -66,6 +66,7 @@ fun AnalogClockScreen() {
     val clockShape = AnalogClockShape.Circle
 //    val clockShape = AnalogClockShape.Triangle
 //    val clockShape = AnalogClockShape.Polygon(sides = 5)
+//    val clockShape = AnalogClockShape.Polygon(sides = 6)
 //    val clockShape = AnalogClockShape.Rectangle(radius = 0.1F)
 //    val clockShape = AnalogClockShape.CutCorner(radius = 0.1F)
 //    val clockShape = AnalogClockShape.Star(edges = 5, distance = 2.50F)
@@ -78,8 +79,8 @@ fun AnalogClockScreen() {
         ),
         minorDivisionWidth = 4.dp,
         minorDivisionThickness = 4.dp,
-        majorDivisionWidth = 12.dp,
-        majorDivisionThickness = 2.dp,
+        majorDivisionWidth = 14.dp,
+        majorDivisionThickness = 4.dp
     )
 
     val colors = AnalogClockDefault.colors(

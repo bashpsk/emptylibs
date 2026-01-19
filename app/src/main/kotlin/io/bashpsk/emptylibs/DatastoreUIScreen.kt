@@ -36,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -75,9 +76,9 @@ import io.bashpsk.emptylibs.datastoreui.preference.SliderPreference
 import io.bashpsk.emptylibs.datastoreui.preference.SwitchMenuPreference
 import io.bashpsk.emptylibs.datastoreui.preference.SwitchPreference
 import io.bashpsk.emptylibs.datastoreui.preference.TextFieldPreference
+import io.bashpsk.emptylibs.screen.datastoreui.AppFont
 import io.bashpsk.emptylibs.screen.datastoreui.AppTheme
 import io.bashpsk.emptylibs.screen.datastoreui.datastore2
-import io.bashpsk.emptylibs.screen.datastoreui.fontEntities
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,6 +132,7 @@ fun DatastoreUIScreen() {
                     Text(
                         text = "Datastore UI",
                         textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -215,7 +217,7 @@ fun DatastoreUIScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = paddingValues),
-            columns = GridCells.Adaptive(minSize = 320.dp),
+            columns = GridCells.Fixed(count = 1),
             contentPadding = PaddingValues(vertical = 4.dp, horizontal = 4.dp),
             verticalArrangement = Arrangement.spacedBy(space = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(space = 4.dp)
@@ -375,8 +377,7 @@ fun DatastoreUIScreen() {
                         )
                     ),
                     key = stringPreferencesKey("FONT-PREFERENCE"),
-                    initialValue = "",
-                    entities = fontEntities,
+                    entities = AppFont.fontEntities,
                     title = "Font Preference",
                     summary = "Select font from the list.",
                     previewText = "This Font Preference UI. In 2000.",

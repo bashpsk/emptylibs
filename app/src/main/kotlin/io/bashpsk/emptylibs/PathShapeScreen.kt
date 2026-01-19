@@ -17,7 +17,7 @@ import io.bashpsk.emptylibs.composeutils.shape.toLabel
 import io.bashpsk.emptylibs.composeutils.shape.toPath
 
 @Composable
-fun ShapeScreen() {
+fun PathShapeScreen() {
 
     Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
 
