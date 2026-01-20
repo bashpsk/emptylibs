@@ -69,7 +69,7 @@ fun BoxWithConstraintsScope.LazyGridScrollBar(
         firstVisibleItemIndex: Int,
         visibleItemsCount: Int,
         totalItemsCount: Int
-    ) -> Unit = { _, _,_ -> },
+    ) -> Unit = { _, _, _ -> },
     thumb: @Composable () -> Unit = {
 
         Icon(
@@ -187,7 +187,7 @@ fun BoxWithConstraintsScope.LazyGridScrollBar(
 
         if (maximumBarPosition > 0) {
 
-            barPosition = (barPosition + delta).coerceIn(0F, maximumBarPosition)
+            barPosition = (barPosition + delta).coerceIn(0F..maximumBarPosition)
 
             gridCoroutineScope.launch {
 
@@ -211,12 +211,12 @@ fun BoxWithConstraintsScope.LazyGridScrollBar(
 
                 val scrollPosition = scrollableDistance * (barPosition / maximumBarPosition)
                 val targetLine = (scrollPosition / lineSize).toInt()
-                val targetItemIndex = (targetLine * itemsPerLine).coerceIn(
-                    0 until totalItemsCount
+                val targetItem = (targetLine * itemsPerLine).coerceIn(
+                    0 until totalItemsCount.coerceAtLeast(1)
                 )
                 val targetOffset = (scrollPosition % lineSize).toInt()
 
-                state.scrollToItem(index = targetItemIndex, scrollOffset = targetOffset)
+                state.scrollToItem(index = targetItem, scrollOffset = targetOffset)
             }
         }
     }

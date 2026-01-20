@@ -45,7 +45,7 @@ fun ImageBitmapView(
         Text(
             text = "${index + 1}",
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onError
+            color = MaterialTheme.colorScheme.error
         )
     }
 }
