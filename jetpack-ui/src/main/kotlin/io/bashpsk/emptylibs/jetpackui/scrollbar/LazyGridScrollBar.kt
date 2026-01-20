@@ -92,55 +92,6 @@ fun BoxWithConstraintsScope.LazyGridScrollBar(
     val firstItemScrollOffset by remember { derivedStateOf { state.firstVisibleItemScrollOffset } }
     val visibleItemsCount by remember(visibleItemsInfo) { derivedStateOf { visibleItemsInfo.size } }
 
-    val scrollRatio by remember(
-        totalItemsCount,
-        viewportStartOffset,
-        viewportEndOffset,
-        visibleItemsInfo,
-        firstItemScrollOffset
-    ) {
-        derivedStateOf {
-            when {
-
-                visibleItemsInfo.isEmpty() || totalItemsCount == 0 -> 0F
-
-                else -> visibleItemsInfo.firstOrNull()?.let { firstVisibleItem ->
-
-                    val itemsPerLine = when (orientation) {
-
-                        Orientation.Vertical -> visibleItemsInfo.maxOf { it.column } + 1
-                        Orientation.Horizontal -> visibleItemsInfo.maxOf { it.row } + 1
-                    }
-
-                    val firstVisibleLine = when (orientation) {
-
-                        Orientation.Vertical -> firstVisibleItem.row
-                        Orientation.Horizontal -> firstVisibleItem.column
-                    }
-
-                    val lineSize = when (orientation) {
-
-                        Orientation.Vertical -> firstVisibleItem.size.height
-                        Orientation.Horizontal -> firstVisibleItem.size.width
-                    }
-
-                    val totalLines = (totalItemsCount + itemsPerLine - 1) / itemsPerLine
-                    val totalLinesSize = totalLines * lineSize
-                    val viewportSize = viewportEndOffset - viewportStartOffset
-
-                    (totalLinesSize - viewportSize).coerceAtLeast(0).takeIf { distance ->
-
-                        distance > 0
-                    }?.let { distance ->
-
-                        ((firstVisibleLine * lineSize + firstItemScrollOffset).toFloat()
-                                / distance).coerceIn(0F..1F)
-                    } ?: 0F
-                } ?: 0F
-            }
-        }
-    }
-
     var barSize by rememberSaveable { mutableFloatStateOf(0F) }
     var barPosition by rememberSaveable { mutableFloatStateOf(0F) }
     var isBarDragging by rememberSaveable { mutableStateOf(false) }
@@ -185,36 +136,42 @@ fun BoxWithConstraintsScope.LazyGridScrollBar(
 
     val barDraggableState = rememberDraggableState { delta ->
 
-        if (maximumBarPosition > 0) {
+        if (maximumBarPosition > 0 && visibleItemsInfo.isNotEmpty()) gridCoroutineScope.launch {
 
-            barPosition = (barPosition + delta).coerceIn(0F..maximumBarPosition)
+            val itemsPerLine = when (orientation) {
 
-            gridCoroutineScope.launch {
+                Orientation.Vertical -> visibleItemsInfo.maxOf { info -> info.column } + 1
+                Orientation.Horizontal -> visibleItemsInfo.maxOf { info -> info.row } + 1
+            }
 
-                val firstVisibleItem = visibleItemsInfo.firstOrNull() ?: return@launch
+            val lineSize = when (orientation) {
 
-                val itemsPerLine = when (orientation) {
+                Orientation.Vertical -> visibleItemsInfo.maxOf { info -> info.size.height }
+                Orientation.Horizontal -> visibleItemsInfo.maxOf { info -> info.size.width }
+            }
 
-                    Orientation.Vertical -> visibleItemsInfo.maxOf { info -> info.column } + 1
-                    Orientation.Horizontal -> visibleItemsInfo.maxOf { info -> info.row } + 1
+            val totalLines = (totalItemsCount + itemsPerLine - 1) / itemsPerLine
+            val viewportSize = viewportEndOffset - viewportStartOffset
+
+            (totalLines * lineSize - viewportSize).takeIf { distance ->
+
+                distance > 0
+            }?.let { distance ->
+
+                val firstVisibleLine = when (orientation) {
+
+                    Orientation.Vertical -> visibleItemsInfo.firstOrNull()?.row ?: 0
+                    Orientation.Horizontal -> visibleItemsInfo.firstOrNull()?.column ?: 0
                 }
 
-                val lineSize = when (orientation) {
-
-                    Orientation.Vertical -> firstVisibleItem.size.height
-                    Orientation.Horizontal -> firstVisibleItem.size.width
-                }
-
-                val totalLines = (totalItemsCount + itemsPerLine - 1) / itemsPerLine
-                val viewportSize = viewportEndOffset - viewportStartOffset
-                val scrollableDistance = (totalLines * lineSize - viewportSize).coerceAtLeast(0)
-
-                val scrollPosition = scrollableDistance * (barPosition / maximumBarPosition)
-                val targetLine = (scrollPosition / lineSize).toInt()
-                val targetItem = (targetLine * itemsPerLine).coerceIn(
-                    0 until totalItemsCount.coerceAtLeast(1)
-                )
-                val targetOffset = (scrollPosition % lineSize).toInt()
+                val currentScroll = (firstVisibleLine * lineSize) + firstItemScrollOffset
+                val currentRatio = (currentScroll.toFloat() / distance).coerceIn(0F..1F)
+                val deltaRatio = delta / maximumBarPosition
+                val newRatio = (currentRatio + deltaRatio).coerceIn(0F..1F)
+                val targetScroll = newRatio * distance
+                val targetLine = (targetScroll / lineSize).toInt()
+                val targetItem = (targetLine * itemsPerLine).coerceIn(0 until totalItemsCount)
+                val targetOffset = (targetScroll % lineSize).toInt()
 
                 state.scrollToItem(index = targetItem, scrollOffset = targetOffset)
             }
@@ -229,11 +186,52 @@ fun BoxWithConstraintsScope.LazyGridScrollBar(
         )
     }
 
-    LaunchedEffect(scrollRatio, maximumBarPosition) {
+    LaunchedEffect(state, orientation, maximumBarPosition) {
 
-        if (isBarDragging) return@LaunchedEffect
+        snapshotFlow {
 
-        barPosition = (scrollRatio * maximumBarPosition).coerceIn(0F..maximumBarPosition)
+            when {
+
+                visibleItemsInfo.isEmpty() || totalItemsCount == 0 -> 0F
+
+                else -> visibleItemsInfo.firstOrNull()?.let { firstVisibleItem ->
+
+                    val itemsPerLine = when (orientation) {
+
+                        Orientation.Vertical -> visibleItemsInfo.maxOf { info -> info.column } + 1
+                        Orientation.Horizontal -> visibleItemsInfo.maxOf { info -> info.row } + 1
+                    }
+
+                    val lineSize = when (orientation) {
+
+                        Orientation.Vertical -> visibleItemsInfo.maxOf { info -> info.size.height }
+                        Orientation.Horizontal -> visibleItemsInfo.maxOf { info -> info.size.width }
+                    }
+
+                    val firstVisibleLine = when (orientation) {
+
+                        Orientation.Vertical -> firstVisibleItem.row
+                        Orientation.Horizontal -> firstVisibleItem.column
+                    }
+
+                    val totalLines = (totalItemsCount + itemsPerLine - 1) / itemsPerLine
+                    val totalLinesSize = totalLines * lineSize
+                    val viewportSize = viewportEndOffset - viewportStartOffset
+
+                    (totalLinesSize - viewportSize).takeIf { distance ->
+
+                        distance > 0
+                    }?.let { distance ->
+
+                        ((firstVisibleLine * lineSize + firstItemScrollOffset).toFloat() / distance)
+                            .coerceIn(0F..1F)
+                    } ?: 0F
+                } ?: 0F
+            }
+        }.distinctUntilChanged().collect { scrollRatio ->
+
+            barPosition = (scrollRatio * maximumBarPosition).coerceIn(0F..maximumBarPosition)
+        }
     }
 
     LaunchedEffect(state, isBarDragging) {

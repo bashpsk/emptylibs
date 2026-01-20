@@ -16,10 +16,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.min
 
 @Stable
-class ThumbNotchShape(
-    val orientation: Orientation,
-    val alignment: Alignment,
-    val thumbNotchWidth: Dp,
+internal class ThumbNotchShape(
+    private val orientation: Orientation,
+    private val alignment: Alignment,
+    private val thumbNotchWidth: Dp
 ) : Shape {
 
     override fun createOutline(
