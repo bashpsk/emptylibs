@@ -5,7 +5,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material3.Icon
@@ -38,15 +38,15 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * A scrollbar for [LazyListState] that appears when scrolling and fades out after a short delay.
+ * A scrollbar for [LazyGridState] that appears when scrolling and fades out after a short delay.
  *
  * @param modifier The modifier to be applied to the scrollbar.
- * @param state The [LazyListState] to attach the scrollbar to.
+ * @param state The [LazyGridState] to attach the scrollbar to.
  * @param orientation The orientation of the scrollbar.
- * Defaults to the orientation of the [LazyListState].
+ * Defaults to the orientation of the [LazyGridState].
  * @param alignment The alignment of the scrollbar.
- * Defaults to [Alignment.TopEnd] for vertical lists and [Alignment.BottomStart] for horizontal
- * lists.
+ * Defaults to [Alignment.TopEnd] for vertical grids and [Alignment.BottomStart] for horizontal
+ * grids.
  * @param thumbColor The color of the scrollbar thumb.
  * @param thumbNotchWidth The width of the notch on the scrollbar thumb.
  * @param label A composable that displays the current item index.
@@ -54,9 +54,9 @@ import kotlin.time.Duration.Companion.seconds
  */
 @OptIn(FlowPreview::class)
 @Composable
-fun BoxWithConstraintsScope.LazyListScrollBar(
+fun BoxWithConstraintsScope.LazyGridScrollBar(
     modifier: Modifier = Modifier,
-    state: LazyListState,
+    state: LazyGridState,
     orientation: Orientation = state.layoutInfo.orientation,
     alignment: Alignment = when (orientation) {
 
@@ -81,7 +81,7 @@ fun BoxWithConstraintsScope.LazyListScrollBar(
 ) {
 
     val density = LocalDensity.current
-    val listCoroutineScope = rememberCoroutineScope()
+    val gridCoroutineScope = rememberCoroutineScope()
     val barVisibleState = remember { MutableTransitionState(false) }
 
     val firstVisibleItemIndex by remember { derivedStateOf { state.firstVisibleItemIndex } }
@@ -96,7 +96,8 @@ fun BoxWithConstraintsScope.LazyListScrollBar(
         totalItemsCount,
         viewportStartOffset,
         viewportEndOffset,
-        visibleItemsInfo
+        visibleItemsInfo,
+        firstItemScrollOffset
     ) {
         derivedStateOf {
             when {
@@ -105,16 +106,35 @@ fun BoxWithConstraintsScope.LazyListScrollBar(
 
                 else -> visibleItemsInfo.firstOrNull()?.let { firstVisibleItem ->
 
-                    val totalItemsSize = totalItemsCount * firstVisibleItem.size.toFloat()
+                    val itemsPerLine = when (orientation) {
+
+                        Orientation.Vertical -> visibleItemsInfo.maxOf { it.column } + 1
+                        Orientation.Horizontal -> visibleItemsInfo.maxOf { it.row } + 1
+                    }
+
+                    val firstVisibleLine = when (orientation) {
+
+                        Orientation.Vertical -> firstVisibleItem.row
+                        Orientation.Horizontal -> firstVisibleItem.column
+                    }
+
+                    val lineSize = when (orientation) {
+
+                        Orientation.Vertical -> firstVisibleItem.size.height
+                        Orientation.Horizontal -> firstVisibleItem.size.width
+                    }
+
+                    val totalLines = (totalItemsCount + itemsPerLine - 1) / itemsPerLine
+                    val totalLinesSize = totalLines * lineSize
                     val viewportSize = viewportEndOffset - viewportStartOffset
 
-                    (totalItemsSize - viewportSize).coerceAtLeast(0F).takeIf { distance ->
+                    (totalLinesSize - viewportSize).coerceAtLeast(0).takeIf { distance ->
 
-                        distance > 0F
+                        distance > 0
                     }?.let { distance ->
 
-                        (((firstVisibleItem.index * firstVisibleItem.size)
-                                + firstItemScrollOffset) / distance).coerceIn(0F..1F)
+                        ((firstVisibleLine * lineSize + firstItemScrollOffset).toFloat()
+                                / distance).coerceIn(0F..1F)
                     } ?: 0F
                 } ?: 0F
             }
@@ -169,19 +189,34 @@ fun BoxWithConstraintsScope.LazyListScrollBar(
 
             barPosition = (barPosition + delta).coerceIn(0F, maximumBarPosition)
 
-            listCoroutineScope.launch {
+            gridCoroutineScope.launch {
 
-                val itemSize = visibleItemsInfo.firstOrNull()?.size ?: 1
-                val totalItemsSize = totalItemsCount * itemSize
+                val firstVisibleItem = visibleItemsInfo.firstOrNull() ?: return@launch
+
+                val itemsPerLine = when (orientation) {
+
+                    Orientation.Vertical -> visibleItemsInfo.maxOf { info -> info.column } + 1
+                    Orientation.Horizontal -> visibleItemsInfo.maxOf { info -> info.row } + 1
+                }
+
+                val lineSize = when (orientation) {
+
+                    Orientation.Vertical -> firstVisibleItem.size.height
+                    Orientation.Horizontal -> firstVisibleItem.size.width
+                }
+
+                val totalLines = (totalItemsCount + itemsPerLine - 1) / itemsPerLine
                 val viewportSize = viewportEndOffset - viewportStartOffset
-                val scrollableDistance = (totalItemsSize - viewportSize).coerceAtLeast(0)
-                val scrollPosition = scrollableDistance * (barPosition / maximumBarPosition)
-                val newItem = (scrollPosition / itemSize).toInt().coerceIn(
-                    0 until if (totalItemsCount <= 0) 1 else totalItemsCount
-                )
-                val targetOffset = (scrollPosition % itemSize).toInt()
+                val scrollableDistance = (totalLines * lineSize - viewportSize).coerceAtLeast(0)
 
-                state.scrollToItem(index = newItem, scrollOffset = targetOffset)
+                val scrollPosition = scrollableDistance * (barPosition / maximumBarPosition)
+                val targetLine = (scrollPosition / lineSize).toInt()
+                val targetItemIndex = (targetLine * itemsPerLine).coerceIn(
+                    0 until totalItemsCount
+                )
+                val targetOffset = (scrollPosition % lineSize).toInt()
+
+                state.scrollToItem(index = targetItemIndex, scrollOffset = targetOffset)
             }
         }
     }
@@ -198,7 +233,7 @@ fun BoxWithConstraintsScope.LazyListScrollBar(
 
         if (isBarDragging) return@LaunchedEffect
 
-        barPosition = (scrollRatio * maximumBarPosition).coerceIn(0F, maximumBarPosition)
+        barPosition = (scrollRatio * maximumBarPosition).coerceIn(0F..maximumBarPosition)
     }
 
     LaunchedEffect(state, isBarDragging) {

@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
 import io.bashpsk.emptylibs.jetpackui.scrollbar.LazyListScrollBar
 import io.bashpsk.emptylibs.pdfviewer.page.PdfPageView
-import io.bashpsk.emptylibs.pdfviewer.utils.setDebug
 import kotlinx.collections.immutable.toImmutableList
 
 /**
@@ -63,19 +62,10 @@ fun PdfLazyColumn(
         derivedStateOf { state.pageDataList.values.toImmutableList() }
     }
 
-    val pageCount by remember(pageDataList) { derivedStateOf { pageDataList.size } }
     val isScrolling by remember { derivedStateOf { pdfLazyListState.isScrollInProgress } }
-    val visibleItemsCount by remember {
-        derivedStateOf { pdfLazyListState.layoutInfo.visibleItemsInfo.size }
-    }
 
     val isScrollEnabled by remember(state.transformable) {
         derivedStateOf { state.transformable.touchCount == 1 }
-    }
-
-    LaunchedEffect(pageDataList) {
-
-        "${pageDataList.firstOrNull()}".setDebug()
     }
 
     BoxWithConstraints(
@@ -128,15 +118,15 @@ fun PdfLazyColumn(
             state = pdfLazyListState,
             orientation = Orientation.Vertical,
             alignment = scrollBarAlignment,
-            label = { index ->
+            label = { index, visibleItemsCount, itemsCount ->
 
-                val barLabel by remember(index, pageCount, visibleItemsCount) {
+                val barLabel by remember(index, itemsCount, visibleItemsCount) {
                     derivedStateOf {
                         when (visibleItemsCount) {
 
-                            0 -> "${index}/$pageCount"
-                            1 -> "${index + 1}/$pageCount"
-                            else -> "${index + 1}-${index + visibleItemsCount}/$pageCount"
+                            0 -> "${index}/$itemsCount"
+                            1 -> "${index + 1}/$itemsCount"
+                            else -> "${index + 1}-${index + visibleItemsCount}/$itemsCount"
                         }
                     }
                 }
