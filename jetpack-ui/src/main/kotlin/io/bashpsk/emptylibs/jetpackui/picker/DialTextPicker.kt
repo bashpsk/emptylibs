@@ -55,10 +55,10 @@ fun <T> DialTextPicker(
 
     val textMeasurer = rememberTextMeasurer()
 
-    val dialTextBoxSize by remember(state.selectedText) {
+    val dialTextBoxSize by remember(state.selectedText, state.textList) {
         derivedStateOf {
             textMeasurer.measure(
-                text = "${state.selectedText ?: state.textList.firstOrNull()}",
+                text = "${state.selectedText ?: state.textList.firstOrNull() ?: ""}",
                 style = selectedTextStyle
             ).size.toSize()
         }

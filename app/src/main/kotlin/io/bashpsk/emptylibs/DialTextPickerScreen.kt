@@ -1,9 +1,10 @@
 package io.bashpsk.emptylibs
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,7 +38,7 @@ fun DialTextPickerScreen() {
             verticalArrangement = Arrangement.Center
         ) {
 
-            BoxWithConstraints(
+            Box(
                 modifier = Modifier
                     .weight(1.0F)
                     .padding(horizontal = 8.dp, vertical = 8.dp),
@@ -45,7 +46,7 @@ fun DialTextPickerScreen() {
             ) {
 
                 DialTextPicker(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth(),
                     state = textPickerState1,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface
