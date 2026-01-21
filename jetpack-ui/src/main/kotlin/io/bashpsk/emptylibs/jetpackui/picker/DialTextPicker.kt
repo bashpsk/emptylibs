@@ -25,6 +25,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 
 /**
@@ -71,20 +72,14 @@ fun <T> DialTextPicker(
         detectDragGestures(
             onDragStart = { position ->
 
-                state.onDialStart(Offset(size.center.y - position.y, size.center.x - position.x))
+                state.onDialStart(position - size.center.toOffset())
             },
             onDragEnd = state::onDialEnd,
             onDragCancel = state::onDialEnd,
             onDrag = { change, _ ->
 
                 change.consume()
-
-                val position = Offset(
-                    x = size.center.y - change.position.y,
-                    y = size.center.x - change.position.x
-                )
-
-                state.onDialDrag(position = position)
+                state.onDialDrag(position = change.position - size.center.toOffset())
             }
         )
     }

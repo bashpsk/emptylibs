@@ -1,5 +1,7 @@
 package io.bashpsk.emptylibs
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -41,6 +43,8 @@ fun DialClockScreen() {
     val textPickerState2 = rememberDialTextPickerState(textList = textList2)
     val textPickerState3 = rememberDialTextPickerState(textList = textList3)
 
+    val animationSpec = tween<Float>(durationMillis = 250, easing = LinearOutSlowInEasing)
+
     val currentTimeFormatted by remember(
         textPickerState1.selectedIndex,
         textPickerState2.selectedIndex,
@@ -63,9 +67,18 @@ fun DialClockScreen() {
 
             val localDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
-            textPickerState1.updateSelectedTextFromIndex(localDateTime.hour)
-            textPickerState2.updateSelectedTextFromIndex(localDateTime.minute)
-            textPickerState3.updateSelectedTextFromIndex(localDateTime.second)
+            textPickerState1.updateSelectedTextFromIndex(
+                newIndex = localDateTime.hour,
+                animationSpec = animationSpec
+            )
+            textPickerState2.updateSelectedTextFromIndex(
+                newIndex = localDateTime.minute,
+                animationSpec = animationSpec
+            )
+            textPickerState3.updateSelectedTextFromIndex(
+                newIndex = localDateTime.second,
+                animationSpec = animationSpec
+            )
             delay(100.milliseconds)
         }
     }

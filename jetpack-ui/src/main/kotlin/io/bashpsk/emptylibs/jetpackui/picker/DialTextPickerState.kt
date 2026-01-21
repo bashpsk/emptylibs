@@ -1,7 +1,7 @@
 package io.bashpsk.emptylibs.jetpackui.picker
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
@@ -45,8 +45,7 @@ import kotlin.math.floor
 @Composable
 fun <T> rememberDialTextPickerState(
     textList: ImmutableList<T>,
-    initial: T? = textList.firstOrNull(),
-    animationSpec: TweenSpec<Float> = tween(durationMillis = 250, easing = LinearOutSlowInEasing)
+    initial: T? = textList.firstOrNull()
 ): DialTextPickerState<T> {
 
     val coroutineScope = rememberCoroutineScope()
@@ -55,19 +54,16 @@ fun <T> rememberDialTextPickerState(
         textList,
         initial,
         coroutineScope,
-        animationSpec,
         saver = DialTextPickerState.Saver(
             textList = textList,
             initial = initial,
-            coroutineScope = coroutineScope,
-            animationSpec = animationSpec
+            coroutineScope = coroutineScope
         )
     ) {
         DialTextPickerState(
             textList = textList,
             initial = initial,
-            coroutineScope = coroutineScope,
-            animationSpec = animationSpec
+            coroutineScope = coroutineScope
         )
     }
 }
@@ -84,6 +80,9 @@ fun <T> rememberDialTextPickerState(
  * @property textList The immutable list of items to display in the picker.
  * @property initial The initially selected item. If null, the first item in [textList] will be
  * selected, or no item if [textList] is empty.
+ * @property coroutineScope The coroutine scope used for animations.
+ * @property selectedText The currently selected item from the [textList].
+ * @property selectedIndex The index of the currently selected item in the [textList].
  * @property currentAngle The current rotation angle of the dial in degrees.
  * This value is updated as the user interacts with the dial.
  * @property selectedText The currently selected item from the [textList].
@@ -94,45 +93,22 @@ fun <T> rememberDialTextPickerState(
 class DialTextPickerState<T>(
     val textList: ImmutableList<T>,
     val initial: T?,
-    val coroutineScope: CoroutineScope,
-    val animationSpec: TweenSpec<Float>
+    val coroutineScope: CoroutineScope
 ) {
 
-    /**
-     * The currently selected text in the picker.
-     * This value is updated as the user interacts with the dial.
-     * It is initialized with the `initial` value provided to the state.
-     */
     var selectedText by mutableStateOf(initial)
         private set
 
-    /**
-     * The index of the currently selected item in the `textList`.
-     * This value is updated when `selectedText` changes.
-     * It is initialized based on the `initial` value provided to the state.
-     * If `initial` is not found in `textList`, `selectedIndex` will be -1.
-     */
     var selectedIndex by mutableIntStateOf(textList.indexOf(initial))
         private set
 
-    /**
-     * The current rotation angle of the dial in degrees.
-     * This value is updated as the user interacts with the dial.
-     * It is read-only from outside the class.
-     */
     internal val currentAngle = Animatable(0F)
 
-    /**
-     * Stores the angle of the previous drag event.
-     * This is used to calculate the change in angle during a drag gesture.
-     * It is initialized to 0F and updated in [onDialStart] and [onDialDrag].
-     * It is reset to 0F in [onDialEnd].
-     */
     internal var previousAngle by mutableFloatStateOf(0F)
 
     init {
 
-        updateSelectedText(newValue = initial)
+        updateSelectedText(newValue = initial, animationSpec = null)
     }
 
     /**
@@ -149,13 +125,22 @@ class DialTextPickerState<T>(
      *
      * @param newValue The new item to be selected.
      */
-    fun updateSelectedText(newValue: T?) {
+    fun updateSelectedText(
+        newValue: T?,
+        animationSpec: TweenSpec<Float>? = tween(
+            durationMillis = 250,
+            easing = FastOutSlowInEasing
+        )
+    ) {
 
         newValue?.let { item ->
 
             textList.indexOf(item).takeIf { index -> index != -1 }?.let { index ->
 
-                updateRotation(newAngle = -(index.toFloat() / textList.size) * 360F)
+                updateRotation(
+                    newAngle = -(index.toFloat() / textList.size) * 360F,
+                    animationSpec = animationSpec
+                )
             }
         }
     }
@@ -172,11 +157,20 @@ class DialTextPickerState<T>(
      *
      * @param newIndex The index of the item in `textList` to be selected.
      */
-    fun updateSelectedTextFromIndex(newIndex: Int) {
+    fun updateSelectedTextFromIndex(
+        newIndex: Int,
+        animationSpec: TweenSpec<Float>? = tween(
+            durationMillis = 250,
+            easing = FastOutSlowInEasing
+        )
+    ) {
 
         newIndex.takeIf { index -> index in textList.indices }?.let { index ->
 
-            updateRotation(newAngle = -(index.toFloat() / textList.size) * 360F)
+            updateRotation(
+                newAngle = -(index.toFloat() / textList.size) * 360F,
+                animationSpec = animationSpec
+            )
         }
     }
 
@@ -196,16 +190,21 @@ class DialTextPickerState<T>(
      *
      * @param newAngle The new rotation angle in degrees.
      */
-    fun updateRotation(newAngle: Float) {
+    private fun updateRotation(newAngle: Float, animationSpec: TweenSpec<Float>?) {
 
         coroutineScope.launch {
 
-            currentAngle.animateTo(
-                targetValue = newAngle,
-                animationSpec = animationSpec
-            ) {
+            currentAngle.apply {
 
-                updateSelectionFromAngle(value)
+                when (animationSpec) {
+
+                    null -> snapTo(targetValue = newAngle)
+
+                    else -> animateTo(targetValue = newAngle, animationSpec = animationSpec) {
+
+                        updateSelectionFromAngle(value)
+                    }
+                }
             }
 
             updateSelectionFromAngle(currentAngle.value)
@@ -237,7 +236,7 @@ class DialTextPickerState<T>(
      *
      * @param angle The current rotation angle of the dial in degrees.
      */
-    internal fun updateSelectionFromAngle(angle: Float) {
+    private fun updateSelectionFromAngle(angle: Float) {
 
         textList.takeIf { items -> items.isNotEmpty() }?.let { items ->
 
@@ -267,7 +266,7 @@ class DialTextPickerState<T>(
      */
     internal fun onDialStart(position: Offset) {
 
-        previousAngle = atan2(position.x, position.y) * (180F / PI.toFloat())
+        previousAngle = (atan2(position.y, position.x) * (180.0 / PI)).toFloat()
     }
 
     /**
@@ -280,21 +279,29 @@ class DialTextPickerState<T>(
 
         textList.takeIf { items -> items.isNotEmpty() }?.let { items ->
 
+            val animationSpec = tween<Float>(
+                durationMillis = 250,
+                easing = FastOutSlowInEasing
+            )
+
             val anglePerItem = 360F / items.size
             val normalizedAngle = (-currentAngle.value % 360F + 360F) % 360F
             val centeredAngle = (normalizedAngle + anglePerItem / 2F) % 360F
             val currentSelectedIndex = (floor(centeredAngle / anglePerItem).toInt() % items.size)
-            var targetRotation = -(currentSelectedIndex.toFloat() * anglePerItem)
+            val targetRotation = -(currentSelectedIndex.toFloat() * anglePerItem)
             val angleDifference = (targetRotation - currentAngle.value) % 360F
 
-            targetRotation = currentAngle.value + when {
+            val shortestPath = when {
 
                 angleDifference > 180F -> angleDifference - 360F
                 angleDifference < -180F -> angleDifference + 360F
                 else -> angleDifference
             }
 
-            updateRotation(targetRotation)
+            updateRotation(
+                newAngle = currentAngle.value + shortestPath,
+                animationSpec = animationSpec
+            )
         }
 
         previousAngle = 0F
@@ -311,10 +318,21 @@ class DialTextPickerState<T>(
      */
     internal fun onDialDrag(position: Offset) {
 
-        val newAngle = atan2(position.x, position.y) * (180F / PI.toFloat())
-        val angleChange = newAngle - previousAngle
+        val newAngle = (atan2(position.y, position.x) * (180.0 / PI)).toFloat()
+        var angleChange = newAngle - previousAngle
 
-        updateRotation(currentAngle.value + angleChange)
+        when {
+
+            angleChange > 180f -> angleChange -= 360f
+            angleChange < -180f -> angleChange += 360f
+        }
+
+        coroutineScope.launch {
+
+            currentAngle.snapTo(currentAngle.value + angleChange)
+            updateSelectionFromAngle(currentAngle.value)
+        }
+
         previousAngle = newAngle
     }
 
@@ -326,17 +344,17 @@ class DialTextPickerState<T>(
         private const val KEY_PREVIOUS_ANGLE = "DIAL-TEXT-PICKER-PREVIOUS-ANGLE"
 
         @Suppress("UNCHECKED_CAST")
-        fun <T> Saver(
+        internal fun <T> Saver(
             textList: ImmutableList<T>,
             initial: T?,
-            coroutineScope: CoroutineScope,
-            animationSpec: TweenSpec<Float>
+            coroutineScope: CoroutineScope
         ): Saver<DialTextPickerState<T>, Any> = mapSaver(
             save = { state ->
 
                 mapOf(
                     KEY_TEXT to state.selectedText,
                     KEY_INDEX to state.selectedIndex,
+                    KEY_CURRENT_ANGLE to state.currentAngle.value,
                     KEY_PREVIOUS_ANGLE to state.previousAngle
                 )
             },
@@ -345,13 +363,15 @@ class DialTextPickerState<T>(
                 DialTextPickerState(
                     textList = textList,
                     initial = initial,
-                    coroutineScope = coroutineScope,
-                    animationSpec = animationSpec
+                    coroutineScope = coroutineScope
                 ).apply {
 
                     selectedText = elements.getOrElse(KEY_TEXT) { initial } as T?
                     selectedIndex = elements.getOrElse(KEY_INDEX) { initial } as Int
                     previousAngle = elements.getOrElse(KEY_PREVIOUS_ANGLE) { 0F } as Float
+                    val savedAngle = elements.getOrElse(KEY_CURRENT_ANGLE) { 0F } as Float
+
+                    coroutineScope.launch { currentAngle.snapTo(savedAngle) }
                 }
             }
         )
