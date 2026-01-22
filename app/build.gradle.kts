@@ -1,4 +1,3 @@
-import com.android.build.api.dsl.ApplicationExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -9,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-configure<ApplicationExtension> {
+android {
 
     namespace = "io.bashpsk.emptylibs"
 

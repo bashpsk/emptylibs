@@ -1,4 +1,3 @@
-import com.android.build.api.dsl.LibraryExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -10,7 +9,7 @@ plugins {
     id("maven-publish")
 }
 
-configure<LibraryExtension> {
+android {
 
     namespace = "io.bashpsk.emptylibs.lrucachemanager"
 

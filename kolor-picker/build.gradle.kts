@@ -1,17 +1,15 @@
-import com.android.build.api.dsl.LibraryExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
 
     alias(libs.plugins.android.library)
-//    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
     id("maven-publish")
 }
 
-configure<LibraryExtension> {
+android {
 
     namespace = "io.bashpsk.emptylibs.kolorpicker"
 
