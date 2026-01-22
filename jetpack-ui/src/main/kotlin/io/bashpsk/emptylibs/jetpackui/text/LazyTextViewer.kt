@@ -87,7 +87,7 @@ fun LazyTextViewer(
 
         items(
             count = state.lineCount,
-            key = { itemPosition -> "Line: $itemPosition unnecessary" }
+            key = { itemPosition -> "Line: $itemPosition" }
         ) { itemPosition ->
 
             TextContentResultView(
