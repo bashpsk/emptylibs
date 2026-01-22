@@ -72,7 +72,6 @@ import kotlin.time.toDuration
  * The `EmptyFormat` object is designed to be a versatile tool for developers needing to handle
  * diverse formatting requirements within their applications.
  */
-@OptIn(ExperimentalTime::class)
 @Suppress("unused")
 object EmptyFormat {
 
@@ -562,6 +561,7 @@ object EmptyFormat {
      * @return The total number of milliseconds equivalent to the input time span or 0L if an
      * exception occurs.
      */
+    @OptIn(ExperimentalTime::class)
     @JvmStatic
     fun timeToMilliseconds(hours: Int, minutes: Int, seconds: Int): Long? {
 

@@ -44,7 +44,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 /**
  * Remembers the state for image editing.
@@ -127,7 +126,6 @@ fun rememberImageEditState(
  * @property textEditInput The current input state for adding a text item
  * ([ImageEditInput.TextItem]).
  */
-@OptIn(ExperimentalTime::class)
 @Stable
 class ImageEditState(
     val imageBitmap: ImageBitmap?,

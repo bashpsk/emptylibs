@@ -22,9 +22,7 @@ import io.bashpsk.emptylibs.formatter.format.DurationPattern
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun FormatView(
     modifier: Modifier = Modifier,
@@ -71,7 +69,6 @@ fun FormatView(
     }
 }
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun FormatView(
     modifier: Modifier = Modifier,

@@ -33,7 +33,6 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 
 /**
  * Composable function to remember the state of the CanvasSlate.
@@ -83,7 +82,6 @@ fun rememberCanvasSlateState(
  * @param initial The initial brush color.
  * @param density The density of the display.
  */
-@OptIn(ExperimentalTime::class)
 @Stable
 class CanvasSlateState(
     private val background: Color,

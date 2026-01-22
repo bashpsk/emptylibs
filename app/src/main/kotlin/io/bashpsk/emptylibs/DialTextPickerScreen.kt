@@ -18,9 +18,7 @@ import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import io.bashpsk.emptylibs.jetpackui.picker.DialTextPicker
 import io.bashpsk.emptylibs.jetpackui.picker.rememberDialTextPickerState
 import kotlinx.collections.immutable.toPersistentList
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun DialTextPickerScreen() {
 

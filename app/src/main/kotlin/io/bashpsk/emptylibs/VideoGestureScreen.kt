@@ -39,9 +39,7 @@ import io.bashpsk.emptylibs.gestureui.video.TapChanges
 import io.bashpsk.emptylibs.gestureui.video.ValueChange
 import io.bashpsk.emptylibs.gestureui.video.VideoGestureBox
 import io.bashpsk.emptylibs.utils.setDebug
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun VideoGestureScreen() {
