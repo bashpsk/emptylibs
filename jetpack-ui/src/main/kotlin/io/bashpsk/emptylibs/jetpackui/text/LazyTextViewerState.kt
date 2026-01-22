@@ -44,9 +44,6 @@ fun rememberLazyTextViewerState(source: TextSource): LazyTextViewerState {
  *
  * @property coroutineScope The scope used for background loading operations.
  * @property source The source of the text.
- * @property lineCount The total number of lines in the current [source].
- * @property isSourceLoading Whether the source is currently being loaded (e.g., counting lines).
- * @property sourceLoadJob The background job responsible for loading the source.
  */
 @Stable
 class LazyTextViewerState(
@@ -54,12 +51,21 @@ class LazyTextViewerState(
     private val source: TextSource
 ) {
 
+    /**
+    * The total number of lines in the current [source].
+    */
     var lineCount by mutableIntStateOf(0)
         private set
 
+    /**
+     * Whether the source is currently being loaded (e.g., counting lines).
+     */
     var isSourceLoading by mutableStateOf(false)
         private set
 
+    /**
+     * The background job responsible for loading the source.
+     * */
     private var sourceLoadJob by mutableStateOf<Job?>(null)
 
     init {

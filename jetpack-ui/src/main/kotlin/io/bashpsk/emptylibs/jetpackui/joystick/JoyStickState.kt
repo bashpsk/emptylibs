@@ -51,23 +51,30 @@ fun rememberJoyStickState(
  * State object for [JoyStick].
  *
  * @property properties The configuration properties for the joystick.
- * @property changes The current changes and movement data of the joystick.
- * @property isPressed Whether the joystick is currently being pressed.
- * @property boundRadius The maximum distance in pixels that the joystick thumb can move from the
- * center.
- * @property thumbPosition The current offset of the thumb from the center.
  */
 @Stable
 class JoyStickState(val properties: JoyStickProperties) {
 
+    /**
+     * The maximum distance in pixels that the joystick thumb can move from the center.
+     */
     internal var boundRadius by mutableFloatStateOf(0F)
 
+    /**
+     * The current changes and movement data of the joystick.
+     */
     var changes by mutableStateOf(JoyStickChanges())
         private set
 
+    /**
+     * Whether the joystick is currently being pressed.
+     */
     var isPressed by mutableStateOf(false)
         private set
 
+    /**
+     * The current offset of the thumb from the center.
+     */
     internal var thumbPosition by mutableStateOf(Offset.Zero)
         private set
 

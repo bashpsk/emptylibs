@@ -81,13 +81,6 @@ fun <T> rememberDialTextPickerState(
  * @property initial The initially selected item. If null, the first item in [textList] will be
  * selected, or no item if [textList] is empty.
  * @property coroutineScope The coroutine scope used for animations.
- * @property selectedText The currently selected item from the [textList].
- * @property selectedIndex The index of the currently selected item in the [textList].
- * @property currentAngle The current rotation angle of the dial in degrees.
- * This value is updated as the user interacts with the dial.
- * @property selectedText The currently selected item from the [textList].
- * This is updated when the [currentAngle] changes.
- * @property previousAngle Internal state used to calculate the change in angle during drag gesture.
  */
 @Stable
 class DialTextPickerState<T>(
@@ -96,14 +89,27 @@ class DialTextPickerState<T>(
     val coroutineScope: CoroutineScope
 ) {
 
+    /**
+     * The currently selected item from the [textList].
+     */
     var selectedText by mutableStateOf(initial)
         private set
 
+    /**
+     * The index of the currently selected item in the [textList].
+     */
     var selectedIndex by mutableIntStateOf(textList.indexOf(initial))
         private set
 
+    /**
+     * The current rotation angle of the dial in degrees.
+     * This value is updated as the user interacts with the dial.
+     */
     internal val currentAngle = Animatable(0F)
 
+    /**
+     * Internal state used to calculate the change in angle during drag gesture.
+     */
     internal var previousAngle by mutableFloatStateOf(0F)
 
     init {
