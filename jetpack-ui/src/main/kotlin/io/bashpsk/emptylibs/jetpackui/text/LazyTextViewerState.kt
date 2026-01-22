@@ -2,6 +2,7 @@ package io.bashpsk.emptylibs.jetpackui.text
 
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -9,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
+import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,17 +32,24 @@ fun rememberLazyTextViewerState(source: TextSource): LazyTextViewerState {
 
     val coroutineScope = rememberCoroutineScope()
 
-    return retain(coroutineScope, source) {
+    val state = retain(coroutineScope, source) {
         LazyTextViewerState(coroutineScope = coroutineScope, source = source)
     }
+
+    DisposableEffect(Unit) {
+
+        onDispose { state.textCacheManager.evictAll() }
+    }
+
+    return state
 }
 
 /**
  * State object for [LazyTextViewer] that manages text loading and line counting.
  *
  * This class handles the logic of determining the number of lines in the source
- * and reading specific lines on demand. For file-based sources, it uses streams
- * to avoid loading the entire file into memory.
+ * and reading specific lines on demand. For file-based sources, it uses streams to avoid loading
+ * the entire file into memory.
  *
  * @property coroutineScope The scope used for background loading operations.
  * @property source The source of the text.
@@ -52,8 +61,16 @@ class LazyTextViewerState(
 ) {
 
     /**
-    * The total number of lines in the current [source].
-    */
+     * Manager responsible for caching recently read lines of text to improve performance
+     * and reduce redundant I/O operations when scrolling or re-composing.
+     *
+     * Uses an LRU (Least Recently Used) strategy with a maximum capacity of 40 lines.
+     */
+    internal val textCacheManager = EmptyCacheManager<String>(maxSize = 40)
+
+    /**
+     * The total number of lines in the current [source].
+     */
     var lineCount by mutableIntStateOf(0)
         private set
 
@@ -65,7 +82,7 @@ class LazyTextViewerState(
 
     /**
      * The background job responsible for loading the source.
-     * */
+     */
     private var sourceLoadJob by mutableStateOf<Job?>(null)
 
     init {
@@ -78,7 +95,7 @@ class LazyTextViewerState(
      */
     fun setReloadTextSource() {
 
-        sourceLoadJob?.cancel()
+        clearState()
 
         sourceLoadJob = coroutineScope.launch {
 
@@ -120,7 +137,7 @@ class LazyTextViewerState(
 
             when (source) {
 
-                is TextSource.RawString -> readLineContent(text = source.content, index = index)
+                is TextSource.RawString -> readLineContent(content = source.content, index = index)
 
                 is TextSource.FilePath -> readLineContent(
                     file = source.content?.let { path -> File(path) },
@@ -140,20 +157,24 @@ class LazyTextViewerState(
     /**
      * Reads a line from a raw string.
      *
-     * @param text The raw string content.
+     * @param content The raw string content.
      * @param index The 0-based index of the line to read.
      * @return The [TextContentResult] for the line.
      * @throws NullPointerException if the line is not found.
      */
     @Throws(NullPointerException::class)
     suspend fun readLineContent(
-        text: String?,
+        content: String?,
         index: Int
     ): TextContentResult = withContext(Dispatchers.Default) {
 
-        return@withContext text?.lines()?.drop(index)?.firstOrNull()?.let { lineText ->
+        return@withContext textCacheManager.get(index.toString())?.let { lineText ->
 
-            TextContentResult.Content(lineText)
+            TextContentResult.Content(text = lineText)
+        } ?: content?.lines()?.drop(index)?.firstOrNull()?.let { lineText ->
+
+            textCacheManager.add(index.toString(), lineText)
+            TextContentResult.Content(text = lineText)
         } ?: throw NullPointerException("Line not found.")
     }
 
@@ -172,10 +193,16 @@ class LazyTextViewerState(
         index: Int
     ): TextContentResult = withContext(Dispatchers.IO) {
 
-        return@withContext (file ?: throw NullPointerException("Path is null.")).useLines { lines ->
+        return@withContext textCacheManager.get(index.toString())?.let { lineText ->
 
+            TextContentResult.Content(text = lineText)
+        } ?: (file ?: throw NullPointerException("Path is null.")).useLines { lines ->
+
+            val lineText = lines.drop(index).firstOrNull()
+
+            lineText?.let { text -> textCacheManager.add(index.toString(), text) }
             TextContentResult.Content(
-                lines.drop(index).firstOrNull() ?: throw NullPointerException("Line not found.")
+                text = lineText ?: throw NullPointerException("Line not found.")
             )
         }
     }
@@ -208,5 +235,19 @@ class LazyTextViewerState(
             Log.e("LazyTextViewer", exception.message, exception)
             0
         }
+    }
+
+    /**
+     * Resets the state of the viewer to its initial values.
+     *
+     * This function clears the text cache, cancels any ongoing background loading jobs,
+     * resets the line count to zero, and sets the loading status to false.
+     */
+    internal fun clearState() {
+
+        textCacheManager.evictAll()
+        sourceLoadJob?.cancel()
+        lineCount = 0
+        isSourceLoading = false
     }
 }

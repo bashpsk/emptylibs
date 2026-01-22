@@ -55,8 +55,8 @@ fun LazyTextViewerScreen() {
     var oomText by remember { mutableStateOf("") }
 
     val textViewerState = rememberLazyTextViewerState(
-//        source = TextSource.RawString(content = largeText)
-        source = TextSource.TextFile(content = textFile)
+        source = TextSource.RawString(content = largeText)
+//        source = TextSource.TextFile(content = textFile)
 //        source = TextSource.FilePath(content = textFile.path)
 //        source = TextSource.RawString(content = oomText) /*Simulate Error*/
     )
