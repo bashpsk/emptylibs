@@ -1,9 +1,9 @@
 package io.bashpsk.emptylibs.jetpackui.text
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
@@ -38,7 +38,8 @@ internal fun TextContentResultView(
     itemPosition: Int,
     state: LazyTextViewerState,
     numberBoxSize: Dp,
-    properties: LazyTextViewerProperties
+    properties: LazyTextViewerProperties,
+    horizontalScrollState: ScrollState
 ) {
 
     var contentResult by retain { mutableStateOf<TextContentResult>(TextContentResult.Init) }
@@ -63,81 +64,28 @@ internal fun TextContentResultView(
         verticalAlignment = Alignment.Top
     ) {
 
+        LineNumberView(
+            modifier = Modifier.width(width = numberBoxSize),
+            itemPosition = numberLabel,
+            properties = properties
+        )
+
         when (contentResult) {
 
-            is TextContentResult.Init -> TextLineLoading(
-                numberLabel = numberLabel,
-                numberBoxSize = numberBoxSize,
-                properties = properties
-            )
+            is TextContentResult.Init -> Box(modifier = Modifier.weight(weight = 1F))
 
-            is TextContentResult.Content -> TextLineContent(
-                numberLabel = numberLabel,
+            is TextContentResult.Content -> LineContentView(
+                modifier = Modifier,
                 content = (contentResult as TextContentResult.Content).text,
-                numberBoxSize = numberBoxSize,
                 properties = properties
             )
 
-            is TextContentResult.Error -> TextLineContent(
-                numberLabel = numberLabel,
+            is TextContentResult.Error -> LineContentView(
                 content = (contentResult as TextContentResult.Error).message,
-                numberBoxSize = numberBoxSize,
                 properties = properties
             )
         }
     }
-}
-
-/**
- * Displays the loaded text content along with its line number.
- *
- * @param numberLabel The formatted line number string.
- * @param content The text to display.
- * @param numberBoxSize Fixed width for the line number.
- * @param properties Styling properties.
- */
-@Composable
-private fun RowScope.TextLineContent(
-    numberLabel: String,
-    content: String,
-    numberBoxSize: Dp,
-    properties: LazyTextViewerProperties
-) {
-
-    LineNumberView(
-        modifier = Modifier.width(width = numberBoxSize),
-        itemPosition = numberLabel,
-        properties = properties
-    )
-
-    LineContentView(
-        modifier = Modifier,
-        content = content,
-        properties = properties
-    )
-}
-
-/**
- * Placeholder view shown while a line of text is being loaded.
- *
- * @param numberLabel The formatted line number string.
- * @param numberBoxSize Fixed width for the line number.
- * @param properties Styling properties.
- */
-@Composable
-private fun RowScope.TextLineLoading(
-    numberLabel: String,
-    numberBoxSize: Dp,
-    properties: LazyTextViewerProperties
-) {
-
-    LineNumberView(
-        modifier = Modifier.width(width = numberBoxSize),
-        itemPosition = numberLabel,
-        properties = properties
-    )
-
-    Box(modifier = Modifier.weight(weight = 1F))
 }
 
 /**
