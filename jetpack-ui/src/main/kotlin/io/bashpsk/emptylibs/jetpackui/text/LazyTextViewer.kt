@@ -69,6 +69,10 @@ fun LazyTextViewer(
         }
     }
 
+    val horizontalScrollOffset by remember(horizontalScrollState) {
+        derivedStateOf { horizontalScrollState.value }
+    }
+
     val horizontalScrollModifier = when (properties.softWrapEnabled) {
 
         true -> Modifier
@@ -96,7 +100,7 @@ fun LazyTextViewer(
                 state = state,
                 numberBoxSize = numberBoxSize,
                 properties = properties,
-                horizontalScrollState = horizontalScrollState
+                horizontalScrollOffset = horizontalScrollOffset
             )
         }
     }

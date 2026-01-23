@@ -1,11 +1,9 @@
 package io.bashpsk.emptylibs.jetpackui.text
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -20,6 +18,7 @@ import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import io.bashpsk.emptylibs.jetpackui.layout.StickyRowLayout
 import kotlinx.coroutines.launch
 
 /**
@@ -39,7 +38,7 @@ internal fun TextContentResultView(
     state: LazyTextViewerState,
     numberBoxSize: Dp,
     properties: LazyTextViewerProperties,
-    horizontalScrollState: ScrollState
+    horizontalScrollOffset: Int
 ) {
 
     var contentResult by retain { mutableStateOf<TextContentResult>(TextContentResult.Init) }
@@ -56,10 +55,11 @@ internal fun TextContentResultView(
         }
     }
 
-    Row(
+    StickyRowLayout(
         modifier = modifier
             .fillMaxWidth()
             .then(firstVisibleModifier),
+        horizontalScroll = horizontalScrollOffset,
         horizontalArrangement = Arrangement.spacedBy(space = properties.numberSpace),
         verticalAlignment = Alignment.Top
     ) {
@@ -72,15 +72,16 @@ internal fun TextContentResultView(
 
         when (contentResult) {
 
-            is TextContentResult.Init -> Box(modifier = Modifier.weight(weight = 1F))
+            is TextContentResult.Init -> {}
 
             is TextContentResult.Content -> LineContentView(
-                modifier = Modifier,
+                modifier = Modifier.wrapContentWidth(),
                 content = (contentResult as TextContentResult.Content).text,
                 properties = properties
             )
 
             is TextContentResult.Error -> LineContentView(
+                modifier = Modifier.wrapContentWidth(),
                 content = (contentResult as TextContentResult.Error).message,
                 properties = properties
             )
