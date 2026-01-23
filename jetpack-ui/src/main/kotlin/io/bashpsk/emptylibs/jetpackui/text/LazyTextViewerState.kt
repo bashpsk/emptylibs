@@ -1,8 +1,10 @@
 package io.bashpsk.emptylibs.jetpackui.text
 
 import android.util.Log
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -10,15 +12,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
-import io.bashpsk.emptylibs.jetpackui.utils.setDebug
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -29,15 +30,25 @@ import java.io.RandomAccessFile
  * Creates and remembers a [LazyTextViewerState] for the given [source].
  *
  * @param source The source of the text to be displayed.
+ * @param cacheSize The maximum number of recently read lines to cache.
  * @return A [LazyTextViewerState] instance.
  */
 @Composable
-fun rememberLazyTextViewerState(source: TextSource): LazyTextViewerState {
+fun rememberLazyTextViewerState(
+    source: TextSource,
+    @IntRange(1, 70)
+    cacheSize: Int = 40
+): LazyTextViewerState {
 
     val coroutineScope = rememberCoroutineScope()
 
     val state = retain(coroutineScope, source) {
         LazyTextViewerState(coroutineScope = coroutineScope, source = source)
+    }
+
+    LaunchedEffect(cacheSize) {
+
+        state.textCacheManager.resize(maxSize = cacheSize)
     }
 
     DisposableEffect(Unit) {
@@ -240,35 +251,58 @@ class LazyTextViewerState(
     }
 
     /**
-     * Counts the total number of lines in a file and populates the [linePointerList] with byte
-     * offsets.
+     * Counts the total number of lines in the provided file and populates [linePointerList]
+     * with byte offsets for random access.
      *
-     * This function performs a sequential read of the file using a [RandomAccessFile] to determine
-     * the total line count. As it iterates, it stores the file pointer (byte offset) of every line
-     * in [linePointerList] to facilitate fast random access seeking later.
+     * This function reads the file byte-by-byte to identify line terminators (`\n`, `\r`,
+     * or `\r\n`). It records the starting byte position of each line in [linePointerList],
+     * allowing subsequent reads to jump directly to specific lines using [RandomAccessFile.seek].
      *
-     * @param file The file to be processed.
-     * @return The total number of lines found in the file, or 0 if the file is null or an error
-     * occurs.
+     * @param file The file to process.
+     * @return The total number of lines found, or 0 if the file is null or an error occurs.
      */
     private suspend fun getFileLinesCount(file: File?): Int = withContext(Dispatchers.IO) {
 
         return@withContext try {
 
             var linesCount = 0
+            var currentPointer = 0L
+            var totalReadBytes = 0
+            var previousWasCR = false
+            val lineOffsets = mutableListOf(0L)
 
-            RandomAccessFile(file, "r").use { randomFile ->
+            file?.bufferedReader()?.use { reader ->
 
-                while (currentCoroutineContext().isActive) {
+                while (reader.read().also { bytes -> totalReadBytes = bytes } != -1) {
 
-                    linePointerList = linePointerList.add(randomFile.filePointer)
-                    randomFile.readLine() ?: break
-                    linesCount++
-                    if (linesCount > 0 && linesCount % 10000 == 0) "LINES: $linesCount".setDebug()
+                    currentCoroutineContext().ensureActive()
+                    currentPointer++
+
+                    previousWasCR = when (totalReadBytes.toChar()) {
+
+                        '\n' -> {
+                            if (previousWasCR) {
+                                lineOffsets[lineOffsets.size - 1] = currentPointer
+                            } else {
+                                linesCount++
+                                lineOffsets.add(currentPointer)
+                            }
+                            false
+                        }
+
+                        '\r' -> {
+                            linesCount++
+                            lineOffsets.add(currentPointer)
+                            true
+                        }
+
+                        else -> false
+                    }
                 }
-            }
+            } ?: throw NullPointerException("Path is null.")
 
-            linesCount
+            linePointerList = lineOffsets.toPersistentList()
+            linePointerList.size
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
