@@ -10,16 +10,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
+import io.bashpsk.emptylibs.jetpackui.utils.setDebug
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
+import java.io.RandomAccessFile
 
 /**
  * Creates and remembers a [LazyTextViewerState] for the given [source].
@@ -71,7 +75,7 @@ class LazyTextViewerState(
     /**
      * The total number of lines in the current [source].
      */
-    var lineCount by mutableIntStateOf(0)
+    var totalLines by mutableIntStateOf(0)
         private set
 
     /**
@@ -84,6 +88,15 @@ class LazyTextViewerState(
      * The background job responsible for loading the source.
      */
     private var sourceLoadJob by mutableStateOf<Job?>(null)
+
+    /**
+     * A persistent list of file pointers (offsets) used for random access optimization.
+     *
+     * Each entry at index `i` stores the byte position (offset) in the file where line `i` starts.
+     * This allows the viewer to use [RandomAccessFile.seek] to jump directly to the start of a
+     * specific line instead of reading the file sequentially from the beginning.
+     */
+    internal var linePointerList by mutableStateOf(persistentListOf<Long>())
 
     init {
 
@@ -101,7 +114,7 @@ class LazyTextViewerState(
 
             isSourceLoading = true
 
-            lineCount = try {
+            totalLines = try {
 
                 when (source) {
 
@@ -171,7 +184,7 @@ class LazyTextViewerState(
         return@withContext textCacheManager.get(index.toString())?.let { lineText ->
 
             TextContentResult.Content(text = lineText)
-        } ?: content?.lines()?.drop(index)?.firstOrNull()?.let { lineText ->
+        } ?: content?.lines()?.getOrNull(index)?.let { lineText ->
 
             textCacheManager.add(index.toString(), lineText)
             TextContentResult.Content(text = lineText)
@@ -179,32 +192,40 @@ class LazyTextViewerState(
     }
 
     /**
-     * Reads a line from a [File] efficiently using [File.useLines].
+     * Reads the content of a specific line from the text source.
      *
-     * @param file The file to read from.
-     * @param index The 0-based index of the line to read.
-     * @return The [TextContentResult] for the line.
-     * @throws NullPointerException if the file or line is not found.
-     * @throws IOException if an I/O error occurs.
+     * This function determines the type of the [source] (raw string, file path, or file object)
+     * and delegates the reading process to the appropriate specialized method. It includes
+     * error handling to catch and log exceptions, ensuring a [TextContentResult.Error] is
+     * returned instead of crashing.
+     *
+     * @param index The 0-based index of the line to retrieve.
+     * @return A [TextContentResult] containing either the line text or an error message.
      */
-    @Throws(NullPointerException::class, IOException::class)
+    @Throws(NullPointerException::class, IOException::class, IndexOutOfBoundsException::class)
     suspend fun readLineContent(
         file: File?,
         index: Int
     ): TextContentResult = withContext(Dispatchers.IO) {
 
+        if (index !in 0..totalLines) throw IndexOutOfBoundsException("Index out of bounds.")
+
         return@withContext textCacheManager.get(index.toString())?.let { lineText ->
 
             TextContentResult.Content(text = lineText)
-        } ?: (file ?: throw NullPointerException("Path is null.")).useLines { lines ->
+        } ?: file?.takeIf { sourceFile -> sourceFile.exists() }?.let { sourceFile ->
 
-            val lineText = lines.drop(index).firstOrNull()
+            RandomAccessFile(sourceFile, "r").use { randomFile ->
 
-            lineText?.let { text -> textCacheManager.add(index.toString(), text) }
-            TextContentResult.Content(
-                text = lineText ?: throw NullPointerException("Line not found.")
-            )
-        }
+                randomFile.seek(linePointerList.getOrElse(index) { 0L })
+                val lineText = randomFile.readLine() ?: throw NullPointerException(
+                    "Line not found."
+                )
+
+                textCacheManager.add(index.toString(), lineText)
+                TextContentResult.Content(text = lineText)
+            }
+        } ?: throw NullPointerException("Path is null.")
     }
 
     /**
@@ -219,16 +240,35 @@ class LazyTextViewerState(
     }
 
     /**
-     * Efficiently counts the number of lines in a file.
+     * Counts the total number of lines in a file and populates the [linePointerList] with byte
+     * offsets.
      *
-     * @param file The file to count lines in.
-     * @return The number of lines, or 0 if an error occurs.
+     * This function performs a sequential read of the file using a [RandomAccessFile] to determine
+     * the total line count. As it iterates, it stores the file pointer (byte offset) of every line
+     * in [linePointerList] to facilitate fast random access seeking later.
+     *
+     * @param file The file to be processed.
+     * @return The total number of lines found in the file, or 0 if the file is null or an error
+     * occurs.
      */
     private suspend fun getFileLinesCount(file: File?): Int = withContext(Dispatchers.IO) {
 
         return@withContext try {
 
-            file?.useLines { lines -> lines.count() } ?: 0
+            var linesCount = 0
+
+            RandomAccessFile(file, "r").use { randomFile ->
+
+                while (currentCoroutineContext().isActive) {
+
+                    linePointerList = linePointerList.add(randomFile.filePointer)
+                    randomFile.readLine() ?: break
+                    linesCount++
+                    if (linesCount > 0 && linesCount % 10000 == 0) "LINES: $linesCount".setDebug()
+                }
+            }
+
+            linesCount
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -238,16 +278,18 @@ class LazyTextViewerState(
     }
 
     /**
-     * Resets the state of the viewer to its initial values.
+     * Resets the internal state of the viewer to its initial values.
      *
-     * This function clears the text cache, cancels any ongoing background loading jobs,
-     * resets the line count to zero, and sets the loading status to false.
+     * This function clears the line cache, cancels any active source-loading background jobs,
+     * resets the line count and loading status, and re-initializes the sparse list used
+     * for random access file seek points.
      */
     internal fun clearState() {
 
         textCacheManager.evictAll()
         sourceLoadJob?.cancel()
-        lineCount = 0
+        totalLines = 0
         isSourceLoading = false
+        linePointerList = persistentListOf()
     }
 }

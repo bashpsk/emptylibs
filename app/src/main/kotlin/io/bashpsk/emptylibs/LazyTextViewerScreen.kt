@@ -42,14 +42,14 @@ fun LazyTextViewerScreen() {
             "A full-featured cropping UI with support for predefined aspect ratios," +
             " custom crop shapes(circles, stars), image flipping, and a live preview.\n"
 
-    val largeText by remember(lineText) { derivedStateOf { lineText.repeat(1006) } }
+    val largeText by remember(lineText) { derivedStateOf { lineText.repeat(400) } }
 
     val textFile by remember {
         derivedStateOf {
             File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-//                "Empty Libs.txt"
-                "EmptyLayer.kt"
+                "Empty Libs.txt"    /*650MB*/
+//                "EmptyLayer.kt"
             )
         }
     }
@@ -57,8 +57,8 @@ fun LazyTextViewerScreen() {
     var oomText by remember { mutableStateOf("") }
 
     val textViewerState = rememberLazyTextViewerState(
-        source = TextSource.RawString(content = largeText)
-//        source = TextSource.TextFile(content = textFile)
+//        source = TextSource.RawString(content = largeText)
+        source = TextSource.TextFile(content = textFile)
 //        source = TextSource.FilePath(content = textFile.path)
 //        source = TextSource.RawString(content = oomText) /*Simulate Error*/
     )
@@ -68,7 +68,7 @@ fun LazyTextViewerScreen() {
         numberStyle = MaterialTheme.typography.bodyMedium.copy(
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65F)
         ),
-        softWrapEnabled = true
+        softWrapEnabled = false
     )
 
     LaunchedEffect(textFile) {

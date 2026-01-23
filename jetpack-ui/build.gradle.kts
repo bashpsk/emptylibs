@@ -90,7 +90,9 @@ dependencies {
 
     //  MODULE          :
     implementation(project(":compose-utils"))
+    implementation(project(":formatter"))
     implementation(project(":lrucache-manager"))
+    implementation(project(":storage"))
 }
 
 publishing {

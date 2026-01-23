@@ -46,12 +46,12 @@ fun LazyTextViewer(
 
     val firstVisibleItemIndex by remember { derivedStateOf { layoutState.firstVisibleItemIndex } }
 
-    val numberIndex by remember(firstVisibleItemIndex, state.lineCount) {
+    val numberIndex by remember(firstVisibleItemIndex, state.totalLines) {
         derivedStateOf {
             when {
 
-                state.lineCount < 1000 -> state.lineCount
-                else -> firstVisibleItemIndex.coerceIn(0 until state.lineCount)
+                state.totalLines < 100 -> state.totalLines
+                else -> firstVisibleItemIndex.coerceIn(0 until state.totalLines)
             }
         }
     }
@@ -61,7 +61,7 @@ fun LazyTextViewer(
             with(density) {
                 textMeasurer.measure(
                     density = density,
-                    text = state.getFormattedLineNumber(index = state.lineCount),
+                    text = state.getFormattedLineNumber(index = state.totalLines),
                     style = properties.numberStyle,
                     maxLines = 1
                 ).size.width.toDp()
@@ -90,7 +90,7 @@ fun LazyTextViewer(
     ) {
 
         items(
-            count = state.lineCount,
+            count = state.totalLines,
             key = { itemPosition -> "Line: $itemPosition" }
         ) { itemPosition ->
 

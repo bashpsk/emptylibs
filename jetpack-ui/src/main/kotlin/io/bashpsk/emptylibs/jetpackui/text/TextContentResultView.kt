@@ -80,11 +80,7 @@ internal fun TextContentResultView(
                 properties = properties
             )
 
-            is TextContentResult.Error -> LineContentView(
-                modifier = Modifier.wrapContentWidth(),
-                content = (contentResult as TextContentResult.Error).message,
-                properties = properties
-            )
+            is TextContentResult.Error -> {}
         }
     }
 }
