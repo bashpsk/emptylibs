@@ -19,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
@@ -128,13 +127,7 @@ internal fun PdfPageView(
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(ratio = aspectRatio)
-                    .drawWithContent {
-
-                        drawContent()
-//                        drawSearchRectList(pageData = pageData, properties = properties)
-//                        drawSelectRectList(pageData = pageData, properties = properties)
-                    },
+                    .aspectRatio(ratio = aspectRatio),
                 bitmap = bitmap,
                 contentScale = ContentScale.Fit,
                 colorFilter = colorFilter,

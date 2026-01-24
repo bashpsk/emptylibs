@@ -1,7 +1,6 @@
 package io.bashpsk.emptylibs.pdfviewer.pdf
 
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Log
@@ -14,16 +13,20 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.graphics.createBitmap
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
 import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
+import io.bashpsk.emptylibs.imageutils.extension.toSize
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 import io.bashpsk.emptylibs.pdfviewer.page.PdfPageData
 import io.bashpsk.emptylibs.pdfviewer.page.PdfScaledPageData
@@ -36,7 +39,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -67,6 +69,7 @@ fun rememberPdfLazyColumnState(
 ): PdfLazyColumnState {
 
     val context = LocalContext.current
+    val density = LocalDensity.current
 
     val transformableState = rememberTransformableGesturesState(
         initialZoom = initialZoom,
@@ -77,8 +80,8 @@ fun rememberPdfLazyColumnState(
         zoomRange = zoomRange
     )
 
-    val state = retain(transformableState) {
-        PdfLazyColumnState(transformable = transformableState)
+    val state = retain(density, transformableState) {
+        PdfLazyColumnState(density = density, transformable = transformableState)
     }
 
     LaunchedEffect(cacheSize) {
@@ -99,10 +102,14 @@ fun rememberPdfLazyColumnState(
 /**
  * A state object that can be hoisted to control and observe scrolling and zooming of a PDF.
  *
+ * @param density The density of the display.
  * @param transformable The state for transformable gestures.
  */
 @Stable
-class PdfLazyColumnState(internal val transformable: TransformableGesturesState) {
+class PdfLazyColumnState(
+    internal val density: Density,
+    internal val transformable: TransformableGesturesState
+) {
 
     /**
      * A mutex to ensure thread-safe access to PDF rendering operations.
@@ -237,10 +244,12 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
      *
      * @param pageIndex The index of the page to render.
      */
-    internal fun setRenderNormalBitmap(pageIndex: Int) = coroutineScope.launch(Dispatchers.IO) {
+    internal suspend fun setRenderNormalBitmap(
+        pageIndex: Int
+    ) = withContext(context = Dispatchers.IO) {
 
-        val renderer = pdfRenderer ?: return@launch
-        val pageData = pageDataList[pageIndex] ?: return@launch
+        val renderer = pdfRenderer ?: return@withContext
+        val pageData = pageDataList[pageIndex] ?: return@withContext
 
         val targetWidth = containerWidth * transformable.initialZoom.toInt()
         val targetHeight = ((targetWidth.toFloat() / pageData.width) * pageData.height).toInt()
@@ -270,12 +279,12 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
      */
     internal suspend fun getScaledImageBitmap(
         pageIndex: Int
-    ): ImageBitmap? = coroutineScope.async(context = Dispatchers.IO) {
+    ): ImageBitmap? = withContext(context = Dispatchers.IO) {
 
         if (hasNeedScaledBitmap(pageData = getScaledPageData(pageIndex = pageIndex))) {
 
-            val renderer = pdfRenderer ?: return@async null
-            val pageData = pageDataList[pageIndex] ?: return@async null
+            val renderer = pdfRenderer ?: return@withContext null
+            val pageData = pageDataList[pageIndex] ?: return@withContext null
 
             val quality = findContentQuality()
             val targetWidth = (containerWidth * quality).toInt().coerceAtMost(
@@ -301,21 +310,25 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
         }
 
         getScaledPageData(pageIndex = pageIndex)?.bitmap
-    }.await()
+    }
 
     /**
      * Updates the expansion state of the search interface.
      *
      * @param isExpanded Whether the search bar should be expanded or collapsed.
      */
-    internal fun onSearchExpandedChange(isExpanded: Boolean) { isSearchExpanded = isExpanded }
+    internal fun onSearchExpandedChange(isExpanded: Boolean) {
+        isSearchExpanded = isExpanded
+    }
 
     /**
      * Updates the current search query string.
      *
      * @param query The new search string to be stored in [searchQuery].
      */
-    internal fun onSearchQueryChange(query: String) { searchQuery = query }
+    internal fun onSearchQueryChange(query: String) {
+        searchQuery = query
+    }
 
     /**
      * Performs a text search across all pages of the PDF.
@@ -433,15 +446,26 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
 
                 if (targetWidth <= 0 || targetHeight <= 0) return@use null
 
-                val newBitmap = createBitmap(width = targetWidth, height = targetHeight)
+                val newImageBitmap = ImageBitmap(width = targetWidth, height = targetHeight)
 
-                Canvas(newBitmap).apply {
+                CanvasDrawScope().draw(
+                    density = density,
+                    layoutDirection = LayoutDirection.Ltr,
+                    canvas = Canvas(image = newImageBitmap),
+                    size = newImageBitmap.toSize()
+                ) {
 
-                    drawColor(Color.White.toArgb())
+                    drawRect(color = Color.White)
                 }
 
-                pdfPage.render(newBitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                newBitmap.asImageBitmap()
+                pdfPage.render(
+                    newImageBitmap.asAndroidBitmap(),
+                    null,
+                    null,
+                    PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                )
+
+                newImageBitmap
             }
         }
     }
