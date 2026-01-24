@@ -44,14 +44,16 @@ fun LazyTextViewer(
     val textMeasurer = rememberTextMeasurer()
     val horizontalScrollState = rememberScrollState()
 
-    val firstVisibleItemIndex by remember { derivedStateOf { layoutState.firstVisibleItemIndex } }
+    val lastVisibleItemIndex by remember {
+        derivedStateOf { layoutState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }
+    }
 
-    val numberIndex by remember(firstVisibleItemIndex, state.totalLines) {
+    val numberIndex by remember(lastVisibleItemIndex, state.totalLines) {
         derivedStateOf {
             when {
 
                 state.totalLines < 100 -> state.totalLines
-                else -> firstVisibleItemIndex.coerceIn(0 until state.totalLines)
+                else -> lastVisibleItemIndex.coerceIn(0 until state.totalLines)
             }
         }
     }
@@ -61,7 +63,7 @@ fun LazyTextViewer(
             with(density) {
                 textMeasurer.measure(
                     density = density,
-                    text = state.getFormattedLineNumber(index = state.totalLines),
+                    text = state.getFormattedLineNumber(index = numberIndex),
                     style = properties.numberStyle,
                     maxLines = 1
                 ).size.width.toDp()
