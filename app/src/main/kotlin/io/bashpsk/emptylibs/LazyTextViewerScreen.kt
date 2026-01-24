@@ -1,6 +1,9 @@
 package io.bashpsk.emptylibs
 
+import android.net.Uri
 import android.os.Environment
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -55,10 +59,20 @@ fun LazyTextViewerScreen() {
 
     var oomText by remember { mutableStateOf("") }
 
+    var textUri by retain { mutableStateOf<Uri?>(null) }
+
+    val filePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { resultUri ->
+
+            if (resultUri != null) textUri = resultUri
+        }
+    )
+
     val textViewerState = rememberLazyTextViewerState(
 //        source = TextSource.RawString(content = largeText)
-        source = TextSource.TextFile(content = textFile)
-//        source = TextSource.FilePath(content = textFile.path)
+        source = TextSource.Path(content = textFile.path)
+//        source = TextSource.URI(content = textUri)
 //        source = TextSource.RawString(content = oomText) /*Simulate Error*/
     )
 
@@ -86,11 +100,13 @@ fun LazyTextViewerScreen() {
         topBar = {
 
             TopAppBar(
-                title = {
-
-                    Text("Lazy Text Viewer")
-                },
+                title = {},
                 actions = {
+
+                    Button(onClick = { filePicker.launch("text/plain") }) {
+
+                        Text(text = "Pick Uri")
+                    }
 
                     Button(
                         onClick = {

@@ -1,7 +1,7 @@
 package io.bashpsk.emptylibs.jetpackui.text
 
+import android.net.Uri
 import androidx.compose.runtime.Stable
-import java.io.File
 
 /**
  * Defines the source from which the [LazyTextViewer] reads its content.
@@ -9,27 +9,30 @@ import java.io.File
 @Stable
 sealed interface TextSource {
 
+    data object Empty : TextSource
+
     /**
      * Source provided as a raw [String].
      *
      * **Warning:** For very large texts, this can lead to OutOfMemory errors as the entire string
-     * must be held in memory. Use [TextFile] or [FilePath] for large content.
+     * must be held in memory. Use [URI] or [Path] for large content.
      *
      * @property content The raw string content.
      */
-    data class RawString(val content: String?): TextSource
+    data class RawString(val content: String?) : TextSource
 
     /**
      * Source provided as a file path string. Content is read line-by-line using a stream.
      *
      * @property content The absolute path to the text file.
      */
-    data class FilePath(val content: String?): TextSource
+    data class Path(val content: String?) : TextSource
 
     /**
-     * Source provided as a [File] object. Content is read line-by-line using a stream.
+     * Source provided as an Android [Uri]. Content is read lazily using a stream via a
+     * ContentResolver.
      *
-     * @property content The [File] object pointing to the text file.
+     * @property content The URI pointing to the text content.
      */
-    data class TextFile(val content: File?): TextSource
+    data class URI(val content: Uri?) : TextSource
 }

@@ -1,5 +1,7 @@
 package io.bashpsk.emptylibs.jetpackui.text
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
@@ -12,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import io.bashpsk.emptylibs.formatter.extension.toMegabytes
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 import io.bashpsk.emptylibs.storage.extension.fileLengthOrNull
@@ -44,10 +47,11 @@ fun rememberLazyTextViewerState(
     cacheSize: Int = 40
 ): LazyTextViewerState {
 
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     val state = retain(coroutineScope, source) {
-        LazyTextViewerState(coroutineScope = coroutineScope, source = source)
+        LazyTextViewerState(context = context, coroutineScope = coroutineScope, source = source)
     }
 
     LaunchedEffect(cacheSize) {
@@ -75,6 +79,7 @@ fun rememberLazyTextViewerState(
  */
 @Stable
 class LazyTextViewerState(
+    private val context: Context,
     internal val coroutineScope: CoroutineScope,
     private val source: TextSource
 ) {
@@ -139,13 +144,14 @@ class LazyTextViewerState(
 
                 when (source) {
 
+                    is TextSource.Empty -> 0
                     is TextSource.RawString -> source.content?.lines()?.size ?: 0
 
-                    is TextSource.FilePath -> getFileLinesCount(
+                    is TextSource.Path -> getFileLinesCount(
                         file = source.content?.let { path -> File(path) }
                     )
 
-                    is TextSource.TextFile -> getFileLinesCount(file = source.content)
+                    is TextSource.URI -> getFileLinesCount(uri = source.content)
                 }
             } catch (exception: Exception) {
 
@@ -171,14 +177,16 @@ class LazyTextViewerState(
 
             when (source) {
 
+                is TextSource.Empty -> TextContentResult.Content("")
+
                 is TextSource.RawString -> readLineContent(content = source.content, index = index)
 
-                is TextSource.FilePath -> readLineContent(
+                is TextSource.Path -> readLineContent(
                     file = source.content?.let { path -> File(path) },
                     index = index
                 )
 
-                is TextSource.TextFile -> readLineContent(file = source.content, index = index)
+                is TextSource.URI -> readLineContent(file = source.content, index = index)
             }
         } catch (exception: Exception) {
 
@@ -220,6 +228,9 @@ class LazyTextViewerState(
      *
      * @param index The 0-based index of the line to retrieve.
      * @return A [TextContentResult] containing either the line text or an error message.
+     * @throws NullPointerException if the file is null or an I/O error occurs.
+     * @throws IndexOutOfBoundsException if the index is out of bounds.
+     * @throws IOException if an I/O error occurs while reading the file.
      */
     @Throws(NullPointerException::class, IOException::class, IndexOutOfBoundsException::class)
     suspend fun readLineContent(
@@ -296,6 +307,88 @@ class LazyTextViewerState(
     }
 
     /**
+     * Reads the content of a specific line from a [Uri] source.
+     *
+     * This function utilizes the [linePointerList] to skip to the nearest pre-calculated
+     * byte offset and then traverses the stream until the target line is reached.
+     *
+     * @param file The [Uri] pointing to the text resource.
+     * @param index The 0-based index of the line to retrieve.
+     * @return A [TextContentResult] containing the line text or an error.
+     * @throws NullPointerException if the [file] URI is null.
+     * @throws IndexOutOfBoundsException if the index is negative or exceeds [totalLines].
+     * @throws IOException if the stream cannot be opened or read.
+     */
+    suspend fun readLineContent(
+        file: Uri?,
+        index: Int
+    ): TextContentResult = withContext(Dispatchers.IO) {
+
+        if (file == null) throw NullPointerException("URI is null")
+
+        if (index !in 0 until totalLines) throw IndexOutOfBoundsException(
+            "Index out of bounds"
+        )
+
+        return@withContext textCacheManager.get(index)?.let { lineText ->
+
+            TextContentResult.Content(text = lineText)
+        } ?: context.contentResolver.openInputStream(file)?.buffered()?.use { inputStream ->
+
+            val sparseIndex = index / sparseStep
+            val linesToSkip = index % sparseStep
+
+            inputStream.skip(linePointerList.getOrElse(index = sparseIndex) { 0L })
+
+            var linesSkipped = 0
+
+            while (linesSkipped < linesToSkip) {
+
+                currentCoroutineContext().ensureActive()
+
+                val bytes = inputStream.read()
+
+                if (bytes == -1) break
+
+                when (bytes) {
+
+                    '\n'.code -> linesSkipped++
+
+                    '\r'.code -> {
+
+                        linesSkipped++
+                        inputStream.mark(1)
+                        if (inputStream.read() != '\n'.code) inputStream.reset()
+                    }
+                }
+            }
+
+            ByteArrayOutputStream(1024).use { outputStream ->
+
+                while (currentCoroutineContext().isActive) {
+
+                    val bytes = inputStream.read()
+
+                    if (bytes == -1 || bytes == '\n'.code) break
+
+                    if (bytes == '\r'.code) {
+                        inputStream.mark(1)
+                        if (inputStream.read() != '\n'.code) inputStream.reset()
+                        break
+                    }
+
+                    outputStream.write(bytes)
+                }
+
+                val lineText = outputStream.toString()
+
+                textCacheManager.add(index, lineText)
+                TextContentResult.Content(text = lineText)
+            }
+        } ?: throw IOException("Could not open URI stream")
+    }
+
+    /**
      * Formats the line number for display.
      *
      * @param index The 0-based index of the line.
@@ -321,16 +414,8 @@ class LazyTextViewerState(
         return@withContext try {
 
             val fileSize = file?.fileLengthOrNull() ?: throw NullPointerException("Path is null.")
-            val fileSizeInMB = fileSize.toMegabytes()
 
-            sparseStep = when {
-
-                fileSizeInMB <= 1.0 -> 1
-                fileSizeInMB <= 10.0 -> 100
-                fileSizeInMB <= 50.0 -> 250
-                fileSizeInMB <= 100.0 -> 500
-                else -> 1000
-            }
+            sparseStep = findSparseStep(length = fileSize)
 
             var linesFound = 1
             var bytePointer = 0L
@@ -379,6 +464,102 @@ class LazyTextViewerState(
             currentCoroutineContext().ensureActive()
             Log.e("LazyTextViewer", exception.message, exception)
             0
+        }
+    }
+
+    /**
+     * Counts the total number of lines in the content pointed to by the provided [uri] and
+     * populates [linePointerList] with sparse byte offsets for random access.
+     *
+     * This function uses the [context]'s content resolver to open an input stream, calculating
+     * appropriate sparse steps based on the file size to balance memory usage and seek performance.
+     * It handles various line terminators (\n, \r, or \r\n).
+     *
+     * @param uri The URI of the content to process.
+     * @return The total number of lines found, or 0 if the URI is null or an error occurs.
+     */
+    private suspend fun getFileLinesCount(uri: Uri?): Int = withContext(Dispatchers.IO) {
+
+        return@withContext try {
+
+            val fileUri = uri ?: throw NullPointerException("URI is null.")
+
+            context.contentResolver.openAssetFileDescriptor(fileUri, "r").use { descriptor ->
+
+                sparseStep = findSparseStep(length = descriptor?.length ?: 0L)
+            }
+
+            var linesFound = 1
+            var bytePointer = 0L
+            var totalReadBytes = 0
+            var previousWasCR = false
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            val lineOffsets = persistentListOf(0L).builder()
+
+            context.contentResolver.openInputStream(fileUri)?.buffered()?.use { inputStream ->
+
+                while (inputStream.read(buffer).also { bytes -> totalReadBytes = bytes } != -1) {
+
+                    currentCoroutineContext().ensureActive()
+
+                    (0 until totalReadBytes).forEach { index ->
+
+                        bytePointer++
+
+                        previousWasCR = when (buffer[index].toInt() and 0xFF) {
+
+                            '\n'.code -> if (previousWasCR && (linesFound - 1) % sparseStep == 0) {
+                                lineOffsets[lineOffsets.size - 1] = bytePointer
+                                false
+                            } else {
+                                if (linesFound % sparseStep == 0) lineOffsets.add(bytePointer)
+                                linesFound++
+                                false
+                            }
+
+                            '\r'.code -> {
+                                if (linesFound % sparseStep == 0) lineOffsets.add(bytePointer)
+                                linesFound++
+                                true
+                            }
+
+                            else -> false
+                        }
+                    }
+                }
+            }
+
+            linePointerList = lineOffsets.build()
+            linesFound
+        } catch (exception: Exception) {
+
+            currentCoroutineContext().ensureActive()
+            Log.e("LazyTextViewer", exception.message, exception)
+            0
+        }
+    }
+
+    /**
+     * Determines the optimal [sparseStep] for storing line offsets based on the file size.
+     *
+     * A smaller step provides faster random access but consumes more memory by storing more offsets
+     * in [linePointerList]. A larger step saves memory but requires more sequential reading when
+     * jumping to a specific line.
+     *
+     * @param length The total length of the file in bytes.
+     * @return The number of lines to skip between each stored offset.
+     */
+    private fun findSparseStep(length: Long): Int {
+
+        val fileSizeInMB = length.toMegabytes()
+
+        return when {
+
+            fileSizeInMB <= 1.0 -> 1
+            fileSizeInMB <= 10.0 -> 100
+            fileSizeInMB <= 50.0 -> 250
+            fileSizeInMB <= 100.0 -> 500
+            else -> 1000
         }
     }
 
