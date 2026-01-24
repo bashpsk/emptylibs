@@ -12,18 +12,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
+import io.bashpsk.emptylibs.formatter.extension.toMegabytes
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
+import io.bashpsk.emptylibs.storage.extension.fileLengthOrNull
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
+import java.nio.channels.Channels
 
 /**
  * Creates and remembers a [LazyTextViewerState] for the given [source].
@@ -100,13 +105,19 @@ class LazyTextViewerState(
     private var sourceLoadJob by mutableStateOf<Job?>(null)
 
     /**
-     * A persistent list of file pointers (offsets) used for random access optimization.
-     *
-     * Each entry at index `i` stores the byte position (offset) in the file where line `i` starts.
-     * This allows the viewer to use [RandomAccessFile.seek] to jump directly to the start of a
-     * specific line instead of reading the file sequentially from the beginning.
+     * The interval at which line offsets are stored in [linePointerList].
+     * For large files, storing every line offset would consume too much memory.
      */
-    internal var linePointerList by mutableStateOf(persistentListOf<Long>())
+    private var sparseStep by mutableIntStateOf(250)
+
+    /**
+     * A sparse persistent list of file pointers (offsets) used for random access optimization.
+     *
+     * Stored offsets are separated by [sparseStep] lines. This allows the viewer to jump
+     * to the nearest preceding stored offset and then read forward, balancing memory
+     * usage and access speed.
+     */
+    private var linePointerList by mutableStateOf(persistentListOf<Long>())
 
     init {
 
@@ -204,10 +215,8 @@ class LazyTextViewerState(
     /**
      * Reads the content of a specific line from the text source.
      *
-     * This function determines the type of the [source] (raw string, file path, or file object)
-     * and delegates the reading process to the appropriate specialized method. It includes
-     * error handling to catch and log exceptions, ensuring a [TextContentResult.Error] is
-     * returned instead of crashing.
+     * This function uses the sparse [linePointerList] to jump to the nearest stored offset
+     * and then skips the remaining lines to reach the target [index].
      *
      * @param index The 0-based index of the line to retrieve.
      * @return A [TextContentResult] containing either the line text or an error message.
@@ -218,7 +227,9 @@ class LazyTextViewerState(
         index: Int
     ): TextContentResult = withContext(Dispatchers.IO) {
 
-        if (index !in 0..totalLines) throw IndexOutOfBoundsException("Index out of bounds.")
+        if (index !in 0 until totalLines) throw IndexOutOfBoundsException(
+            "Index out of bounds."
+        )
 
         return@withContext textCacheManager.get(index)?.let { lineText ->
 
@@ -227,13 +238,59 @@ class LazyTextViewerState(
 
             RandomAccessFile(sourceFile, "r").use { randomFile ->
 
-                randomFile.seek(linePointerList.getOrElse(index) { 0L })
-                val lineText = randomFile.readLine() ?: throw NullPointerException(
-                    "Line not found."
-                )
+                val sparseIndex = index / sparseStep
+                val linesToSkip = index % sparseStep
 
-                textCacheManager.add(index, lineText)
-                TextContentResult.Content(text = lineText)
+                randomFile.seek(linePointerList.getOrElse(index = sparseIndex) { 0L })
+
+                Channels.newInputStream(randomFile.channel).buffered().use { inputStream ->
+
+                    var linesSkipped = 0
+
+                    while (linesSkipped < linesToSkip) {
+
+                        currentCoroutineContext().ensureActive()
+
+                        val bytes = inputStream.read()
+
+                        if (bytes == -1) break
+
+                        when (bytes) {
+
+                            '\n'.code -> linesSkipped++
+
+                            '\r'.code -> {
+
+                                linesSkipped++
+                                inputStream.mark(1)
+                                if (inputStream.read() != '\n'.code) inputStream.reset()
+                            }
+                        }
+                    }
+
+                    ByteArrayOutputStream(1024).use { outputStream ->
+
+                        while (currentCoroutineContext().isActive) {
+
+                            val bytes = inputStream.read()
+
+                            if (bytes == -1 || bytes == '\n'.code) break
+
+                            if (bytes == '\r'.code) {
+                                inputStream.mark(1)
+                                if (inputStream.read() != '\n'.code) inputStream.reset()
+                                break
+                            }
+
+                            outputStream.write(bytes)
+                        }
+
+                        val lineText = outputStream.toString()
+
+                        textCacheManager.add(index, lineText)
+                        TextContentResult.Content(text = lineText)
+                    }
+                }
             }
         } ?: throw NullPointerException("Path is null.")
     }
@@ -251,11 +308,10 @@ class LazyTextViewerState(
 
     /**
      * Counts the total number of lines in the provided file and populates [linePointerList]
-     * with byte offsets for random access.
+     * with sparse byte offsets for random access.
      *
-     * This function reads the file byte-by-byte to identify line terminators (`\n`, `\r`,
-     * or `\r\n`). It records the starting byte position of each line in [linePointerList],
-     * allowing subsequent reads to jump directly to specific lines using [RandomAccessFile.seek].
+     * This function reads the file byte-by-byte to accurately identify byte offsets for
+     * line terminators (\n, \r, or \r\n).
      *
      * @param file The file to process.
      * @return The total number of lines found, or 0 if the file is null or an error occurs.
@@ -264,44 +320,60 @@ class LazyTextViewerState(
 
         return@withContext try {
 
-            var linesCount = 0
-            var currentPointer = 0L
+            val fileSize = file?.fileLengthOrNull() ?: throw NullPointerException("Path is null.")
+            val fileSizeInMB = fileSize.toMegabytes()
+
+            sparseStep = when {
+
+                fileSizeInMB <= 1.0 -> 1
+                fileSizeInMB <= 10.0 -> 100
+                fileSizeInMB <= 50.0 -> 250
+                fileSizeInMB <= 100.0 -> 500
+                else -> 1000
+            }
+
+            var linesFound = 1
+            var bytePointer = 0L
             var totalReadBytes = 0
             var previousWasCR = false
-            val lineOffsetBuilder = persistentListOf(0L).builder()
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            val lineOffsets = persistentListOf(0L).builder()
 
-            file?.bufferedReader()?.use { reader ->
+            file.inputStream().buffered().use { inputStream ->
 
-                while (reader.read().also { bytes -> totalReadBytes = bytes } != -1) {
+                while (inputStream.read(buffer).also { bytes -> totalReadBytes = bytes } != -1) {
 
                     currentCoroutineContext().ensureActive()
-                    currentPointer++
 
-                    previousWasCR = when (totalReadBytes.toChar()) {
+                    (0 until totalReadBytes).forEach { index ->
 
-                        '\n' -> {
-                            if (previousWasCR) {
-                                lineOffsetBuilder[lineOffsetBuilder.size - 1] = currentPointer
+                        bytePointer++
+
+                        previousWasCR = when (buffer[index].toInt() and 0xFF) {
+
+                            '\n'.code -> if (previousWasCR && (linesFound - 1) % sparseStep == 0) {
+                                lineOffsets[lineOffsets.size - 1] = bytePointer
+                                false
                             } else {
-                                linesCount++
-                                lineOffsetBuilder.add(currentPointer)
+                                if (linesFound % sparseStep == 0) lineOffsets.add(bytePointer)
+                                linesFound++
+                                false
                             }
-                            false
-                        }
 
-                        '\r' -> {
-                            linesCount++
-                            lineOffsetBuilder.add(currentPointer)
-                            true
-                        }
+                            '\r'.code -> {
+                                if (linesFound % sparseStep == 0) lineOffsets.add(bytePointer)
+                                linesFound++
+                                true
+                            }
 
-                        else -> false
+                            else -> false
+                        }
                     }
                 }
-            } ?: throw NullPointerException("Path is null.")
+            }
 
-            linePointerList = lineOffsetBuilder.build()
-            linePointerList.size
+            linePointerList = lineOffsets.build()
+            linesFound
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -321,6 +393,7 @@ class LazyTextViewerState(
 
         textCacheManager.evictAll()
         sourceLoadJob?.cancel()
+        sparseStep = 250
         totalLines = 0
         isSourceLoading = false
         linePointerList = persistentListOf()

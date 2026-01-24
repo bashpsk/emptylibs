@@ -38,8 +38,7 @@ fun LazyTextViewerScreen() {
 
     val coroutineScope = rememberCoroutineScope()
 
-    val lineText = "Empty Libs - A Collection of Modern Android Libraries.\n" +
-            "A full-featured cropping UI with support for predefined aspect ratios," +
+    val lineText = "A full-featured cropping UI with support for predefined aspect ratios," +
             " custom crop shapes(circles, stars), image flipping, and a live preview.\n"
 
     val largeText by remember(lineText) { derivedStateOf { lineText.repeat(400) } }
@@ -48,7 +47,7 @@ fun LazyTextViewerScreen() {
         derivedStateOf {
             File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "Empty Libs.txt"    /*650MB*/
+                "Empty Libs.txt"
 //                "EmptyLayer.kt"
             )
         }
@@ -104,7 +103,7 @@ fun LazyTextViewerScreen() {
 
                                         repeat(5_000_000) { index ->
 
-                                            writer.write(lineText)
+                                            writer.write("${index + 1}: $lineText")
                                             if (index % 100_000 == 0) "WRITE: $index".setDebug()
                                         }
                                     }

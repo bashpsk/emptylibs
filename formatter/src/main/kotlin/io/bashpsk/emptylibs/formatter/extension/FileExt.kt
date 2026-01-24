@@ -44,9 +44,9 @@ internal fun File.fileLength(): Long {
  *
  * @return The size of the file in megabytes as a [Double].
  */
-fun Long?.toMegabytes(): Double {
+fun Long.toMegabytes(): Double {
 
-    if (this == null || this <= 0) return 0.0
+    if (this <= 0) return 0.0
 
     return this.toDouble() / (1024 * 1024)
 }
