@@ -48,8 +48,8 @@ fun LazyTextViewerScreen() {
         derivedStateOf {
             File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-//                "Empty Libs.txt"    /*650MB*/
-                "EmptyLayer.kt"
+                "Empty Libs.txt"    /*650MB*/
+//                "EmptyLayer.kt"
             )
         }
     }

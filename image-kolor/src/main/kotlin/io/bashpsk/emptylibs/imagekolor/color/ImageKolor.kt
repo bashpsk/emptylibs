@@ -111,8 +111,8 @@ fun KolorAdjustmentSliders(modifier: Modifier = Modifier, state: ImageKolorState
 
             AdjustmentSlider(
                 modifier = Modifier.fillMaxWidth(),
-                kolorInput = state.currentKolorInput,
-                onValueChange = { state.updateValues(it) }
+                kolorInput = state.kolorInput,
+                onValueChange =  state::updateValues
             )
         }
     }
@@ -210,8 +210,8 @@ private fun KolorInputRow(modifier: Modifier = Modifier, state: ImageKolorState)
             key = { kolorInput -> kolorInput.label }
         ) { kolorInput ->
 
-            val isSelected by remember(state.currentKolorInput, kolorInput) {
-                derivedStateOf { state.currentKolorInput.label == kolorInput.label }
+            val isSelected by remember(state.kolorInput, kolorInput) {
+                derivedStateOf { state.kolorInput.label == kolorInput.label }
             }
 
             KolorInputView(
@@ -220,7 +220,7 @@ private fun KolorInputRow(modifier: Modifier = Modifier, state: ImageKolorState)
                 isSelected = isSelected,
                 onKolorInput = { input ->
 
-                    state.currentKolorInput = input
+                    state.kolorInput = input
                 }
             )
         }

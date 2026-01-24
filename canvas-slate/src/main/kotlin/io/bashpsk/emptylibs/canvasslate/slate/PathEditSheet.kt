@@ -66,8 +66,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import io.bashpsk.emptylibs.composeutils.stroke.toStrokeCap
-import io.bashpsk.emptylibs.composeutils.stroke.toStrokeJoin
+import io.bashpsk.emptylibs.canvasslate.extension.toStrokeCap
+import io.bashpsk.emptylibs.canvasslate.extension.toStrokeJoin
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState

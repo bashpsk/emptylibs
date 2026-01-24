@@ -14,11 +14,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,9 +32,7 @@ import io.bashpsk.emptylibs.imageedit.edit.rememberImageEditState
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
 import io.bashpsk.emptylibs.screen.imageedit.saveAsFile
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun ImageEditScreen() {
@@ -46,15 +43,9 @@ fun ImageEditScreen() {
     val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper02)
 
     var isImageEdit by rememberSaveable { mutableStateOf(false) }
-    var finalImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    var finalImage by retain { mutableStateOf<ImageBitmap?>(imageBitmap) }
 
     val imageEditState = rememberImageEditState(imageBitmap = finalImage)
-
-    LaunchedEffect(Unit) {
-
-        delay(3.seconds)
-        finalImage = imageBitmap
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

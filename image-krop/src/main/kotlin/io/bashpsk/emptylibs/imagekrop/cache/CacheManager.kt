@@ -8,7 +8,7 @@ import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
  * This manager uses an LRU (Least Recently Used) strategy and has a maximum size of 3.
  * It is primarily used for caching individual image bitmaps.
  */
-internal val BitmapCacheManager by lazy { EmptyCacheManager<ImageBitmap>(maxSize = 3) }
+internal val BitmapCacheManager by lazy { EmptyCacheManager<String, ImageBitmap>(maxSize = 3) }
 
 /**
  * A cache manager for lists of `ImageBitmap` objects.
@@ -18,4 +18,4 @@ internal val BitmapCacheManager by lazy { EmptyCacheManager<ImageBitmap>(maxSize
  * It's designed to cache lists of images, potentially for scenarios like image sequences or
  * galleries.
  */
-internal val BitmapListCacheManager by lazy { EmptyCacheManager<ImageBitmap>(maxSize = 3) }
+internal val BitmapListCacheManager by lazy { EmptyCacheManager<String, ImageBitmap>(maxSize = 3) }

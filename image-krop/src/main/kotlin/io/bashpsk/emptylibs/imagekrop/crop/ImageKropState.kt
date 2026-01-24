@@ -255,8 +255,8 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         val newKey = generateImageKey()
 
         BitmapListCacheManager.resize(maxSize = imageList.size + 1)
-
-        BitmapListCacheManager.add(key = newKey, value = bitmap).takeIf { hasAdded ->
+        BitmapListCacheManager.add(key = newKey, value = bitmap)
+        BitmapListCacheManager.exist(key = newKey).takeIf { hasAdded ->
 
             hasAdded
         }?.run {

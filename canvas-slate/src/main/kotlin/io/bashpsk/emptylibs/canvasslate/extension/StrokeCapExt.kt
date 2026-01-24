@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.composeutils.stroke
+package io.bashpsk.emptylibs.canvasslate.extension
 
 import androidx.compose.ui.graphics.StrokeCap
 
@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.StrokeCap
  * @return The corresponding [StrokeCap] object, or [StrokeCap.Round] if the string is not a valid
  * stroke cap.
  */
-fun String.toStrokeCap(): StrokeCap {
+internal fun String.toStrokeCap(): StrokeCap {
 
     return when (this) {
 

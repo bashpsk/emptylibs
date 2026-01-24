@@ -11,7 +11,7 @@ import kotlinx.collections.immutable.PersistentList
  * and has a maximum size of 5 entries.
  */
 internal val ImageInputCacheManager by lazy {
-    EmptyCacheManager<ImageEditInput>(maxSize = 5)
+    EmptyCacheManager<String, ImageEditInput>(maxSize = 5)
 }
 
 /**
@@ -20,7 +20,7 @@ internal val ImageInputCacheManager by lazy {
  * typically used for storing the most recently edited image state.
  */
 internal val ImageEditCacheManager by lazy {
-    EmptyCacheManager<ImageEditItems>(maxSize = 1)
+    EmptyCacheManager<String, ImageEditItems>(maxSize = 1)
 }
 
 /**
@@ -33,5 +33,5 @@ internal val ImageEditCacheManager by lazy {
  * It utilizes `EmptyCacheManager` for its underlying caching mechanism.
  */
 internal val ImageEditListCacheManager by lazy {
-    EmptyCacheManager<PersistentList<ImageEditItems>>(maxSize = 1)
+    EmptyCacheManager<String, PersistentList<ImageEditItems>>(maxSize = 1)
 }

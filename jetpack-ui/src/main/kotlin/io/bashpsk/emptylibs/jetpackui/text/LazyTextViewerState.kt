@@ -14,7 +14,6 @@ import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -81,7 +80,7 @@ class LazyTextViewerState(
      *
      * Uses an LRU (Least Recently Used) strategy with a maximum capacity of 40 lines.
      */
-    internal val textCacheManager = EmptyCacheManager<String>(maxSize = 40)
+    internal val textCacheManager = EmptyCacheManager<Int, String>(maxSize = 40)
 
     /**
      * The total number of lines in the current [source].
@@ -192,12 +191,12 @@ class LazyTextViewerState(
         index: Int
     ): TextContentResult = withContext(Dispatchers.Default) {
 
-        return@withContext textCacheManager.get(index.toString())?.let { lineText ->
+        return@withContext textCacheManager.get(index)?.let { lineText ->
 
             TextContentResult.Content(text = lineText)
         } ?: content?.lines()?.getOrNull(index)?.let { lineText ->
 
-            textCacheManager.add(index.toString(), lineText)
+            textCacheManager.add(index, lineText)
             TextContentResult.Content(text = lineText)
         } ?: throw NullPointerException("Line not found.")
     }
@@ -221,7 +220,7 @@ class LazyTextViewerState(
 
         if (index !in 0..totalLines) throw IndexOutOfBoundsException("Index out of bounds.")
 
-        return@withContext textCacheManager.get(index.toString())?.let { lineText ->
+        return@withContext textCacheManager.get(index)?.let { lineText ->
 
             TextContentResult.Content(text = lineText)
         } ?: file?.takeIf { sourceFile -> sourceFile.exists() }?.let { sourceFile ->
@@ -233,7 +232,7 @@ class LazyTextViewerState(
                     "Line not found."
                 )
 
-                textCacheManager.add(index.toString(), lineText)
+                textCacheManager.add(index, lineText)
                 TextContentResult.Content(text = lineText)
             }
         } ?: throw NullPointerException("Path is null.")
@@ -269,7 +268,7 @@ class LazyTextViewerState(
             var currentPointer = 0L
             var totalReadBytes = 0
             var previousWasCR = false
-            val lineOffsets = mutableListOf(0L)
+            val lineOffsetBuilder = persistentListOf(0L).builder()
 
             file?.bufferedReader()?.use { reader ->
 
@@ -282,17 +281,17 @@ class LazyTextViewerState(
 
                         '\n' -> {
                             if (previousWasCR) {
-                                lineOffsets[lineOffsets.size - 1] = currentPointer
+                                lineOffsetBuilder[lineOffsetBuilder.size - 1] = currentPointer
                             } else {
                                 linesCount++
-                                lineOffsets.add(currentPointer)
+                                lineOffsetBuilder.add(currentPointer)
                             }
                             false
                         }
 
                         '\r' -> {
                             linesCount++
-                            lineOffsets.add(currentPointer)
+                            lineOffsetBuilder.add(currentPointer)
                             true
                         }
 
@@ -301,7 +300,7 @@ class LazyTextViewerState(
                 }
             } ?: throw NullPointerException("Path is null.")
 
-            linePointerList = lineOffsets.toPersistentList()
+            linePointerList = lineOffsetBuilder.build()
             linePointerList.size
         } catch (exception: Exception) {
 

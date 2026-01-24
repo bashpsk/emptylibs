@@ -22,12 +22,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.canvasslate.extension.toStrokeCap
+import io.bashpsk.emptylibs.canvasslate.extension.toStrokeJoin
 import io.bashpsk.emptylibs.composeutils.offset.hasNeared
 import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.composeutils.size.SizeData
 import io.bashpsk.emptylibs.composeutils.size.toSizeData
-import io.bashpsk.emptylibs.composeutils.stroke.toStrokeCap
-import io.bashpsk.emptylibs.composeutils.stroke.toStrokeJoin
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers

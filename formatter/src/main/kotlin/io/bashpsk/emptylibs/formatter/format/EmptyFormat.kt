@@ -947,7 +947,7 @@ object EmptyFormat {
     @JvmStatic
     fun toFileSize(size: Long): String {
 
-        val units = persistentListOf("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+        val units = arrayOf("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
 
         var length = size.toDouble()
         var order = 0

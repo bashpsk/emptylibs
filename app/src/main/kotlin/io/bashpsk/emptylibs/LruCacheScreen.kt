@@ -27,7 +27,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 
-val bitmapCacheManager = EmptyCacheManager<Bitmap>(maxSize = 3)
+val bitmapCacheManager = EmptyCacheManager<String, Bitmap>(maxSize = 3)
 
 @Composable
 fun LruCacheScreen() {

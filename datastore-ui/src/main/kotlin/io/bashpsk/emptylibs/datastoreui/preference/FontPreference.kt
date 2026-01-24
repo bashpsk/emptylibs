@@ -236,7 +236,10 @@ fun FontPreference(
                     verticalArrangement = Arrangement.spacedBy(space = 4.dp)
                 ) {
 
-                    items(items = entities.toList()) { fontItem ->
+                    items(
+                        items = entities,
+                        key = { fontItem -> fontItem.label }
+                    ) { fontItem ->
 
                         val isSelected by remember(getSelectedItem, fontItem) {
                             derivedStateOf { getSelectedItem?.label == fontItem.label }

@@ -20,7 +20,6 @@ import androidx.compose.material.icons.outlined.InvertColors
 import androidx.compose.material.icons.outlined.Thermostat
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
@@ -180,7 +179,7 @@ sealed class ImageKolorInput(
             Tint(),
             Highlights(),
             Shadows()
-        ).toImmutableList()
+        )
 
         /**
          * Returns the valid range for the input value.

@@ -48,7 +48,7 @@ fun rememberImageKolorState(imageBitmap: ImageBitmap?): ImageKolorState {
  */
 @Stable
 class ImageKolorState(val imageBitmap: ImageBitmap?) {
-    
+
     /**
      * A list of [ImageKolorInput] objects representing the current color adjustment settings.
      *
@@ -81,16 +81,16 @@ class ImageKolorState(val imageBitmap: ImageBitmap?) {
      * It is initialized with the first element of [imageKolorInputList].
      * Changes to this property will trigger recomposition if observed in a Composable.
      */
-    internal var currentKolorInput by mutableStateOf(imageKolorInputList.first())
+    internal var kolorInput by mutableStateOf(imageKolorInputList.first())
 
     /**
      * Updates the value of the currently selected [ImageKolorInput] type.
      *
      * This function iterates through the [imageKolorInputList] and updates the
-     * [ImageKolorInput] instance that matches the type of the [currentKolorInput].
+     * [ImageKolorInput] instance that matches the type of the [kolorInput].
      * The `value` property of the matching input is set to the provided [newValue].
      *
-     * After updating the specific input, the [currentKolorInput] is also updated
+     * After updating the specific input, the [kolorInput] is also updated
      * to reflect this new input state. The entire [imageKolorInputList] is then
      * replaced with a new persistent list containing the updated input.
      *
@@ -98,26 +98,26 @@ class ImageKolorState(val imageBitmap: ImageBitmap?) {
      */
     fun updateValues(newValue: Float) {
 
-        imageKolorInputList = imageKolorInputList.map { kolorInput ->
+        imageKolorInputList.indexOfFirst { input ->
 
-            currentKolorInput.takeIf { input -> kolorInput::class == input::class }?.run {
+            kolorInput::class == input::class
+        }.takeIf { index -> index != -1 }?.let { index ->
 
-                val newInput = when (val input = kolorInput) {
+            val newInput = when (val input = kolorInput) {
 
-                    is ImageKolorInput.Brightness -> input.copy(value = newValue)
-                    is ImageKolorInput. Exposure ->input.copy(value = newValue)
-                    is ImageKolorInput. Contrast -> input.copy(value = newValue)
-                    is ImageKolorInput. Saturation -> input.copy(value = newValue)
-                    is ImageKolorInput. Warmth -> input.copy(value = newValue)
-                    is ImageKolorInput. Tint -> input.copy(value = newValue)
-                    is ImageKolorInput. Highlights -> input.copy(value = newValue)
-                    is ImageKolorInput. Shadows -> input.copy(value = newValue)
-                }
+                is ImageKolorInput.Brightness -> input.copy(value = newValue)
+                is ImageKolorInput.Exposure -> input.copy(value = newValue)
+                is ImageKolorInput.Contrast -> input.copy(value = newValue)
+                is ImageKolorInput.Saturation -> input.copy(value = newValue)
+                is ImageKolorInput.Warmth -> input.copy(value = newValue)
+                is ImageKolorInput.Tint -> input.copy(value = newValue)
+                is ImageKolorInput.Highlights -> input.copy(value = newValue)
+                is ImageKolorInput.Shadows -> input.copy(value = newValue)
+            }
 
-                currentKolorInput = newInput
-                newInput
-            } ?: kolorInput
-        }.toPersistentList()
+            kolorInput = newInput
+            imageKolorInputList = imageKolorInputList.set(index = index, element = kolorInput)
+        }
     }
 
     /**
@@ -423,6 +423,7 @@ class ImageKolorState(val imageBitmap: ImageBitmap?) {
     companion object {
 
         private const val KEY_CURRENT_INPUT = "IMAGE-KOLOR-CURRENT-INPUT"
+        private const val KEY_CURRENT_INPUT_INDEX = "IMAGE-KOLOR-CURRENT-INPUT-INDEX"
         private const val KEY_INPUT_LIST = "IMAGE-KOLOR-INPUT-LIST"
 
         @Suppress("UNCHECKED_CAST")
@@ -431,18 +432,18 @@ class ImageKolorState(val imageBitmap: ImageBitmap?) {
 
                 mapOf(
                     KEY_INPUT_LIST to state.imageKolorInputList.toTypedArray(),
-                    KEY_CURRENT_INPUT to state.currentKolorInput,
+                    KEY_CURRENT_INPUT to state.kolorInput
                 )
             },
             restore = { elements ->
 
                 ImageKolorState(imageBitmap = imageBitmap).apply {
-                    
+
                     imageKolorInputList = (elements.getOrElse(KEY_INPUT_LIST) {
                         ImageKolorInput.AllTypes.toTypedArray()
                     } as Array<ImageKolorInput>).toPersistentList()
 
-                    currentKolorInput = elements.getOrElse(
+                    kolorInput = elements.getOrElse(
                         KEY_CURRENT_INPUT
                     ) { ImageKolorInput.AllTypes.first() } as ImageKolorInput
                 }

@@ -36,7 +36,9 @@ fun ImageFilter(
     itemSize: Dp = 120.dp
 ) {
 
-    val kolorFilterList = remember { ImageFilterType.entries.toImmutableList() }
+    val kolorFilterList by remember {
+        derivedStateOf { ImageFilterType.entries.toImmutableList() }
+    }
 
     LazyVerticalGrid(
         modifier = modifier,

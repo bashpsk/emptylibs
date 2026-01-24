@@ -143,7 +143,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
     /**
      * A cache for high-quality page bitmaps.
      */
-    internal val scaledBitmapManager = EmptyCacheManager<PdfScaledPageData>()
+    internal val scaledBitmapManager = EmptyCacheManager<Int, PdfScaledPageData>()
 
     /**
      * The width of the container in pixels.
@@ -296,7 +296,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
                     bitmap = bitmap
                 )
 
-                scaledBitmapManager.add(newPageData.page.toString(), newPageData)
+                scaledBitmapManager.add(newPageData.page, newPageData)
             }
         }
 
@@ -386,7 +386,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
     private fun hasNeedScaledBitmap(pageData: PdfScaledPageData?): Boolean {
 
         return pageData == null
-                || scaledBitmapManager.exist(pageData.page.toString()).not()
+                || scaledBitmapManager.exist(pageData.page).not()
                 || pageData.quality !in
                 (transformable.zoom - 0.25F)..(transformable.zoom + 0.25F)
     }
@@ -409,7 +409,7 @@ class PdfLazyColumnState(internal val transformable: TransformableGesturesState)
      */
     private fun getScaledPageData(pageIndex: Int): PdfScaledPageData? {
 
-        return scaledBitmapManager.get(pageIndex.toString())
+        return scaledBitmapManager.get(pageIndex)
     }
 
     /**

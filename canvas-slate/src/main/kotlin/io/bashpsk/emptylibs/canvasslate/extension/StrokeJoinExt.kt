@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.composeutils.stroke
+package io.bashpsk.emptylibs.canvasslate.extension
 
 import androidx.compose.ui.graphics.StrokeJoin
 
@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.StrokeJoin
  * @return The corresponding [StrokeJoin] object if a match is found.
  * If the input string does not match any known stroke join, it defaults to [StrokeJoin.Round].
  */
-fun String.toStrokeJoin(): StrokeJoin {
+internal fun String.toStrokeJoin(): StrokeJoin {
 
     return when (this) {
 

@@ -4,8 +4,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import io.bashpsk.emptylibs.composeutils.stroke.toStrokeCap
-import io.bashpsk.emptylibs.composeutils.stroke.toStrokeJoin
+import io.bashpsk.emptylibs.canvasslate.extension.toStrokeCap
+import io.bashpsk.emptylibs.canvasslate.extension.toStrokeJoin
 import kotlin.math.abs
 
 /**
