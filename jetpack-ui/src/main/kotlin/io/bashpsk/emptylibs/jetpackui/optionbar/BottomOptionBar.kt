@@ -59,26 +59,17 @@ fun BottomOptionBar(
         derivedStateOf { optionList.subList(shownItemCount, optionList.size) }
     }
 
-    val onOptionItemClick = remember<(OptionBarData) -> Unit> {
-        { option ->
-
-            onOptionClick(option)
-            isMoreOptionMenuExpanded = false
-        }
-    }
-
-    val onMoreOptionItemClick = remember<(OptionBarData) -> Unit> {
-        { option ->
-
-            onOptionClick(option)
-            isMoreOptionMenuExpanded = true
-        }
-    }
-
     val expandIndicator = @Composable { scope: ContextualFlowRowOverflowScope ->
 
         shownItemCount = scope.shownItemCount
-        OptionBarItem(optionData = moreOption, onClick = onMoreOptionItemClick)
+        OptionBarItem(
+            optionData = moreOption,
+            onClick = {
+
+                onOptionClick(moreOption)
+                isMoreOptionMenuExpanded = true
+            }
+        )
     }
 
     Box(
@@ -115,7 +106,14 @@ fun BottomOptionBar(
 
             option?.let { optionItem ->
 
-                OptionBarItem(optionData = optionItem, onClick = onOptionItemClick)
+                OptionBarItem(
+                    optionData = optionItem,
+                    onClick = {
+
+                        onOptionClick(optionItem)
+                        isMoreOptionMenuExpanded = false
+                    }
+                )
             }
         }
 
@@ -130,9 +128,16 @@ fun BottomOptionBar(
 
             HorizontalDivider()
 
-            remainingItems.forEach { item ->
+            remainingItems.forEach { optionItem ->
 
-                OptionMenuItem(optionData = item, onClick = onOptionItemClick)
+                OptionMenuItem(
+                    optionData = optionItem,
+                    onClick = {
+
+                        onOptionClick(optionItem)
+                        isMoreOptionMenuExpanded = false
+                    }
+                )
             }
 
             HorizontalDivider()
