@@ -82,7 +82,6 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     //  MODULE          :
-    implementation(project(":collections-ext"))
 }
 
 publishing {

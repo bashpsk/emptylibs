@@ -89,7 +89,6 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     //  MODULE          :
-    implementation(project(":collections-ext"))
     implementation(project(":compose-utils"))
     implementation(project(":formatter"))
     implementation(project(":lrucache-manager"))
