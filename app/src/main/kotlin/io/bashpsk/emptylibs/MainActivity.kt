@@ -53,7 +53,6 @@ class MainActivity : ComponentActivity() {
 //                    ImageKolorScreen()
 //                    ImageWallpaperScreen()
 //                    JoyStickScreen()
-                    LargeListOomErrorScreen()
 //                    LazyTextViewerScreen()
 //                    LruCacheScreen()
 //                    MusicPlayingAnimationScreen()

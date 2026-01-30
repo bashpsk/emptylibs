@@ -7,13 +7,14 @@ import android.os.storage.StorageManager
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
-import io.bashpsk.emptylibs.storage.extension.fileLength
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -31,30 +32,24 @@ internal class EmptyStorageImpl : EmptyStorage {
 
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
 
-                    persistentListOf<StorageVolumeData>().mutate { itemsList ->
+                    storageManager.storageVolumes.map { volume ->
 
-                        storageManager.storageVolumes.forEach { volume ->
+                        val path = volume.directory?.path ?: ""
 
-                            volume.directory?.path?.let { path ->
-
-                                val newVolumeData = StorageVolumeData(
-                                    title = volume.getDescription(context),
-                                    path = path,
-                                    totalSize = getTotalMemory(path = path),
-                                    availableSize = getFreeMemory(path = path),
-                                    usedSize = getUsedMemory(path = path),
-                                    volumeType = StorageVolumeType.getVolumeType(volume = volume)
-                                )
-
-                                itemsList.add(element = newVolumeData)
-                            }
-                        }
-                    }
+                        StorageVolumeData(
+                            title = volume.getDescription(context),
+                            path = path,
+                            totalSize = getTotalMemory(path = path),
+                            availableSize = getFreeMemory(path = path),
+                            usedSize = getUsedMemory(path = path),
+                            volumeType = StorageVolumeType.getVolumeType(volume = volume)
+                        )
+                    }.toImmutableList()
                 }
 
-                else -> persistentListOf<StorageVolumeData>().mutate { itemsList ->
+                else -> {
 
-                    getStorageDirectories(context = context).forEach { path ->
+                    getStorageDirectories(context = context).map { path ->
 
                         storageManager.getStorageVolume(File(path))?.let { volume ->
 
@@ -66,13 +61,10 @@ internal class EmptyStorageImpl : EmptyStorage {
                                 usedSize = getUsedMemory(path = path),
                                 volumeType = StorageVolumeType.getVolumeType(volume = volume)
                             )
-                        }?.let { newVolumeData ->
-
-                            itemsList.add(element = newVolumeData)
-                        }
-                    }
+                        } ?: StorageVolumeData()
+                    }.toImmutableList()
                 }
-            }
+            }.filter { volumeData -> volumeData.path.isNotEmpty() }.toImmutableList()
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -88,24 +80,30 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val folderList = persistentListOf<DirectoryData>().builder()
-            val fileList = persistentListOf<FileData>().builder()
+            val folderList = MutableStateFlow(persistentListOf<DirectoryData>())
+            val fileList = MutableStateFlow(persistentListOf<FileData>())
 
             val storageVolumes = getStorageVolumeList(context = context)
 
             File(path).listFiles()?.forEach { fileItem ->
 
-                when {
+                when (fileItem.isFile) {
 
-                    fileItem.isFile -> getFileData(
+                    true -> getFileData(
                         path = fileItem.path,
                         storageVolumes = storageVolumes
-                    )?.let(fileList::add)
+                    )?.let { newFileData ->
 
-                    fileItem.isDirectory -> getDirectoryData(
+                        fileList.update { filesOld -> filesOld.add(element = newFileData) }
+                    }
+
+                    false -> getDirectoryData(
                         path = fileItem.path,
                         storageVolumes = storageVolumes
-                    )?.let(folderList::add)
+                    )?.let { newDirectoryData ->
+
+                        folderList.update { foldersOld -> foldersOld.add(newDirectoryData) }
+                    }
                 }
             }
 
@@ -120,8 +118,8 @@ internal class EmptyStorageImpl : EmptyStorage {
             ) ?: StorageVolumeData()
 
             DirectoryFileData(
-                folders = folderList.build(),
-                files = fileList.build(),
+                folders = folderList.value.toImmutableList(),
+                files = fileList.value.toImmutableList(),
                 storage = storageVolume,
                 directory = directoryData
             )
@@ -197,7 +195,7 @@ internal class EmptyStorageImpl : EmptyStorage {
                 extension = file.extension,
                 visibleType = FileVisibleType.getFileVisibleType(file = file),
                 fileType = FileType.getFileType(extension = file.extension),
-                size = file.fileLength(),
+                size = file.length(),
                 modifiedDate = file.lastModified(),
                 storage = storageVolume
             )
@@ -217,22 +215,18 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val fileDataList = persistentListOf<FileData>().builder()
-
             val storageVolumes = getStorageVolumeList(context)
 
             File(path).walkTopDown().filter { file ->
 
                 extensions.any { extension -> file.extension.equals(extension, ignoreCase = true) }
-            }.forEach { file ->
+            }.toImmutableList().mapNotNull { file ->
 
                 getFileData(path = file.path, storageVolumes = storageVolumes)?.takeIf { fileData ->
 
                     fileData.path.isNotEmpty()
-                }?.let(fileDataList::add)
-            }
-
-            fileDataList.build()
+                }
+            }.toImmutableList()
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -290,17 +284,16 @@ internal class EmptyStorageImpl : EmptyStorage {
                 folder.isDirectory
             }.map { folder ->
 
-                val fileList = persistentListOf<Long>().builder()
+                folder.walkTopDown().filter { file ->
 
-                folder.walkTopDown().filter { file -> file.isFile }.forEach { file ->
+                    file.isFile
+                }.map { file ->
 
-                    fileList.add(element = file.fileLength())
-                }
-
-                fileList.build()
+                    file.length()
+                }.toImmutableList()
             }.flatten().sum()
 
-            val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.fileLength() }
+            val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.length() }
 
             foldersFileSize + fileSize
         } catch (exception: Exception) {
@@ -363,7 +356,7 @@ internal class EmptyStorageImpl : EmptyStorage {
         return try {
 
             val emulatedStorage = System.getenv("EMULATED_STORAGE_TARGET")
-            val availableDirectories = persistentListOf<String>().builder()
+            val availableDirectories = hashSetOf<String>()
 
             when (emulatedStorage?.isNotEmpty() == true) {
 
@@ -371,8 +364,8 @@ internal class EmptyStorageImpl : EmptyStorage {
                 false -> availableDirectories.addAll(elements = getExternalStorage(context))
             }
 
-            availableDirectories.addAll(elements = getAllSecondaryStorages())
-            availableDirectories.build()
+            availableDirectories.addAll(elements = getAllSecondaryStorages().toList())
+            availableDirectories.toImmutableList()
         } catch (exception: Exception) {
 
             Log.w("StorageExt", exception.message, exception)
@@ -393,16 +386,10 @@ internal class EmptyStorageImpl : EmptyStorage {
      */
     private fun getExternalStorage(context: Context): ImmutableList<String> {
 
-        val volumeList = persistentListOf<String>().builder()
+        return context.getExternalFilesDirs(null).map { file ->
 
-        context.getExternalFilesDirs(null).forEach { file ->
-
-            volumeList.add(
-                file.absolutePath.substring(0, file.absolutePath.indexOf(string = "Android/data"))
-            )
-        }
-
-        return volumeList.build()
+            file.absolutePath.substring(0, file.absolutePath.indexOf(string = "Android/data"))
+        }.toImmutableList()
     }
 
     /**
@@ -460,7 +447,7 @@ internal class EmptyStorageImpl : EmptyStorage {
      * storage.
      * Returns an empty list if no secondary storage is found or an error occurs.
      */
-    private fun getAllSecondaryStorages(): List<String> {
+    private fun getAllSecondaryStorages(): ImmutableList<String> {
 
         return try {
 
@@ -468,13 +455,13 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             when (secondaryStorage?.isNotEmpty() == true) {
 
-                true -> secondaryStorage.split(File.pathSeparator)
-                else -> emptyList()
+                true -> secondaryStorage.split(File.pathSeparator).toImmutableList()
+                else -> persistentListOf()
             }
         } catch (exception: Exception) {
 
             Log.w("StorageExt", exception.message, exception)
-            emptyList()
+            persistentListOf()
         }
     }
 }
