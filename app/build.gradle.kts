@@ -98,6 +98,7 @@ dependencies {
     //  MODULE          :
     implementation(project(":animations"))
     implementation(project(":canvas-slate"))
+    implementation(project(":collections-ext"))
     implementation(project(":compose-utils"))
     implementation(project(":compose-widgets"))
     implementation(project(":datastore-ui"))

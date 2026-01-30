@@ -16,23 +16,23 @@ internal interface EmptyStorage {
 
     fun findStorageVolumeData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData>
+        storageVolumes: Iterable<StorageVolumeData>
     ): StorageVolumeData?
 
     suspend fun getDirectoryData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData>
+        storageVolumes: Iterable<StorageVolumeData>
     ): DirectoryData?
 
     suspend fun getFileData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData>
+        storageVolumes: Iterable<StorageVolumeData>
     ): FileData?
 
     suspend fun getFileListByExtensions(
         context: Context,
         path: String,
-        extensions: ImmutableList<String>
+        extensions: Iterable<String>
     ): ImmutableList<FileData>
 
     fun getTotalMemory(path: String): Long
@@ -41,7 +41,7 @@ internal interface EmptyStorage {
 
     fun getUsedMemory(path: String): Long
 
-    suspend fun getFileSize(paths: ImmutableList<String>): Long
+    suspend fun getFileSize(paths: Iterable<String>): Long
 
     suspend fun makeFolderOrFile(destination: String, isFolder: Boolean): MakeFileResult
 }

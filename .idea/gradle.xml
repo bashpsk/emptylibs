@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/animations" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/canvas-slate" />
+            <option value="$PROJECT_DIR$/collections-ext" />
             <option value="$PROJECT_DIR$/compose-utils" />
             <option value="$PROJECT_DIR$/compose-widgets" />
             <option value="$PROJECT_DIR$/datastore-ui" />

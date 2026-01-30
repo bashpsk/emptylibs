@@ -138,7 +138,7 @@ object StorageExt {
      */
     fun findStorageVolumeData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
+        storageVolumes: Iterable<StorageVolumeData> = persistentListOf()
     ): StorageVolumeData? {
 
         return emptyStorage.findStorageVolumeData(path = path, storageVolumes = storageVolumes)
@@ -154,7 +154,7 @@ object StorageExt {
      */
     fun findStorageVolumeData(
         file: File,
-        storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
+        storageVolumes: Iterable<StorageVolumeData> = persistentListOf()
     ): StorageVolumeData? {
 
         return emptyStorage.findStorageVolumeData(path = file.path, storageVolumes = storageVolumes)
@@ -176,7 +176,7 @@ object StorageExt {
      */
     suspend fun getDirectoryData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
+        storageVolumes: Iterable<StorageVolumeData> = persistentListOf()
     ): DirectoryData? {
 
         return emptyStorage.getDirectoryData(path = path, storageVolumes = storageVolumes)
@@ -199,7 +199,7 @@ object StorageExt {
      */
     suspend fun getDirectoryData(
         file: File,
-        storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
+        storageVolumes: Iterable<StorageVolumeData> = persistentListOf()
     ): DirectoryData? {
 
         return emptyStorage.getDirectoryData(path = file.path, storageVolumes = storageVolumes)
@@ -220,7 +220,7 @@ object StorageExt {
      */
     suspend fun getFileData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
+        storageVolumes: Iterable<StorageVolumeData> = persistentListOf()
     ): FileData? {
 
         return emptyStorage.getFileData(path = path, storageVolumes = storageVolumes)
@@ -242,7 +242,7 @@ object StorageExt {
      */
     suspend fun getFileData(
         file: File,
-        storageVolumes: ImmutableList<StorageVolumeData> = persistentListOf()
+        storageVolumes: Iterable<StorageVolumeData> = persistentListOf()
     ): FileData? {
 
         return emptyStorage.getFileData(path = file.path, storageVolumes = storageVolumes)
@@ -270,7 +270,7 @@ object StorageExt {
     fun getFileListByExtensionsFlow(
         context: Context,
         path: String,
-        extensions: ImmutableList<String>
+        extensions: Iterable<String>
     ): Flow<ImmutableList<FileData>> {
 
         return flow {
@@ -307,7 +307,7 @@ object StorageExt {
     suspend fun getFileListByExtensions(
         context: Context,
         path: String,
-        extensions: ImmutableList<String>
+        extensions: Iterable<String>
     ): ImmutableList<FileData> {
 
         return emptyStorage.getFileListByExtensions(
@@ -428,7 +428,7 @@ object StorageExt {
      * paths.
      * Returns 0L if an error occurs or if no files are found.
      */
-    suspend fun getFileSize(paths: ImmutableList<String>): Long {
+    suspend fun getFileSize(paths: Iterable<String>): Long {
 
         return emptyStorage.getFileSize(paths = paths)
     }

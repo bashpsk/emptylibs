@@ -76,13 +76,13 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    //  ICON            :
-    implementation(libs.androidx.material.icons.extended)
-
     //  KOTLINX         :
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.datetime)
+
+    //  MODULE          :
+    implementation(project(":collections-ext"))
 }
 
 publishing {

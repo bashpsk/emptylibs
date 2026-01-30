@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.kotlinx.io.core)
 
     //  MODULE          :
+    implementation(project(":collections-ext"))
     implementation(project(":compose-utils"))
 }
 

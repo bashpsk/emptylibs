@@ -25,6 +25,7 @@ rootProject.name = "Empty Libs"
 include(":app")
 include(":animations")
 include(":canvas-slate")
+include(":collections-ext")
 include(":compose-utils")
 include(":compose-widgets")
 include(":datastore-ui")

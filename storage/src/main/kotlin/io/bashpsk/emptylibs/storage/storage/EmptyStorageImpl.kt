@@ -7,14 +7,13 @@ import android.os.storage.StorageManager
 import android.util.Log
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
+import io.bashpsk.emptylibs.storage.extension.fileLength
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -32,24 +31,30 @@ internal class EmptyStorageImpl : EmptyStorage {
 
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
 
-                    storageManager.storageVolumes.map { volume ->
+                    persistentListOf<StorageVolumeData>().mutate { itemsList ->
 
-                        val path = volume.directory?.path ?: ""
+                        storageManager.storageVolumes.forEach { volume ->
 
-                        StorageVolumeData(
-                            title = volume.getDescription(context),
-                            path = path,
-                            totalSize = getTotalMemory(path = path),
-                            availableSize = getFreeMemory(path = path),
-                            usedSize = getUsedMemory(path = path),
-                            volumeType = StorageVolumeType.getVolumeType(volume = volume)
-                        )
-                    }.toImmutableList()
+                            volume.directory?.path?.let { path ->
+
+                                val newVolumeData = StorageVolumeData(
+                                    title = volume.getDescription(context),
+                                    path = path,
+                                    totalSize = getTotalMemory(path = path),
+                                    availableSize = getFreeMemory(path = path),
+                                    usedSize = getUsedMemory(path = path),
+                                    volumeType = StorageVolumeType.getVolumeType(volume = volume)
+                                )
+
+                                itemsList.add(element = newVolumeData)
+                            }
+                        }
+                    }
                 }
 
-                else -> {
+                else -> persistentListOf<StorageVolumeData>().mutate { itemsList ->
 
-                    getStorageDirectories(context = context).map { path ->
+                    getStorageDirectories(context = context).forEach { path ->
 
                         storageManager.getStorageVolume(File(path))?.let { volume ->
 
@@ -61,10 +66,13 @@ internal class EmptyStorageImpl : EmptyStorage {
                                 usedSize = getUsedMemory(path = path),
                                 volumeType = StorageVolumeType.getVolumeType(volume = volume)
                             )
-                        } ?: StorageVolumeData()
-                    }.toImmutableList()
+                        }?.let { newVolumeData ->
+
+                            itemsList.add(element = newVolumeData)
+                        }
+                    }
                 }
-            }.filter { volumeData -> volumeData.path.isNotEmpty() }.toImmutableList()
+            }
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -80,30 +88,24 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val folderList = MutableStateFlow(persistentListOf<DirectoryData>())
-            val fileList = MutableStateFlow(persistentListOf<FileData>())
+            val folderList = persistentListOf<DirectoryData>().builder()
+            val fileList = persistentListOf<FileData>().builder()
 
             val storageVolumes = getStorageVolumeList(context = context)
 
             File(path).listFiles()?.forEach { fileItem ->
 
-                when (fileItem.isFile) {
+                when {
 
-                    true -> getFileData(
+                    fileItem.isFile -> getFileData(
                         path = fileItem.path,
                         storageVolumes = storageVolumes
-                    )?.let { newFileData ->
+                    )?.let(fileList::add)
 
-                        fileList.update { filesOld -> filesOld.add(element = newFileData) }
-                    }
-
-                    false -> getDirectoryData(
+                    fileItem.isDirectory -> getDirectoryData(
                         path = fileItem.path,
                         storageVolumes = storageVolumes
-                    )?.let { newDirectoryData ->
-
-                        folderList.update { foldersOld -> foldersOld.add(newDirectoryData) }
-                    }
+                    )?.let(folderList::add)
                 }
             }
 
@@ -118,8 +120,8 @@ internal class EmptyStorageImpl : EmptyStorage {
             ) ?: StorageVolumeData()
 
             DirectoryFileData(
-                folders = folderList.value.toImmutableList(),
-                files = fileList.value.toImmutableList(),
+                folders = folderList.build(),
+                files = fileList.build(),
                 storage = storageVolume,
                 directory = directoryData
             )
@@ -133,7 +135,7 @@ internal class EmptyStorageImpl : EmptyStorage {
 
     override fun findStorageVolumeData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData>
+        storageVolumes: Iterable<StorageVolumeData>
     ): StorageVolumeData? {
 
         return storageVolumes.find { storage -> path.startsWith(storage.path) }
@@ -141,7 +143,7 @@ internal class EmptyStorageImpl : EmptyStorage {
 
     override suspend fun getDirectoryData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData>
+        storageVolumes: Iterable<StorageVolumeData>
     ): DirectoryData? = withContext(context = Dispatchers.IO) {
 
         return@withContext try {
@@ -176,7 +178,7 @@ internal class EmptyStorageImpl : EmptyStorage {
 
     override suspend fun getFileData(
         path: String,
-        storageVolumes: ImmutableList<StorageVolumeData>
+        storageVolumes: Iterable<StorageVolumeData>
     ): FileData? = withContext(context = Dispatchers.IO) {
 
         return@withContext try {
@@ -195,7 +197,7 @@ internal class EmptyStorageImpl : EmptyStorage {
                 extension = file.extension,
                 visibleType = FileVisibleType.getFileVisibleType(file = file),
                 fileType = FileType.getFileType(extension = file.extension),
-                size = file.length(),
+                size = file.fileLength(),
                 modifiedDate = file.lastModified(),
                 storage = storageVolume
             )
@@ -210,23 +212,27 @@ internal class EmptyStorageImpl : EmptyStorage {
     override suspend fun getFileListByExtensions(
         context: Context,
         path: String,
-        extensions: ImmutableList<String>
+        extensions: Iterable<String>
     ): ImmutableList<FileData> = withContext(context = Dispatchers.IO) {
 
         return@withContext try {
+
+            val fileDataList = persistentListOf<FileData>().builder()
 
             val storageVolumes = getStorageVolumeList(context)
 
             File(path).walkTopDown().filter { file ->
 
                 extensions.any { extension -> file.extension.equals(extension, ignoreCase = true) }
-            }.toImmutableList().mapNotNull { file ->
+            }.forEach { file ->
 
                 getFileData(path = file.path, storageVolumes = storageVolumes)?.takeIf { fileData ->
 
                     fileData.path.isNotEmpty()
-                }
-            }.toImmutableList()
+                }?.let(fileDataList::add)
+            }
+
+            fileDataList.build()
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -273,9 +279,7 @@ internal class EmptyStorageImpl : EmptyStorage {
         }
     }
 
-    override suspend fun getFileSize(
-        paths: ImmutableList<String>
-    ): Long = withContext(context = Dispatchers.IO) {
+    override suspend fun getFileSize(paths: Iterable<String>): Long = withContext(Dispatchers.IO) {
 
         try {
 
@@ -286,16 +290,17 @@ internal class EmptyStorageImpl : EmptyStorage {
                 folder.isDirectory
             }.map { folder ->
 
-                folder.walkTopDown().filter { file ->
+                val fileList = persistentListOf<Long>().builder()
 
-                    file.isFile
-                }.map { file ->
+                folder.walkTopDown().filter { file -> file.isFile }.forEach { file ->
 
-                    file.length()
-                }.toImmutableList()
+                    fileList.add(element = file.fileLength())
+                }
+
+                fileList.build()
             }.flatten().sum()
 
-            val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.length() }
+            val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.fileLength() }
 
             foldersFileSize + fileSize
         } catch (exception: Exception) {
@@ -358,7 +363,7 @@ internal class EmptyStorageImpl : EmptyStorage {
         return try {
 
             val emulatedStorage = System.getenv("EMULATED_STORAGE_TARGET")
-            val availableDirectories = hashSetOf<String>()
+            val availableDirectories = persistentListOf<String>().builder()
 
             when (emulatedStorage?.isNotEmpty() == true) {
 
@@ -366,8 +371,8 @@ internal class EmptyStorageImpl : EmptyStorage {
                 false -> availableDirectories.addAll(elements = getExternalStorage(context))
             }
 
-            availableDirectories.addAll(elements = getAllSecondaryStorages().toList())
-            availableDirectories.toImmutableList()
+            availableDirectories.addAll(elements = getAllSecondaryStorages())
+            availableDirectories.build()
         } catch (exception: Exception) {
 
             Log.w("StorageExt", exception.message, exception)
@@ -388,10 +393,16 @@ internal class EmptyStorageImpl : EmptyStorage {
      */
     private fun getExternalStorage(context: Context): ImmutableList<String> {
 
-        return getExternalFilesDirs(context = context).map { file ->
+        val volumeList = persistentListOf<String>().builder()
 
-            file.absolutePath.substring(0, file.absolutePath.indexOf(string = "Android/data"))
-        }.toImmutableList()
+        context.getExternalFilesDirs(null).forEach { file ->
+
+            volumeList.add(
+                file.absolutePath.substring(0, file.absolutePath.indexOf(string = "Android/data"))
+            )
+        }
+
+        return volumeList.build()
     }
 
     /**
@@ -449,7 +460,7 @@ internal class EmptyStorageImpl : EmptyStorage {
      * storage.
      * Returns an empty list if no secondary storage is found or an error occurs.
      */
-    private fun getAllSecondaryStorages(): ImmutableList<String> {
+    private fun getAllSecondaryStorages(): List<String> {
 
         return try {
 
@@ -457,28 +468,13 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             when (secondaryStorage?.isNotEmpty() == true) {
 
-                true -> secondaryStorage.split(File.pathSeparator).toImmutableList()
-                else -> persistentListOf()
+                true -> secondaryStorage.split(File.pathSeparator)
+                else -> emptyList()
             }
         } catch (exception: Exception) {
 
             Log.w("StorageExt", exception.message, exception)
-            persistentListOf()
+            emptyList()
         }
-    }
-
-    /**
-     * Returns absolute paths to application-specific directories on all shared/external storage
-     * devices where the application can place persistent files it owns.
-     *
-     * These directories are located under Android/data/package_name/files.
-     *
-     * @param context The context to use.
-     * @return A list of [File] objects representing the directories. Returns an empty list if no
-     * such directories are found.
-     */
-    private fun getExternalFilesDirs(context: Context): ImmutableList<File> {
-
-        return context.getExternalFilesDirs(null).toList().toImmutableList()
     }
 }
