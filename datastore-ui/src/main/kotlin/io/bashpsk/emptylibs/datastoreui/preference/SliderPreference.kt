@@ -38,7 +38,7 @@ import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
 import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.toRoundedDecimal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -187,11 +187,7 @@ fun SliderPreference(
     var sliderPosition by remember { mutableFloatStateOf(getPosition) }
 
     val sliderValueLabel by remember(sliderPosition, decimalFraction) {
-        derivedStateOf {
-            "${
-                EmptyFormat.toRoundedDecimal(decimal = sliderPosition, fraction = decimalFraction)
-            }"
-        }
+        derivedStateOf { "${sliderPosition.toRoundedDecimal(fraction = decimalFraction)}" }
     }
 
     val onValueChange = remember<(Float) -> Unit> {

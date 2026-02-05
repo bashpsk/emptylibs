@@ -83,14 +83,14 @@ import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.composeutils.shape.BasicPathShapes
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
+import io.bashpsk.emptylibs.composeutils.shape.toLabel
+import io.bashpsk.emptylibs.formatter.format.toRoundedDecimal
 import io.bashpsk.emptylibs.imageedit.utils.LOG_TAG
 import io.bashpsk.emptylibs.imageutils.extension.fittedImageSize
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
 import io.bashpsk.emptylibs.imageutils.extension.toSize
-import io.bashpsk.emptylibs.composeutils.shape.BasicPathShapes
-import io.bashpsk.emptylibs.composeutils.shape.PathShape
-import io.bashpsk.emptylibs.composeutils.shape.toLabel
 import io.bashpsk.emptylibs.kolorpicker.color.ColorPreview
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
@@ -1446,7 +1446,7 @@ private fun SliderSelectionView(
 ) {
 
     val selectedValue by remember(value) {
-        derivedStateOf { "$label - ${EmptyFormat.toRoundedDecimal(decimal = value, fraction = 1)}" }
+        derivedStateOf { "$label - ${value.toRoundedDecimal(fraction = 1)}" }
     }
 
     Column(
@@ -1571,26 +1571,16 @@ private fun DashPathSelectionView(
 ) {
 
     val intervalOffLabel by remember(intervalOff) {
-        derivedStateOf {
-            "Interval OFF Size - ${
-                EmptyFormat.toRoundedDecimal(decimal = intervalOff, fraction = 1)
-            } Px"
-        }
+        derivedStateOf { "Interval OFF Size - ${intervalOff.toRoundedDecimal(fraction = 1)} Px" }
     }
 
     val intervalOnLabel by remember(intervalOn) {
-        derivedStateOf {
-            "Interval ON Size - ${
-                EmptyFormat.toRoundedDecimal(decimal = intervalOn, fraction = 1)
-            } Px"
-        }
+        derivedStateOf { "Interval ON Size - ${intervalOn.toRoundedDecimal(fraction = 1)} Px" }
     }
 
     val intervalPhaseLabel by remember(intervalPhase) {
         derivedStateOf {
-            "Interval Phase Size - ${
-                EmptyFormat.toRoundedDecimal(decimal = intervalPhase, fraction = 1)
-            } Px"
+            "Interval Phase Size - ${intervalPhase.toRoundedDecimal(fraction = 1)} Px"
         }
     }
 

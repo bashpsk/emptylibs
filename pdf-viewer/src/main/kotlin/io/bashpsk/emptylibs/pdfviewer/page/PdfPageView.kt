@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onFirstVisible
 import androidx.compose.ui.unit.round
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnDefaults
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnProperties
@@ -75,11 +75,7 @@ internal fun PdfPageView(
         derivedStateOf {
             when (pageData.width > 0 && pageData.height > 0) {
 
-                true -> EmptyFormat.findAspectRatio(
-                    width = pageData.width,
-                    height = pageData.height
-                )
-
+                true -> findAspectRatio(width = pageData.width, height = pageData.height)
                 false -> 1F / 1.41F
             }
         }

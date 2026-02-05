@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
 
 /**
@@ -53,9 +53,7 @@ fun ImageFilterLayout(
 ) {
 
     val imageAspectRatio by remember(imageBitmap) {
-        derivedStateOf {
-            EmptyFormat.findAspectRatio(width = imageBitmap.width, height = imageBitmap.height)
-        }
+        derivedStateOf { findAspectRatio(width = imageBitmap.width, height = imageBitmap.height) }
     }
 
     TwoPaneAdaptiveLayout(

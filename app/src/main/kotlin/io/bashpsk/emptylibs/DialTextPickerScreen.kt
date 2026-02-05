@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.toRoundTime
 import io.bashpsk.emptylibs.jetpackui.picker.DialTextPicker
 import io.bashpsk.emptylibs.jetpackui.picker.rememberDialTextPickerState
 import kotlinx.collections.immutable.toPersistentList
@@ -22,7 +22,7 @@ import kotlinx.collections.immutable.toPersistentList
 @Composable
 fun DialTextPickerScreen() {
 
-    val textList1 = remember { (0..23).map { EmptyFormat.toRoundTime(it) }.toPersistentList() }
+    val textList1 = remember { (0..23).map { it.toRoundTime() }.toPersistentList() }
 
     val textPickerState1 = rememberDialTextPickerState(textList = textList1)
 

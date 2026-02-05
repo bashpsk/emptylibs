@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.imagekrop.crop.ImageKrop
 import io.bashpsk.emptylibs.imagekrop.crop.KropAspectRatio
 import io.bashpsk.emptylibs.imagekrop.crop.KropConfig
@@ -58,7 +58,7 @@ fun ImageWallpaper(
 
     val wallpaperAspectRatio by remember(configuration.orientation, windowInfo.containerSize) {
         derivedStateOf {
-            EmptyFormat.findAspectRatio(
+            findAspectRatio(
                 width = windowInfo.containerSize.width.takeIf {
                     configuration.orientation != Configuration.ORIENTATION_LANDSCAPE
                 } ?: windowInfo.containerSize.height,

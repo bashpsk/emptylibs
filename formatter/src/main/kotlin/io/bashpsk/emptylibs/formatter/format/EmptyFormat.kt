@@ -198,6 +198,10 @@ object EmptyFormat {
      * @return The corresponding `DateTimeFormat<LocalTime>`.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use DateTimePattern.findTimeFormat() instead.",
+        replaceWith = ReplaceWith("pattern.findTimeFormat()")
+    )
     fun findTimeFormat(pattern: DateTimePattern): DateTimeFormat<LocalTime> {
 
         return when (pattern) {
@@ -276,6 +280,10 @@ object EmptyFormat {
      * @return The corresponding `DateTimeFormat<LocalDateTime>`.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use DateTimePattern.findDateTimeFormat() instead.",
+        replaceWith = ReplaceWith("pattern.findDateTimeFormat()")
+    )
     fun findDateTimeFormat(pattern: DateTimePattern): DateTimeFormat<LocalDateTime> {
 
         return when (pattern) {
@@ -679,6 +687,12 @@ object EmptyFormat {
         )
     }
 
+    @Deprecated(
+        message = "Use Duration.findDurationPattern() instead.",
+        replaceWith = ReplaceWith(
+            "pattern.findDurationPattern(daysLabel, hoursLabel, minutesLabel, secondsLabel)"
+        )
+    )
     private fun findDurationPattern(
         duration: Duration,
         daysLabel: String,
@@ -739,6 +753,7 @@ object EmptyFormat {
      * @return A [Long] representing the start of the current day in milliseconds.
      */
     @JvmStatic
+    @Deprecated(message = "No longer maintained.")
     fun getTodayStartMillis(): Long {
 
         val timeZone = TimeZone.currentSystemDefault()
@@ -758,6 +773,7 @@ object EmptyFormat {
      * @return [Long] The timestamp representing the last millisecond of the current day.
      */
     @JvmStatic
+    @Deprecated(message = "No longer maintained.")
     fun getTodayEndMillis(): Long {
 
         val timeZone = TimeZone.currentSystemDefault()
@@ -781,6 +797,7 @@ object EmptyFormat {
      * @return A [Long] representing the start of the day in milliseconds since the epoch.
      */
     @JvmStatic
+    @Deprecated(message = "No longer maintained.")
     fun getDayStartMillis(localDateTime: LocalDateTime): Long {
 
         val timeZone = TimeZone.currentSystemDefault()
@@ -800,6 +817,7 @@ object EmptyFormat {
      * @return A [Long] representing the end of the day in milliseconds since the epoch.
      */
     @JvmStatic
+    @Deprecated(message = "No longer maintained.")
     fun getDayEndMillis(localDateTime: LocalDateTime): Long {
 
         val timeZone = TimeZone.currentSystemDefault()
@@ -1100,6 +1118,7 @@ object EmptyFormat {
      * @return The Android color integer.
      */
     @JvmStatic
+    @Deprecated(message = "No longer maintained.")
     fun hexToArgb(hex: String): Int? {
 
         val cleanHex = hex.removePrefix("#")

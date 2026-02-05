@@ -22,7 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.formatter.format.DurationPattern
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.duration
+import io.bashpsk.emptylibs.formatter.format.findPercentage
+import io.bashpsk.emptylibs.formatter.format.toFileSize
 import io.bashpsk.emptylibs.formatter.meter.FileSpeedData
 import io.bashpsk.emptylibs.formatter.meter.fileSpeedMeter
 import io.bashpsk.emptylibs.utils.setDebug
@@ -38,7 +40,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.DurationUnit
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun FileCopySpeedScreen() {
@@ -72,24 +74,18 @@ fun FileCopySpeedScreen() {
     val copyingFormatted by remember(fileSpeedData) {
         derivedStateOf {
             "Progress : ${
-                EmptyFormat.toFileSize(context, fileSpeedData.current)
+                fileSpeedData.current.toFileSize(context)
             } / ${
-                EmptyFormat.toFileSize(context, fileSpeedData.total)
+                fileSpeedData.total.toFileSize(context)
             } (${
-                EmptyFormat.toFileSize(context, fileSpeedData.speed)
+                fileSpeedData.speed.toFileSize(context)
             }/s)"
         }
     }
 
     val etaFormatted by remember(fileSpeedData) {
         derivedStateOf {
-            "ETA : ${
-                EmptyFormat.duration(
-                    durationValue = fileSpeedData.eta,
-                    unit = DurationUnit.SECONDS,
-                    pattern = DurationPattern.TimeLabel()
-                )
-            }"
+            "ETA : ${fileSpeedData.eta.seconds.duration(pattern = DurationPattern.TimeLabel())}"
         }
     }
 
@@ -108,7 +104,7 @@ fun FileCopySpeedScreen() {
                 modifier = Modifier.fillMaxWidth(),
                 progress =  {
 
-                    EmptyFormat.findPercentage(
+                    findPercentage(
                         total = fileSpeedData.total,
                         obtained = fileSpeedData.current
                     ) / 100F

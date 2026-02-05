@@ -69,21 +69,20 @@ fun Duration.duration(pattern: DurationPattern): String {
             daysLabel = pattern.days,
             hoursLabel = pattern.hours,
             minutesLabel = pattern.minutes,
-            secondsLabel = pattern.seconds
+            secondsLabel = pattern.seconds,
+            isSecondsOnly = true
         )
 
         is DurationPattern.Separator -> findDurationPattern(
             daysLabel = pattern.char,
             hoursLabel = pattern.char,
             minutesLabel = pattern.char,
-            secondsLabel = null
+            secondsLabel = null,
+            isSecondsOnly = false
         )
     }
 
-    return patternMap.first.format(
-        locale = Locale.getDefault(),
-        *patternMap.second.toTypedArray()
-    )
+    return patternMap.first.format(locale = Locale.getDefault(), *patternMap.second.toTypedArray())
 }
 
 /**
@@ -96,7 +95,8 @@ private fun Duration.findDurationPattern(
     daysLabel: String,
     hoursLabel: String,
     minutesLabel: String,
-    secondsLabel: String?
+    secondsLabel: String?,
+    isSecondsOnly: Boolean
 ): Pair<String, PersistentList<Any>> {
 
     return when {
@@ -105,7 +105,7 @@ private fun Duration.findDurationPattern(
 
         this < 1.toDuration(
             DurationUnit.MINUTES
-        ) -> this.toComponents { seconds, nanoseconds ->
+        ) && isSecondsOnly -> this.toComponents { seconds, nanoseconds ->
 
             "%02d${secondsLabel ?: ""}" to persistentListOf(seconds)
         }

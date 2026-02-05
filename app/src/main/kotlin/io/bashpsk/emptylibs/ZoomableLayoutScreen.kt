@@ -22,7 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
 import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
@@ -33,12 +33,7 @@ fun ZoomableLayoutScreen() {
     val sampleImage = ImageBitmap.imageResource(R.drawable.wallpaper01)
 
     val aspectRatio by remember(sampleImage) {
-        derivedStateOf {
-            EmptyFormat.findAspectRatio(
-                width = sampleImage.width,
-                height = sampleImage.height
-            )
-        }
+        derivedStateOf { findAspectRatio(width = sampleImage.width, height = sampleImage.height) }
     }
 
     val transformableState = rememberTransformableGesturesState(

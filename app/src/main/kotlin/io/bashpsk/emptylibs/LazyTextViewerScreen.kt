@@ -25,7 +25,7 @@ import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.toFileSize
 import io.bashpsk.emptylibs.jetpackui.text.LazyTextViewer
 import io.bashpsk.emptylibs.jetpackui.text.LazyTextViewerDefaults
 import io.bashpsk.emptylibs.jetpackui.text.TextSource
@@ -125,7 +125,7 @@ fun LazyTextViewerScreen() {
                                     }
 
                                     "COMPLETED: ${
-                                        EmptyFormat.toFileSize(textFile.fileLength())
+                                        textFile.fileLength().toFileSize()
                                     }".setDebug()
                                 } catch (exception: Exception) {
 

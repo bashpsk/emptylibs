@@ -5,21 +5,15 @@ import androidx.compose.runtime.Stable
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern.Companion.findDateTimeFormat
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern.Companion.findTimeFormat
 import io.bashpsk.emptylibs.formatter.utils.LOG_TAG
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DayOfWeekNames
 import kotlinx.datetime.format.MonthNames
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import java.util.Locale
-import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
@@ -108,7 +102,7 @@ fun LocalDateTime.dateTime(
  * @return The date and time in milliseconds since the epoch, or `null` if parsing fails.
  */
 @Stable
-fun String.dateTimeToMilliseconds(
+fun String.parseDateTimeToMilliseconds(
     pattern: DateTimePattern,
     timeZone: TimeZone = TimeZone.currentSystemDefault()
 ): Long? {
@@ -233,57 +227,4 @@ fun Int.toRoundTime(): String {
         Log.e(LOG_TAG, exception.message, exception)
         "00"
     }
-}
-
-/**
- * Retrieves the start of the current day in milliseconds since the epoch.
- *
- * @param timeZone The time zone to use. Defaults to the system default.
- * @return A [Long] representing the start of the current day in milliseconds.
- */
-@Stable
-fun getTodayStartMillis(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
-
-    val localDateTime = Clock.System.now().toLocalDateTime(timeZone = timeZone)
-    return localDateTime.startOfDayMillis(timeZone = timeZone)
-}
-
-/**
- * Retrieves the end of the current day in milliseconds since the epoch.
- *
- * @param timeZone The time zone to use. Defaults to the system default.
- * @return A [Long] representing the end of the current day in milliseconds.
- */
-@Stable
-fun getTodayEndMillis(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
-
-    val localDateTime = Clock.System.now().toLocalDateTime(timeZone = timeZone)
-    return localDateTime.endOfDayMillis(timeZone = timeZone)
-}
-
-/**
- * Calculates the start of the day in milliseconds for this [LocalDateTime].
- *
- * @param timeZone The time zone to use. Defaults to the system default.
- * @return A [Long] representing the start of the day in milliseconds since the epoch.
- */
-@Stable
-fun LocalDateTime.startOfDayMillis(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
-
-    return date.atStartOfDayIn(timeZone = timeZone).toEpochMilliseconds()
-}
-
-/**
- * Calculates the end of the day in milliseconds for this [LocalDateTime].
- *
- * @param timeZone The time zone to use. Defaults to the system default.
- * @return A [Long] representing the end of the day in milliseconds since the epoch.
- */
-@Stable
-fun LocalDateTime.endOfDayMillis(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
-
-    return date.plus(period = DatePeriod(days = 1))
-        .atStartOfDayIn(timeZone = timeZone)
-        .minus(value = 1, unit = DateTimeUnit.NANOSECOND)
-        .toEpochMilliseconds()
 }

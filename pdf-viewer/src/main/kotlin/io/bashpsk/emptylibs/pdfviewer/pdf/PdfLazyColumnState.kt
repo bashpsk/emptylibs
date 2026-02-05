@@ -22,7 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.toRoundedDecimal
 import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
 import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
@@ -411,7 +411,7 @@ class PdfLazyColumnState(
      */
     private fun findContentQuality(): Float {
 
-        return EmptyFormat.toRoundedDecimal(decimal = transformable.zoom, fraction = 1)
+        return transformable.zoom.toRoundedDecimal(fraction = 1)
     }
 
     /**

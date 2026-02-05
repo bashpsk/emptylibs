@@ -52,7 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.toFileSize
 import io.bashpsk.emptylibs.storage.storage.FileData
 import io.bashpsk.emptylibs.storage.storage.FileType
 import io.bashpsk.emptylibs.storage.storage.FileVisibleType
@@ -337,30 +337,17 @@ private fun StorageVolumeSmall(
 
                 StorageSpaceRow(
                     title = { "Used" },
-                    space = {
-                        EmptyFormat.toFileSize(
-                            context = context,
-                            size = volumeData().usedSize
-                        )
-                    }
+                    space = { volumeData().usedSize.toFileSize(context = context) }
                 )
 
                 StorageSpaceRow(
                     title = { "Free" },
-                    space = {
-
-                        EmptyFormat.toFileSize(context = context, size = volumeData().availableSize)
-                    }
+                    space = { volumeData().availableSize.toFileSize(context = context) }
                 )
 
                 StorageSpaceRow(
                     title = { "Total" },
-                    space = {
-                        EmptyFormat.toFileSize(
-                            context = context,
-                            size = volumeData().totalSize
-                        )
-                    }
+                    space = { volumeData().totalSize.toFileSize(context = context) }
                 )
 
                 Row(

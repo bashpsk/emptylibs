@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.composewidgets.extension.hasAM
 import io.bashpsk.emptylibs.composewidgets.extension.hasPM
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.dateTime
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
@@ -91,12 +91,7 @@ fun DigitalClockWithWeekDays(
     }
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
-        derivedStateOf {
-            EmptyFormat.dateTime(
-                localDateTime = localDateTime,
-                pattern = clockPattern
-            ).replace("1", " 1")
-        }
+        derivedStateOf { localDateTime.dateTime(pattern = clockPattern).replace("1", " 1") }
     }
 
     val amIndicatorTextStyle by remember(localDateTime, textStyles, disableTextAlpha) {

@@ -8,7 +8,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
 
 /**
@@ -48,7 +48,7 @@ fun ImageKolorLayout(
 
     val imageAspectRatio by remember(state.imageBitmap) {
         derivedStateOf {
-            EmptyFormat.findAspectRatio(
+            findAspectRatio(
                 width = state.imageBitmap?.width ?: 16,
                 height = state.imageBitmap?.height ?: 9
             )

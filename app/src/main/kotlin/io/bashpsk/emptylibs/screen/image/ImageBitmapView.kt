@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 
 @Composable
 fun ImageBitmapView(
@@ -25,7 +25,7 @@ fun ImageBitmapView(
 
     val aspectRatio by remember(imageBitmap) {
         derivedStateOf {
-            EmptyFormat.findAspectRatio(width = imageBitmap.width, height = imageBitmap.height)
+            findAspectRatio(width = imageBitmap.width, height = imageBitmap.height)
 //            1F
         }
     }

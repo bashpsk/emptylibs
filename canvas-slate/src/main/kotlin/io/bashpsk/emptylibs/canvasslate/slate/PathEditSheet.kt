@@ -68,7 +68,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import io.bashpsk.emptylibs.canvasslate.extension.toStrokeCap
 import io.bashpsk.emptylibs.canvasslate.extension.toStrokeJoin
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
+import io.bashpsk.emptylibs.formatter.format.toRoundedDecimal
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 import kotlinx.collections.immutable.persistentListOf
@@ -501,11 +502,7 @@ private fun BrushThicknessSelectionView(
 ) {
 
     val selectedThickness by remember(penThickness) {
-        derivedStateOf {
-            "Brush Thickness - ${
-                EmptyFormat.toRoundedDecimal(decimal = penThickness, fraction = 1)
-            } Px"
-        }
+        derivedStateOf { "Brush Thickness - ${penThickness.toRoundedDecimal(fraction = 1)} Px" }
     }
 
     Column(
@@ -618,10 +615,7 @@ private fun CanvasPathPreview(modifier: Modifier = Modifier, state: CanvasSlateS
 
     val canvasAspectRatio by remember(state.canvasSize) {
         derivedStateOf {
-            EmptyFormat.findAspectRatio(
-                width = state.canvasSize.width.toInt(),
-                height = state.canvasSize.height.toInt()
-            )
+            findAspectRatio(width = state.canvasSize.width, height = state.canvasSize.height)
         }
     }
 

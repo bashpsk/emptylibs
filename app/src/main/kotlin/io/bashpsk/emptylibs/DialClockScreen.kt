@@ -19,7 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.toRoundTime
 import io.bashpsk.emptylibs.jetpackui.picker.DialTextPicker
 import io.bashpsk.emptylibs.jetpackui.picker.rememberDialTextPickerState
 import kotlinx.collections.immutable.toPersistentList
@@ -33,8 +33,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun DialClockScreen() {
 
-    val textList1 = remember { (0..23).map { EmptyFormat.toRoundTime(it) }.toPersistentList() }
-    val textList2 = remember { (0..59).map { EmptyFormat.toRoundTime(it) }.toPersistentList() }
+    val textList1 = remember { (0..23).map { it.toRoundTime() }.toPersistentList() }
+    val textList2 = remember { (0..59).map { it.toRoundTime() }.toPersistentList() }
     val textList3 = remember { (0..59).map { "*" }.toPersistentList() }
 
     val textPickerState1 = rememberDialTextPickerState(textList = textList1)
@@ -50,11 +50,11 @@ fun DialClockScreen() {
     ) {
         derivedStateOf {
             "TIME : ${
-                EmptyFormat.toRoundTime(textPickerState1.selectedIndex)
+                textPickerState1.selectedIndex.toRoundTime()
             }:${
-                EmptyFormat.toRoundTime(textPickerState2.selectedIndex)
+                textPickerState2.selectedIndex.toRoundTime()
             }:${
-                EmptyFormat.toRoundTime(textPickerState3.selectedIndex)
+                textPickerState3.selectedIndex.toRoundTime()
             }"
         }
     }

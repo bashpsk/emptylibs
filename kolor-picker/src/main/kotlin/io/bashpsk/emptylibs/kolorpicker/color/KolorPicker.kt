@@ -64,7 +64,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.get
 import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
+import io.bashpsk.emptylibs.formatter.format.parseHexToColor
+import io.bashpsk.emptylibs.formatter.format.toHexString
 
 /**
  * A composable function that provides a color picker interface.
@@ -209,9 +211,7 @@ fun ImageKolorPicker(
     }
 
     val imageAspectRatio by remember(imageBitmap) {
-        derivedStateOf {
-            EmptyFormat.findAspectRatio(width = imageBitmap.width, height = imageBitmap.height)
-        }
+        derivedStateOf { findAspectRatio(width = imageBitmap.width, height = imageBitmap.height) }
     }
 
     val scaledBitmap by remember(imageBitmap) { derivedStateOf { imageBitmap.asAndroidBitmap() } }
@@ -842,7 +842,7 @@ fun ColorPreview(modifier: Modifier = Modifier, color: Color = Color.Unspecified
 private fun ColorInfoPreview(modifier: Modifier = Modifier, color: Color = Color.Unspecified) {
 
     val hexColorInfo by remember(color) {
-        derivedStateOf { Pair(first = "HEX", second = EmptyFormat.toColorHex(color = color)) }
+        derivedStateOf { Pair(first = "HEX", second = color.toHexString()) }
     }
 
     val argbColorInfo by remember(color) {
@@ -951,10 +951,7 @@ private fun ColorCopyPasteButtons(
 
                 clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()?.let { hexString ->
 
-                    EmptyFormat.hexToColor(hex = hexString)?.let { color ->
-
-                        state.updateColor(color = color)
-                    }
+                    hexString.parseHexToColor()?.let(state::updateColor)
                 }
             }
         ) {
@@ -977,7 +974,7 @@ private fun ColorCopyPasteButtons(
         if (enableCopyButton) FilledTonalButton(
             onClick = {
 
-                val colorHex = EmptyFormat.toColorHex(color = state.selectedColor)
+                val colorHex = state.selectedColor.toHexString()
                 val clipData = ClipData.newPlainText(colorHex, colorHex)
 
                 clipboardManager.setPrimaryClip(clipData)
