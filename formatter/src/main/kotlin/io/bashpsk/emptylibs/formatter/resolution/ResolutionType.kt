@@ -2,7 +2,8 @@ package io.bashpsk.emptylibs.formatter.resolution
 
 /**
  * Represents a comprehensive list of display resolutions.
- * * Each enum constant holds a label, width, and height. The name of the constant
+ *
+ * Each enum constant holds a label, width, and height. The name of the constant
  * is derived from its designation or a sanitized version of its common name.
  *
  * @property label A common or official name for the resolution (e.g., "Full HD", "4K UHD").
@@ -214,6 +215,7 @@ enum class ResolutionType(val label: String = "", val width: Int = 0, val height
          * @return `true` if width and height are greater than 0, `false` otherwise.
          */
         fun hasValid(width: Int, height: Int): Boolean {
+
             return width > 0 && height > 0
         }
 
@@ -226,7 +228,7 @@ enum class ResolutionType(val label: String = "", val width: Int = 0, val height
          */
         fun find(width: Int, height: Int): ResolutionType {
 
-            return findOrNull(width, height) ?: Unknown
+            return findOrNull(width = width, height = height) ?: Unknown
         }
 
         /**

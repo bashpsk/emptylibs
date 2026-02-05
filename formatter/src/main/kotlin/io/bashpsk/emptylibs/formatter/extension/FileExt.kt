@@ -25,9 +25,8 @@ internal fun File.fileLengthOrNull(): Long? {
 
 /**
  * Returns the length of this file in bytes, or `0L` if the file doesn't exist or an I/O error
- * occurs.
- * This is a convenience wrapper around [fileLengthOrNull] that provides a non-nullable return
- * value.
+ * occurs. This is a convenience wrapper around [fileLengthOrNull] that provides a non-nullable
+ * return value.
  *
  * @return The length of the file in bytes, or `0L` on failure.
  * @see fileLengthOrNull

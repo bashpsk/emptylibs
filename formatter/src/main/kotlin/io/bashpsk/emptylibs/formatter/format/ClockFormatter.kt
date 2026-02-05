@@ -5,20 +5,30 @@ import androidx.compose.runtime.Stable
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern.Companion.findDateTimeFormat
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern.Companion.findTimeFormat
 import io.bashpsk.emptylibs.formatter.utils.LOG_TAG
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DayOfWeekNames
 import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import java.util.Locale
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.time.toDuration
 
+/**
+ * Default abbreviated names for the days of the week used for formatting.
+ */
 internal val defaultDayOfWeekNames = DayOfWeekNames(
     monday = "Mon",
     tuesday = "Tue",
@@ -29,6 +39,9 @@ internal val defaultDayOfWeekNames = DayOfWeekNames(
     sunday = "Sun"
 )
 
+/**
+ * The default abbreviated names for the months of the year used for formatting.
+ */
 internal val defaultMonthNames = MonthNames(
     january = "Jan",
     february = "Feb",
@@ -48,14 +61,14 @@ internal val defaultMonthNames = MonthNames(
  * Formats a date and time represented by milliseconds since the epoch into a `String` based on
  * the specified pattern.
  *
- * @param millis The date and time in milliseconds since the epoch.
  * @param pattern The formatting pattern to apply.
+ * @param timeZone The time zone to use for conversion. Defaults to the system default.
  * @return The formatted date and time `String`.
  */
 @Stable
 fun Long.dateTime(
     pattern: DateTimePattern,
-    timeZone: TimeZone /*= TimeZone.currentSystemDefault()*/
+    timeZone: TimeZone = TimeZone.currentSystemDefault()
 ): String {
 
     return Instant.fromEpochMilliseconds(
@@ -66,8 +79,9 @@ fun Long.dateTime(
 /**
  * Formats a `LocalDateTime` object into a `String` based on the specified pattern.
  *
- * @param localDateTime The `LocalDateTime` object to format.
  * @param pattern The formatting pattern to apply.
+ * @param dayOfWeekNames Custom names for the days of the week.
+ * @param monthNames Custom names for the months.
  * @return The formatted date and time `String`.
  */
 @Stable
@@ -86,9 +100,35 @@ fun LocalDateTime.dateTime(
 }
 
 /**
+ * Parses a formatted date and time `String` into milliseconds since the epoch based on the
+ * specified pattern.
+ *
+ * @param pattern The formatting pattern that was used for the input string.
+ * @param timeZone The time zone to use for conversion. Defaults to the system default.
+ * @return The date and time in milliseconds since the epoch, or `null` if parsing fails.
+ */
+@Stable
+fun String.dateTimeToMilliseconds(
+    pattern: DateTimePattern,
+    timeZone: TimeZone = TimeZone.currentSystemDefault()
+): Long? {
+
+    return try {
+
+        LocalDateTime.parse(
+            input = this,
+            format = pattern.findDateTimeFormat()
+        ).toInstant(timeZone = timeZone).toEpochMilliseconds()
+    } catch (exception: Exception) {
+
+        Log.e(LOG_TAG, exception.message, exception)
+        null
+    }
+}
+
+/**
  * Formats a time represented by milliseconds into a `String` based on the specified pattern.
  *
- * @param time The time in milliseconds.
  * @param pattern The formatting pattern to apply.
  * @return The formatted time `String`.
  */
@@ -110,9 +150,8 @@ fun Long.time(pattern: DateTimePattern): String {
 }
 
 /**
- * Formats a time represented by milliseconds into a `String` based on the specified pattern.
+ * Formats a [LocalTime] object into a `String` based on the specified pattern.
  *
- * @param localTime The `LocalTime` object to format.
  * @param pattern The formatting pattern to apply.
  * @return The formatted time `String`.
  */
@@ -123,13 +162,10 @@ fun LocalTime.time(pattern: DateTimePattern): String {
 }
 
 /**
- * Converts a time span, provided in hours, minutes, and seconds, into its total
+ * Converts a time span, provided as a [Triple] of (hours, minutes, seconds), into its total
  * equivalent in milliseconds.
  *
- * @param hours The number of hours in the time span.
- * @param minutes The number of minutes in the time span.
- * @param seconds The number of seconds in the time span.
- * @return The total number of milliseconds equivalent to the input time span or 0L if an
+ * @return The total number of milliseconds equivalent to the input time span or `null` if an
  * exception occurs.
  */
 @OptIn(ExperimentalTime::class)
@@ -171,7 +207,7 @@ fun Triple<Int, Int, Int>.timeToMilliseconds(): Long? {
  * @param hours The number of hours in the time span.
  * @param minutes The number of minutes in the time span.
  * @param seconds The number of seconds in the time span.
- * @return The total number of milliseconds equivalent to the input time span or 0L if an
+ * @return The total number of milliseconds equivalent to the input time span or `null` if an
  * exception occurs.
  */
 @Stable
@@ -183,15 +219,7 @@ fun timeToMilliseconds(hours: Int, minutes: Int, seconds: Int): Long? {
 /**
  * Converts an integer representing a time value into a two-digit string.
  *
- * This function uses the default locale to format the time value as a string
- * with leading zeros if the value is less than 10, ensuring a consistent
- * two-digit representation (e.g., "01", "09", "10", "25").
- *
- * If any exception occurs during the formatting process, it logs the error
- * and returns "00" as a default fallback value.
- *
- * @param time The integer representing the time value to format.
- * @return A string representing the formatted time, always two digits long.
+ * @return A string representing the formatted time, always two digits long (e.g., "01", "10").
  * Returns "00" in case of an exception.
  */
 @Stable
@@ -205,4 +233,57 @@ fun Int.toRoundTime(): String {
         Log.e(LOG_TAG, exception.message, exception)
         "00"
     }
+}
+
+/**
+ * Retrieves the start of the current day in milliseconds since the epoch.
+ *
+ * @param timeZone The time zone to use. Defaults to the system default.
+ * @return A [Long] representing the start of the current day in milliseconds.
+ */
+@Stable
+fun getTodayStartMillis(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
+
+    val localDateTime = Clock.System.now().toLocalDateTime(timeZone = timeZone)
+    return localDateTime.startOfDayMillis(timeZone = timeZone)
+}
+
+/**
+ * Retrieves the end of the current day in milliseconds since the epoch.
+ *
+ * @param timeZone The time zone to use. Defaults to the system default.
+ * @return A [Long] representing the end of the current day in milliseconds.
+ */
+@Stable
+fun getTodayEndMillis(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
+
+    val localDateTime = Clock.System.now().toLocalDateTime(timeZone = timeZone)
+    return localDateTime.endOfDayMillis(timeZone = timeZone)
+}
+
+/**
+ * Calculates the start of the day in milliseconds for this [LocalDateTime].
+ *
+ * @param timeZone The time zone to use. Defaults to the system default.
+ * @return A [Long] representing the start of the day in milliseconds since the epoch.
+ */
+@Stable
+fun LocalDateTime.startOfDayMillis(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
+
+    return date.atStartOfDayIn(timeZone = timeZone).toEpochMilliseconds()
+}
+
+/**
+ * Calculates the end of the day in milliseconds for this [LocalDateTime].
+ *
+ * @param timeZone The time zone to use. Defaults to the system default.
+ * @return A [Long] representing the end of the day in milliseconds since the epoch.
+ */
+@Stable
+fun LocalDateTime.endOfDayMillis(timeZone: TimeZone = TimeZone.currentSystemDefault()): Long {
+
+    return date.plus(period = DatePeriod(days = 1))
+        .atStartOfDayIn(timeZone = timeZone)
+        .minus(value = 1, unit = DateTimeUnit.NANOSECOND)
+        .toEpochMilliseconds()
 }

@@ -167,22 +167,21 @@ enum class DateTimePattern {
     companion object {
 
         /**
-         * Retrieves the appropriate `DateTimeFormat` for a given time pattern.
+         * Retrieves the appropriate [DateTimeFormat] for the specified [DateTimePattern].
          *
-         * This function maps various `Pattern` enums to their respective
-         * `LocalTime.Format` definitions using kotlinx-datetime formatting.
+         * This extension function maps [DateTimePattern] enum constants to their corresponding
+         * [LocalTime.Format] definitions using `kotlinx-datetime` formatting logic.
          *
-         * @param pattern The `Pattern` enum specifying the desired time format.
-         * @return The corresponding `DateTimeFormat<LocalTime>`.
+         * @return The [DateTimeFormat] used to format or parse [LocalTime] objects.
          *
          * Supported patterns:
-         * - `Pattern.TIME_HH_MM` → Time in 12-hour format. Ex: 07:30.
-         * - `Pattern.TIME_HH_MM_24` → Time in 24-hour format. Ex: 19:30.
-         * - `Pattern.TIME_HH_MM_SS` → Time in 12-hour format, including seconds. Ex: 07:30:33.
-         * - `Pattern.TIME_HH_MM_SS_24` → Time in 24-hour format, including seconds. Ex: 19:30:33.
-         * - `Pattern.TIME_12` → Time in 12-hour format with AM/PM indicator. Ex: 07:30:33 PM.
-         * - `Pattern.TIME_24` → Time in 24-hour format. Ex: 19:30:33.
-         * - `else` → `Pattern.TIME_12`.
+         * - [DateTimePattern.TIME_HH_MM] → 12-hour format (e.g., 07:30).
+         * - [DateTimePattern.TIME_HH_MM_24] → 24-hour format (e.g., 19:30).
+         * - [DateTimePattern.TIME_HH_MM_SS] → 12-hour format with seconds (e.g., 07:30:33).
+         * - [DateTimePattern.TIME_HH_MM_SS_24] → 24-hour format with seconds (e.g., 19:30:33).
+         * - [DateTimePattern.TIME_12] → 12-hour format with AM/PM (e.g., 07:30:33 PM).
+         * - [DateTimePattern.TIME_24] → 24-hour format with seconds (e.g., 19:30:33).
+         * - Defaults to [DateTimePattern.TIME_12] for unsupported patterns.
          */
         @JvmStatic
         fun DateTimePattern.findTimeFormat(): DateTimeFormat<LocalTime> {
@@ -255,12 +254,28 @@ enum class DateTimePattern {
         }
 
         /**
-         * Retrieves the appropriate `DateTimeFormat` for a given pattern.
+         * Retrieves the appropriate `DateTimeFormat` for a given `DateTimePattern`.
          *
-         * This function maps various `Pattern` enums to their respective
-         * `LocalDateTime.Format` definitions using kotlinx-datetime formatting.
-         * @param pattern The `Pattern` enum specifying the desired date-time format.
-         * @return The corresponding `DateTimeFormat<LocalDateTime>`.
+         * This function is an extension on `DateTimePattern` and maps each enum variant to its
+         * corresponding `LocalDateTime.Format` definition using the `kotlinx-datetime` library.
+         * It provides a comprehensive set of predefined formatters for dates, times, or both.
+         *
+         * The formatters for days of the week and months can be customized by providing
+         * `DayOfWeekNames` and `MonthNames` respectively.
+         *
+         * Example usage:
+         * ```kotlin
+         * val pattern = DateTimePattern.LONG_DATE_TIME
+         * val formatter = pattern.findDateTimeFormat()
+         * val formattedString = formatter.format(LocalDateTime.now())
+         * println(formattedString) // e.g., "Mon, Aug 12, 2024 02:30 PM"
+         * ```
+         *
+         * @param dayOfWeekNames The names to use for formatting the day of the week
+         * (e.g., "Mon", "Monday"). Defaults to a set of three-letter abbreviations.
+         * @param monthNames The names to use for formatting the month (e.g., "Aug", "August").
+         * Defaults to a set of three-letter abbreviations.
+         * @return The corresponding `DateTimeFormat<LocalDateTime>` for the specified pattern.
          */
         @JvmStatic
         fun DateTimePattern.findDateTimeFormat(

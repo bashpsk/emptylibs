@@ -12,6 +12,8 @@ import java.util.Locale
 
 /**
  * Converts a [Color] to its hex string representation in the format #AARRGGBB.
+ *
+ * @return A string representing the color in "#AARRGGBB" hexadecimal format.
  */
 @Stable
 fun Color.toHexString(): String {
@@ -23,6 +25,8 @@ fun Color.toHexString(): String {
  * Parses a hex string to a [Color].
  * Supports formats: #RGB, #RRGGBB, #AARRGGBB (with or without # prefix).
  * Returns null if the string is not a valid hex color.
+ *
+ * @return The corresponding [Color] object, or `null` if parsing fails.
  */
 @Stable
 fun String.parseHexToColor(): Color? {
