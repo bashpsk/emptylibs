@@ -9,9 +9,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.toColorInt
 import androidx.core.graphics.toColorLong
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.duration
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat.findResolutionLabel
 import io.bashpsk.emptylibs.formatter.format.EmptyFormat.time
-import io.bashpsk.emptylibs.formatter.format.EmptyFormat.toRoundedDecimal
 import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
 import io.bashpsk.emptylibs.formatter.utils.LOG_TAG
 import kotlinx.collections.immutable.PersistentList
@@ -45,33 +43,14 @@ import kotlin.time.toDuration
  * formatting, parsing, and converting various data types. It focuses on date/time manipulation,
  * numerical formatting, file size representation, color conversions, and resolution calculations.
  *
- * This object aims to simplify common formatting tasks by offering a consistent and easy-to-use
- * API. It leverages the `kotlinx-datetime` library for robust date and time operations and
- * provides custom solutions for other formatting needs.
- *
- * Key features include:
- * - **Date and Time Formatting:**
- *     - Format `LocalDateTime` and epoch milliseconds into various string representations using
- *       predefined patterns.
- *     - Parse formatted date/time strings back into epoch milliseconds.
- *     - Convert time values (hours, minutes, seconds) into milliseconds and vice-versa.
- *     - Retrieve start and end of day timestamps.
- * - **Numerical Formatting:**
- *     - Round `Double` and `Float` values to a specified number of decimal places.
- *     - Format large numbers into human-readable strings with scaling suffixes (K, M, B, etc.).
- *     - Calculate percentages.
- * - **File Size Formatting:**
- *     - Convert byte counts into human-readable file size strings (e.g., "1.5 MB").
- * - **Color Formatting:**
- *     - Convert `Color` objects to hexadecimal string representations.
- *     - Convert hexadecimal color strings to `Color` objects and Android color integers.
- * - **Resolution Formatting:**
- *     - Generate human-readable labels for common screen resolutions (e.g., "1080p HD", "4K UHD").
- *     - Calculate simplified aspect ratios (e.g., "16:9").
- *
- * The `EmptyFormat` object is designed to be a versatile tool for developers needing to handle
- * diverse formatting requirements within their applications.
+ * @deprecated This object is deprecated. Use the extension functions provided in
+ * [ClockFormatter], [ColorFormatter], [DurationFormatter], [FileFormatter], [NumberFormatter],
+ * and [ResolutionFormatter] instead.
  */
+@Deprecated(
+    message = "Use extension functions in specific formatters instead.",
+    replaceWith = ReplaceWith("this.dateTime(pattern) or similar extension functions")
+)
 @Suppress("unused")
 object EmptyFormat {
 
@@ -109,6 +88,10 @@ object EmptyFormat {
      * @return The formatted date and time `String`.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Long.dateTime(pattern) instead.",
+        replaceWith = ReplaceWith("millis.dateTime(pattern)")
+    )
     fun dateTime(millis: Long, pattern: DateTimePattern): String {
 
         val instant = Instant.fromEpochMilliseconds(epochMilliseconds = millis)
@@ -125,6 +108,10 @@ object EmptyFormat {
      * @return The formatted date and time `String`.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use LocalDateTime.dateTime(pattern) instead.",
+        replaceWith = ReplaceWith("localDateTime.dateTime(pattern)")
+    )
     fun dateTime(localDateTime: LocalDateTime, pattern: DateTimePattern): String {
 
         return localDateTime.format(format = findDateTimeFormat(pattern = pattern))
@@ -162,6 +149,10 @@ object EmptyFormat {
      * @return The formatted time `String`.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Long.time(pattern) instead.",
+        replaceWith = ReplaceWith("time.time(pattern)")
+    )
     fun time(time: Long, pattern: DateTimePattern): String {
 
         val duration = time.toDuration(unit = DurationUnit.MILLISECONDS)
@@ -188,6 +179,10 @@ object EmptyFormat {
      * @return The formatted time `String`.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use LocalTime.time(pattern) instead.",
+        replaceWith = ReplaceWith("localTime.time(pattern)")
+    )
     fun time(localTime: LocalTime, pattern: DateTimePattern): String {
 
         return localTime.format(format = findTimeFormat(pattern = pattern))
@@ -201,15 +196,6 @@ object EmptyFormat {
      *
      * @param pattern The `Pattern` enum specifying the desired time format.
      * @return The corresponding `DateTimeFormat<LocalTime>`.
-     *
-     * Supported patterns:
-     * - `Pattern.TIME_HH_MM` → Time in 12-hour format. Example: 07:30.
-     * - `Pattern.TIME_HH_MM_24` → Time in 24-hour format. Example: 19:30.
-     * - `Pattern.TIME_HH_MM_SS` → Time in 12-hour format, including seconds. Example: 07:30:33.
-     * - `Pattern.TIME_HH_MM_SS_24` → Time in 24-hour format, including seconds. Example: 19:30:33.
-     * - `Pattern.TIME_12` → Time in 12-hour format with AM/PM indicator. Example: 07:30:33 PM.
-     * - `Pattern.TIME_24` → Time in 24-hour format. Example: 19:30:33.
-     * - `else` → `Pattern.TIME_12`.
      */
     @JvmStatic
     fun findTimeFormat(pattern: DateTimePattern): DateTimeFormat<LocalTime> {
@@ -563,6 +549,10 @@ object EmptyFormat {
      */
     @OptIn(ExperimentalTime::class)
     @JvmStatic
+    @Deprecated(
+        message = "Use timeToMilliseconds(hours, minutes, seconds) from ClockFormatter instead.",
+        replaceWith = ReplaceWith("timeToMilliseconds(hours, minutes, seconds)")
+    )
     fun timeToMilliseconds(hours: Int, minutes: Int, seconds: Int): Long? {
 
         return try {
@@ -608,6 +598,10 @@ object EmptyFormat {
      * Returns "00" in case of an exception.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Int.toRoundTime() from ClockFormatter instead.",
+        replaceWith = ReplaceWith("time.toRoundTime()")
+    )
     fun toRoundTime(time: Int): String {
 
         return try {
@@ -627,36 +621,16 @@ object EmptyFormat {
      * This function automatically selects the most appropriate format depending on the length of
      * the `Duration` and the type of `DurationPattern` provided.
      *
-     * Supported pattern types:
-     *
-     * 1. `DurationPattern.Separator`: Uses a character (e.g., `:`) to separate time components.
-     *    - If the duration is less than 1 hour: formatted as `MM:SS`
-     *    - If the duration is less than 1 day: formatted as `HH:MM:SS`
-     *    - If the duration is 1 day or more: formatted as `D:HH:MM:SS`
-     *
-     * 2. `DurationPattern.TimeLabel`: Uses localized labels (e.g., "d", "h", "m", "s") to separate
-     * components.
-     *    - If the duration is less than 1 hour: formatted as `MMm SSs`
-     *    - If the duration is less than 1 day: formatted as `HHh MMm SSs`
-     *    - If the duration is 1 day or more: formatted as `Dd HHh MMm SSs`
-     *
-     * Formatting rules:
-     * - All numerical components are zero-padded to two digits where applicable
-     * (e.g., `05` instead of `5`), except for days.
-     * - For a zero duration, the output is `"0"` followed by the seconds label if provided
-     * (e.g., `"0s"`), or just `"0"` otherwise.
-     *
-     * Example usage:
-     * ```
-     * duration(3723, DurationUnit.SECONDS, DurationPattern.Separator(':')) // returns "01:02:03"
-     * ```
-     *
      * @param durationValue the numeric value of the duration
      * @param unit the unit of time for the duration value (e.g., seconds, minutes)
      * @param pattern the formatting pattern to apply
      * @return a human-readable string representation of the duration
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use duration(durationValue, unit, pattern) from DurationFormatter instead.",
+        replaceWith = ReplaceWith("duration(durationValue, unit, pattern)")
+    )
     fun duration(durationValue: Long, unit: DurationUnit, pattern: DurationPattern): String {
 
         return duration(duration = durationValue.toDuration(unit), pattern = pattern)
@@ -669,35 +643,15 @@ object EmptyFormat {
      * This function automatically selects the most appropriate format depending on the length of
      * the `Duration` and the type of `DurationPattern` provided.
      *
-     * Supported pattern types:
-     *
-     * 1. `DurationPattern.Separator`: Uses a character (e.g., `:`) to separate time components.
-     *    - If the duration is less than 1 hour: formatted as `MM:SS`
-     *    - If the duration is less than 1 day: formatted as `HH:MM:SS`
-     *    - If the duration is 1 day or more: formatted as `D:HH:MM:SS`
-     *
-     * 2. `DurationPattern.TimeLabel`: Uses localized labels (e.g., "d", "h", "m", "s") to separate
-     * components.
-     *    - If the duration is less than 1 hour: formatted as `MMm SSs`
-     *    - If the duration is less than 1 day: formatted as `HHh MMm SSs`
-     *    - If the duration is 1 day or more: formatted as `Dd HHh MMm SSs`
-     *
-     * Formatting rules:
-     * - All numerical components are zero-padded to two digits where applicable
-     * (e.g., `05` instead of `5`), except for days.
-     * - For a zero duration, the output is `"0"` followed by the seconds label if provided
-     * (e.g., `"0s"`), or just `"0"` otherwise.
-     *
-     * Example usage:
-     * ```
-     * duration(3723, DurationUnit.SECONDS, DurationPattern.Separator(':')) // returns "01:02:03"
-     * ```
-     *
      * @param duration the `Duration` to format
      * @param pattern the formatting pattern to apply
      * @return a human-readable string representation of the duration
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Duration.duration(pattern) from DurationFormatter instead.",
+        replaceWith = ReplaceWith("duration.duration(pattern)")
+    )
     fun duration(duration: Duration, pattern: DurationPattern): String {
 
         val patternMap = when (pattern) {
@@ -870,6 +824,10 @@ object EmptyFormat {
      * @return The rounded `Double` value, or 0.0 if an error occurs.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Double.toRoundedDecimal(fraction) instead.",
+        replaceWith = ReplaceWith("decimal.toRoundedDecimal(fraction)")
+    )
     fun toRoundedDecimal(decimal: Double, fraction: Int = 0): Double {
 
         return try {
@@ -899,6 +857,10 @@ object EmptyFormat {
      * @return The rounded `Float` value, or 0F if an error occurs.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Float.toRoundedDecimal(fraction) instead.",
+        replaceWith = ReplaceWith("decimal.toRoundedDecimal(fraction)")
+    )
     fun toRoundedDecimal(decimal: Float, fraction: Int = 0): Float {
 
         return try {
@@ -929,6 +891,10 @@ object EmptyFormat {
      * @see android.text.format.Formatter.formatFileSize
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Long.toFileSize(context) instead.",
+        replaceWith = ReplaceWith("size.toFileSize(context)")
+    )
     fun toFileSize(context: Context, size: Long): String {
 
         return Formatter.formatFileSize(context, size).uppercase()
@@ -945,6 +911,10 @@ object EmptyFormat {
      * @return A string representing the formatted file size (e.g., "1.50 MB", "1024.00 KB").
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Long.toFileSize() instead.",
+        replaceWith = ReplaceWith("size.toFileSize()")
+    )
     fun toFileSize(size: Long): String {
 
         val units = arrayOf("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
@@ -971,12 +941,12 @@ object EmptyFormat {
      *
      * @param value The `Long` value to format.
      * @return A formatted `String` representation of the input value.
-     * Example:
-     * - 1234 -> "1.2K"
-     * - 1234567 -> "1.2M"
-     * - 123 -> "123"
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Long.shortenedNumericalNotation() instead.",
+        replaceWith = ReplaceWith("value.shortenedNumericalNotation()")
+    )
     fun shortenedNumericalNotation(value: Long): String {
 
         return when {
@@ -1020,12 +990,12 @@ object EmptyFormat {
      *
      * @param value The `Double` value to format.
      * @return A formatted `String` representation of the input value.
-     * Example:
-     * - 1234 -> "1.2K"
-     * - 1234567 -> "1.2M"
-     * - 123 -> "123"
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Double.shortenedNumericalNotation() instead.",
+        replaceWith = ReplaceWith("value.shortenedNumericalNotation()")
+    )
     fun shortenedNumericalNotation(value: Double): String {
 
         return when {
@@ -1073,12 +1043,12 @@ object EmptyFormat {
      *
      * @param value The `Int` value to format.
      * @return A formatted `String` representation of the input value.
-     * Example:
-     * - 1234 -> "1.2K"
-     * - 1234567 -> "1.2M"
-     * - 123 -> "123"
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Int.shortenedNumericalNotation() instead.",
+        replaceWith = ReplaceWith("value.shortenedNumericalNotation()")
+    )
     fun shortenedNumericalNotation(value: Int): String {
 
         return shortenedNumericalNotation(value = value.toLong())
@@ -1087,14 +1057,14 @@ object EmptyFormat {
     /**
      * Converts a [Color] object to its hexadecimal string representation, including alpha.
      *
-     * The resulting string will be in the format "AARRGGBB", where AA is the alpha component,
-     * RR is red, GG is green, and BB is blue, all in hexadecimal.
-     *
      * @param color The [Color] object to convert.
      * @return A [String] representing the color in "#AARRGGBB" hexadecimal format.
-     * For example, `Color.Red` would be returned as "#FFFF0000".
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use Color.toHexString() instead.",
+        replaceWith = ReplaceWith("color.toHexString()")
+    )
     fun toColorHex(color: Color): String {
 
         return String.format(locale = Locale.getDefault(), format = "#%08X", color.toArgb())
@@ -1103,21 +1073,14 @@ object EmptyFormat {
     /**
      * Converts a hexadecimal color string to an Android [Color] object.
      *
-     * This function supports hexadecimal color strings in the following formats:
-     * - `#RRGGBB` (e.g., "#FF0000" for red)
-     * - `#AARRGGBB` (e.g., "#80FF0000" for semi-transparent red)
-     * - `#RGB` (e.g., "#F00" for red, shorthand notation)
-     * - `#ARGB` (e.g., "#8F00" for semi-transparent red, shorthand notation)
-     *
-     * The hexadecimal values are case-insensitive.
-     *
-     * If the input string is not in a valid hexadecimal format, or if it does not represent
-     * a valid color, the function will return `null`.
-     *
      * @param hex The hexadecimal color string to convert. Must start with '#'.
      * @return The corresponding [Color] object, or `null` if parsing fails.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use String.parseHexToColor() instead.",
+        replaceWith = ReplaceWith("hex.parseHexToColor()")
+    )
     fun hexToColor(hex: String): Color? {
 
         return try {
@@ -1132,13 +1095,6 @@ object EmptyFormat {
 
     /**
      * Converts a hexadecimal color string to an Android color integer.
-     *
-     * This function takes a hexadecimal color string as input and returns the corresponding
-     * Android color integer. The input string can be in the following formats:
-     * - "#RRGGBBAA" (e.g., "#FF0000FF" for red with full opacity)
-     *
-     * If the input string is not in a valid hexadecimal format, or if it does not represent
-     * a valid color, the function will return an [Color.Unspecified].
      *
      * @param hex The hexadecimal color string.
      * @return The Android color integer.
@@ -1165,6 +1121,10 @@ object EmptyFormat {
      * @return The percentage value as an integer, or 0 if total is zero.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use findPercentage(total, obtained) instead.",
+        replaceWith = ReplaceWith("findPercentage(total, obtained)")
+    )
     fun findPercentage(total: Long, obtained: Long): Int {
 
         return when (total) {
@@ -1181,6 +1141,10 @@ object EmptyFormat {
      * @return The percentage value as an integer, or 0 if total is zero.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use findPercentage(total, obtained) instead.",
+        replaceWith = ReplaceWith("findPercentage(total, obtained)")
+    )
     fun findPercentage(total: Int, obtained: Int): Int {
 
         return when (total) {
@@ -1195,9 +1159,12 @@ object EmptyFormat {
      * @param total The total possible value.
      * @param obtained The obtained value.
      * @return The percentage value rounded to one decimal place, or 0.0 if total is zero.
-     * @see toRoundedDecimal for rounding the result.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use findPercentage(total, obtained) instead.",
+        replaceWith = ReplaceWith("findPercentage(total, obtained)")
+    )
     fun findPercentage(total: Double, obtained: Double): Double {
 
         return when (total) {
@@ -1212,9 +1179,12 @@ object EmptyFormat {
      * @param total The total possible value.
      * @param obtained The obtained value.
      * @return The percentage value rounded to one decimal place, or 0.0F if total is zero.
-     * @see toRoundedDecimal for rounding the result.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use findPercentage(total, obtained) instead.",
+        replaceWith = ReplaceWith("findPercentage(total, obtained)")
+    )
     fun findPercentage(total: Float, obtained: Float): Float {
 
         return when (total) {
@@ -1228,27 +1198,16 @@ object EmptyFormat {
      * Finds a human-readable resolution label (e.g., "1080p HD", "4K UHD") for a given width and
      * height.
      *
-     * This function maps common video and display resolutions to their standard labels, such as
-     * SD, HD, Full HD (FHD), Quad HD (QHD), and various Ultra HD (UHD) standards up to 16K.
-     * It prioritizes the vertical dimension (height) for labeling, which is a common convention
-     * (e.g., 1080p refers to 1080 pixels of vertical resolution).
-     *
-     * If a resolution does not match any predefined standard, the function returns a string
-     * representing the raw dimensions in the format `"width x height"`.
-     *
      * @param width The width of the resolution in pixels.
      * @param height The height of the resolution in pixels.
      * @return A `String` containing the standard resolution label (e.g., "1080p FHD") or the
      * raw dimensions (e.g., "1366x768").
-     *
-     * @sample
-     * ```
-     * findResolutionLabel(1920, 1080) // returns "1080p FHD"
-     * findResolutionLabel(3840, 2160) // returns "4K UHD"
-     * findResolutionLabel(1366, 768)  // returns "1366x768"
-     * ```
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use findResolutionLabel(width, height) instead.",
+        replaceWith = ReplaceWith("findResolutionLabel(width, height)")
+    )
     fun findResolutionLabel(width: Int, height: Int): String {
 
         return findResolutionLabelOrNull(width = width, height = height) ?: "${width}x${height}"
@@ -1258,28 +1217,16 @@ object EmptyFormat {
      * Finds a human-readable resolution label (e.g., "1080p HD", "4K UHD") for a given width and
      * height, returning null if no standard match is found.
      *
-     * This function maps common video and display resolutions to their standard labels, such as
-     * SD, HD, Full HD (FHD), Quad HD (QHD), and various Ultra HD (UHD) standards up to 16K.
-     * It prioritizes the vertical dimension (height) for labeling, which is a common convention
-     * (e.g., 1080p refers to 1080 pixels of vertical resolution).
-     *
-     * Unlike `findResolutionLabel`, this function returns `null` if the resolution does not match
-     * any predefined standard, allowing for custom fallback handling.
-     *
      * @param width The width of the resolution in pixels.
      * @param height The height of the resolution in pixels.
      * @return A `String` containing the standard resolution label (e.g., "1080p FHD"), or `null`
      * if the resolution is not a recognized standard.
-     *
-     * @sample
-     * ```
-     * findResolutionLabelOrNull(1920, 1080) // returns "1080p FHD"
-     * findResolutionLabelOrNull(3840, 2160) // returns "4K UHD"
-     * findResolutionLabelOrNull(1366, 768)  // returns null
-     * ```
-     * @see findResolutionLabel
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use findResolutionLabelOrNull(width, height) instead.",
+        replaceWith = ReplaceWith("findResolutionLabelOrNull(width, height)")
+    )
     fun findResolutionLabelOrNull(width: Int, height: Int): String? {
 
         return ResolutionType.findOrNull(width = width, height = height)?.label
@@ -1288,14 +1235,15 @@ object EmptyFormat {
     /**
      * Calculates the aspect ratio of a given width and height.
      *
-     * This function divides the width by the height to determine the aspect ratio.
-     * If the height is zero, it returns 0.0F to prevent division by zero errors.
-     *
      * @param width The width of the dimension.
      * @param height The height of the dimension.
      * @return The aspect ratio as a Float (width / height), or 0.0F if height is 0.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use findAspectRatio(width, height) instead.",
+        replaceWith = ReplaceWith("findAspectRatio(width, height)")
+    )
     fun findAspectRatio(width: Int, height: Int): Float {
 
         return if (height == 0) 0.0F else width / height.toFloat()
@@ -1304,14 +1252,15 @@ object EmptyFormat {
     /**
      * Calculates the aspect ratio of a given width and height.
      *
-     * This function divides the width by the height to determine the aspect ratio.
-     * If the height is zero, it returns 0.0F to prevent division by zero errors.
-     *
      * @param width The width of the dimension.
      * @param height The height of the dimension.
      * @return The aspect ratio as a Float (width / height), or 0.0F if height is 0.0F.
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use findAspectRatio(width, height) instead.",
+        replaceWith = ReplaceWith("findAspectRatio(width, height)")
+    )
     fun findAspectRatio(width: Float, height: Float): Float {
 
         return if (height == 0.0F) 0.0F else width / height
@@ -1320,20 +1269,15 @@ object EmptyFormat {
     /**
      * Calculates the simplified aspect ratio of a given width and height.
      *
-     * This function uses the greatest common divisor (GCD) to reduce the given dimensions
-     * to their simplest integer ratio form, commonly used in video and display resolutions.
-     *
      * @param width The horizontal resolution in pixels.
      * @param height The vertical resolution in pixels.
      * @return A string representing the simplified aspect ratio (e.g., "16:9").
-     *
-     * Example:
-     * ```
-     * aspectRatioLabel(1920, 1080) // returns "16:9"
-     * aspectRatioLabel(1080, 1920) // returns "9:16"
-     * ```
      */
     @JvmStatic
+    @Deprecated(
+        message = "Use aspectRatioLabel(width, height) instead.",
+        replaceWith = ReplaceWith("aspectRatioLabel(width, height)")
+    )
     fun aspectRatioLabel(width: Int, height: Int): String {
 
         fun gcd(a: Int, b: Int): Int {
