@@ -36,17 +36,3 @@ internal fun File.fileLength(): Long {
 
     return fileLengthOrNull() ?: 0L
 }
-
-/**
- * Converts the file length to megabytes (MB).
- *
- * This function calculates the size by dividing the byte length by 1,048,576 (1024 * 1024).
- *
- * @return The size of the file in megabytes as a [Double].
- */
-fun Long.toMegabytes(): Double {
-
-    if (this <= 0) return 0.0
-
-    return this.toDouble() / (1024 * 1024)
-}

@@ -15,7 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import io.bashpsk.emptylibs.formatter.extension.toMegabytes
+import io.bashpsk.emptylibs.formatter.format.toMegabytes
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 import io.bashpsk.emptylibs.storage.extension.fileLengthOrNull
 import kotlinx.collections.immutable.persistentListOf

@@ -1,6 +1,13 @@
 package io.bashpsk.emptylibs.formatter.format
 
 import androidx.compose.runtime.Stable
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.format.DateTimeFormat
+import kotlinx.datetime.format.DayOfWeekNames
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
 
 /**
  * Enum class defining the various formatting patterns supported by `EmptyFormat`.
@@ -9,153 +16,517 @@ enum class DateTimePattern {
 
     /**
      * Time in 12-hour format.
-     * Example: 07:30.
+     * Ex: 07:30.
      */
     TIME_HH_MM,
 
     /**
      * Time in 24-hour format.
-     * Example: 19:30.
+     * Ex: 19:30.
      */
     TIME_HH_MM_24,
 
     /**
      * Time in 12-hour format, including seconds.
-     * Example: 07:30:33.
+     * Ex: 07:30:33.
      */
     TIME_HH_MM_SS,
 
     /**
      * Time in 24-hour format, including seconds.
-     * Example: 19:30:33.
+     * Ex: 19:30:33.
      */
     TIME_HH_MM_SS_24,
 
     /**
      * Time in 12-hour format with AM/PM indicator.
-     * Example: 07:30:33 PM.
+     * Ex: 07:30:33 PM.
      */
     TIME_12,
 
     /**
      * Time in 24-hour format.
-     * Example: 19:30:33.
+     * Ex: 19:30:33.
      */
     TIME_24,
 
     /**
      * Short date format.
-     * Example: 09:12:2000.
+     * Ex: 09:12:2000.
      */
     SHORT_DATE,
 
     /**
      * Human-readable full date format.
-     * Example: Dec 09, 2000.
+     * Ex: Dec 09, 2000.
      */
     LONG_DATE,
 
     /**
      * Short date and time in 12-hour format.
-     * Example: 09:12:2000 07:30 PM.
+     * Ex: 09:12:2000 07:30 PM.
      */
     SHORT_DATE_TIME,
 
     /**
      * Short date and time in 24-hour format.
-     * Example: 09:12:2000 19:30.
+     * Ex: 09:12:2000 19:30.
      */
     SHORT_DATE_TIME_24,
 
     /**
      * Full date and time in 12-hour format.
-     * Example: Sun, Dec 09, 2000 07:30 PM.
+     * Ex: Sun, Dec 09, 2000 07:30 PM.
      */
     LONG_DATE_TIME,
 
     /**
      * Full date and time in 24-hour format.
-     * Example: Sun, Dec 09, 2000 19:30.
+     * Ex: Sun, Dec 09, 2000 19:30.
      */
     LONG_DATE_TIME_24,
 
     /**
      * Extended full date-time format with milliseconds.
-     * Example: Sun, Dec 09, 2000 07:30:33.333 PM.
+     * Ex: Sun, Dec 09, 2000 07:30:33.333 PM.
      */
     LONG_DATE_TIME_MILLIS,
 
     /**
      * Extended full date-time format with milliseconds in 24-hour format.
-     * Example: Sun, Dec 09, 2000 19:30:33.333.
+     * Ex: Sun, Dec 09, 2000 19:30:33.333.
      */
     LONG_DATE_TIME_MILLIS_24,
 
     /**
      * Date and time format suitable for file names, in 24-hour format.
-     * Example: 19-30-33 09-12-2000.
+     * Ex: 19-30-33 09-12-2000.
      */
     FILE_NAME,
 
     /**
      * Day of the week only.
-     * Example: Mon.
+     * Ex: Mon.
      */
     DAY_ONLY,
 
     /**
      * Month of the year only.
-     * Example: Dec.
+     * Ex: Dec.
      */
     MONTH_ONLY,
 
     /**
      * Year only.
-     * Example: 2000.
+     * Ex: 2000.
      */
     YEAR_ONLY,
 
     /**
      * Month and Year only.
-     * Example: Dec 09.
+     * Ex: Dec 09.
      */
     MONTH_DAY,
 
     /**
      * Short year and month format.
-     * Example: 12/00.
+     * Ex: 12/00.
      */
     SHORT_MONTH_YEAR,
 
     /**
      * Month and Year only.
-     * Example: Dec 2000.
+     * Ex: Dec 2000.
      */
     MONTH_YEAR,
 
     /**
      * Day-of-year format.
-     * Example: 343 (343rd day of the year).
+     * Ex: 343 (343rd day of the year).
      */
     DAY_OF_YEAR,
 
     /**
      * Day-of-month format.
-     * Example: 09 (09th day of the month).
+     * Ex: 09 (09th day of the month).
      */
     DAY_OF_MONTH,
 
     /**
      * Month of the year format.
-     * Example: 12 (12th month of the year).
+     * Ex: 12 (12th month of the year).
      */
     MONTH_OF_YEAR,
 
     /**
      * Compact timestamp format.
-     * Example: 20001209193033 (YYYYMMDDHHMMSS).
+     * Ex: 20001209193033 (YYYYMMDDHHMMSS).
      */
-    TIMESTAMP_COMPACT,
+    TIMESTAMP_COMPACT;
+    
+    companion object {
+
+        /**
+         * Retrieves the appropriate `DateTimeFormat` for a given time pattern.
+         *
+         * This function maps various `Pattern` enums to their respective
+         * `LocalTime.Format` definitions using kotlinx-datetime formatting.
+         *
+         * @param pattern The `Pattern` enum specifying the desired time format.
+         * @return The corresponding `DateTimeFormat<LocalTime>`.
+         *
+         * Supported patterns:
+         * - `Pattern.TIME_HH_MM` → Time in 12-hour format. Ex: 07:30.
+         * - `Pattern.TIME_HH_MM_24` → Time in 24-hour format. Ex: 19:30.
+         * - `Pattern.TIME_HH_MM_SS` → Time in 12-hour format, including seconds. Ex: 07:30:33.
+         * - `Pattern.TIME_HH_MM_SS_24` → Time in 24-hour format, including seconds. Ex: 19:30:33.
+         * - `Pattern.TIME_12` → Time in 12-hour format with AM/PM indicator. Ex: 07:30:33 PM.
+         * - `Pattern.TIME_24` → Time in 24-hour format. Ex: 19:30:33.
+         * - `else` → `Pattern.TIME_12`.
+         */
+        @JvmStatic
+        fun DateTimePattern.findTimeFormat(): DateTimeFormat<LocalTime> {
+
+            return when (this) {
+
+                TIME_HH_MM -> LocalTime.Format {
+
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                }
+
+                TIME_HH_MM_24 -> LocalTime.Format {
+
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                }
+
+                TIME_HH_MM_SS -> LocalTime.Format {
+
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                }
+
+                TIME_HH_MM_SS_24 -> LocalTime.Format {
+
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                }
+
+                TIME_12 -> LocalTime.Format {
+
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                    char(' ')
+                    amPmMarker(am = "AM", pm = "PM")
+                }
+
+                TIME_24 -> LocalTime.Format {
+
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                }
+
+                else -> LocalTime.Format {
+
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                    char(' ')
+                    amPmMarker(am = "AM", pm = "PM")
+                }
+            }
+        }
+
+        /**
+         * Retrieves the appropriate `DateTimeFormat` for a given pattern.
+         *
+         * This function maps various `Pattern` enums to their respective
+         * `LocalDateTime.Format` definitions using kotlinx-datetime formatting.
+         * @param pattern The `Pattern` enum specifying the desired date-time format.
+         * @return The corresponding `DateTimeFormat<LocalDateTime>`.
+         */
+        @JvmStatic
+        fun DateTimePattern.findDateTimeFormat(
+            dayOfWeekNames: DayOfWeekNames = defaultDayOfWeekNames,
+            monthNames: MonthNames = defaultMonthNames
+        ): DateTimeFormat<LocalDateTime> {
+
+            return when (this) {
+
+                TIME_HH_MM -> LocalDateTime.Format {
+
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                }
+
+                TIME_HH_MM_24 -> LocalDateTime.Format {
+
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                }
+
+                TIME_HH_MM_SS -> LocalDateTime.Format {
+
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                }
+
+                TIME_HH_MM_SS_24 -> LocalDateTime.Format {
+
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                }
+
+                TIME_12 -> LocalDateTime.Format {
+
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                    char(' ')
+                    amPmMarker(am = "AM", pm = "PM")
+                }
+
+                TIME_24 -> LocalDateTime.Format {
+
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                }
+
+                SHORT_DATE -> LocalDateTime.Format {
+
+                    day(padding = Padding.ZERO)
+                    char(value = ':')
+                    monthNumber(padding = Padding.ZERO)
+                    char(value = ':')
+                    year(padding = Padding.ZERO)
+                }
+
+                LONG_DATE -> LocalDateTime.Format {
+
+                    monthName(names = monthNames)
+                    char(value = ' ')
+                    day(padding = Padding.ZERO)
+                    char(value = ',')
+                    char(value = ' ')
+                    year(padding = Padding.ZERO)
+                }
+
+                SHORT_DATE_TIME -> LocalDateTime.Format {
+
+                    day(padding = Padding.ZERO)
+                    char(value = ':')
+                    monthNumber(padding = Padding.ZERO)
+                    char(value = ':')
+                    year(padding = Padding.ZERO)
+                    char(value = ' ')
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ' ')
+                    amPmMarker(am = "AM", pm = "PM")
+                }
+
+                SHORT_DATE_TIME_24 -> LocalDateTime.Format {
+
+                    day(padding = Padding.ZERO)
+                    char(value = ':')
+                    monthNumber(padding = Padding.ZERO)
+                    char(value = ':')
+                    year(padding = Padding.ZERO)
+                    char(value = ' ')
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                }
+
+                LONG_DATE_TIME -> LocalDateTime.Format {
+
+                    dayOfWeek(names = dayOfWeekNames)
+                    char(value = ',')
+                    char(value = ' ')
+                    monthName(names = monthNames)
+                    char(value = ' ')
+                    day(padding = Padding.ZERO)
+                    char(value = ',')
+                    char(value = ' ')
+                    year(padding = Padding.ZERO)
+                    char(value = ' ')
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ' ')
+                    amPmMarker(am = "AM", pm = "PM")
+                }
+
+                LONG_DATE_TIME_24 -> LocalDateTime.Format {
+
+                    dayOfWeek(names = dayOfWeekNames)
+                    char(value = ',')
+                    char(value = ' ')
+                    monthName(names = monthNames)
+                    char(value = ' ')
+                    day(padding = Padding.ZERO)
+                    char(value = ',')
+                    char(value = ' ')
+                    year(padding = Padding.ZERO)
+                    char(value = ' ')
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                }
+
+                LONG_DATE_TIME_MILLIS -> LocalDateTime.Format {
+
+                    dayOfWeek(names = dayOfWeekNames)
+                    char(value = ',')
+                    char(value = ' ')
+                    monthName(names = monthNames)
+                    char(value = ' ')
+                    day(padding = Padding.ZERO)
+                    char(value = ',')
+                    char(value = ' ')
+                    year(padding = Padding.ZERO)
+                    char(value = ' ')
+                    amPmHour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                    char(value = '.')
+                    secondFraction(fixedLength = 3)
+                    char(value = ' ')
+                    amPmMarker(am = "AM", pm = "PM")
+                }
+
+                LONG_DATE_TIME_MILLIS_24 -> LocalDateTime.Format {
+
+                    dayOfWeek(names = dayOfWeekNames)
+                    char(value = ',')
+                    char(value = ' ')
+                    monthName(names = monthNames)
+                    char(value = ' ')
+                    day(padding = Padding.ZERO)
+                    char(value = ',')
+                    char(value = ' ')
+                    year(padding = Padding.ZERO)
+                    char(value = ' ')
+                    hour(padding = Padding.ZERO)
+                    char(value = ':')
+                    minute(padding = Padding.ZERO)
+                    char(value = ':')
+                    second(padding = Padding.ZERO)
+                    char(value = '.')
+                    secondFraction(fixedLength = 3)
+                }
+
+                FILE_NAME -> LocalDateTime.Format {
+
+                    day(padding = Padding.ZERO)
+                    char(value = '-')
+                    monthNumber(padding = Padding.ZERO)
+                    char(value = '-')
+                    year(padding = Padding.ZERO)
+                    char(value = ' ')
+                    hour(padding = Padding.ZERO)
+                    char(value = '-')
+                    minute(padding = Padding.ZERO)
+                    char(value = '-')
+                    second(padding = Padding.ZERO)
+                }
+
+                DAY_ONLY -> LocalDateTime.Format {
+
+                    dayOfWeek(names = dayOfWeekNames)
+                }
+
+                MONTH_ONLY -> LocalDateTime.Format {
+
+                    monthName(names = monthNames)
+                }
+
+                YEAR_ONLY -> LocalDateTime.Format {
+
+                    year(padding = Padding.ZERO)
+                }
+
+                MONTH_DAY -> LocalDateTime.Format {
+
+                    monthName(names = monthNames)
+                    char(value = ' ')
+                    day(padding = Padding.ZERO)
+                }
+
+                SHORT_MONTH_YEAR -> LocalDateTime.Format {
+
+                    monthName(names = monthNames)
+                    char(value = ' ')
+                    yearTwoDigits(baseYear = 1960)
+                }
+
+                MONTH_YEAR -> LocalDateTime.Format {
+
+                    monthName(names = monthNames)
+                    char(value = ' ')
+                    year(padding = Padding.ZERO)
+                }
+
+                DAY_OF_YEAR -> LocalDateTime.Format {
+
+                    dayOfYear(padding = Padding.ZERO)
+                }
+
+                DAY_OF_MONTH -> LocalDateTime.Format {
+
+                    day(padding = Padding.ZERO)
+                }
+
+                MONTH_OF_YEAR -> LocalDateTime.Format {
+
+                    monthNumber(padding = Padding.ZERO)
+                }
+
+                TIMESTAMP_COMPACT -> LocalDateTime.Format {
+
+                    year(padding = Padding.ZERO)
+                    monthNumber(padding = Padding.ZERO)
+                    day(padding = Padding.ZERO)
+                    hour(padding = Padding.ZERO)
+                    minute(padding = Padding.ZERO)
+                    second(padding = Padding.ZERO)
+                }
+            }
+        }
+    }
 }
 
 /**
