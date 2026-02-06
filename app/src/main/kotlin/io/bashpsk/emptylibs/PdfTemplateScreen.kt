@@ -1,34 +1,45 @@
 package io.bashpsk.emptylibs
 
 import android.os.Environment
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.pdftemplate.pdf.PdfTemplateBackground
 import io.bashpsk.emptylibs.pdftemplate.pdf.PdfTemplateType
 import io.bashpsk.emptylibs.pdftemplate.pdf.PdfTextInput
 import io.bashpsk.emptylibs.pdftemplate.pdf.rememberPdfTemplateState
 import io.bashpsk.emptylibs.pdftemplate.sheet.SheetMargin
 import io.bashpsk.emptylibs.pdftemplate.sheet.SheetSize
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -41,7 +52,7 @@ fun PdfTemplateScreen() {
 
     val sampleTemplate = ImageBitmap.imageResource(R.drawable.document_template_03)
 
-    val lineText = "Jetpack Compose is a modern UI toolkit introduced by Google for building " +
+    val lineText1 = "Jetpack Compose is a modern UI toolkit introduced by Google for building " +
             "native Android user interfaces. It simplifies and accelerates UI development by " +
             "leveraging the power of Kotlin and a declarative programming model."
 
@@ -58,7 +69,8 @@ fun PdfTemplateScreen() {
 
     val lineCount = 9
 
-    val largeText by remember(lineText2) { derivedStateOf { lineText2.repeat(lineCount) } }
+    val largeText by remember(lineText1, lineText2) { derivedStateOf { "$lineText1\n$lineText2" } }
+    var previewImageList by remember { mutableStateOf(persistentListOf<ImageBitmap>()) }
 
     val titleStyle = MaterialTheme.typography.headlineSmall.copy(
         fontSize = 18.sp,
@@ -69,7 +81,7 @@ fun PdfTemplateScreen() {
     val contentStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 8.sp)
     val numberStyle = MaterialTheme.typography.labelSmall.copy(fontSize = 6.sp)
 
-    val contentList by remember(lineText, lineText2) {
+    val contentList by remember(lineText1, lineText2) {
         derivedStateOf {
             (0..lineCount).map { line ->
 
@@ -79,7 +91,7 @@ fun PdfTemplateScreen() {
                         text = "A Modern UI Toolkit for Android",
                         style = subTitleStyle
                     ) to PdfTextInput(
-                        text = lineText,
+                        text = lineText1,
                         style = contentStyle
                     )
 
@@ -115,11 +127,31 @@ fun PdfTemplateScreen() {
         numberStyle = numberStyle
     )
 
+    LaunchedEffect(templateTitleContent) {
+
+        pdfTemplateState.getPdfPreviewImage(
+            template = templateTitleContent
+        )?.let { imageBitmap ->
+
+            previewImageList = previewImageList.add(imageBitmap)
+        }
+    }
+
+    LaunchedEffect(templateTitleContentWithIndex) {
+
+        pdfTemplateState.getPdfPreviewImage(
+            template = templateTitleContentWithIndex
+        )?.let { imageBitmap ->
+
+            previewImageList = previewImageList.add(imageBitmap)
+        }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
 
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
@@ -127,46 +159,72 @@ fun PdfTemplateScreen() {
             verticalArrangement = Arrangement.Center
         ) {
 
-            Button(
-                onClick = {
+            item {
 
-                    coroutineScope.launch {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                        pdfTemplateState.saveAsPdf(
-                            templateType = templateTitleContent,
-                            destination = File(
-                                Environment.getExternalStoragePublicDirectory(
-                                    Environment.DIRECTORY_DOWNLOADS
-                                ),
-                                "Generated PDF.pdf"
-                            )
-                        )
+                    Button(
+                        onClick = {
+
+                            coroutineScope.launch {
+
+                                pdfTemplateState.saveAsPdf(
+                                    template = templateTitleContent,
+                                    destination = File(
+                                        Environment.getExternalStoragePublicDirectory(
+                                            Environment.DIRECTORY_DOWNLOADS
+                                        ),
+                                        "Generated PDF.pdf"
+                                    )
+                                )
+                            }
+                        }
+                    ) {
+
+                        Text("Save as PDF")
+                    }
+
+                    Button(
+                        onClick = {
+
+                            coroutineScope.launch {
+
+                                pdfTemplateState.saveAsPdf(
+                                    template = templateTitleContentWithIndex,
+                                    destination = File(
+                                        Environment.getExternalStoragePublicDirectory(
+                                            Environment.DIRECTORY_DOWNLOADS
+                                        ),
+                                        "Generated PDF(Index).pdf"
+                                    )
+                                )
+                            }
+                        }
+                    ) {
+
+                        Text("Save as PDF(Index)")
                     }
                 }
-            ) {
-
-                Text("Save as PDF")
             }
 
-            Button(
-                onClick = {
+            items(previewImageList) { imageBitmap ->
 
-                    coroutineScope.launch {
-
-                        pdfTemplateState.saveAsPdf(
-                            templateType = templateTitleContentWithIndex,
-                            destination = File(
-                                Environment.getExternalStoragePublicDirectory(
-                                    Environment.DIRECTORY_DOWNLOADS
-                                ),
-                                "Generated PDF(Index).pdf"
-                            )
-                        )
-                    }
+                val aspectRatio by remember(imageBitmap) {
+                    derivedStateOf { findAspectRatio(imageBitmap.width, imageBitmap.height) }
                 }
-            ) {
 
-                Text("Save as PDF(Index)")
+                Image(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(aspectRatio),
+                    bitmap = imageBitmap,
+                    contentScale = ContentScale.Fit,
+                    contentDescription = null
+                )
             }
         }
     }

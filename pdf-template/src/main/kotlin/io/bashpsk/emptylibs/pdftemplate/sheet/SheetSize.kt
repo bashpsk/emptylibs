@@ -5,7 +5,15 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
+import io.bashpsk.emptylibs.formatter.format.aspectRatioLabel
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 
+/**
+ * Standard ISO sheet sizes in points (1/72 inch).
+ *
+ * @property width The width of the sheet.
+ * @property height The height of the sheet.
+ */
 enum class SheetSize(val width: Int, val height: Int) {
 
     // ISO A Series
@@ -49,9 +57,16 @@ enum class SheetSize(val width: Int, val height: Int) {
 
     companion object {
 
+        /** Maximum width among all predefined sheet sizes. */
         val MaxWidth = entries.maxOf { sheetSize -> sheetSize.width }
+
+        /** Maximum height among all predefined sheet sizes. */
         val MaxHeight = entries.maxOf { sheetSize -> sheetSize.height }
 
+        /**
+         * Converts the enum name to a user-friendly label.
+         * For example, "A4" remains "A4", or "LEGAL_SIZE" becomes "Legal Size".
+         */
         @Stable
         fun SheetSize.toLabel(): String {
 
@@ -61,6 +76,9 @@ enum class SheetSize(val width: Int, val height: Int) {
             }
         }
 
+        /**
+         * Calculates the content rectangle for this sheet size given a [SheetMargin].
+         */
         fun SheetSize.toRect(margin: SheetMargin): Rect {
 
             return Rect(
@@ -71,14 +89,28 @@ enum class SheetSize(val width: Int, val height: Int) {
             )
         }
 
+        /** Converts [SheetSize] to a Compose [Size]. */
         fun SheetSize.toSize(): Size {
 
             return toIntSize().toSize()
         }
 
+        /** Converts [SheetSize] to a Compose [IntSize]. */
         fun SheetSize.toIntSize(): IntSize {
 
             return IntSize(width = width, height = height)
+        }
+
+        /** Calculates the aspect ratio (width / height) of the sheet. */
+        fun SheetSize.getAspectRatio(): Float {
+
+            return findAspectRatio(width = width, height = height)
+        }
+
+        /** Returns a string representation of the aspect ratio. */
+        fun SheetSize.getAspectRatioLabel(): String {
+
+            return aspectRatioLabel(width = width, height = height)
         }
     }
 }
