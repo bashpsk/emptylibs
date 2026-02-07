@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import io.bashpsk.emptylibs.jetpackui.joystick.JoyStick
 import io.bashpsk.emptylibs.jetpackui.joystick.JoyStickDefaults
+import io.bashpsk.emptylibs.jetpackui.joystick.JoyStickType
 import io.bashpsk.emptylibs.jetpackui.joystick.rememberJoyStickState
 
 @Composable
@@ -28,12 +29,13 @@ fun JoyStickScreen() {
 
     val properties = JoyStickDefaults.properties(
         speed = 0.5.dp,
-        faceToDirection = true
+        faceToDirection = true,
+        type = JoyStickType._03
     )
 
     val colors = JoyStickDefaults.colors(
         thumbColor = Color.Cyan.copy(alpha = 0.85F),
-        borderColor = Color.Cyan.copy(alpha = 0.85F)
+        borderColor = Color.Cyan.copy(alpha = 0.35F)
     )
 
     val joyStickState = rememberJoyStickState(properties = properties)

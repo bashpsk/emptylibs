@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
 //                    LruCacheScreen()
 //                    MusicPlayingAnimationScreen()
 //                    PathShapeScreen()
-                    PdfTemplateScreen()
+//                    PdfTemplateScreen()
 //                    PdfViewerScreen()
 //                    ScrollBarLazyGridScreen()
 //                    ScrollBarLazyListScreen()

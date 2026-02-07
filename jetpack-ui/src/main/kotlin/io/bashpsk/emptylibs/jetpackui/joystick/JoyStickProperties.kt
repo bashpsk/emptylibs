@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
  * @property speed The movement speed applied to [JoyStickChanges.motion] per frame.
  * @property borderThickness The thickness of the joystick base border.
  * @property faceToDirection If true, [JoyStickChanges.rotation] will follow the joystick angle.
+ * @property type The visual style of the joystick.
  */
 @Immutable
 data class JoyStickProperties(
@@ -23,5 +24,6 @@ data class JoyStickProperties(
     val pressedThumbScale: Float = 1.25F,
     val speed: Dp = 0.5.dp,
     val borderThickness: Dp = 2.dp,
-    val faceToDirection: Boolean = false
+    val faceToDirection: Boolean = false,
+    val type: JoyStickType = JoyStickType._01
 )

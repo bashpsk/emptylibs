@@ -41,6 +41,7 @@ object JoyStickDefaults {
      * @param speed The movement speed applied per frame.
      * @param borderThickness The thickness of the joystick base border.
      * @param faceToDirection If true, rotation will follow the joystick angle.
+     * @param type The visual style of the joystick.
      * @return A [JoyStickProperties] instance.
      */
     fun properties(
@@ -48,7 +49,8 @@ object JoyStickDefaults {
         pressedThumbScale: Float = 1.25F,
         speed: Dp = 0.5.dp,
         borderThickness: Dp = 2.dp,
-        faceToDirection: Boolean = false
+        faceToDirection: Boolean = false,
+        type: JoyStickType = JoyStickType._01
     ): JoyStickProperties {
 
         return JoyStickProperties(
@@ -56,7 +58,8 @@ object JoyStickDefaults {
             pressedThumbScale = pressedThumbScale,
             speed = speed,
             borderThickness = borderThickness,
-            faceToDirection = faceToDirection
+            faceToDirection = faceToDirection,
+            type = type
         )
     }
 }
