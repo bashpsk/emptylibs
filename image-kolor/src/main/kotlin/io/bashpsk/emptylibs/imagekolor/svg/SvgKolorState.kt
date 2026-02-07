@@ -41,6 +41,9 @@ class SvgKolorState(
     var selectedHex by mutableStateOf<SvgKolorData?>(null)
         private set
 
+    var newSource by mutableStateOf(source)
+        private set
+
     init {
 
         coroutineScope.launch { hexKolorDataList = getKolorHexList(source) }
@@ -58,6 +61,8 @@ class SvgKolorState(
                 )
             }
         }
+
+        coroutineScope.launch { newSource = getColoredSvg() }
     }
 
     fun updateSelectedHex(newHex: SvgKolorData?) {

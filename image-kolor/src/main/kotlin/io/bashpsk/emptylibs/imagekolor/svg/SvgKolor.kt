@@ -12,19 +12,15 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
-import kotlinx.coroutines.launch
 
 @Composable
 fun SvgKolor(
@@ -34,15 +30,8 @@ fun SvgKolor(
 
     val kolorPickerState = rememberKolorPickerState()
 
-    var newSource by remember { mutableStateOf(state.source) }
-
     val colorHexList by remember(state.hexKolorDataList) {
         derivedStateOf { state.hexKolorDataList }
-    }
-
-    LaunchedEffect(state.selectedHex) {
-
-        state.coroutineScope.launch { newSource = state.getColoredSvg() }
     }
 
     KolorPickerDialog(
@@ -73,7 +62,7 @@ fun SvgKolor(
 
                 SvgImageView(modifier = Modifier.weight(weight = 1F), model = state.source)
 
-                SvgImageView(modifier = Modifier.weight(weight = 1F), model = newSource)
+                SvgImageView(modifier = Modifier.weight(weight = 1F), model = state.newSource)
             }
         },
         secondPane = {
