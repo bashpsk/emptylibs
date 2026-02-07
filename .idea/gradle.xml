@@ -29,6 +29,7 @@
             <option value="$PROJECT_DIR$/lrucache-manager" />
             <option value="$PROJECT_DIR$/pdf-template" />
             <option value="$PROJECT_DIR$/pdf-viewer" />
+            <option value="$PROJECT_DIR$/serialization-svg" />
             <option value="$PROJECT_DIR$/storage" />
           </set>
         </option>
