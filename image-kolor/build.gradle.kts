@@ -90,6 +90,7 @@ dependencies {
 
     //  COIL            :
     implementation(libs.coil3.compose)
+    implementation(libs.coil3.svg)
 
     //  MODULE          :
     implementation(project(":compose-utils"))
@@ -97,6 +98,7 @@ dependencies {
     implementation(project(":image-utils"))
     implementation(project(":image-view"))
     implementation(project(":jetpack-ui"))
+    implementation(project(":kolor-picker"))
     implementation(project(":lrucache-manager"))
 }
 

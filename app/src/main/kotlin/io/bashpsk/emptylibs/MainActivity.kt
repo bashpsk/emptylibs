@@ -63,6 +63,7 @@ class MainActivity : ComponentActivity() {
 //                    ScrollBarLazyListScreen()
 //                    SevenSegmentDisplayScreen()
 //                    StorageScreen()
+//                    SvgKolorScreen()
 //                    TransformImageScreen()
 //                    ZoomableLayoutScreen()
 //                    VideoGestureScreen()
