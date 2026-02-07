@@ -2,7 +2,6 @@ package io.bashpsk.emptylibs.datastoreui.preference
 
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,7 +15,6 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -151,7 +149,6 @@ fun ColorPickPreference(
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val dialogVisibleState = remember { MutableTransitionState(false) }
     val colorPickerState = rememberKolorPickerState()
 
     val getColorArgb by datastore.getPreference(
@@ -163,7 +160,6 @@ fun ColorPickPreference(
         modifier = Modifier
             .fillMaxSize()
             .safeContentPadding(),
-        dialogVisibleState = dialogVisibleState,
         state = colorPickerState,
         enableAlphaPanel = enableAlphaPanel,
         enableCopyButton = true,
@@ -172,7 +168,6 @@ fun ColorPickPreference(
             when (enableResetButton) {
 
                 true -> KolorPickerDialogDefault.ResetButton(
-                    dialogVisibleState = dialogVisibleState,
                     state = colorPickerState,
                     onSelectedColor = {
 
@@ -184,7 +179,7 @@ fun ColorPickPreference(
                 )
 
                 false -> KolorPickerDialogDefault.DismissButton(
-                    dialogVisibleState = dialogVisibleState
+                    dialogVisibleState = colorPickerState.dialogVisibleState
                 )
             }
         },
@@ -203,7 +198,7 @@ fun ColorPickPreference(
                 role = Role.Button,
                 onClick = {
 
-                    dialogVisibleState.targetState = true
+                    colorPickerState.dialogVisibleState.targetState = true
                 }
             ),
         colors = colors,

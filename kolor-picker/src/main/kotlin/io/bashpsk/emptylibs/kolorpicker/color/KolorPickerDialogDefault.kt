@@ -125,7 +125,6 @@ object KolorPickerDialogDefault {
 
     @Composable
     fun ResetButton(
-        dialogVisibleState: MutableTransitionState<Boolean>,
         state: KolorPickerState,
         onSelectedColor: (color: Color) -> Unit
     ) {
@@ -135,7 +134,7 @@ object KolorPickerDialogDefault {
 
                 state.updateColor(color = Color.Unspecified)
                 onSelectedColor(state.selectedColor)
-                dialogVisibleState.targetState = false
+                state.dialogVisibleState.targetState = false
             }
         ) {
 

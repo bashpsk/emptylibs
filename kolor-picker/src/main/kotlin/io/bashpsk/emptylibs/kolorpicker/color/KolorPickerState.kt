@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.kolorpicker.color
 
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -53,6 +54,15 @@ class KolorPickerState(val initialColor: Color) {
      */
     var selectedColor by mutableStateOf(initialColor)
         private set
+
+    /**
+     * A boolean state that controls the visibility of the color picker dialog.
+     *
+     * When set to `true`, the dialog is displayed to the user. When set to `false`,
+     * the dialog is hidden. This state is observed by the UI to trigger the
+     * presentation or dismissal of the color picker interface.
+     */
+    val dialogVisibleState = MutableTransitionState(false)
 
     /**
      * Hue component of the selected color, in the range [0..360]

@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -1024,13 +1023,11 @@ private fun ColorSelectionView(
 ) {
 
     val colorPickerState = rememberKolorPickerState(initialColor = color)
-    val colorPickerDialogState = remember { MutableTransitionState(false) }
 
     KolorPickerDialog(
         modifier = Modifier
             .fillMaxSize()
             .safeContentPadding(),
-        dialogVisibleState = colorPickerDialogState,
         state = colorPickerState,
         enableAlphaPanel = true,
         enableCopyButton = true,
@@ -1057,7 +1054,7 @@ private fun ColorSelectionView(
                 .clip(shape = MaterialTheme.shapes.extraSmall)
                 .clickable(
                     role = Role.Button,
-                    onClick = { colorPickerDialogState.targetState = true }
+                    onClick = { colorPickerState.dialogVisibleState.targetState = true }
                 ),
             color = color
         )

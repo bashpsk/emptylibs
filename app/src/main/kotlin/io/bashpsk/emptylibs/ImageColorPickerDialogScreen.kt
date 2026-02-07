@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs
 
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,12 +25,13 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
+import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 
 @Composable
 fun ImageColorPickerDialogScreen() {
 
     val imageBitmap = ImageBitmap.imageResource(id = R.drawable.wallpaper01)
-    val pickerDialog = remember { MutableTransitionState(false) }
+    val kolorPickerState = rememberKolorPickerState()
 
     var selectedColor by remember { mutableStateOf(Color.Unspecified) }
 
@@ -43,7 +43,7 @@ fun ImageColorPickerDialogScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .safeContentPadding(),
-            dialogVisibleState = pickerDialog,
+            state = kolorPickerState,
             imageBitmap = imageBitmap,
             onSelectedColor = { newColor ->
 
@@ -63,7 +63,7 @@ fun ImageColorPickerDialogScreen() {
             Button(
                 onClick = {
 
-                    pickerDialog.targetState = true
+                    kolorPickerState.dialogVisibleState.targetState = true
                 }
             ) {
 

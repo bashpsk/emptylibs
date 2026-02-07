@@ -1,7 +1,6 @@
 package io.bashpsk.emptylibs.kolorpicker.color
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,7 +21,6 @@ import androidx.compose.ui.window.DialogProperties
  * A Jetpack Compose dialog that allows the user to select a color.
  *
  * @param modifier The modifier to be applied to the dialog.
- * @param dialogVisibleState The state of the dialog's visibility.
  * @param state The state of the color picker.
  * @param properties The properties of the dialog.
  * @param shape The shape of the dialog's container.
@@ -42,7 +40,6 @@ import androidx.compose.ui.window.DialogProperties
 @Composable
 fun KolorPickerDialog(
     modifier: Modifier = Modifier,
-    dialogVisibleState: MutableTransitionState<Boolean>,
     state: KolorPickerState = rememberKolorPickerState(),
     properties: DialogProperties = KolorPickerDialogDefault.Properties,
     shape: Shape = MaterialTheme.shapes.small,
@@ -58,29 +55,29 @@ fun KolorPickerDialog(
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = {
 
-        KolorPickerDialogDefault.TitleContent(dialogVisibleState = dialogVisibleState)
+        KolorPickerDialogDefault.TitleContent(dialogVisibleState = state.dialogVisibleState)
     },
     confirmButton: @Composable () -> Unit = {
 
         KolorPickerDialogDefault.ConfirmButton(
-            dialogVisibleState = dialogVisibleState,
+            dialogVisibleState = state.dialogVisibleState,
             state = state,
             onSelectedColor = onSelectedColor
         )
     },
     dismissButton: @Composable (() -> Unit)? = {
 
-        KolorPickerDialogDefault.DismissButton(dialogVisibleState = dialogVisibleState)
+        KolorPickerDialogDefault.DismissButton(dialogVisibleState = state.dialogVisibleState)
     }
 ) {
 
-    AnimatedVisibility(visibleState = dialogVisibleState) {
+    AnimatedVisibility(visibleState = state.dialogVisibleState) {
 
         AlertDialog(
             modifier = modifier,
             onDismissRequest = {
 
-                dialogVisibleState.targetState = false
+                state.dialogVisibleState.targetState = false
             },
             properties = properties,
             shape = shape,
@@ -121,7 +118,6 @@ fun KolorPickerDialog(
  * A Jetpack Compose dialog that allows users to pick a color from an image.
  *
  * @param modifier The modifier to be applied to the dialog.
- * @param dialogVisibleState The state of the dialog's visibility.
  * @param state The state of the color picker.
  * @param imageBitmap The image bitmap to use for the color picker.
  * @param properties The properties of the dialog.
@@ -141,7 +137,6 @@ fun KolorPickerDialog(
 @Composable
 fun KolorPickerDialog(
     modifier: Modifier = Modifier,
-    dialogVisibleState: MutableTransitionState<Boolean>,
     state: KolorPickerState = rememberKolorPickerState(),
     imageBitmap: ImageBitmap,
     properties: DialogProperties = KolorPickerDialogDefault.Properties,
@@ -156,29 +151,29 @@ fun KolorPickerDialog(
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = {
 
-        KolorPickerDialogDefault.TitleContent(dialogVisibleState = dialogVisibleState)
+        KolorPickerDialogDefault.TitleContent(dialogVisibleState = state.dialogVisibleState)
     },
     confirmButton: @Composable () -> Unit = {
 
         KolorPickerDialogDefault.ConfirmButton(
-            dialogVisibleState = dialogVisibleState,
+            dialogVisibleState = state.dialogVisibleState,
             state = state,
             onSelectedColor = onSelectedColor
         )
     },
     dismissButton: @Composable (() -> Unit)? = {
 
-        KolorPickerDialogDefault.DismissButton(dialogVisibleState = dialogVisibleState)
+        KolorPickerDialogDefault.DismissButton(dialogVisibleState = state.dialogVisibleState)
     }
 ) {
 
-    AnimatedVisibility(visibleState = dialogVisibleState) {
+    AnimatedVisibility(visibleState = state.dialogVisibleState) {
 
         AlertDialog(
             modifier = modifier,
             onDismissRequest = {
 
-                dialogVisibleState.targetState = false
+                state.dialogVisibleState.targetState = false
             },
             properties = properties,
             shape = shape,

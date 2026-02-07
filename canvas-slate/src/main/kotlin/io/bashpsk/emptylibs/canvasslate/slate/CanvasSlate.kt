@@ -42,9 +42,8 @@ fun CanvasSlate(
 ) {
 
     val pathEditSheetState = rememberModalBottomSheetState()
-    val colorPickerState = rememberKolorPickerState()
-    val backgroundColorPickerDialog = remember { MutableTransitionState(false) }
-    val foregroundColorPickerDialog = remember { MutableTransitionState(false) }
+    val backgroundColorPickerState = rememberKolorPickerState()
+    val foregroundColorPickerState = rememberKolorPickerState()
     val penStrokeDialogVisibleState = remember { MutableTransitionState(false) }
     val penThicknessDialogVisibleState = remember { MutableTransitionState(false) }
 
@@ -65,8 +64,7 @@ fun CanvasSlate(
         modifier = Modifier
             .fillMaxSize()
             .safeContentPadding(),
-        dialogVisibleState = backgroundColorPickerDialog,
-        state = colorPickerState,
+        state = backgroundColorPickerState,
         enableAlphaPanel = true,
         onSelectedColor = onBackgroundColorSelected
     )
@@ -75,8 +73,7 @@ fun CanvasSlate(
         modifier = Modifier
             .fillMaxSize()
             .safeContentPadding(),
-        dialogVisibleState = foregroundColorPickerDialog,
-        state = colorPickerState,
+        state = foregroundColorPickerState,
         enableAlphaPanel = true,
         onSelectedColor = onForegroundColorSelected
     )
@@ -96,8 +93,8 @@ fun CanvasSlate(
         CanvasSlateTopBar(
             modifier = Modifier.fillMaxWidth(),
             state = state,
-            backgroundColorPickerDialog = backgroundColorPickerDialog,
-            foregroundColorPickerDialog = foregroundColorPickerDialog,
+            backgroundColorPickerDialog = backgroundColorPickerState.dialogVisibleState,
+            foregroundColorPickerDialog = foregroundColorPickerState.dialogVisibleState,
             penStrokeDialogVisibleState = penStrokeDialogVisibleState,
             penThicknessDialogVisibleState = penThicknessDialogVisibleState,
             onDoneClick = onDoneClick,

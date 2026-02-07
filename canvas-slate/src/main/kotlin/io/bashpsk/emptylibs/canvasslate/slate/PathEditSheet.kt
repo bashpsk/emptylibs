@@ -442,15 +442,12 @@ private fun PenColorSelectionView(
 
     val colorPickerState = rememberKolorPickerState(initialColor = color)
 
-    val colorPickerDialog = remember { MutableTransitionState(false) }
-
     val colorBoxShape = MaterialTheme.shapes.extraSmall
 
     KolorPickerDialog(
         modifier = Modifier
             .fillMaxSize()
             .safeContentPadding(),
-        dialogVisibleState = colorPickerDialog,
         state = colorPickerState,
         enableAlphaPanel = true,
         onSelectedColor = onSelectedColor
@@ -459,7 +456,10 @@ private fun PenColorSelectionView(
     Row(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.extraSmall)
-            .clickable(role = Role.Button, onClick = { colorPickerDialog.targetState = true })
+            .clickable(
+                role = Role.Button,
+                onClick = { colorPickerState.dialogVisibleState.targetState = true }
+            )
             .padding(horizontal = 4.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
         verticalAlignment = Alignment.CenterVertically
