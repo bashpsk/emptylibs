@@ -21,6 +21,7 @@ class XmlDecoder(
 ) : AbstractDecoder() {
 
     private var elementIndex = 0
+    private var currentLineNumber = 0
 
     override val serializersModule: SerializersModule = Xml.serializersModule
 
@@ -30,13 +31,16 @@ class XmlDecoder(
 
             StructureKind.LIST -> {
 
-                if (tagName == null) return CompositeDecoder.DECODE_DONE
-                if (findNextTag(tagName)) return elementIndex++
+                tagName?.takeIf { tag -> findNextTag(name = tag) }?.run {
+
+                    currentLineNumber = parser.lineNumber
+                    return elementIndex++
+                }
 
                 return CompositeDecoder.DECODE_DONE
             }
 
-            else -> {}
+            else -> currentLineNumber = parser.lineNumber
         }
 
         if (elementIndex >= descriptor.elementsCount) return CompositeDecoder.DECODE_DONE
@@ -47,26 +51,28 @@ class XmlDecoder(
     override fun decodeString(): String {
 
         val index = elementIndex - 1
-        val annotations = serialDescriptor.getElementAnnotations(index)
 
-        annotations.filterIsInstance<XmlAttribute>().firstOrNull()?.let { attribute ->
+        return serialDescriptor.getElementAnnotations(
+            index
+        ).filterIsInstance<XmlAttribute>().firstOrNull()?.let { attribute ->
 
-            val name = attribute.name.ifEmpty { serialDescriptor.getElementName(index) }
-
-            return parser.getAttributeValue(null, name) ?: ""
-        }
-
-        return ""
+            parser.getAttributeValue(
+                null,
+                attribute.name.ifEmpty { serialDescriptor.getElementName(index) }
+            )
+        } ?: ""
     }
 
     override fun decodeInt(): Int {
 
-        val index = elementIndex - 1
-        val annotations = serialDescriptor.getElementAnnotations(index)
+        return when {
 
-        if (annotations.any { annotation -> annotation is XmlIndex }) return currentIndex
+            serialDescriptor.getElementAnnotations(
+                elementIndex - 1
+            ).any { annotation -> annotation is XmlIndex } -> currentLineNumber
 
-        return decodeString().toIntOrNull() ?: 0
+            else -> decodeString().toIntOrNull() ?: 0
+        }
     }
 
     override fun decodeFloat(): Float = decodeString().toFloatOrNull() ?: 0F
@@ -77,30 +83,19 @@ class XmlDecoder(
 
     override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
 
-        var nextTagName: String? = null
-        var nextIndex = currentIndex
+        val nextIndex = (elementIndex - 1).takeIf { index -> index >= 0 }
 
-        when {
+        val nextTagName = nextIndex?.let { index ->
 
-            elementIndex > 0 -> {
+            when (serialDescriptor.kind) {
 
-                val index = elementIndex - 1
-                val annotations = serialDescriptor.getElementAnnotations(index)
+                StructureKind.LIST -> tagName
 
-                annotations.filterIsInstance<XmlElement>().firstOrNull()?.let { element ->
+                else -> serialDescriptor.getElementAnnotations(
+                    index
+                ).filterIsInstance<XmlElement>().firstOrNull()?.let { element ->
 
-                    nextTagName = element.name.ifEmpty { serialDescriptor.getElementName(index) }
-                }
-
-                when (serialDescriptor.kind) {
-
-                    StructureKind.LIST -> {
-
-                        nextTagName = tagName
-                        nextIndex = index
-                    }
-
-                    else -> {}
+                    element.name.ifEmpty { serialDescriptor.getElementName(index) }
                 }
             }
         }
@@ -109,22 +104,19 @@ class XmlDecoder(
             serialDescriptor = descriptor,
             parser = parser,
             tagName = nextTagName,
-            currentIndex = nextIndex
+            currentIndex = nextIndex ?: currentIndex
         )
     }
 
     private fun findNextTag(name: String): Boolean {
 
-        var eventType = parser.eventType
-
-        if (eventType == XmlPullParser.START_TAG && parser.name == name && elementIndex == 0) {
+        if (parser.eventType == XmlPullParser.START_TAG && parser.name == name && elementIndex == 0) {
             return true
         }
 
-        while (eventType != XmlPullParser.END_DOCUMENT) {
+        while (parser.eventType != XmlPullParser.END_DOCUMENT) {
 
-            eventType = parser.next()
-            if (eventType == XmlPullParser.START_TAG && parser.name == name) return true
+            if (parser.next() == XmlPullParser.START_TAG && parser.name == name) return true
         }
 
         return false
