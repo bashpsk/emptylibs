@@ -458,7 +458,7 @@ private fun PenColorSelectionView(
             .clip(shape = MaterialTheme.shapes.extraSmall)
             .clickable(
                 role = Role.Button,
-                onClick = { colorPickerState.dialogVisibleState.targetState = true }
+                onClick = { colorPickerState.dialogVisible.targetState = true }
             )
             .padding(horizontal = 4.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(space = 4.dp),

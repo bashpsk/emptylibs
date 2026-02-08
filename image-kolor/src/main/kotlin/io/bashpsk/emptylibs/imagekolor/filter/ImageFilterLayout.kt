@@ -58,8 +58,8 @@ fun ImageFilterLayout(
 
     TwoPaneAdaptiveLayout(
         modifier = modifier,
+        aspectRatio = imageAspectRatio,
         firstPane = imageContent,
-        secondPane = filterContent,
-        aspectRatio = imageAspectRatio
+        secondPane = filterContent
     )
 }

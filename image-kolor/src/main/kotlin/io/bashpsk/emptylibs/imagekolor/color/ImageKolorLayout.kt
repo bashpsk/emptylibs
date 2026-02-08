@@ -57,8 +57,8 @@ fun ImageKolorLayout(
 
     TwoPaneAdaptiveLayout(
         modifier = modifier,
+        aspectRatio = imageAspectRatio,
         firstPane = imageContent,
-        secondPane = kolorContent,
-        aspectRatio = imageAspectRatio
+        secondPane = kolorContent
     )
 }

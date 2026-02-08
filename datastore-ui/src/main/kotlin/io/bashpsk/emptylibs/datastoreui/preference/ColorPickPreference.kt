@@ -179,7 +179,7 @@ fun ColorPickPreference(
                 )
 
                 false -> KolorPickerDialogDefault.DismissButton(
-                    dialogVisibleState = colorPickerState.dialogVisibleState
+                    dialogVisibleState = colorPickerState.dialogVisible
                 )
             }
         },
@@ -198,7 +198,7 @@ fun ColorPickPreference(
                 role = Role.Button,
                 onClick = {
 
-                    colorPickerState.dialogVisibleState.targetState = true
+                    colorPickerState.dialogVisible.targetState = true
                 }
             ),
         colors = colors,

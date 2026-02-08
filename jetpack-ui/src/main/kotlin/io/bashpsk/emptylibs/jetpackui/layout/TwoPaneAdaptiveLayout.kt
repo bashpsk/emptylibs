@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.IntOffset
 @Composable
 inline fun TwoPaneAdaptiveLayout(
     modifier: Modifier = Modifier,
+    aspectRatio: Float = 1.0F,
     crossinline firstPane: @Composable () -> Unit,
-    crossinline secondPane: @Composable () -> Unit,
-    aspectRatio: Float = 16f / 9f
+    crossinline secondPane: @Composable () -> Unit
 ) {
 
     val activity = LocalActivity.current

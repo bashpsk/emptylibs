@@ -1054,7 +1054,7 @@ private fun ColorSelectionView(
                 .clip(shape = MaterialTheme.shapes.extraSmall)
                 .clickable(
                     role = Role.Button,
-                    onClick = { colorPickerState.dialogVisibleState.targetState = true }
+                    onClick = { colorPickerState.dialogVisible.targetState = true }
                 ),
             color = color
         )

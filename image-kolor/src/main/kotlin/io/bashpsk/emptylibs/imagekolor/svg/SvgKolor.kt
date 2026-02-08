@@ -155,7 +155,7 @@ fun SvgKolor(
                         onClick = {
 
                             state.updateSelectedHex(newHex = hexItem)
-                            kolorPickerState.dialogVisibleState.targetState = true
+                            kolorPickerState.dialogVisible.targetState = true
                         }
                     )
                 }

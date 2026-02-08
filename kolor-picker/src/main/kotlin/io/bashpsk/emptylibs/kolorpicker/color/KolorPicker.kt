@@ -31,6 +31,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -67,6 +68,7 @@ import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.formatter.format.parseHexToColor
 import io.bashpsk.emptylibs.formatter.format.toHexString
+import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
 
 /**
  * A composable function that provides a color picker interface.
@@ -85,6 +87,7 @@ import io.bashpsk.emptylibs.formatter.format.toHexString
  * @param enablePasteButton A boolean indicating whether to show paste button for the color.
  * Defaults to `false`.
  */
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun KolorPicker(
@@ -99,86 +102,89 @@ fun KolorPicker(
         derivedStateOf { enableCopyButton || enablePasteButton }
     }
 
-    Column(
+    TwoPaneAdaptiveLayout(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(space = 4.dp)
-    ) {
+        aspectRatio = 1.0F,
+        firstPane = {
 
-        SaturationLightnessPanel(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(ratio = 1.0F)
-                .padding(horizontal = TrackHeight / 2, vertical = TrackHeight / 2),
-            hueValue = state.hueValue,
-            saturationValue = state.saturationValue,
-            lightnessValue = state.lightnessValue,
-            onSelectionChanged = { saturation, lightness ->
-
-                state.updateHslA(
-                    hue = state.hueValue,
-                    saturation = saturation,
-                    lightness = lightness,
-                    alpha = state.alphaValue
-                )
-            }
-        )
-
-        HuePanel(
-            modifier = Modifier.fillMaxWidth(),
-            currentHue = state.hueValue,
-            onHueChanged = { newHue ->
-
-                state.updateHslA(
-                    hue = newHue,
-                    saturation = state.saturationValue,
-                    lightness = state.lightnessValue,
-                    alpha = state.alphaValue
-                )
-            }
-        )
-
-        if (enableAlphaPanel) {
-
-            AlphaPanel(
-                modifier = Modifier.fillMaxWidth(),
-                currentAlpha = state.alphaValue,
-                baseColor = Color.hsl(
-                    hue = state.hueValue,
-                    saturation = state.saturationValue,
-                    lightness = state.lightnessValue
-                ),
-                onAlphaChanged = { newAlpha ->
+            SaturationLightnessPanel(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(ratio = 1.0F)
+                    .padding(horizontal = TrackHeight / 2, vertical = TrackHeight / 2),
+                hueValue = state.hueValue,
+                saturationValue = state.saturationValue,
+                lightnessValue = state.lightnessValue,
+                onSelectionChanged = { saturation, lightness ->
 
                     state.updateHslA(
                         hue = state.hueValue,
-                        saturation = state.saturationValue,
-                        lightness = state.lightnessValue,
-                        alpha = newAlpha
+                        saturation = saturation,
+                        lightness = lightness,
+                        alpha = state.alphaValue
                     )
                 }
             )
+        },
+        secondPane = {
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement =  Arrangement.spacedBy(space = 4.dp)
+            ) {
+
+                HuePanel(
+                    modifier = Modifier.fillMaxWidth(),
+                    currentHue = state.hueValue,
+                    onHueChanged = { newHue ->
+
+                        state.updateHslA(
+                            hue = newHue,
+                            saturation = state.saturationValue,
+                            lightness = state.lightnessValue,
+                            alpha = state.alphaValue
+                        )
+                    }
+                )
+
+                if (enableAlphaPanel) AlphaPanel(
+                    modifier = Modifier.fillMaxWidth(),
+                    currentAlpha = state.alphaValue,
+                    baseColor = Color.hsl(
+                        hue = state.hueValue,
+                        saturation = state.saturationValue,
+                        lightness = state.lightnessValue
+                    ),
+                    onAlphaChanged = { newAlpha ->
+
+                        state.updateHslA(
+                            hue = state.hueValue,
+                            saturation = state.saturationValue,
+                            lightness = state.lightnessValue,
+                            alpha = newAlpha
+                        )
+                    }
+                )
+
+                ColorPreview(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = TrackHeight / 2),
+                    color = state.selectedColor
+                )
+
+                if (isCopyPasteButtons) ColorCopyPasteButtons(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = TrackHeight / 2),
+                    state = state,
+                    enableCopyButton = enableCopyButton,
+                    enablePasteButton = enablePasteButton
+                )
+            }
         }
-
-        ColorPreview(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = TrackHeight / 2),
-            color = state.selectedColor
-        )
-
-        if (isCopyPasteButtons) {
-
-            ColorCopyPasteButtons(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = TrackHeight / 2),
-                state = state,
-                enableCopyButton = enableCopyButton,
-                enablePasteButton = enablePasteButton
-            )
-        }
-    }
+    )
 }
 
 /**

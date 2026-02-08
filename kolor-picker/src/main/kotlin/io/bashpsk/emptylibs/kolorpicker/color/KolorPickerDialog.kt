@@ -55,29 +55,29 @@ fun KolorPickerDialog(
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = {
 
-        KolorPickerDialogDefault.TitleContent(dialogVisibleState = state.dialogVisibleState)
+        KolorPickerDialogDefault.TitleContent(dialogVisibleState = state.dialogVisible)
     },
     confirmButton: @Composable () -> Unit = {
 
         KolorPickerDialogDefault.ConfirmButton(
-            dialogVisibleState = state.dialogVisibleState,
+            dialogVisibleState = state.dialogVisible,
             state = state,
             onSelectedColor = onSelectedColor
         )
     },
     dismissButton: @Composable (() -> Unit)? = {
 
-        KolorPickerDialogDefault.DismissButton(dialogVisibleState = state.dialogVisibleState)
+        KolorPickerDialogDefault.DismissButton(dialogVisibleState = state.dialogVisible)
     }
 ) {
 
-    AnimatedVisibility(visibleState = state.dialogVisibleState) {
+    AnimatedVisibility(visibleState = state.dialogVisible) {
 
         AlertDialog(
             modifier = modifier,
             onDismissRequest = {
 
-                state.dialogVisibleState.targetState = false
+                state.dialogVisible.targetState = false
             },
             properties = properties,
             shape = shape,
@@ -151,29 +151,29 @@ fun KolorPickerDialog(
     icon: @Composable (() -> Unit)? = null,
     title: @Composable (() -> Unit)? = {
 
-        KolorPickerDialogDefault.TitleContent(dialogVisibleState = state.dialogVisibleState)
+        KolorPickerDialogDefault.TitleContent(dialogVisibleState = state.dialogVisible)
     },
     confirmButton: @Composable () -> Unit = {
 
         KolorPickerDialogDefault.ConfirmButton(
-            dialogVisibleState = state.dialogVisibleState,
+            dialogVisibleState = state.dialogVisible,
             state = state,
             onSelectedColor = onSelectedColor
         )
     },
     dismissButton: @Composable (() -> Unit)? = {
 
-        KolorPickerDialogDefault.DismissButton(dialogVisibleState = state.dialogVisibleState)
+        KolorPickerDialogDefault.DismissButton(dialogVisibleState = state.dialogVisible)
     }
 ) {
 
-    AnimatedVisibility(visibleState = state.dialogVisibleState) {
+    AnimatedVisibility(visibleState = state.dialogVisible) {
 
         AlertDialog(
             modifier = modifier,
             onDismissRequest = {
 
-                state.dialogVisibleState.targetState = false
+                state.dialogVisible.targetState = false
             },
             properties = properties,
             shape = shape,

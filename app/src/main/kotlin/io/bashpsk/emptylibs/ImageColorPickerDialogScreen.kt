@@ -63,7 +63,7 @@ fun ImageColorPickerDialogScreen() {
             Button(
                 onClick = {
 
-                    kolorPickerState.dialogVisibleState.targetState = true
+                    kolorPickerState.dialogVisible.targetState = true
                 }
             ) {
 

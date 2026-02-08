@@ -134,7 +134,7 @@ object KolorPickerDialogDefault {
 
                 state.updateColor(color = Color.Unspecified)
                 onSelectedColor(state.selectedColor)
-                state.dialogVisibleState.targetState = false
+                state.dialogVisible.targetState = false
             }
         ) {
 

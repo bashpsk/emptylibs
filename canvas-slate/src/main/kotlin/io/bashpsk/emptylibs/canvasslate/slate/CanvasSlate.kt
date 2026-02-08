@@ -93,8 +93,8 @@ fun CanvasSlate(
         CanvasSlateTopBar(
             modifier = Modifier.fillMaxWidth(),
             state = state,
-            backgroundColorPickerDialog = backgroundColorPickerState.dialogVisibleState,
-            foregroundColorPickerDialog = foregroundColorPickerState.dialogVisibleState,
+            backgroundColorPickerDialog = backgroundColorPickerState.dialogVisible,
+            foregroundColorPickerDialog = foregroundColorPickerState.dialogVisible,
             penStrokeDialogVisibleState = penStrokeDialogVisibleState,
             penThicknessDialogVisibleState = penThicknessDialogVisibleState,
             onDoneClick = onDoneClick,
