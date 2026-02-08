@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -35,7 +36,9 @@ fun SvgKolor(
     }
 
     KolorPickerDialog(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .safeContentPadding(),
         state = kolorPickerState,
         onSelectedColor = { newColor ->
 
@@ -52,6 +55,7 @@ fun SvgKolor(
 
     TwoPaneAdaptiveLayout(
         modifier = modifier,
+        aspectRatio = 1.0F,
         firstPane = {
 
             Row(
@@ -77,7 +81,7 @@ fun SvgKolor(
 
                 items(
                     items = colorHexList,
-                    key = { hexItem -> "${hexItem.id}-${hexItem.oldHex}" }
+                    key = { hexItem -> "${hexItem.index}-${hexItem.oldHex}" }
                 ) { hexItem ->
 
                     SvgKolorMapView(
@@ -92,6 +96,7 @@ fun SvgKolor(
                                 )
                             ),
                         hexItem = hexItem,
+                        viewBox = state.viewBox,
                         onClick = {
 
                             state.updateSelectedHex(newHex = hexItem)

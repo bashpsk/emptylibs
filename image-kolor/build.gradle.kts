@@ -100,6 +100,7 @@ dependencies {
     implementation(project(":jetpack-ui"))
     implementation(project(":kolor-picker"))
     implementation(project(":lrucache-manager"))
+    implementation(project(":serialization-xml"))
 }
 
 publishing {

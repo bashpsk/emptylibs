@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.imagekolor.svg
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -8,17 +9,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import io.bashpsk.emptylibs.imagekolor.utils.LOG_TAG
+import io.bashpsk.emptylibs.serializationxml.Xml
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 
 @Composable
-fun rememberSvgKolorState(source: String = ""): SvgKolorState {
+fun rememberSvgKolorState(source: String): SvgKolorState {
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -29,27 +34,30 @@ fun rememberSvgKolorState(source: String = ""): SvgKolorState {
 
 @Stable
 class SvgKolorState(
-    internal val coroutineScope: CoroutineScope,
-    internal val source: String
+    val coroutineScope: CoroutineScope,
+    val source: String
 ) {
 
     private val ColorHexRegex = Regex(pattern = "#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\\b")
 
-    var hexKolorDataList by mutableStateOf(persistentListOf<SvgKolorData>())
+    var hexKolorDataList by mutableStateOf(persistentListOf<SvgKolorElement>())
         private set
 
-    var selectedHex by mutableStateOf<SvgKolorData?>(null)
+    var selectedHex by mutableStateOf<SvgKolorElement?>(null)
         private set
 
     var newSource by mutableStateOf(source)
         private set
 
+    var viewBox by mutableStateOf("0 0 24 24")
+        private set
+
     init {
 
-        coroutineScope.launch { hexKolorDataList = getKolorHexList(source) }
+        coroutineScope.launch { hexKolorDataList = getKolorHexList(content = source) }
     }
 
-    fun updateColor(originalHex: SvgKolorData?, newColor: Color) {
+    fun updateColor(originalHex: SvgKolorElement?, newColor: Color) {
 
         originalHex?.let { hex ->
 
@@ -65,7 +73,7 @@ class SvgKolorState(
         coroutineScope.launch { newSource = getColoredSvg() }
     }
 
-    fun updateSelectedHex(newHex: SvgKolorData?) {
+    fun updateSelectedHex(newHex: SvgKolorElement?) {
 
         selectedHex = findIndex(element = newHex)?.let { existIndex ->
 
@@ -91,27 +99,48 @@ class SvgKolorState(
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     private suspend fun getKolorHexList(
         content: String
-    ): PersistentList<SvgKolorData> = withContext(context = Dispatchers.Default) {
+    ): PersistentList<SvgKolorElement> = withContext(context = Dispatchers.Default) {
 
-        return@withContext ColorHexRegex.findAll(input = content).mapIndexed { index, result ->
-            SvgKolorData(id = index, oldHex = result.value, newHex = result.value)
-        }.toPersistentList()
+        try {
+
+            val svgRoot = Xml.decodeFromString<SvgRoot>(content = content)
+
+            viewBox = svgRoot.viewBox
+
+            persistentListOf(
+                svgRoot.paths,
+                svgRoot.rects,
+                svgRoot.circles,
+                svgRoot.ellipses,
+                svgRoot.lines,
+                svgRoot.polylines,
+                svgRoot.polygons,
+                svgRoot.texts
+            ).flatten().filter { kolor ->
+
+                ColorHexRegex.matches(input = kolor.oldHex)
+            }.map { kolor ->
+
+                kolor.copy(newHex = kolor.oldHex)
+            }.toPersistentList()
+        } catch (exception: Exception) {
+
+            currentCoroutineContext().ensureActive()
+            Log.e(LOG_TAG, exception.message, exception)
+            persistentListOf()
+        }
     }
 
-    private fun Color.toSvgHexString(): String {
-
-        return "#%06X".format(this.toArgb() and 0x00FFFFFF)
-    }
-
-    private fun findIndex(element: SvgKolorData?): Int? {
+    private fun findIndex(element: SvgKolorElement?): Int? {
 
         if (element == null) return null
 
         return hexKolorDataList.indexOfFirst { kolor ->
 
-            kolor.id == element.id && kolor.oldHex == element.oldHex
+            kolor.index == element.index && kolor.oldHex == element.oldHex
         }.takeIf { index -> index in hexKolorDataList.indices }
     }
 }
