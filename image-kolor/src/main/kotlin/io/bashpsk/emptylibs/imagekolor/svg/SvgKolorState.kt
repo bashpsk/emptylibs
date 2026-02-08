@@ -6,7 +6,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import io.bashpsk.emptylibs.imagekolor.utils.LOG_TAG
@@ -33,7 +35,11 @@ fun rememberSvgKolorState(source: String): SvgKolorState {
 
     val coroutineScope = rememberCoroutineScope()
 
-    return retain(coroutineScope, source) {
+    return rememberSaveable(
+        coroutineScope,
+        source,
+        saver = SvgKolorState.StateSaver(coroutineScope = coroutineScope, source = source)
+    ) {
         SvgKolorState(coroutineScope = coroutineScope, source = source)
     }
 }
@@ -76,7 +82,7 @@ class SvgKolorState(
     /**
      * The viewBox of the SVG.
      */
-    var viewBox by mutableStateOf("0 0 24 24")
+    var viewBox by mutableStateOf(DefaultViewBox)
         private set
 
     init {
@@ -197,5 +203,44 @@ class SvgKolorState(
 
             kolor.index == element.index && kolor.oldHex == element.oldHex
         }.takeIf { index -> index in hexKolorDataList.indices }
+    }
+
+    companion object {
+
+        private const val KEY_KOLOR_DATA_LIST = "SVG-KOLOR-DATA-LIST"
+        private const val KEY_SELECTED_HEX = "SVG-KOLOR-SELECTED-HEX"
+        private const val KEY_NEW_SOURCE = "SVG-KOLOR-NEW-SOURCE"
+        private const val KEY_VIEW_BOX = "SVG-KOLOR-VIEW-BOX"
+
+        internal const val DefaultViewBox = "0 0 24 24"
+
+        @Suppress("UNCHECKED_CAST")
+        internal fun StateSaver(
+            coroutineScope: CoroutineScope,
+            source: String
+        ): Saver<SvgKolorState, Any> = mapSaver(
+            save = { state ->
+
+                mapOf(
+                    KEY_KOLOR_DATA_LIST to state.hexKolorDataList.toTypedArray(),
+                    KEY_SELECTED_HEX to state.selectedHex,
+                    KEY_NEW_SOURCE to state.newSource,
+                    KEY_VIEW_BOX to state.viewBox
+                )
+            },
+            restore = { elements ->
+
+                SvgKolorState(coroutineScope = coroutineScope, source = source).apply {
+
+                    hexKolorDataList = (elements.getOrElse(KEY_KOLOR_DATA_LIST) {
+                        arrayOf<SvgKolorElement>()
+                    } as Array<SvgKolorElement>).toPersistentList()
+
+                    selectedHex = elements[KEY_SELECTED_HEX] as? SvgKolorElement
+                    newSource = elements.getOrElse(KEY_NEW_SOURCE) { source } as String
+                    viewBox = elements.getOrElse(KEY_VIEW_BOX) { DefaultViewBox } as String
+                }
+            }
+        )
     }
 }

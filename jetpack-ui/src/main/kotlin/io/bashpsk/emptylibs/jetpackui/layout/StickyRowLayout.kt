@@ -43,7 +43,7 @@ inline fun StickyRowLayout(
     horizontalScroll: Int = 0,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
-    content: @Composable () -> Unit = {}
+    crossinline content: @Composable () -> Unit = {}
 ) {
 
     Layout(

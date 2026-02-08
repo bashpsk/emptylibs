@@ -1,9 +1,11 @@
 package io.bashpsk.emptylibs.imagekolor.svg
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +14,9 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -36,16 +41,27 @@ import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
  * @param state The [SvgKolorState] instance that manages the SVG data, color mappings, and update
  * logic.
  */
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun SvgKolor(
     modifier: Modifier = Modifier,
     state: SvgKolorState,
 ) {
 
+    val activity = LocalActivity.current
+    val windowSizeClass = activity?.let { calculateWindowSizeClass(activity = it) }
     val kolorPickerState = rememberKolorPickerState()
 
     val colorHexList by remember(state.hexKolorDataList) {
         derivedStateOf { state.hexKolorDataList }
+    }
+
+    val windowWidthSize by remember(windowSizeClass) {
+        derivedStateOf { windowSizeClass?.widthSizeClass ?: WindowWidthSizeClass.Compact }
+    }
+
+    val aspectRatio by remember(windowWidthSize) {
+        derivedStateOf { if (windowWidthSize == WindowWidthSizeClass.Compact) 2.0F else 0.50F }
     }
 
     KolorPickerDialog(
@@ -68,18 +84,44 @@ fun SvgKolor(
 
     TwoPaneAdaptiveLayout(
         modifier = modifier,
-        aspectRatio = 1.0F,
+        aspectRatio = aspectRatio,
         firstPane = {
 
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            when (windowWidthSize) {
 
-                SvgImageView(modifier = Modifier.weight(weight = 1F), model = state.source)
+                WindowWidthSizeClass.Compact -> Row(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
-                SvgImageView(modifier = Modifier.weight(weight = 1F), model = state.newSource)
+                    SvgImageView(
+                        modifier = Modifier.weight(weight = 1F),
+                        model = state.source
+                    )
+
+                    SvgImageView(
+                        modifier = Modifier.weight(weight = 1F),
+                        model = state.newSource
+                    )
+                }
+
+                else -> Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(space = 4.dp)
+                ) {
+
+                    SvgImageView(
+                        modifier = Modifier.weight(weight = 1F),
+                        model = state.source
+                    )
+
+                    SvgImageView(
+                        modifier = Modifier.weight(weight = 1F),
+                        model = state.newSource
+                    )
+                }
             }
         },
         secondPane = {

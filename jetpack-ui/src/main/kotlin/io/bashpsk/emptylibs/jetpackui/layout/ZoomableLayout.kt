@@ -16,7 +16,7 @@ import kotlin.math.roundToInt
 inline fun ZoomableLayout(
     modifier: Modifier = Modifier,
     zoomScale: Float = 1.0F,
-    content: @Composable () -> Unit
+    crossinline content: @Composable () -> Unit
 ) {
 
     Layout(
