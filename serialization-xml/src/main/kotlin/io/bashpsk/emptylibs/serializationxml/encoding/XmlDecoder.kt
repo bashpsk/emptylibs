@@ -1,9 +1,9 @@
-package io.bashpsk.emptylibs.serializationsvg.encoding
+package io.bashpsk.emptylibs.serializationxml.encoding
 
-import io.bashpsk.emptylibs.serializationsvg.Svg
-import io.bashpsk.emptylibs.serializationsvg.annotation.SvgAttribute
-import io.bashpsk.emptylibs.serializationsvg.annotation.SvgElement
-import io.bashpsk.emptylibs.serializationsvg.annotation.SvgIndex
+import io.bashpsk.emptylibs.serializationxml.Xml
+import io.bashpsk.emptylibs.serializationxml.annotation.XmlAttribute
+import io.bashpsk.emptylibs.serializationxml.annotation.XmlElement
+import io.bashpsk.emptylibs.serializationxml.annotation.XmlIndex
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.StructureKind
@@ -13,7 +13,7 @@ import kotlinx.serialization.modules.SerializersModule
 import org.xmlpull.v1.XmlPullParser
 
 @OptIn(ExperimentalSerializationApi::class)
-class SvgDecoder(
+class XmlDecoder(
     private val serialDescriptor: SerialDescriptor,
     private val parser: XmlPullParser,
     private val tagName: String? = null,
@@ -22,7 +22,7 @@ class SvgDecoder(
 
     private var elementIndex = 0
 
-    override val serializersModule: SerializersModule = Svg.serializersModule
+    override val serializersModule: SerializersModule = Xml.serializersModule
 
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
 
@@ -49,7 +49,7 @@ class SvgDecoder(
         val index = elementIndex - 1
         val annotations = serialDescriptor.getElementAnnotations(index)
 
-        annotations.filterIsInstance<SvgAttribute>().firstOrNull()?.let { attribute ->
+        annotations.filterIsInstance<XmlAttribute>().firstOrNull()?.let { attribute ->
 
             val name = attribute.name.ifEmpty { serialDescriptor.getElementName(index) }
 
@@ -64,7 +64,7 @@ class SvgDecoder(
         val index = elementIndex - 1
         val annotations = serialDescriptor.getElementAnnotations(index)
 
-        if (annotations.any { it is SvgIndex }) return currentIndex
+        if (annotations.any { annotation -> annotation is XmlIndex }) return currentIndex
 
         return decodeString().toIntOrNull() ?: 0
     }
@@ -87,7 +87,7 @@ class SvgDecoder(
                 val index = elementIndex - 1
                 val annotations = serialDescriptor.getElementAnnotations(index)
 
-                annotations.filterIsInstance<SvgElement>().firstOrNull()?.let { element ->
+                annotations.filterIsInstance<XmlElement>().firstOrNull()?.let { element ->
 
                     nextTagName = element.name.ifEmpty { serialDescriptor.getElementName(index) }
                 }
@@ -105,7 +105,7 @@ class SvgDecoder(
             }
         }
 
-        return SvgDecoder(
+        return XmlDecoder(
             serialDescriptor = descriptor,
             parser = parser,
             tagName = nextTagName,

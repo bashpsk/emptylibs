@@ -1,7 +1,7 @@
-package io.bashpsk.emptylibs.serializationsvg
+package io.bashpsk.emptylibs.serializationxml
 
 import android.util.Xml
-import io.bashpsk.emptylibs.serializationsvg.encoding.SvgDecoder
+import io.bashpsk.emptylibs.serializationxml.encoding.XmlDecoder
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
@@ -10,7 +10,7 @@ import org.xmlpull.v1.XmlPullParser
 import java.io.StringReader
 
 @ExperimentalSerializationApi
-object Svg {
+object Xml {
 
     val serializersModule: SerializersModule = EmptySerializersModule()
 
@@ -31,7 +31,7 @@ object Svg {
             }
         }
 
-        val decoder = SvgDecoder(serialDescriptor = serializer.descriptor, parser = parser)
+        val decoder = XmlDecoder(serialDescriptor = serializer.descriptor, parser = parser)
 
         return serializer.deserialize(decoder = decoder)
     }

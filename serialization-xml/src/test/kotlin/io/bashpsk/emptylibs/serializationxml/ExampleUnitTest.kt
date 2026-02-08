@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.serializationsvg
+package io.bashpsk.emptylibs.serializationxml
 
 import org.junit.Test
 

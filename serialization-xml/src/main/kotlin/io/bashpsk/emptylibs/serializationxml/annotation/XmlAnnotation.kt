@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.serializationsvg.annotation
+package io.bashpsk.emptylibs.serializationxml.annotation
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialInfo
@@ -6,14 +6,14 @@ import kotlinx.serialization.SerialInfo
 @ExperimentalSerializationApi
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
-annotation class SvgElement(val name: String = "")
+annotation class XmlElement(val name: String = "")
 
 @ExperimentalSerializationApi
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class SvgAttribute(val name: String = "")
+annotation class XmlAttribute(val name: String = "")
 
 @ExperimentalSerializationApi
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class SvgIndex
+annotation class XmlIndex

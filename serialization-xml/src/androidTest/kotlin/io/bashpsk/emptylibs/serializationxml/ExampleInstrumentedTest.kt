@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.serializationsvg
+package io.bashpsk.emptylibs.serializationxml
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

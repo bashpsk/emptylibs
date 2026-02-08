@@ -11,7 +11,7 @@ plugins {
 
 android {
 
-    namespace = "io.bashpsk.emptylibs.serializationsvg"
+    namespace = "io.bashpsk.emptylibs.serializationxml"
 
     compileSdk {
 
@@ -90,7 +90,7 @@ publishing {
         register<MavenPublication>("release") {
 
             groupId = "io.bashpsk.emptylibs"
-            artifactId = "serialization-svg"
+            artifactId = "serialization-xml"
             version = "1.0.0"
 
             afterEvaluate {
