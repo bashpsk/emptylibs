@@ -5,10 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import io.bashpsk.emptylibs.imagekolor.utils.LOG_TAG
@@ -18,6 +15,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -33,28 +31,22 @@ import kotlinx.serialization.ExperimentalSerializationApi
 @Composable
 fun rememberSvgKolorState(source: String): SvgKolorState {
 
-    val coroutineScope = rememberCoroutineScope()
-
-    return rememberSaveable(
-        coroutineScope,
-        source,
-        saver = SvgKolorState.StateSaver(coroutineScope = coroutineScope, source = source)
-    ) {
-        SvgKolorState(coroutineScope = coroutineScope, source = source)
-    }
+    return retain(source) { SvgKolorState(source = source) }
 }
 
 /**
  * State holder for SVG recoloring logic.
  *
- * @property coroutineScope The scope for running background operations.
  * @property source The original SVG source string.
  */
 @Stable
-class SvgKolorState(
-    val coroutineScope: CoroutineScope,
-    val source: String
-) {
+class SvgKolorState(val source: String) {
+
+    /**
+     * Coroutine scope used for performing background tasks such as parsing the SVG source
+     * and applying color transformations on a background dispatcher.
+     */
+    private val coroutineScope = CoroutineScope(context = SupervisorJob() + Dispatchers.Default)
 
     /**
      * Regex pattern to identify hex color codes in the SVG.
@@ -82,7 +74,7 @@ class SvgKolorState(
     /**
      * The viewBox of the SVG.
      */
-    var viewBox by mutableStateOf(DefaultViewBox)
+    var viewBox by mutableStateOf("0 0 24 24")
         private set
 
     init {
@@ -203,44 +195,5 @@ class SvgKolorState(
 
             kolor.index == element.index && kolor.oldHex == element.oldHex
         }.takeIf { index -> index in hexKolorDataList.indices }
-    }
-
-    companion object {
-
-        private const val KEY_KOLOR_DATA_LIST = "SVG-KOLOR-DATA-LIST"
-        private const val KEY_SELECTED_HEX = "SVG-KOLOR-SELECTED-HEX"
-        private const val KEY_NEW_SOURCE = "SVG-KOLOR-NEW-SOURCE"
-        private const val KEY_VIEW_BOX = "SVG-KOLOR-VIEW-BOX"
-
-        internal const val DefaultViewBox = "0 0 24 24"
-
-        @Suppress("UNCHECKED_CAST")
-        internal fun StateSaver(
-            coroutineScope: CoroutineScope,
-            source: String
-        ): Saver<SvgKolorState, Any> = mapSaver(
-            save = { state ->
-
-                mapOf(
-                    KEY_KOLOR_DATA_LIST to state.hexKolorDataList.toTypedArray(),
-                    KEY_SELECTED_HEX to state.selectedHex,
-                    KEY_NEW_SOURCE to state.newSource,
-                    KEY_VIEW_BOX to state.viewBox
-                )
-            },
-            restore = { elements ->
-
-                SvgKolorState(coroutineScope = coroutineScope, source = source).apply {
-
-                    hexKolorDataList = (elements.getOrElse(KEY_KOLOR_DATA_LIST) {
-                        arrayOf<SvgKolorElement>()
-                    } as Array<SvgKolorElement>).toPersistentList()
-
-                    selectedHex = elements[KEY_SELECTED_HEX] as? SvgKolorElement
-                    newSource = elements.getOrElse(KEY_NEW_SOURCE) { source } as String
-                    viewBox = elements.getOrElse(KEY_VIEW_BOX) { DefaultViewBox } as String
-                }
-            }
-        )
     }
 }
