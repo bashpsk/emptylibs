@@ -19,6 +19,12 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.svg.SvgDecoder
 
+/**
+ * Internal composable to display an SVG from a string model.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param model The SVG string content.
+ */
 @Composable
 internal fun SvgImageView(
     modifier: Modifier = Modifier,
@@ -27,6 +33,7 @@ internal fun SvgImageView(
 
     AsyncImage(
         modifier = modifier
+            .aspectRatio(ratio = 1.0F)
             .background(
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
                 shape = MaterialTheme.shapes.extraSmall
@@ -41,6 +48,14 @@ internal fun SvgImageView(
     )
 }
 
+/**
+ * Internal composable to display a single recolorable SVG element in a card.
+ *
+ * @param modifier The modifier to be applied to the layout.
+ * @param hexItem The SVG element data.
+ * @param viewBox The viewBox of the SVG.
+ * @param onClick Callback when the card is clicked.
+ */
 @Composable
 internal fun SvgKolorMapView(
     modifier: Modifier = Modifier,
@@ -68,9 +83,7 @@ internal fun SvgKolorMapView(
     ) {
 
         SvgImageView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(ratio = 1.0F),
+            modifier = Modifier.fillMaxWidth(),
             model = elementSource
         )
     }

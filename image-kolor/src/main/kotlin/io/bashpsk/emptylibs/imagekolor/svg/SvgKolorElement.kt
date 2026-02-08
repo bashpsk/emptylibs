@@ -8,21 +8,48 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
 
+/**
+ * Interface representing an SVG element that can be recolored.
+ */
 @OptIn(ExperimentalSerializationApi::class, ExperimentalUuidApi::class)
 @Immutable
 @Serializable
 sealed interface SvgKolorElement {
 
+    /**
+     * The index of the element in the SVG structure.
+     */
     val index: Int
 
+    /**
+     * The original hex color string of the element.
+     */
     val oldHex: String
 
+    /**
+     * The new hex color string to be applied to the element.
+     */
     val newHex: String
 
+    /**
+     * Creates a copy of this element with a new color.
+     *
+     * @param newHex The new hex color string.
+     * @return A new instance of [SvgKolorElement] with the updated color.
+     */
     fun copy(newHex: String): SvgKolorElement
 
+    /**
+     * Converts this element back to its SVG string representation.
+     *
+     * @param hex The color hex string to use in the SVG element.
+     * @return The SVG element as a string.
+     */
     fun toSvgElement(hex: String): String
 
+    /**
+     * Represents a path element in an SVG.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Immutable
     @Serializable
@@ -45,6 +72,9 @@ sealed interface SvgKolorElement {
         }
     }
 
+    /**
+     * Represents a rect element in an SVG.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Immutable
     @Serializable
@@ -78,6 +108,9 @@ sealed interface SvgKolorElement {
         }
     }
 
+    /**
+     * Represents a circle element in an SVG.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Immutable
     @Serializable
@@ -104,6 +137,9 @@ sealed interface SvgKolorElement {
         }
     }
 
+    /**
+     * Represents an ellipse element in an SVG.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Immutable
     @Serializable
@@ -132,6 +168,9 @@ sealed interface SvgKolorElement {
         }
     }
 
+    /**
+     * Represents a line element in an SVG.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Immutable
     @Serializable
@@ -160,6 +199,9 @@ sealed interface SvgKolorElement {
         }
     }
 
+    /**
+     * Represents a polyline element in an SVG.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Immutable
     @Serializable
@@ -182,6 +224,9 @@ sealed interface SvgKolorElement {
         }
     }
 
+    /**
+     * Represents a polygon element in an SVG.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Immutable
     @Serializable
@@ -204,6 +249,9 @@ sealed interface SvgKolorElement {
         }
     }
 
+    /**
+     * Represents a text element in an SVG.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Immutable
     @Serializable
@@ -231,6 +279,14 @@ sealed interface SvgKolorElement {
     }
 }
 
+/**
+ * Represents the root `<svg>` element of an SVG document, containing its viewBox and child
+ * elements.
+ *
+ * This class serves as the top-level container for SVG shapes that can be processed for recoloring.
+ * It maps various SVG tags (path, rect, circle, etc.) to their respective [SvgKolorElement]
+ * representations.
+ */
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @XmlElement("svg")

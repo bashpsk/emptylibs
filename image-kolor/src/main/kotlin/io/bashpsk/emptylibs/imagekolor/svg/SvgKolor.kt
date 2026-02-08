@@ -23,6 +23,19 @@ import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 
+/**
+ * A composable component that facilitates the visualization and recoloring of SVG elements.
+ *
+ * It provides a two-pane adaptive layout:
+ * - The first pane displays a side-by-side comparison of the original SVG source and the
+ *   dynamically recolored version.
+ * - The second pane displays a grid of color maps derived from the SVG, allowing users to select
+ *   specific color regions and update them using a color picker dialog.
+ *
+ * @param modifier The [Modifier] to be applied to the root layout of this component.
+ * @param state The [SvgKolorState] instance that manages the SVG data, color mappings, and update
+ * logic.
+ */
 @Composable
 fun SvgKolor(
     modifier: Modifier = Modifier,

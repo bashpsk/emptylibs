@@ -22,6 +22,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 
+/**
+ * Creates and remembers a [SvgKolorState] instance.
+ *
+ * @param source The SVG source string.
+ * @return A remembered [SvgKolorState].
+ */
 @Composable
 fun rememberSvgKolorState(source: String): SvgKolorState {
 
@@ -32,23 +38,44 @@ fun rememberSvgKolorState(source: String): SvgKolorState {
     }
 }
 
+/**
+ * State holder for SVG recoloring logic.
+ *
+ * @property coroutineScope The scope for running background operations.
+ * @property source The original SVG source string.
+ */
 @Stable
 class SvgKolorState(
     val coroutineScope: CoroutineScope,
     val source: String
 ) {
 
+    /**
+     * Regex pattern to identify hex color codes in the SVG.
+     */
     private val ColorHexRegex = Regex(pattern = "#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\\b")
 
+    /**
+     * List of recolorable SVG elements extracted from the source.
+     */
     var hexKolorDataList by mutableStateOf(persistentListOf<SvgKolorElement>())
         private set
 
+    /**
+     * The currently selected element for recoloring.
+     */
     var selectedHex by mutableStateOf<SvgKolorElement?>(null)
         private set
 
+    /**
+     * The updated SVG source string with applied color changes.
+     */
     var newSource by mutableStateOf(source)
         private set
 
+    /**
+     * The viewBox of the SVG.
+     */
     var viewBox by mutableStateOf("0 0 24 24")
         private set
 
@@ -57,6 +84,12 @@ class SvgKolorState(
         coroutineScope.launch { hexKolorDataList = getKolorHexList(content = source) }
     }
 
+    /**
+     * Updates the color of a specific element.
+     *
+     * @param originalHex The original element to be updated.
+     * @param newColor The new color to apply.
+     */
     fun updateColor(originalHex: SvgKolorElement?, newColor: Color) {
 
         originalHex?.let { hex ->
@@ -73,6 +106,11 @@ class SvgKolorState(
         coroutineScope.launch { newSource = getColoredSvg() }
     }
 
+    /**
+     * Updates the selected hex element.
+     *
+     * @param newHex The element to select, or null to clear selection.
+     */
     fun updateSelectedHex(newHex: SvgKolorElement?) {
 
         selectedHex = findIndex(element = newHex)?.let { existIndex ->
@@ -81,6 +119,11 @@ class SvgKolorState(
         }
     }
 
+    /**
+     * Generates the SVG string with current color replacements.
+     *
+     * @return The updated SVG source string.
+     */
     suspend fun getColoredSvg(): String = withContext(context = Dispatchers.Default) {
 
         val replacements = hexKolorDataList.iterator()
@@ -99,6 +142,12 @@ class SvgKolorState(
         }
     }
 
+    /**
+     * Extracts recolorable elements from the SVG content.
+     *
+     * @param content The SVG content string.
+     * @return A list of extracted elements.
+     */
     @OptIn(ExperimentalSerializationApi::class)
     private suspend fun getKolorHexList(
         content: String
@@ -134,6 +183,12 @@ class SvgKolorState(
         }
     }
 
+    /**
+     * Finds the index of an element in [hexKolorDataList].
+     *
+     * @param element The element to find.
+     * @return The index of the element, or null if not found.
+     */
     private fun findIndex(element: SvgKolorElement?): Int? {
 
         if (element == null) return null
