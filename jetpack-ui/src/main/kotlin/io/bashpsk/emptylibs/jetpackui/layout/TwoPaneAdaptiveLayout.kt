@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
+import kotlin.math.min
 
 /**
  * A layout that arranges two panes adaptively based on the available width.
@@ -59,67 +60,64 @@ inline fun TwoPaneAdaptiveLayout(
         val firstPlaceable: Placeable
         val secondPlaceable: Placeable
 
-        val maxWidth = constraints.maxWidth
-        val maxHeight = constraints.maxHeight
-
         val (firstPlacementOffset, secondPlacementOffset) = when (windowWidthSize) {
 
             WindowWidthSizeClass.Compact -> {
 
-                var firstWidth = maxWidth
-                var firstHeight = (firstWidth / aspectRatio).toInt()
-
-                if (firstHeight > maxHeight) {
-                    firstHeight = maxHeight
-                    firstWidth = (firstHeight * aspectRatio).toInt()
-                }
+                val firstPaneMaxHeight = (constraints.maxHeight * aspectRatio).toInt()
+                val initialFirstPaneHeight = (constraints.maxWidth / aspectRatio).toInt()
+                val firstPaneRenderHeight = min(initialFirstPaneHeight, firstPaneMaxHeight)
+                val firstPaneRenderWidth = (firstPaneRenderHeight * aspectRatio).toInt()
+                    .coerceIn(0, constraints.maxWidth)
+                val finalFirstPaneHeight = (firstPaneRenderWidth / aspectRatio).toInt()
+                    .coerceIn(0, firstPaneMaxHeight)
 
                 firstPlaceable = firstMeasurable.measure(
-                    Constraints.fixed(width = firstWidth, height = firstHeight)
+                    Constraints.fixed(width = firstPaneRenderWidth, height = finalFirstPaneHeight)
                 )
 
                 secondPlaceable = secondMeasurable.measure(
                     Constraints.fixed(
-                        width = maxWidth,
-                        height = (maxHeight - firstHeight).coerceAtLeast(0)
+                        width = constraints.maxWidth,
+                        height = (constraints.maxHeight - finalFirstPaneHeight).coerceAtLeast(0)
                     )
                 )
 
                 IntOffset(
-                    x = (maxWidth - firstWidth) / 2,
+                    x = ((constraints.maxWidth - firstPaneRenderWidth) / 2).coerceAtLeast(0),
                     y = 0
-                ) to IntOffset(x = 0, y = firstHeight)
+                ) to IntOffset(x = 0, y = finalFirstPaneHeight)
             }
 
             else -> {
 
-                var firstHeight = maxHeight
-                var firstWidth = (firstHeight * aspectRatio).toInt()
-
-                if (firstWidth > maxWidth) {
-                    firstWidth = maxWidth
-                    firstHeight = (firstWidth / aspectRatio).toInt()
-                }
+                val firstPaneMaxWidth = (constraints.maxWidth * aspectRatio).toInt()
+                val initialFirstPaneWidth = (constraints.maxHeight * aspectRatio).toInt()
+                val firstPaneRenderWidth = min(initialFirstPaneWidth, firstPaneMaxWidth)
+                val firstPaneRenderHeight = (firstPaneRenderWidth / aspectRatio).toInt()
+                    .coerceIn(0, constraints.maxHeight)
+                val finalFirstPaneWidth = (firstPaneRenderHeight * aspectRatio).toInt()
+                    .coerceIn(0, firstPaneMaxWidth)
 
                 firstPlaceable = firstMeasurable.measure(
-                    Constraints.fixed(width = firstWidth, height = firstHeight)
+                    Constraints.fixed(width = finalFirstPaneWidth, height = firstPaneRenderHeight)
                 )
 
                 secondPlaceable = secondMeasurable.measure(
                     Constraints.fixed(
-                        width = (maxWidth - firstWidth).coerceAtLeast(0),
-                        height = maxHeight
+                        width = (constraints.maxWidth - finalFirstPaneWidth).coerceAtLeast(0),
+                        height = constraints.maxHeight
                     )
                 )
 
                 IntOffset(
                     x = 0,
-                    y = (maxHeight - firstHeight) / 2
-                ) to IntOffset(x = firstWidth, y = 0)
+                    y = ((constraints.maxHeight - firstPaneRenderHeight) / 2).coerceAtLeast(0)
+                ) to IntOffset(x = finalFirstPaneWidth, y = 0)
             }
         }
 
-        layout(width = maxWidth, height = maxHeight) {
+        layout(width = constraints.maxWidth, height = constraints.maxHeight) {
 
             firstPlaceable.placeRelative(position = firstPlacementOffset)
             secondPlaceable.placeRelative(position = secondPlacementOffset)

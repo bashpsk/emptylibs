@@ -64,6 +64,7 @@ class MainActivity : ComponentActivity() {
 //                    SevenSegmentDisplayScreen()
 //                    StorageScreen()
 //                    SvgKolorScreen()
+//                    TileImageViewScreen()
 //                    TransformImageScreen()
 //                    ZoomableLayoutScreen()
 //                    VideoGestureScreen()
