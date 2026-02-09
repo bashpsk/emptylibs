@@ -39,15 +39,15 @@ fun LruCacheScreen() {
     var isRefresh by rememberSaveable { mutableStateOf(false) }
 
     val cachedBitmap1 by remember(isRefresh) {
-        derivedStateOf { bitmapCacheManager.get("image1") }
+        derivedStateOf { bitmapCacheManager["image1"] }
     }
 
     val cachedBitmap2 by remember(isRefresh) {
-        derivedStateOf { bitmapCacheManager.get("image2") }
+        derivedStateOf { bitmapCacheManager["image2"] }
     }
 
     val cachedBitmap3 by remember(isRefresh) {
-        derivedStateOf { bitmapCacheManager.get("image3") }
+        derivedStateOf { bitmapCacheManager["image3"] }
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
@@ -71,7 +71,7 @@ fun LruCacheScreen() {
                     Button(
                         onClick = {
 
-                            bitmapCacheManager.add("image1", bitmap1.asAndroidBitmap())
+                            bitmapCacheManager["image1"] = bitmap1.asAndroidBitmap()
                             isRefresh = !isRefresh
                         }
                     ) {
@@ -82,7 +82,7 @@ fun LruCacheScreen() {
                     Button(
                         onClick = {
 
-                            bitmapCacheManager.add("image2", bitmap2.asAndroidBitmap())
+                            bitmapCacheManager["image2"] = bitmap2.asAndroidBitmap()
                             isRefresh = !isRefresh
                         }
                     ) {
@@ -93,7 +93,7 @@ fun LruCacheScreen() {
                     Button(
                         onClick = {
 
-                            bitmapCacheManager.add("image3", bitmap3.asAndroidBitmap())
+                            bitmapCacheManager["image3"] = bitmap3.asAndroidBitmap()
                             isRefresh = !isRefresh
                         }
                     ) {

@@ -2,6 +2,8 @@ package io.bashpsk.emptylibs.formatter.format
 
 import android.util.Log
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.IntSize
 import io.bashpsk.emptylibs.formatter.utils.LOG_TAG
 import java.util.Locale
 import kotlin.math.log10
@@ -207,6 +209,28 @@ fun findAspectRatio(width: Int, height: Int): Float {
 fun findAspectRatio(width: Float, height: Float): Float {
 
     return if (height == 0.0F) 0.0F else width / height
+}
+
+/**
+ * Calculates the aspect ratio of a given [Size].
+ *
+ * @return The aspect ratio as a [Float] (width / height), or 0.0F if height is 0.
+ */
+@Stable
+fun Size.findAspectRatio(): Float {
+
+    return findAspectRatio(width = this.width, height = this.height)
+}
+
+/**
+ * Calculates the aspect ratio of a given [IntSize].
+ *
+ * @return The aspect ratio as a [Float] (width / height), or 0.0F if height is 0.
+ */
+@Stable
+fun IntSize.findAspectRatio(): Float {
+
+    return findAspectRatio(width = this.width, height = this.height)
 }
 
 /**

@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.composeutils.shape
 
 import android.os.Parcelable
+import androidx.compose.runtime.Stable
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
@@ -11,6 +12,7 @@ import kotlinx.serialization.Serializable
  * This sealed class provides a structured way to define common shapes like circles, polygons,
  * and stars, which can then be rendered on a canvas.
  */
+@Stable
 @Parcelize
 @Serializable
 sealed class PathShape : Parcelable {

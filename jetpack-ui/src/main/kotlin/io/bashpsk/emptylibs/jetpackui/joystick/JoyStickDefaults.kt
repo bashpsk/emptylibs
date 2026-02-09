@@ -2,6 +2,7 @@ package io.bashpsk.emptylibs.jetpackui.joystick
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,7 @@ object JoyStickDefaults {
      * @param type The visual style of the joystick.
      * @return A [JoyStickProperties] instance.
      */
+    @Stable
     fun properties(
         thumbRatio: Float = 0.5F,
         pressedThumbScale: Float = 1.25F,

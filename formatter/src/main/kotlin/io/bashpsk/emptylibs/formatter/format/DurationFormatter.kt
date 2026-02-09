@@ -105,21 +105,21 @@ private fun Duration.findDurationPattern(
 
         this < 1.toDuration(
             DurationUnit.MINUTES
-        ) && isSecondsOnly -> this.toComponents { seconds, nanoseconds ->
+        ) && isSecondsOnly -> this.toComponents { seconds, _ ->
 
             "%02d${secondsLabel ?: ""}" to persistentListOf(seconds)
         }
 
         this < 1.toDuration(
             DurationUnit.HOURS
-        ) -> this.toComponents { minutes, seconds, nanoseconds ->
+        ) -> this.toComponents { minutes, seconds, _ ->
 
             "%02d${minutesLabel}%02d${secondsLabel ?: ""}" to persistentListOf(minutes, seconds)
         }
 
         this < 1.toDuration(
             DurationUnit.DAYS
-        ) -> this.toComponents { hours, minutes, seconds, nanoseconds ->
+        ) -> this.toComponents { hours, minutes, seconds, _ ->
 
             "%02d${hoursLabel}%02d${minutesLabel}%02d${secondsLabel ?: ""}" to persistentListOf(
                 hours,
@@ -128,7 +128,7 @@ private fun Duration.findDurationPattern(
             )
         }
 
-        else -> this.toComponents { days, hours, minutes, seconds, nanoseconds ->
+        else -> this.toComponents { days, hours, minutes, seconds, _ ->
 
             "%01d${daysLabel}%02d${hoursLabel}%02d${minutesLabel}%02d${
                 secondsLabel ?: ""

@@ -5,13 +5,13 @@ import android.net.Uri
 import android.util.Log
 import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -59,9 +59,9 @@ fun rememberLazyTextViewerState(
         state.textCacheManager.resize(maxSize = cacheSize)
     }
 
-    DisposableEffect(Unit) {
+    RetainedEffect(Unit) {
 
-        onDispose { state.textCacheManager.evictAll() }
+        onRetire { state.textCacheManager.evictAll() }
     }
 
     return state
@@ -210,12 +210,12 @@ class LazyTextViewerState(
         index: Int
     ): TextContentResult = withContext(Dispatchers.Default) {
 
-        return@withContext textCacheManager.get(index)?.let { lineText ->
+        return@withContext textCacheManager[index]?.let { lineText ->
 
             TextContentResult.Content(text = lineText)
         } ?: content?.lines()?.getOrNull(index)?.let { lineText ->
 
-            textCacheManager.add(index, lineText)
+            textCacheManager[index] = lineText
             TextContentResult.Content(text = lineText)
         } ?: throw NullPointerException("Line not found.")
     }
@@ -242,7 +242,7 @@ class LazyTextViewerState(
             "Index out of bounds."
         )
 
-        return@withContext textCacheManager.get(index)?.let { lineText ->
+        return@withContext textCacheManager[index]?.let { lineText ->
 
             TextContentResult.Content(text = lineText)
         } ?: file?.takeIf { sourceFile -> sourceFile.exists() }?.let { sourceFile ->
@@ -298,7 +298,7 @@ class LazyTextViewerState(
 
                         val lineText = outputStream.toString()
 
-                        textCacheManager.add(index, lineText)
+                        textCacheManager[index] = lineText
                         TextContentResult.Content(text = lineText)
                     }
                 }
@@ -330,7 +330,7 @@ class LazyTextViewerState(
             "Index out of bounds"
         )
 
-        return@withContext textCacheManager.get(index)?.let { lineText ->
+        return@withContext textCacheManager[index]?.let { lineText ->
 
             TextContentResult.Content(text = lineText)
         } ?: context.contentResolver.openInputStream(file)?.buffered()?.use { inputStream ->
@@ -382,7 +382,7 @@ class LazyTextViewerState(
 
                 val lineText = outputStream.toString()
 
-                textCacheManager.add(index, lineText)
+                textCacheManager[index] = lineText
                 TextContentResult.Content(text = lineText)
             }
         } ?: throw IOException("Could not open URI stream")

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.Contrast
 import androidx.compose.material.icons.outlined.Exposure
 import androidx.compose.material.icons.outlined.InvertColors
 import androidx.compose.material.icons.outlined.Thermostat
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.parcelize.Parcelize
@@ -38,6 +39,7 @@ import kotlinx.serialization.Serializable
  * @property rangeMin The minimum valid value for this color adjustment.
  * @property rangeMax The maximum valid value for this color adjustment.
  */
+@Stable
 @Parcelize
 @Serializable
 sealed class ImageKolorInput(
@@ -162,7 +164,7 @@ sealed class ImageKolorInput(
         label = "Shadows",
         rangeMin = -1F,
         rangeMax = 1F
-    );
+    )
 
     companion object {
 

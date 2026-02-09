@@ -31,7 +31,6 @@ import java.io.File
  * Many operations are performed on the [Dispatchers.IO] thread to avoid blocking the main thread.
  * Error handling is implemented, with relevant messages logged for debugging.
  */
-@Suppress("unused")
 object StorageExt {
 
     private val emptyStorage: EmptyStorage = EmptyStorageImpl()

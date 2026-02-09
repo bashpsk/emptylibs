@@ -81,9 +81,7 @@ internal suspend fun PointerInputScope.detectVideoGestures(
         val deadZoneWidth = viewWidth * effectiveDeadZone
         val deadZoneHeight = viewHeight * effectiveDeadZone
 
-        val topDeadZoneEnd = deadZoneHeight
         val bottomDeadZoneStart = viewHeight - deadZoneHeight
-        val leftDeadZoneEnd = deadZoneWidth
         val rightDeadZoneStart = viewWidth - deadZoneWidth
 
         val centerHorizontalMargin = viewHeight * effectiveDeadZone
@@ -109,16 +107,14 @@ internal suspend fun PointerInputScope.detectVideoGestures(
             val touchX = inputChange.position.x
             val touchY = inputChange.position.y
 
-            val isInTopDeadZone = touchY < topDeadZoneEnd
+            val isInTopDeadZone = touchY < deadZoneHeight
             val isInBottomDeadZone = touchY >= bottomDeadZoneStart
-            val isInLeftDeadZone = touchX < leftDeadZoneEnd
+            val isInLeftDeadZone = touchX < deadZoneWidth
             val isInRightDeadZone = touchX >= rightDeadZoneStart
 
-            val isInCenterHorizontalDeadZone = touchY >= centerHorizontalStart
-                    && touchY < centerHorizontalEnd
+            val isInCenterHorizontalDeadZone = touchY in centerHorizontalStart..<centerHorizontalEnd
 
-            val isInCenterVerticalDeadZone = touchX >= centerVerticalStart
-                    && touchX < centerVerticalEnd
+            val isInCenterVerticalDeadZone = touchX in centerVerticalStart..<centerVerticalEnd
 
             val isStartedInDeadZone = isInTopDeadZone || isInBottomDeadZone || isInLeftDeadZone
                     || isInRightDeadZone || isInCenterHorizontalDeadZone

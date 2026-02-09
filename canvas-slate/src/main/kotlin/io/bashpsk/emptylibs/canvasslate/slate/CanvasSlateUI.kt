@@ -111,7 +111,7 @@ internal fun CanvasSlateUI(
             onDragStart = { state.onPathStart() },
             onDragEnd = state::onPathEnd,
             onDragCancel = state::onPathEnd,
-            onDrag = { change, dragAmount ->
+            onDrag = { change, _ ->
 
                 change.consume()
                 state.onPathDraw(position = change.position)

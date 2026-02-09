@@ -10,13 +10,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -87,7 +87,7 @@ fun AnalogClockScreen() {
         borderColor = MaterialTheme.colorScheme.outlineVariant
     )
 
-    DisposableEffect(lifecycleOwner) {
+    RetainedEffect(lifecycleOwner) {
 
         currentTimeJob?.cancel()
 
@@ -115,7 +115,7 @@ fun AnalogClockScreen() {
 
         lifecycleOwner.lifecycle.addObserver(observer = lifecycleEventObserver)
 
-        onDispose {
+        onRetire {
 
             currentTimeJob?.cancel()
             lifecycleOwner.lifecycle.removeObserver(observer = lifecycleEventObserver)

@@ -23,7 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.formatter.format.parseHexToColor
 import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
@@ -155,7 +157,11 @@ fun SvgKolor(
                         onClick = {
 
                             state.updateSelectedHex(newHex = hexItem)
-                            kolorPickerState.dialogVisible.targetState = true
+                            kolorPickerState.apply {
+
+                                updateColor(color = hexItem.newHex.parseHexToColor() ?: Color.Black)
+                                dialogVisible.targetState = true
+                            }
                         }
                     )
                 }

@@ -111,7 +111,7 @@ internal fun ImageKropTopBar(
                 enabled = isUndoImageBitmap,
                 onClick = {
 
-                    state.imageList.lastOrNull()?.let { bitmap ->
+                    state.imageList.lastOrNull()?.let { _ ->
 
                         state.removeLastImage()
                     }

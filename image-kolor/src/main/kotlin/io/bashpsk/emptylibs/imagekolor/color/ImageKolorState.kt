@@ -423,7 +423,6 @@ class ImageKolorState(val imageBitmap: ImageBitmap?) {
     companion object {
 
         private const val KEY_CURRENT_INPUT = "IMAGE-KOLOR-CURRENT-INPUT"
-        private const val KEY_CURRENT_INPUT_INDEX = "IMAGE-KOLOR-CURRENT-INPUT-INDEX"
         private const val KEY_INPUT_LIST = "IMAGE-KOLOR-INPUT-LIST"
 
         @Suppress("UNCHECKED_CAST")

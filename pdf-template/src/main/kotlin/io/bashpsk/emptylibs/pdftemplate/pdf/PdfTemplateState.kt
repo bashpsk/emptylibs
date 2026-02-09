@@ -296,7 +296,7 @@ class PdfTemplateState(
 
         try {
 
-            destination?.outputStream()?.use { outputStream ->
+            destination.outputStream().use { outputStream ->
 
                 pdfDocument.writeTo(outputStream)
             }

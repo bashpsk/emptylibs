@@ -274,15 +274,16 @@ enum class DateTimePattern {
          * ```
          *
          * @param dayOfWeekNames The names to use for formatting the day of the week
-         * (e.g., "Mon", "Monday"). Defaults to a set of three-letter abbreviations.
+         * (e.g., "Mon", "Monday").
+         * Defaults to a set of three-letter abbreviations [DayOfWeekNames.ENGLISH_ABBREVIATED].
          * @param monthNames The names to use for formatting the month (e.g., "Aug", "August").
-         * Defaults to a set of three-letter abbreviations.
+         * Defaults to a set of three-letter abbreviations [MonthNames.ENGLISH_ABBREVIATED].
          * @return The corresponding `DateTimeFormat<LocalDateTime>` for the specified pattern.
          */
         @JvmStatic
         fun DateTimePattern.findDateTimeFormat(
-            dayOfWeekNames: DayOfWeekNames = defaultDayOfWeekNames,
-            monthNames: MonthNames = defaultMonthNames
+            dayOfWeekNames: DayOfWeekNames = DayOfWeekNames.ENGLISH_ABBREVIATED,
+            monthNames: MonthNames = MonthNames.ENGLISH_ABBREVIATED
         ): DateTimeFormat<LocalDateTime> {
 
             return when (this) {

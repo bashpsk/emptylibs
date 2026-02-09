@@ -5,12 +5,12 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Canvas
@@ -89,11 +89,11 @@ fun rememberPdfLazyColumnState(
         state.scaledBitmapManager.resize(maxSize = cacheSize)
     }
 
-    DisposableEffect(context, source) {
+    RetainedEffect(context, source) {
 
         state.setLoadPdfSource(context = context, source = source)
 
-        onDispose { state.close() }
+        onRetire { state.close() }
     }
 
     return state
@@ -305,7 +305,7 @@ class PdfLazyColumnState(
                     bitmap = bitmap
                 )
 
-                scaledBitmapManager.add(newPageData.page, newPageData)
+                scaledBitmapManager[newPageData.page] = newPageData
             }
         }
 
@@ -399,7 +399,7 @@ class PdfLazyColumnState(
     private fun hasNeedScaledBitmap(pageData: PdfScaledPageData?): Boolean {
 
         return pageData == null
-                || scaledBitmapManager.exist(pageData.page).not()
+                || scaledBitmapManager.contains(pageData.page).not()
                 || pageData.quality !in
                 (transformable.zoom - 0.25F)..(transformable.zoom + 0.25F)
     }
@@ -422,7 +422,7 @@ class PdfLazyColumnState(
      */
     private fun getScaledPageData(pageIndex: Int): PdfScaledPageData? {
 
-        return scaledBitmapManager.get(pageIndex)
+        return scaledBitmapManager[pageIndex]
     }
 
     /**

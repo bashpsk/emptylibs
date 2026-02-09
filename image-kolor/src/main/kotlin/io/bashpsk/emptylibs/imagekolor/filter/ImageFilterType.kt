@@ -499,13 +499,12 @@ enum class ImageFilterType(val label: String) {
                 setToSaturation(1.35F)
 
                 val contrastValue = 1.2F
-                val scale = contrastValue
-                val translate = (-.5F * scale + .5F) * 255F
+                val translate = (-.5F * contrastValue + .5F) * 255F
 
                 val contrastMatrixValues = floatArrayOf(
-                    scale, 0F, 0F, 0F, translate,
-                    0F, scale, 0F, 0F, translate,
-                    0F, 0F, scale, 0F, translate,
+                    contrastValue, 0F, 0F, 0F, translate,
+                    0F, contrastValue, 0F, 0F, translate,
+                    0F, 0F, contrastValue, 0F, translate,
                     0F, 0F, 0F, 1F, 0F
                 )
 

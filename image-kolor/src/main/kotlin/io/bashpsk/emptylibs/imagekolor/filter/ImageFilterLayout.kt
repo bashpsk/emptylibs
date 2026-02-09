@@ -32,11 +32,11 @@ import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
  * two measurable children.
  */
 @Composable
-fun ImageFilterLayout(
+inline fun ImageFilterLayout(
     modifier: Modifier = Modifier,
     imageBitmap: ImageBitmap,
     state: ImageFilterState,
-    imageContent: @Composable () -> Unit = {
+    crossinline imageContent: @Composable () -> Unit = {
 
         Image(
             modifier = Modifier.fillMaxSize(),
@@ -46,7 +46,7 @@ fun ImageFilterLayout(
             contentDescription = "Image Color Filter"
         )
     },
-    filterContent: @Composable () -> Unit = {
+    crossinline filterContent: @Composable () -> Unit = {
 
         ImageFilter(modifier = Modifier.fillMaxSize(), state = state)
     }

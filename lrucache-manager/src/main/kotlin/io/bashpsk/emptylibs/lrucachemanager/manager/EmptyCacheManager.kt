@@ -26,7 +26,7 @@ class EmptyCacheManager<K : Any, V : Any>(private val maxSize: Int = 10) {
      * @param key The key to store the object under.
      * @param value The object to store.
      */
-    fun add(key: K, value: V) {
+    operator fun set(key: K, value: V) {
 
         value.let { item -> lruCache.put(key, item) }
     }
@@ -36,7 +36,7 @@ class EmptyCacheManager<K : Any, V : Any>(private val maxSize: Int = 10) {
      * @param key The key of the object to retrieve.
      * @return The object of type [V] if found in the cache, or `null` otherwise.
      */
-    fun get(key: K): V? {
+    operator fun get(key: K): V? {
 
         return lruCache[key]
     }
@@ -46,7 +46,7 @@ class EmptyCacheManager<K : Any, V : Any>(private val maxSize: Int = 10) {
      * @param key The key to check for.
      * @return `true` if an object with the given key exists in the cache, `false` otherwise.
      */
-    fun exist(key: K): Boolean {
+    operator fun contains(key: K): Boolean {
 
         return lruCache[key] != null
     }

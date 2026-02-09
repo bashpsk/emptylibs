@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import io.bashpsk.emptylibs.formatter.format.toHexString
 import io.bashpsk.emptylibs.imagekolor.utils.LOG_TAG
 import io.bashpsk.emptylibs.serializationxml.Xml
 import kotlinx.collections.immutable.PersistentList
@@ -96,7 +97,7 @@ class SvgKolorState(val source: String) {
 
                 hexKolorDataList = hexKolorDataList.set(
                     index = existIndex,
-                    element = hex.copy(newHex = newColor.toSvgHexString())
+                    element = hex.copy(newHex = newColor.toHexString(includeAlpha = false))
                 )
             }
         }

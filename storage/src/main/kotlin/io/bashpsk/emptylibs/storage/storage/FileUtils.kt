@@ -1,5 +1,7 @@
 package io.bashpsk.emptylibs.storage.storage
 
+import androidx.compose.runtime.Stable
+
 /**
  * Checks if a given string is a valid folder name.
  *
@@ -11,6 +13,7 @@ package io.bashpsk.emptylibs.storage.storage
  * @param name The string to check.
  * @return `true` if the string is a valid folder name, `false` otherwise.
  */
+@Stable
 fun hasValidFolderName(name: String): Boolean {
 
     val folderRegex = Regex("[<>:\"/\\\\|?*]")
@@ -30,6 +33,7 @@ fun hasValidFolderName(name: String): Boolean {
  * @param name The string to check.
  * @return `true` if the string is a valid file name, `false` otherwise.
  */
+@Stable
 fun hasValidFileName(name: String): Boolean {
 
     val folderRegex = Regex("[<>:\"/\\\\|?*]")

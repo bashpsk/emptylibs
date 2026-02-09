@@ -1281,16 +1281,16 @@ class ImageEditState(
         ): Saver<ImageEditState, Any> = mapSaver(
             save = { state ->
 
-                ImageInputCacheManager.add(KEY_BRUSH_INPUT, state.brushEditInput)
-                ImageInputCacheManager.add(KEY_ERASE_INPUT, state.eraseEditInput)
-                ImageInputCacheManager.add(KEY_IMAGE_INPUT, state.imageEditInput)
-                ImageInputCacheManager.add(KEY_SHAPE_INPUT, state.shapeEditInput)
-                ImageInputCacheManager.add(KEY_TEXT_INPUT, state.textEditInput)
-                ImageEditListCacheManager.add(KEY_EDIT_ITEM_LIST, state.imageEditItemList)
+                ImageInputCacheManager[KEY_BRUSH_INPUT] = state.brushEditInput
+                ImageInputCacheManager[KEY_ERASE_INPUT] = state.eraseEditInput
+                ImageInputCacheManager[KEY_IMAGE_INPUT] = state.imageEditInput
+                ImageInputCacheManager[KEY_SHAPE_INPUT] = state.shapeEditInput
+                ImageInputCacheManager[KEY_TEXT_INPUT] = state.textEditInput
+                ImageEditListCacheManager[KEY_EDIT_ITEM_LIST] = state.imageEditItemList
 
                 state.currentImageEditItem?.let { items ->
 
-                    ImageEditCacheManager.add(KEY_CURRENT_EDIT_ITEM, items)
+                    ImageEditCacheManager[KEY_CURRENT_EDIT_ITEM] = items
                 } ?: run {
 
                     ImageEditCacheManager.remove(KEY_CURRENT_EDIT_ITEM)
@@ -1312,11 +1312,9 @@ class ImageEditState(
                     textMeasurer = textMeasurer
                 ).apply {
 
-                    imageEditItemList = ImageEditListCacheManager.get(
-                        KEY_EDIT_ITEM_LIST
-                    ) ?: persistentListOf()
+                    imageEditItemList = ImageEditListCacheManager[KEY_EDIT_ITEM_LIST] ?: persistentListOf()
 
-                    currentImageEditItem = ImageEditCacheManager.get(KEY_CURRENT_EDIT_ITEM)
+                    currentImageEditItem = ImageEditCacheManager[KEY_CURRENT_EDIT_ITEM]
 
                     isToolBarMenuExpanded = elements.getOrElse(
                         KEY_TOOLBAR_MENU_EXPANDED
@@ -1330,25 +1328,15 @@ class ImageEditState(
                         KEY_CURRENT_CORNER
                     ) { null } as EditItemCorner?
 
-                    brushEditInput = (ImageInputCacheManager.get(
-                        KEY_BRUSH_INPUT
-                    ) ?: ImageEditInput.BrushItem()) as ImageEditInput.BrushItem
+                    brushEditInput = (ImageInputCacheManager[KEY_BRUSH_INPUT] ?: ImageEditInput.BrushItem()) as ImageEditInput.BrushItem
 
-                    eraseEditInput = (ImageInputCacheManager.get(
-                        KEY_ERASE_INPUT
-                    ) ?: ImageEditInput.EraseItem()) as ImageEditInput.EraseItem
+                    eraseEditInput = (ImageInputCacheManager[KEY_ERASE_INPUT] ?: ImageEditInput.EraseItem()) as ImageEditInput.EraseItem
 
-                    imageEditInput = (ImageInputCacheManager.get(
-                        KEY_IMAGE_INPUT
-                    ) ?: ImageEditInput.ImageItem()) as ImageEditInput.ImageItem
+                    imageEditInput = (ImageInputCacheManager[KEY_IMAGE_INPUT] ?: ImageEditInput.ImageItem()) as ImageEditInput.ImageItem
 
-                    shapeEditInput = (ImageInputCacheManager.get(
-                        KEY_SHAPE_INPUT
-                    ) ?: ImageEditInput.ShapeItem()) as ImageEditInput.ShapeItem
+                    shapeEditInput = (ImageInputCacheManager[KEY_SHAPE_INPUT] ?: ImageEditInput.ShapeItem()) as ImageEditInput.ShapeItem
 
-                    textEditInput = (ImageInputCacheManager.get(
-                        KEY_TEXT_INPUT
-                    ) ?: ImageEditInput.TextItem()) as ImageEditInput.TextItem
+                    textEditInput = (ImageInputCacheManager[KEY_TEXT_INPUT] ?: ImageEditInput.TextItem()) as ImageEditInput.TextItem
                 }
             }
         )

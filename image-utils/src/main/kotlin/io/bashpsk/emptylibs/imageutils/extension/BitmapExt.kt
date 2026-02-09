@@ -1,9 +1,12 @@
 package io.bashpsk.emptylibs.imageutils.extension
 
 import android.graphics.Bitmap
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.unit.IntSize
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import kotlin.math.min
 
 /**
@@ -15,12 +18,44 @@ import kotlin.math.min
  * @return A [Size] object representing the dimensions of the [ImageBitmap], or [Size.Zero] if the
  * bitmap is null.
  */
+@Stable
 fun ImageBitmap?.toSize(): Size {
 
     return this?.let { bitmap ->
 
         Size(width = bitmap.width.toFloat(), height = bitmap.height.toFloat())
     } ?: Size.Zero
+}
+
+/**
+ * Converts an [ImageBitmap] to a [IntSize] object.
+ *
+ * If the [ImageBitmap] is null, it returns [IntSize.Zero].
+ * Otherwise, it creates a [IntSize] object with the width and height of the bitmap.
+ *
+ * @return A [IntSize] object representing the dimensions of the [ImageBitmap],
+ * or [IntSize.Zero] if the bitmap is null.
+ */
+@Stable
+fun ImageBitmap?.toIntSize(): IntSize {
+
+    return this?.let { bitmap ->
+
+        IntSize(width = bitmap.width, height = bitmap.height)
+    } ?: IntSize.Zero
+}
+
+/**
+ * Calculates the aspect ratio of the [ImageBitmap].
+ *
+ * The aspect ratio is defined as the width divided by the height.
+ *
+ * @return The aspect ratio of the bitmap as a [Float], or null if the bitmap is null.
+ */
+@Stable
+fun ImageBitmap?.findAspectRatio(): Float? {
+
+    return this?.let { bitmap -> findAspectRatio(width = bitmap.width, height = bitmap.height) }
 }
 
 /**
@@ -41,6 +76,7 @@ fun ImageBitmap?.toSize(): Size {
  * @return The calculated [Size] of the image that fits within the canvas, with the applied
  * reduction.
  */
+@Stable
 fun Size.fittedImageSize(imageSize: Size, reduction: Int = 10): Size {
 
     val imageAspectRatio = imageSize.width / imageSize.height
@@ -81,6 +117,7 @@ fun Size.fittedImageSize(imageSize: Size, reduction: Int = 10): Size {
  * @param other The [ImageBitmap] to compare with.
  * @return `true` if the bitmaps are the same, `false` otherwise.
  */
+@Stable
 fun ImageBitmap.sameAs(other: ImageBitmap): Boolean {
 
     return this.asAndroidBitmap().sameAs(other.asAndroidBitmap())

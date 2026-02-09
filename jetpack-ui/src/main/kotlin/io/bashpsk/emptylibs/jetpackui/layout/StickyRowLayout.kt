@@ -59,9 +59,10 @@ inline fun StickyRowLayout(
         val horizontalSpace = horizontalArrangement.spacing.roundToPx()
         val stickyPlaceable = measurables[0].measure(constraints.copy(minWidth = 0))
         val remainingWidth = when {
-            constraints.hasBoundedWidth -> (constraints.maxWidth - stickyPlaceable.width
-                    - horizontalSpace).coerceAtLeast(0)
 
+            constraints.hasBoundedWidth -> {
+                (constraints.maxWidth - stickyPlaceable.width - horizontalSpace).coerceAtLeast(0)
+            }
             else -> Constraints.Infinity
         }
         val otherPlaceables = measurables.drop(1).map { measurable ->

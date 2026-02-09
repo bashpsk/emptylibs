@@ -11,14 +11,25 @@ import io.bashpsk.emptylibs.formatter.utils.LOG_TAG
 import java.util.Locale
 
 /**
- * Converts a [Color] to its hex string representation in the format #AARRGGBB.
+ * Converts this [Color] to its hexadecimal string representation.
  *
- * @return A string representing the color in "#AARRGGBB" hexadecimal format.
+ * The format depends on the [includeAlpha] parameter:
+ * - If `true` (default): Returns the color in `#AARRGGBB` format.
+ * - If `false`: Returns the color in `#RRGGBB` format, omitting the alpha channel.
+ *
+ * @param includeAlpha Whether to include the alpha channel in the resulting string.
+ * @return A string representing the color in hexadecimal format.
  */
 @Stable
-fun Color.toHexString(): String {
+fun Color.toHexString(includeAlpha: Boolean = true): String {
 
-    return "#%08X".format(locale = Locale.getDefault(), this.toArgb())
+    val argb = this.toArgb()
+
+    return when {
+
+        includeAlpha -> "#%08X".format(locale = Locale.getDefault(), argb)
+        else -> "#%06X".format(locale = Locale.getDefault(), argb and 0x00FFFFFF)
+    }
 }
 
 /**

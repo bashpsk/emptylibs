@@ -79,6 +79,7 @@ enum class SheetSize(val width: Int, val height: Int) {
         /**
          * Calculates the content rectangle for this sheet size given a [SheetMargin].
          */
+        @Stable
         fun SheetSize.toRect(margin: SheetMargin): Rect {
 
             return Rect(
@@ -90,24 +91,28 @@ enum class SheetSize(val width: Int, val height: Int) {
         }
 
         /** Converts [SheetSize] to a Compose [Size]. */
+        @Stable
         fun SheetSize.toSize(): Size {
 
             return toIntSize().toSize()
         }
 
         /** Converts [SheetSize] to a Compose [IntSize]. */
+        @Stable
         fun SheetSize.toIntSize(): IntSize {
 
             return IntSize(width = width, height = height)
         }
 
         /** Calculates the aspect ratio (width / height) of the sheet. */
+        @Stable
         fun SheetSize.getAspectRatio(): Float {
 
             return findAspectRatio(width = width, height = height)
         }
 
         /** Returns a string representation of the aspect ratio. */
+        @Stable
         fun SheetSize.getAspectRatioLabel(): String {
 
             return aspectRatioLabel(width = width, height = height)

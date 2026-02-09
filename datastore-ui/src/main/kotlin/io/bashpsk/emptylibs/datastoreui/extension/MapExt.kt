@@ -17,5 +17,5 @@ package io.bashpsk.emptylibs.datastoreui.extension
  */
 fun <K, V> Map<K, V>.toReverseMap(): Map<V, K> {
 
-    return entries.associate { (key, value) -> value to key }
+    return entries.associateBy({ it.value }, { it.key })
 }

@@ -1,13 +1,13 @@
 package io.bashpsk.emptylibs.gestureui.transform
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
@@ -59,9 +59,9 @@ fun rememberTransformableGesturesState(
         state.enableRotation = enableRotation
     }
 
-    DisposableEffect(Unit) {
+    RetainedEffect(Unit) {
 
-        onDispose { state.resetState() }
+        onRetire { state.resetState() }
     }
 
     return state

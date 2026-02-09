@@ -201,7 +201,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
     init {
 
-        BitmapListCacheManager.add(key = KEY_ORIGINAL_IMAGE, value = imageBitmap)
+        BitmapListCacheManager.set(KEY_ORIGINAL_IMAGE, value = imageBitmap)
     }
 
     /**
@@ -255,8 +255,8 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         val newKey = generateImageKey()
 
         BitmapListCacheManager.resize(maxSize = imageList.size + 1)
-        BitmapListCacheManager.add(key = newKey, value = bitmap)
-        BitmapListCacheManager.exist(key = newKey).takeIf { hasAdded ->
+        BitmapListCacheManager.set(newKey, value = bitmap)
+        BitmapListCacheManager.contains(newKey).takeIf { hasAdded ->
 
             hasAdded
         }?.run {
@@ -280,7 +280,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
         imageList.lastOrNull()?.let { key ->
 
-            BitmapListCacheManager.get(key = key)?.let { bitmap ->
+            BitmapListCacheManager[key]?.let { bitmap ->
 
                 updateOriginalImage(bitmap)
             }
@@ -358,7 +358,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
         return imageList.indexOfFirst { key ->
 
-            BitmapListCacheManager.get(key = key)?.sameAs(bitmap) == true
+            BitmapListCacheManager[key]?.sameAs(bitmap) == true
         }.takeIf { index -> index > 0 }
     }
 
@@ -1292,7 +1292,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
         BitmapCacheManager.evictAll()
         BitmapListCacheManager.evictAll()
-        BitmapListCacheManager.add(key = KEY_ORIGINAL_IMAGE, value = imageBitmap)
+        BitmapListCacheManager.set(KEY_ORIGINAL_IMAGE, value = imageBitmap)
 
         shapeList = BasicPathShapes
         originalImage = imageBitmap
@@ -1338,9 +1338,9 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         ): Saver<ImageKropState, Any> = mapSaver(
             save = { state ->
 
-                BitmapCacheManager.add(key = KEY_ORIGINAL_IMAGE, state.originalImage)
-                state.modifiedImage?.let { BitmapCacheManager.add(key = KEY_MODIFIED_IMAGE, it) }
-                state.previewImage?.let { BitmapCacheManager.add(key = KEY_PREVIEW_IMAGE, it) }
+                BitmapCacheManager[KEY_ORIGINAL_IMAGE] = state.originalImage
+                state.modifiedImage?.let { BitmapCacheManager[KEY_MODIFIED_IMAGE] = it }
+                state.previewImage?.let { BitmapCacheManager[KEY_PREVIEW_IMAGE] = it }
 
                 mapOf(
                     KEY_SHAPE_LIST to state.shapeList.toTypedArray(),
@@ -1369,9 +1369,9 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
                         KEY_SHAPE_LIST
                     ) { BasicPathShapes.toTypedArray() } as Array<PathShape>).toPersistentList()
 
-                    originalImage = BitmapCacheManager.get(key = KEY_ORIGINAL_IMAGE) ?: imageBitmap
-                    modifiedImage = BitmapCacheManager.get(key = KEY_MODIFIED_IMAGE)
-                    previewImage = BitmapCacheManager.get(key = KEY_PREVIEW_IMAGE)
+                    originalImage = BitmapCacheManager[KEY_ORIGINAL_IMAGE] ?: imageBitmap
+                    modifiedImage = BitmapCacheManager[KEY_MODIFIED_IMAGE]
+                    previewImage = BitmapCacheManager[KEY_PREVIEW_IMAGE]
 
                     imageList = (elements.getOrElse(
                         KEY_IMAGE_LIST

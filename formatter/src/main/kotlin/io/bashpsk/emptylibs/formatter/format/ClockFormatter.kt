@@ -21,37 +21,6 @@ import kotlin.time.Instant
 import kotlin.time.toDuration
 
 /**
- * Default abbreviated names for the days of the week used for formatting.
- */
-internal val defaultDayOfWeekNames = DayOfWeekNames(
-    monday = "Mon",
-    tuesday = "Tue",
-    wednesday = "Wed",
-    thursday = "Thu",
-    friday = "Fri",
-    saturday = "Sat",
-    sunday = "Sun"
-)
-
-/**
- * The default abbreviated names for the months of the year used for formatting.
- */
-internal val defaultMonthNames = MonthNames(
-    january = "Jan",
-    february = "Feb",
-    march = "Mar",
-    april = "Apr",
-    may = "May",
-    june = "Jun",
-    july = "Jul",
-    august = "Aug",
-    september = "Sep",
-    october = "Oct",
-    november = "Nov",
-    december = "Dec"
-)
-
-/**
  * Formats a date and time represented by milliseconds since the epoch into a `String` based on
  * the specified pattern.
  *
@@ -81,8 +50,8 @@ fun Long.dateTime(
 @Stable
 fun LocalDateTime.dateTime(
     pattern: DateTimePattern,
-    dayOfWeekNames: DayOfWeekNames = defaultDayOfWeekNames,
-    monthNames: MonthNames = defaultMonthNames
+    dayOfWeekNames: DayOfWeekNames = DayOfWeekNames.ENGLISH_ABBREVIATED,
+    monthNames: MonthNames = MonthNames.ENGLISH_ABBREVIATED
 ): String {
 
     return format(

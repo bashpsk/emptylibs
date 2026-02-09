@@ -102,14 +102,11 @@ fun MusicPlayingAnimation(
         contentDescription = animationLabel
     ) {
 
-        if (isPlayAnimation) {
-
-            drawMusicPlayingAnimation(
-                color = color,
-                barAnimationList = barAnimationList,
-                spacingRatio = spacingRatio,
-                cornerRadiusRatio = cornerRadiusRatio
-            )
-        }
+        if (isPlayAnimation) drawMusicPlayingAnimation(
+            color = color,
+            barAnimationList = barAnimationList,
+            spacingRatio = spacingRatio,
+            cornerRadiusRatio = cornerRadiusRatio
+        )
     }
 }

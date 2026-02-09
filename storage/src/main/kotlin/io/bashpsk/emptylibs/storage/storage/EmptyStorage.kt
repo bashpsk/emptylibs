@@ -1,8 +1,10 @@
 package io.bashpsk.emptylibs.storage.storage
 
 import android.content.Context
+import androidx.compose.runtime.Stable
 import kotlinx.collections.immutable.ImmutableList
 
+@Stable
 internal interface EmptyStorage {
 
     suspend fun getStorageVolumeList(

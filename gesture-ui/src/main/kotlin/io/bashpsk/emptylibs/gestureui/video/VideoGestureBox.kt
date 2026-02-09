@@ -282,7 +282,7 @@ fun VideoGestureBox(
         }
     }
 
-    val transformableState = rememberTransformableState { zoomChange, panChange, rotationChange ->
+    val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
 
         state.hasTransform().takeIf { isTransform -> isTransform.not() }?.run {
 

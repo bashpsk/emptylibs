@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.storage.StorageManager
 import android.util.Log
+import androidx.compose.runtime.Stable
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
 import kotlinx.collections.immutable.ImmutableList
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
 
+@Stable
 internal class EmptyStorageImpl : EmptyStorage {
 
     override suspend fun getStorageVolumeList(

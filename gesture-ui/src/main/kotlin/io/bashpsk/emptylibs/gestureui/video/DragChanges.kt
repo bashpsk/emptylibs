@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.gestureui.video
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 
 /**
@@ -21,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
  * (e.g., pinch-to-zoom).
  * - [Unknown]: Represents an unknown or unhandled drag change.
  */
+@Stable
 sealed interface DragChanges {
 
     /**

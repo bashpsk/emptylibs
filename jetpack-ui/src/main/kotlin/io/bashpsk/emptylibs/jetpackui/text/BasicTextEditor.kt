@@ -35,10 +35,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun BasicTextEditor(
+inline fun BasicTextEditor(
     modifier: Modifier = Modifier,
     inputContent: String,
-    onContentChange: (content: String) -> Unit,
+    crossinline onContentChange: (content: String) -> Unit,
     textStyle: TextStyle = TextStyle.Default,
     numberColor: Color = MaterialTheme.colorScheme.onSurface,
     cursorBrush: Brush = SolidColor(Color.DarkGray),
@@ -79,10 +79,10 @@ fun BasicTextEditor(
 }
 
 @Composable
-fun BasicTextEditor(
+inline fun BasicTextEditor(
     modifier: Modifier = Modifier,
     inputContent: TextFieldValue,
-    onContentChange: (content: TextFieldValue) -> Unit,
+    noinline onContentChange: (content: TextFieldValue) -> Unit,
     textStyle: TextStyle = TextStyle.Default,
     numberColor: Color = MaterialTheme.colorScheme.onSurface,
     cursorBrush: Brush = SolidColor(Color.DarkGray),

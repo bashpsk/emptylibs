@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.gestureui.video
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 
 /**
@@ -15,6 +16,7 @@ import androidx.compose.ui.geometry.Offset
  * - [BackwardTap]: Represents a tap gesture that is typically interpreted as a "backward" action,
  *   often associated with tapping on the left side of a view.
  */
+@Stable
 sealed interface TapChanges {
 
     /**
