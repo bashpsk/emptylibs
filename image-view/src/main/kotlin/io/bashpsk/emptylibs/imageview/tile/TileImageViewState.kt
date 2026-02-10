@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -38,6 +39,12 @@ internal class TileImageViewState() {
      * A list of [TileImageData] representing the tiles of the image.
      */
     internal var imageGridList by mutableStateOf(persistentListOf<TileImageData>())
+
+    /**
+     * The visible rectangular area of the viewport in pixels, used to determine which tiles are
+     * currently visible.
+     */
+    internal var viewportRect by mutableStateOf(Rect.Zero)
 
     /**
      * Parses the given [ImageBitmap] into tiles of the specified size and updates [imageGridList].

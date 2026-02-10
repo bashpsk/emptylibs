@@ -13,15 +13,17 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntSize
+import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.imageutils.extension.findAspectRatio
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import kotlinx.coroutines.launch
@@ -33,14 +35,12 @@ import kotlin.math.roundToInt
  *
  * @param modifier The modifier to be applied to the layout.
  * @param imageBitmap The large [ImageBitmap] to be displayed.
- * @param contentScale Strategy used to determine how to scale the image content within the layout bounds.
+ * @param contentScale Strategy used to determine how to scale the image content within the layout
+ * bounds.
  * @param alignment Alignment parameter used to place the image content in the layout bounds.
  * @param alpha Opacity to be applied to the image.
  * @param colorFilter ColorFilter to be applied to the image.
  * @param tileSize The size of each tile in pixels. Defaults to 512.
- * @param zoomScale The current zoom level of the image.
- * @param centerPosition The center position of the viewport within the image.
- * @param viewportSize The size of the visible area of the image.
  */
 @Composable
 fun TileImageView(
@@ -50,10 +50,7 @@ fun TileImageView(
     alignment: Alignment = Alignment.Center,
     alpha: Float = 1.0F,
     colorFilter: ColorFilter? = null,
-    tileSize: Int = 512,
-    zoomScale: Float = 1.0F,
-    centerPosition: IntOffset = IntOffset.Zero,
-    viewportSize: Size = Size.Unspecified
+    tileSize: Int = 512
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -73,8 +70,31 @@ fun TileImageView(
     Layout(
         modifier = modifier
             .clipToBounds()
+            .onGloballyPositioned { coordinates ->
+
+                val rootCoordinates = coordinates.findRootCoordinates()
+                val rootRect = Rect(offset = Offset.Zero, size = rootCoordinates.size.toSize())
+                val visibleInRoot = coordinates.boundsInRoot().intersect(rootRect)
+
+                state.viewportRect = when(visibleInRoot.isEmpty) {
+
+                    true -> Rect.Zero
+
+                    false -> Rect(
+                        topLeft = coordinates.localPositionOf(
+                            sourceCoordinates = rootCoordinates,
+                            relativeToSource = visibleInRoot.topLeft
+                        ),
+                        bottomRight = coordinates.localPositionOf(
+                            sourceCoordinates = rootCoordinates,
+                            relativeToSource = visibleInRoot.bottomRight
+                        )
+                    )
+                }
+            }
             .drawBehind {
 
+//                var visibleTiles = 0
                 val srcSize = imageBitmap.toSize()
 
                 val baseScale = contentScale.computeScaleFactor(
@@ -91,17 +111,6 @@ fun TileImageView(
                     layoutDirection = layoutDirection
                 )
 
-                val (positionX, positionY) = centerPosition
-                val boundSize = (if (viewportSize.isSpecified) viewportSize else size) / zoomScale
-
-                val viewportRect = Rect(
-                    offset = Offset(
-                        x = (size.width / 2F) - (positionX / zoomScale) - (boundSize.width / 2F),
-                        y = (size.height / 2F) - (positionY / zoomScale) - (boundSize.height / 2F)
-                    ),
-                    size = boundSize
-                )
-
                 state.imageGridList.forEach { tileImage ->
 
                     val tileImageRect = Rect(
@@ -115,14 +124,21 @@ fun TileImageView(
                         )
                     )
 
-                    if (viewportRect.overlaps(tileImageRect)) drawImage(
-                        image = tileImage.bitmap,
-                        dstOffset = tileImageRect.topLeft.round(),
-                        dstSize = tileImageRect.size.roundToIntSize(),
-                        alpha = alpha,
-                        colorFilter = colorFilter
-                    )
+                    if (state.viewportRect.overlaps(tileImageRect)) {
+
+//                        visibleTiles++
+
+                        drawImage(
+                            image = tileImage.bitmap,
+                            dstOffset = tileImageRect.topLeft.round(),
+                            dstSize = tileImageRect.size.roundToIntSize(),
+                            alpha = alpha,
+                            colorFilter = colorFilter
+                        )
+                    }
                 }
+
+//                "VISIBLE TILES: $visibleTiles".setDebug()
             },
         content = {}
     ) { _, constraints ->

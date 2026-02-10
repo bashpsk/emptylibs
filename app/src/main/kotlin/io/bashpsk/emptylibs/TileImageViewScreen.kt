@@ -64,10 +64,7 @@ fun TileImageViewScreen() {
                 TileImageView(
                     modifier = Modifier.fillMaxWidth(),
                     imageBitmap = largeImage,
-                    colorFilter = ImageFilterType.Original.colorFilter,
-                    zoomScale = transformableState.zoom,
-                    centerPosition = layoutPosition,
-                    viewportSize = transformableState.boundSize
+                    colorFilter = ImageFilterType.Original.colorFilter
                 )
             }
         }

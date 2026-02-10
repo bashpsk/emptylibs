@@ -1,8 +1,15 @@
 package io.bashpsk.emptylibs.jetpackui.layout
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.toSize
 import kotlin.math.roundToInt
 
 /**
@@ -10,18 +17,48 @@ import kotlin.math.roundToInt
  *
  * @param modifier The modifier to be applied to the layout.
  * @param zoomScale The scale factor to apply to the content.
- * @param content The content to be zoomed.
+ * @param content The content to be zoomed, with [ZoomableLayoutScope].
  */
 @Composable
-inline fun ZoomableLayout(
+fun ZoomableLayout(
     modifier: Modifier = Modifier,
     zoomScale: Float = 1.0F,
-    crossinline content: @Composable () -> Unit
+    content: @Composable ZoomableLayoutScope.() -> Unit
 ) {
 
+    val scope = retain { ZoomableLayoutScopeImpl() }
+
     Layout(
-        modifier = modifier,
-        content = content
+        modifier = modifier.onGloballyPositioned { coordinates ->
+
+            val rootCoordinates = coordinates.findRootCoordinates()
+            val rootRect = Rect(offset = Offset.Zero, size = rootCoordinates.size.toSize())
+            val visibleInRoot = coordinates.boundsInRoot().intersect(rootRect)
+
+            val localViewport = when (visibleInRoot.isEmpty) {
+
+                true -> Rect.Zero
+
+                false -> Rect(
+                    topLeft = coordinates.localPositionOf(
+                        sourceCoordinates = rootCoordinates,
+                        relativeToSource = visibleInRoot.topLeft
+                    ),
+                    bottomRight = coordinates.localPositionOf(
+                        sourceCoordinates = rootCoordinates,
+                        relativeToSource = visibleInRoot.bottomRight
+                    )
+                )
+            }
+
+            scope.viewport = Rect(
+                left = localViewport.left / zoomScale,
+                top = localViewport.top / zoomScale,
+                right = localViewport.right / zoomScale,
+                bottom = localViewport.bottom / zoomScale
+            )
+        },
+        content = { scope.content() }
     ) { measurables, constraints ->
 
         val placeables = measurables.map { measurable ->

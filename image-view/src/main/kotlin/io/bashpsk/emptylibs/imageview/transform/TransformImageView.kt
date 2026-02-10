@@ -91,7 +91,7 @@ fun TransformImageView(
     ) {
 
         ImageView(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             state = state,
             model = imageModel,
             contentScale = contentScale,
@@ -150,7 +150,7 @@ fun TransformImageView(
     ) {
 
         ImageView(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             state = state,
             model = imageModel,
             contentScale = contentScale,
@@ -243,7 +243,7 @@ fun TransformImageView(
         ) { page ->
 
             ImageView(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxWidth(),
                 state = state,
                 model = imageModelList[page],
                 contentScale = contentScale,
@@ -421,10 +421,7 @@ private fun ImageView(
             modifier = Modifier.fillMaxWidth(),
             imageBitmap = model,
             contentScale = contentScale,
-            tileSize = tileSize,
-            zoomScale = state.zoom,
-            centerPosition = layoutPosition,
-            viewportSize = state.boundSize
+            tileSize = tileSize
         )
     }
 }
