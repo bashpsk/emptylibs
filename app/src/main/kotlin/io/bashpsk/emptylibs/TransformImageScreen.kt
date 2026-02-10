@@ -14,6 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.res.imageResource
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
 import kotlinx.collections.immutable.persistentListOf
@@ -22,6 +24,7 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 fun TransformImageScreen() {
 
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper_large)
     var simpleList by remember { mutableStateOf(persistentListOf<Any?>()) }
 
     val tooLongList = (0..333).map { simpleList }.flatten().toImmutableList()
@@ -50,18 +53,19 @@ fun TransformImageScreen() {
             verticalArrangement = Arrangement.Center
         ) {
 
-            TransformImageView(
+            /*TransformImageView(
                 modifier = Modifier.fillMaxWidth(),
                 state = rememberTransformableGesturesState(enableRotation = true),
                 imageModelList = simpleList,
                 initialImage = simpleList.firstOrNull()
-            )
+            )*/
 
-            /*TransformImageView(
+            TransformImageView(
                 modifier = Modifier.fillMaxWidth(),
                 state = rememberTransformableGesturesState(enableRotation = true),
-                imageModel = simpleList.firstOrNull()
-            )*/
+                imageModel = imageBitmap,
+                tileSize = 256
+            )
         }
     }
 }

@@ -21,14 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.round
 import coil3.compose.SubcomposeAsyncImage
 import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
 import io.bashpsk.emptylibs.imageview.R
+import io.bashpsk.emptylibs.imageview.tile.TileImageView
 import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
 import kotlinx.collections.immutable.ImmutableList
 
@@ -48,11 +50,11 @@ import kotlinx.collections.immutable.ImmutableList
  *
  * @param modifier The [Modifier] to be applied to the composable.
  * @param state The [TransformableGesturesState] that holds and manages the current transformation
- *   state (zoom, pan, rotation). A default state is remembered if not provided.
+ * state (zoom, pan, rotation). A default state is remembered if not provided.
  * @param imageModel The image model to be displayed. This can be a URL, a local
- *   file path, or any other type supported by the image loading library (Coil).
+ * file path, or any other type supported by the image loading library (Coil).
  * @param contentScale The scaling to be applied to the image to fit within the composable's
- *   bounds. Defaults to [ContentScale.Fit].
+ * bounds. Defaults to [ContentScale.Fit].
  */
 @Composable
 fun TransformImageView(
@@ -95,6 +97,64 @@ fun TransformImageView(
             contentScale = contentScale,
             loadingIndicator = loadingIndicator,
             errorIndicator = errorIndicator
+        )
+    }
+}
+
+/**
+ * A Composable that displays an [ImageBitmap] with support for transformations like
+ * zoom, pan, and rotation. This version uses a tiled rendering approach via [TileImageView]
+ * for optimized performance when handling large high-resolution bitmaps.
+ *
+ * This view allows users to interact with the bitmap using gestures:
+ * - **Pinch-to-zoom:** Use two fingers to zoom in and out.
+ * - **Double-tap to zoom:** Quickly zoom to predefined levels.
+ * - **Pan:** Drag with one finger to move around a zoomed-in image.
+ * - **Rotate:** Twist with two fingers to rotate the image.
+ *
+ * This is a specialized overload for local [ImageBitmap] objects. For loading remote
+ * URLs or other media types, use the overloads that accept `imageModel` or `imageModelList`.
+ *
+ * @param modifier The [Modifier] to be applied to the composable.
+ * @param state The [TransformableGesturesState] that holds and manages the current transformation
+ * state (zoom, pan, rotation). A default state is remembered if not provided.
+ * @param imageModel The [ImageBitmap] to be displayed.
+ * @param contentScale The scaling to be applied to the image to fit within the composable's
+ * bounds. Defaults to [ContentScale.Fit].
+ * @param tileSize The size (in pixels) of the individual tiles used to render the image.
+ * Larger tiles use more memory but may result in fewer draw calls. Defaults to 512.
+ * @param onClick A lambda to be invoked when a single tap is detected on the image.
+ * @param onLongClick A lambda to be invoked when a long press is detected on the image.
+ */
+@Composable
+fun TransformImageView(
+    modifier: Modifier = Modifier,
+    state: TransformableGesturesState = rememberTransformableGesturesState(),
+    imageModel: ImageBitmap,
+    contentScale: ContentScale = ContentScale.Fit,
+    tileSize: Int = 512,
+    onClick: (offset: Offset) -> Unit = {},
+    onLongClick: (offset: Offset) -> Unit = {}
+) {
+
+    LaunchedEffect(imageModel) {
+
+        state.resetAllValues()
+    }
+
+    TransformImageViewLayout(
+        modifier = modifier,
+        state = state,
+        onClick = onClick,
+        onLongClick = onLongClick
+    ) {
+
+        ImageView(
+            modifier = Modifier.fillMaxSize(),
+            state = state,
+            model = imageModel,
+            contentScale = contentScale,
+            tileSize = tileSize
         )
     }
 }
@@ -273,9 +333,7 @@ private fun ImageView(
     }
 ) {
 
-    val layoutPosition by remember(state.position) {
-        derivedStateOf { IntOffset(state.position.x.toInt(), state.position.y.toInt()) }
-    }
+    val layoutPosition by remember(state.position) { derivedStateOf { state.position.round() } }
 
     ZoomableLayout(
         modifier = modifier
@@ -318,6 +376,55 @@ private fun ImageView(
                 }
             },
             contentDescription = "Image View"
+        )
+    }
+}
+
+/**
+ * A private composable that renders a [ImageBitmap] using a tiled approach for optimized
+ * performance at high zoom levels.
+ *
+ * This version of `ImageView` is specifically designed for local [ImageBitmap] resources
+ * and utilizes [TileImageView] to handle the rendering of image segments. It applies
+ * transformations such as zoom, pan, and rotation managed by the provided
+ * [TransformableGesturesState].
+ *
+ * @param modifier The [Modifier] to be applied to this composable.
+ * @param state The [TransformableGesturesState] that holds the current transformation values
+ * (zoom, position, rotation).
+ * @param model The [ImageBitmap] to be displayed.
+ * @param contentScale The scaling to be applied to the image within its bounds.
+ * Defaults to [ContentScale.Fit].
+ * @param tileSize The size (in pixels) of the individual tiles used to render the image.
+ * Defaults to 512.
+ */
+@Composable
+private fun ImageView(
+    modifier: Modifier = Modifier,
+    state: TransformableGesturesState,
+    model: ImageBitmap,
+    contentScale: ContentScale = ContentScale.Fit,
+    tileSize: Int = 512
+) {
+
+    val layoutPosition by remember(state.position) { derivedStateOf { state.position.round() } }
+
+    ZoomableLayout(
+        modifier = modifier
+            .fillMaxWidth()
+            .offset { layoutPosition }
+            .rotate(degrees = state.rotation),
+        zoomScale = state.zoom
+    ) {
+
+        TileImageView(
+            modifier = Modifier.fillMaxWidth(),
+            imageBitmap = model,
+            contentScale = contentScale,
+            tileSize = tileSize,
+            zoomScale = state.zoom,
+            centerPosition = layoutPosition,
+            viewportSize = state.boundSize
         )
     }
 }
