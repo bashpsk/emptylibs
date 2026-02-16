@@ -227,6 +227,18 @@ fun TransformImageView(
         derivedStateOf { enableSwipe && isTransforming.not() }
     }
 
+    RetainedEffect(initialImage) {
+
+        imageModelList.indexOf(initialImage).takeIf { index ->
+            index in imageModelList.indices
+        }?.let { index ->
+
+            pagerState.requestScrollToPage(index)
+        }
+
+        onRetire {}
+    }
+
     RetainedEffect(pagerState.currentPage) {
 
         onImageChanges(imageModelList.getOrNull(pagerState.currentPage))
