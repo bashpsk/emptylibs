@@ -13,10 +13,10 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -78,9 +78,9 @@ fun TransformImageView(
     }
 ) {
 
-    LaunchedEffect(imageModel) {
+    RetainedEffect(imageModel) {
 
-        state.resetAllValues()
+        onRetire { state.resetAllValues() }
     }
 
     TransformImageViewLayout(
@@ -137,9 +137,9 @@ fun TransformImageView(
     onLongClick: (offset: Offset) -> Unit = {}
 ) {
 
-    LaunchedEffect(imageModel) {
+    RetainedEffect(imageModel) {
 
-        state.resetAllValues()
+        onRetire { state.resetAllValues() }
     }
 
     TransformImageViewLayout(
@@ -181,8 +181,15 @@ fun TransformImageView(
  * Models can be URLs, local file paths, or any other type supported by Coil.
  * @param initialImage The specific image model from [imageModelList] that should be displayed
  * initially. If not found or null, the first image is shown.
+ * @param onImageChanges A lambda to be invoked when the currently active image changes.
  * @param contentScale The scaling to be applied to the image to fit within the bounds of the
  * composable. Defaults to [ContentScale.Fit].
+ * @param enableSwipe A flag indicating whether swiping between images is enabled.
+ * @param onClick A lambda to be invoked when a single tap is detected on the image.
+ * @param onLongClick A lambda to be invoked when a long press is detected on the image.
+ * @param loadingIndicator A composable to be displayed while the image is loading.
+ * @param errorIndicator A composable to be displayed if the image fails to load.
+ * @param content A composable to be displayed on top of the image view.
  */
 @Composable
 fun TransformImageView(
@@ -190,6 +197,7 @@ fun TransformImageView(
     state: TransformableGesturesState = rememberTransformableGesturesState(),
     imageModelList: ImmutableList<Any?>,
     initialImage: Any? = null,
+    onImageChanges: (image: Any?) -> Unit = {},
     contentScale: ContentScale = ContentScale.Fit,
     enableSwipe: Boolean = true,
     onClick: (offset: Offset) -> Unit = {},
@@ -209,11 +217,7 @@ fun TransformImageView(
     content: (@Composable (pagerState: PagerState) -> Unit)? = null
 ) {
 
-    val initialPage by remember(imageModelList, initialImage) {
-        derivedStateOf { imageModelList.indexOf(initialImage).takeIf { index -> index >= 0 } ?: 0 }
-    }
-
-    val pagerState = rememberPagerState(initialPage = initialPage) { imageModelList.size }
+    val pagerState = rememberPagerState { imageModelList.size }
 
     val isTransforming by remember(state.touchCount, state.zoom, state.rotation) {
         derivedStateOf { state.hasTransform() }
@@ -223,9 +227,11 @@ fun TransformImageView(
         derivedStateOf { enableSwipe && isTransforming.not() }
     }
 
-    LaunchedEffect(pagerState.currentPage) {
+    RetainedEffect(pagerState.currentPage) {
 
-        state.resetAllValues()
+        onImageChanges(imageModelList.getOrNull(pagerState.currentPage))
+
+        onRetire { state.resetAllValues() }
     }
 
     TransformImageViewLayout(
