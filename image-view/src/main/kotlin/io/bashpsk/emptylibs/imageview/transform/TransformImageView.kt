@@ -1,10 +1,8 @@
 package io.bashpsk.emptylibs.imageview.transform
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -214,7 +212,7 @@ fun TransformImageView(
             contentDescription = "Image Load Failed"
         )
     },
-    content: (@Composable (pagerState: PagerState) -> Unit)? = null
+    content: @Composable BoxScope.(pagerState: PagerState) -> Unit = {}
 ) {
 
     val pagerState = rememberPagerState { imageModelList.size }
@@ -270,7 +268,7 @@ fun TransformImageView(
             )
         }
 
-        content?.invoke(pagerState)
+        content(pagerState)
     }
 }
 
@@ -367,31 +365,11 @@ private fun ImageView(
             contentScale = contentScale,
             loading = {
 
-                loadingIndicator?.let { content ->
-
-                    Column(
-                        modifier = Modifier.matchParentSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        content()
-                    }
-                }
+                loadingIndicator?.invoke()
             },
             error = {
 
-                errorIndicator?.let { content ->
-
-                    Column(
-                        modifier = Modifier.matchParentSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        content()
-                    }
-                }
+                errorIndicator?.invoke()
             },
             contentDescription = "Image View"
         )
