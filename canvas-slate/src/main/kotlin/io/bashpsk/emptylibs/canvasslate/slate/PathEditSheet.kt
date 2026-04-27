@@ -166,7 +166,10 @@ internal fun PenThicknessDialog(
 
                 BrushThicknessSelectionView(
                     penThickness = state.brushThickness,
-                    onThicknessChange = state::updateBrushThickness
+                    onThicknessChange = { newThickness ->
+
+                        state.brushThickness = newThickness
+                    }
                 )
             },
             confirmButton = {
@@ -219,10 +222,16 @@ internal fun PenStrokeDialog(
             text = {
 
                 PenStrokeSelectionView(
-                    selectedStrokeCap = state.selectedStrokeCap,
-                    selectedStrokeJoin = state.selectedStrokeJoin,
-                    onStrokeCapChange = state::updateStrokeCap,
-                    onStrokeJoinChange = state::updateStrokeJoin
+                    selectedStrokeCap = state.strokeCap,
+                    selectedStrokeJoin = state.strokeJoin,
+                    onStrokeCapChange = { newStroke ->
+
+                        state.strokeCap = newStroke
+                    },
+                    onStrokeJoinChange = { newStroke ->
+
+                        state.strokeJoin = newStroke
+                    }
                 )
             },
             confirmButton = {
@@ -621,7 +630,7 @@ private fun CanvasPathPreview(modifier: Modifier = Modifier, state: CanvasSlateS
 
     Canvas(
         modifier = modifier
-            .background(color = state.selectedBackgroundColor)
+            .background(color = state.backgroundColor)
             .aspectRatio(ratio = canvasAspectRatio)
             .clipToBounds(),
         contentDescription = "Canvas Slate"

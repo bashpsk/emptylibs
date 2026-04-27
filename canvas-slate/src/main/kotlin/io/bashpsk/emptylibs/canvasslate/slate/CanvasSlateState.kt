@@ -5,9 +5,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -22,14 +21,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.canvasslate.extension.toStrokeCap
-import io.bashpsk.emptylibs.canvasslate.extension.toStrokeJoin
 import io.bashpsk.emptylibs.composeutils.offset.hasNeared
 import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
-import io.bashpsk.emptylibs.composeutils.size.SizeData
-import io.bashpsk.emptylibs.composeutils.size.toSizeData
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
@@ -41,32 +35,37 @@ import kotlin.time.Clock
  * current state of the drawing canvas, including background color, brush properties,
  * drawn paths, and drawing mode.
  *
- * The state is saved and restored across configuration changes using [rememberSaveable].
+ * The state is saved and restored across configuration changes using [retain].
  *
- * @param background The initial background color of the canvas. Defaults to [Color.Black].
- * @param initial The initial brush color. Defaults to [Color.Green].
+ * @param background The initial background color of the canvas. Defaults to [Color.DarkGray].
+ * @param brush The initial brush color. Defaults to [Color.Green].
  * @return A [CanvasSlateState] instance that can be used to control and observe the canvas.
  */
 @Composable
 fun rememberCanvasSlateState(
-    background: Color = Color.Black,
-    initial: Color = Color.Green
+    background: Color = CanvasSlateState.BackgroundColor,
+    brush: Color = CanvasSlateState.BrushColor
 ): CanvasSlateState {
 
     val density = LocalDensity.current
 
-    return rememberSaveable(
-        background,
-        initial,
-        density,
-        saver = CanvasSlateState.StateSaver(
-            background = background,
-            initial = initial,
-            density = density
-        )
-    ) {
-        CanvasSlateState(background = background, initial = initial, density = density)
+    val state = retain(density) { CanvasSlateState(density = density) }
+
+    RetainedEffect(background) {
+
+        state.backgroundColor = background
+
+        onRetire { }
     }
+
+    RetainedEffect(brush) {
+
+        state.brushColor = brush
+
+        onRetire { }
+    }
+
+    return state
 }
 
 /**
@@ -78,16 +77,10 @@ fun rememberCanvasSlateState(
  * actions such as clearing the canvas, undoing the last action, and getting an image bitmap
  * of the canvas.
  *
- * @param background The initial background color of the canvas.
- * @param initial The initial brush color.
  * @param density The density of the display.
  */
 @Stable
-class CanvasSlateState(
-    private val background: Color,
-    private val initial: Color,
-    private val density: Density
-) {
+class CanvasSlateState(private val density: Density) {
 
     /**
      * The threshold in pixels used for determining if a touch event is near an existing path
@@ -106,26 +99,15 @@ class CanvasSlateState(
     /**
      * Represents the selected background color for the canvas.
      * This property holds the current background color chosen by the user.
-     * It is initialized with the `background` color provided during state creation.
-     * The value can be updated using the [updateBackgroundColor] function.
-     * This property is observed by Compose, and changes to it will trigger recomposition.
      */
-    var selectedBackgroundColor by mutableStateOf(background)
-        private set
+    var backgroundColor by mutableStateOf(BackgroundColor)
 
     /**
      * Represents the currently selected brush color for drawing on the canvas.
      *
      * This property holds the [Color] that will be used for new paths drawn on the canvas.
-     * It is initialized with the `initial` color provided to the [CanvasSlateState] constructor.
-     * The color can be updated using the [updateBrushColor] function.
-     *
-     * The `private set` modifier restricts modification of this property from outside the
-     * [CanvasSlateState] class, ensuring that changes to the brush color are managed
-     * through the designated update function.
      */
-    var selectedBrushColor by mutableStateOf(initial)
-        private set
+    var brushColor by mutableStateOf(BrushColor)
 
     /**
      * Represents the currently selected stroke cap for drawing paths.
@@ -133,10 +115,8 @@ class CanvasSlateState(
      * dashes.
      * It can be one of [StrokeCap.Butt], [StrokeCap.Round], or [StrokeCap.Square].
      * The default value is [StrokeCap.Round].
-     * This property can be updated using the [updateStrokeCap] method.
      */
-    var selectedStrokeCap by mutableStateOf(StrokeCap.Round)
-        private set
+    var strokeCap by mutableStateOf(StrokeCap.Round)
 
     /**
      * Represents the currently selected stroke join type for drawing paths.
@@ -144,23 +124,14 @@ class CanvasSlateState(
      * The stroke join determines the shape used to join two line segments where they meet.
      * It can be one of the values defined in the [StrokeJoin] enum
      * (e.g., [StrokeJoin.Round], [StrokeJoin.Miter], [StrokeJoin.Bevel]).
-     *
-     * This property is mutable using [updateStrokeJoin] and defaults to [StrokeJoin.Round].
-     * The `private set` ensures that modifications to this property are only possible through the
-     * dedicated update function.
      */
-    var selectedStrokeJoin by mutableStateOf(StrokeJoin.Round)
-        private set
+    var strokeJoin by mutableStateOf(StrokeJoin.Round)
 
     /**
      * Represents the thickness of the brush used for drawing.
-     * This property is mutable and can be updated using [updateBrushThickness].
      * The default value is `4.0F`.
-     * This property is private to ensure that modifications are done through the dedicated update
-     * function.
      */
     var brushThickness by mutableFloatStateOf(4.0F)
-        private set
 
     /**
      * Represents the current path being drawn on the canvas.
@@ -213,56 +184,6 @@ class CanvasSlateState(
      * It allows for undoing changes and visualizing modifications before they become permanent.
      */
     internal var previewPathList by mutableStateOf(persistentListOf<CanvasSlatePath>())
-
-    /**
-     * Updates the background color of the canvas.
-     *
-     * @param color The new background color to set.
-     */
-    fun updateBackgroundColor(color: Color) {
-
-        selectedBackgroundColor = color
-    }
-
-    /**
-     * Updates the brush color.
-     *
-     * @param color The new brush color.
-     */
-    fun updateBrushColor(color: Color) {
-
-        selectedBrushColor = color
-    }
-
-    /**
-     * Updates the selected stroke cap.
-     *
-     * @param type The new stroke cap to use.
-     */
-    fun updateStrokeCap(type: StrokeCap) {
-
-        selectedStrokeCap = type
-    }
-
-    /**
-     * Updates the selected stroke join type for drawing.
-     *
-     * @param type The [StrokeJoin] to set as the selected stroke join.
-     */
-    fun updateStrokeJoin(type: StrokeJoin) {
-
-        selectedStrokeJoin = type
-    }
-
-    /**
-     * Updates the brush thickness.
-     *
-     * @param thickness The new brush thickness.
-     */
-    fun updateBrushThickness(thickness: Float) {
-
-        brushThickness = thickness
-    }
 
     /**
      * Sets the drawing mode of the canvas.
@@ -324,10 +245,10 @@ class CanvasSlateState(
 
             val path = CanvasSlatePath(
                 id = Clock.System.now().toEpochMilliseconds().toString(),
-                color = selectedBrushColor.toArgb(),
+                color = brushColor.toArgb(),
                 thickness = brushThickness,
-                strokeCap = selectedStrokeCap.toString(),
-                strokeJoin = selectedStrokeJoin.toString(),
+                strokeCap = strokeCap.toString(),
+                strokeJoin = strokeJoin.toString(),
                 path = persistentListOf()
             )
 
@@ -520,7 +441,7 @@ class CanvasSlateState(
                 size = size
             ) {
 
-                drawRect(color = selectedBackgroundColor)
+                drawRect(color = backgroundColor)
                 allPathList.forEach { pathData -> drawSlatePath(slatePath = pathData) }
                 currentPath?.let { pathData -> drawSlatePath(slatePath = pathData) }
             }
@@ -532,10 +453,10 @@ class CanvasSlateState(
     internal fun clearState() {
 
         canvasSize = Size.Zero
-        selectedBackgroundColor = background
-        selectedBrushColor = initial
-        selectedStrokeCap = StrokeCap.Round
-        selectedStrokeJoin = StrokeJoin.Round
+        backgroundColor = BackgroundColor
+        brushColor = BrushColor
+        strokeCap = StrokeCap.Round
+        strokeJoin = StrokeJoin.Round
         brushThickness = 4.0F
         currentPath = null
         isDrawingMode = true
@@ -548,76 +469,14 @@ class CanvasSlateState(
 
     companion object {
 
-        private const val KEY_CANVAS_SIZE = "CANVAS-SLATE-CANVAS-SIZE"
-        private const val KEY_BACKGROUND_COLOR = "CANVAS-SLATE-BACKGROUND-COLOR"
-        private const val KEY_BRUSH_COLOR = "CANVAS-SLATE-BRUSH-COLOR"
-        private const val KEY_STROKE_CAP = "CANVAS-SLATE-STROKE-CAP"
-        private const val KEY_STROKE_JOIN = "CANVAS-SLATE-STROKE-JOIN"
-        private const val KEY_BRUSH_THICKNESS = "CANVAS-SLATE-BRUSH-THICKNESS"
-        private const val KEY_CURRENT_PATH = "CANVAS-SLATE-CURRENT-PATH"
-        private const val KEY_DRAWING_MODE = "CANVAS-SLATE-DRAWING-MODE"
-        private const val KEY_ALL_PATH_LIST = "CANVAS-SLATE-ALL-PATH-LIST"
+        /**
+         * Default background color of the canvas.
+         */
+        val BackgroundColor = Color.DarkGray
 
-        fun StateSaver(
-            background: Color,
-            initial: Color,
-            density: Density
-        ): Saver<CanvasSlateState, Any> = mapSaver(
-            save = { state ->
-
-                mapOf(
-                    KEY_CANVAS_SIZE to state.canvasSize.toSizeData(),
-                    KEY_BACKGROUND_COLOR to state.selectedBackgroundColor.toArgb(),
-                    KEY_BRUSH_COLOR to state.selectedBrushColor.toArgb(),
-                    KEY_STROKE_CAP to state.selectedStrokeCap.toString(),
-                    KEY_STROKE_JOIN to state.selectedStrokeJoin.toString(),
-                    KEY_BRUSH_THICKNESS to state.brushThickness,
-                    KEY_CURRENT_PATH to state.currentPath,
-                    KEY_DRAWING_MODE to state.isDrawingMode,
-                    KEY_ALL_PATH_LIST to state.allPathList.toTypedArray()
-                )
-            },
-            restore = { elements ->
-
-                CanvasSlateState(
-                    background = background,
-                    initial = initial,
-                    density = density
-                ).apply {
-
-                    canvasSize = (elements.getOrElse(
-                        KEY_CANVAS_SIZE
-                    ) { Size.Zero.toSizeData() } as SizeData).toSize()
-
-                    selectedBackgroundColor = Color(
-                        elements.getOrElse(
-                        KEY_BACKGROUND_COLOR
-                    ) { background.toArgb() } as Int)
-
-                    selectedBrushColor = Color(
-                        elements.getOrElse(
-                        KEY_BRUSH_COLOR
-                    ) { initial.toArgb() } as Int)
-
-                    selectedStrokeCap = (elements.getOrElse(
-                        KEY_STROKE_CAP
-                    ) { StrokeCap.Round.toString() } as String).toStrokeCap()
-
-                    selectedStrokeJoin = (elements.getOrElse(
-                        KEY_STROKE_JOIN
-                    ) { StrokeJoin.Round.toString() } as String).toStrokeJoin()
-
-                    brushThickness = elements.getOrElse(KEY_BRUSH_THICKNESS) { 4.0F } as Float
-                    currentPath = elements.getOrElse(KEY_CURRENT_PATH) { null } as CanvasSlatePath?
-                    isDrawingMode = elements.getOrElse(KEY_DRAWING_MODE) { true } as Boolean
-
-                    @Suppress("UNCHECKED_CAST")
-                    allPathList = (elements.getOrElse(KEY_ALL_PATH_LIST) {
-
-                        arrayOf<CanvasSlatePath>()
-                    } as Array<CanvasSlatePath>).toPersistentList()
-                }
-            }
-        )
+        /**
+         * Default brush color.
+         */
+        val BrushColor = Color.Green
     }
 }

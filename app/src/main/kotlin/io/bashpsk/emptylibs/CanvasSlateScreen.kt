@@ -28,7 +28,7 @@ fun CanvasSlateScreen() {
 
     val canvasSlateState = rememberCanvasSlateState(
         background = MaterialTheme.colorScheme.background,
-        initial = MaterialTheme.colorScheme.onSurface
+        brush = MaterialTheme.colorScheme.onSurface
     )
 
     Scaffold(

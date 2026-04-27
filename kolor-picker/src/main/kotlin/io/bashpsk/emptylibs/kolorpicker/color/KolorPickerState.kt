@@ -6,6 +6,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -19,30 +20,36 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun rememberKolorPickerState(initialColor: Color = Color.Black): KolorPickerState {
 
-    return retain(initialColor) { KolorPickerState(initialColor = initialColor) }
+    val state = retain { KolorPickerState() }
+
+    RetainedEffect(initialColor) {
+
+        state.updateColor(color = initialColor)
+
+        onRetire { }
+    }
+
+    return state
 }
 
 /**
  * A state object that can be hoisted to control and observe color picker changes.
  *
  * In most cases, this will be created via [rememberKolorPickerState].
- *
- * @param initialColor the initial color to set on the picker
  */
 @Stable
-class KolorPickerState(val initialColor: Color) {
+class KolorPickerState {
 
     /**
      * Represents the currently selected color in the color picker.
      *
      * This property holds the [Color] value that is currently selected by the user.
-     * It is initialized with [initialColor] and can be updated through interactions
-     * with the color picker UI.
+     * It can be updated through interactions with the color picker UI.
      *
      * The setter for this property is private, meaning it can only be modified internally by the
      * [KolorPickerState] class, typically through methods like [updateColor] or [updateHslA].
      */
-    var selectedColor by mutableStateOf(initialColor)
+    var selectedColor by mutableStateOf(Color.Unspecified)
         private set
 
     /**
@@ -82,11 +89,6 @@ class KolorPickerState(val initialColor: Color) {
      */
     internal var alphaValue by mutableFloatStateOf(0F)
         private set
-
-    init {
-
-        updateColor(color = initialColor)
-    }
 
     /**
      * Updates the selected color and its corresponding HSL and alpha components.

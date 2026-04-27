@@ -10,12 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
@@ -97,14 +98,16 @@ fun ImageKrop(
         )
     }
 
-    LaunchedEffect(
+    RetainedEffect(
         state.canvasSize,
         state.originalImage,
         state.kropAspectRatio,
         state.isAspectLocked
     ) {
 
-        state.onKropRectInitialized()
+        if (state.canvasSize.isSpecified) state.onKropRectInitialized()
+
+        onRetire {  }
     }
 
     KropImagePreview(

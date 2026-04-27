@@ -1,12 +1,12 @@
 package io.bashpsk.emptylibs.imagekolor.filter
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
@@ -23,26 +23,34 @@ import io.bashpsk.emptylibs.imagekolor.R
  * @return An [ImageFilterState] instance that can be used to control and observe the image filter
  * state.
  */
+@SuppressLint("LocalContextResourcesRead")
 @Composable
 fun rememberImageFilterState(previewImage: ImageBitmap? = null): ImageFilterState {
 
-    val imageBitmap = previewImage ?: ImageBitmap.imageResource(id = R.drawable.flower_01)
+    val imageBitmap = previewImage ?: ImageBitmap.imageResource(R.drawable.flower_01)
 
-    return rememberSaveable(
-        imageBitmap,
-        saver = ImageFilterState.StateSaver(previewImage = imageBitmap)
-    ) {
-        ImageFilterState(previewImage = imageBitmap)
+    val state = retain { ImageFilterState() }
+
+    RetainedEffect(imageBitmap) {
+
+        state.previewImage = imageBitmap
+
+        onRetire {  }
     }
+
+    return state
 }
 
 /**
  * Represents the state of the image filter, including the preview image and the selected filter.
- *
- * @param previewImage The image to be displayed and filtered image preview.
  */
 @Stable
-class ImageFilterState(val previewImage: ImageBitmap) {
+class ImageFilterState() {
+
+    /**
+     * The image to be displayed and filtered image preview.
+     */
+    var previewImage by mutableStateOf<ImageBitmap?>(null)
 
     /**
      * The currently selected image filter.
@@ -79,26 +87,5 @@ class ImageFilterState(val previewImage: ImageBitmap) {
     fun getFilterImage(image: ImageBitmap): ImageBitmap {
 
         return image.getKolorFilterBitmap(filter = selectedFilter)
-    }
-
-    companion object {
-
-        const val KEY_SELECTED_FILTER = "IMAGE-FILTER-SELECTED-FILTER"
-
-        fun StateSaver(previewImage: ImageBitmap): Saver<ImageFilterState, Any> = mapSaver(
-            save = { state ->
-
-                mapOf(KEY_SELECTED_FILTER to state.selectedFilter)
-            },
-            restore = { elements ->
-
-                ImageFilterState(previewImage = previewImage).apply {
-
-                    selectedFilter = elements.getOrElse(
-                        KEY_SELECTED_FILTER
-                    ) { ImageFilterType.Original} as ImageFilterType
-                }
-            }
-        )
     }
 }

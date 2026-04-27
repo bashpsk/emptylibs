@@ -48,7 +48,7 @@ fun CanvasSlate(
 
     RetainedEffect(Unit) {
 
-        onRetire { state.clearState() }
+        onRetire { }
     }
 
     KolorPickerDialog(
@@ -57,7 +57,10 @@ fun CanvasSlate(
             .safeContentPadding(),
         state = backgroundColorPickerState,
         enableAlphaPanel = true,
-        onSelectedColor = state::updateBackgroundColor
+        onSelectedColor = { newColor ->
+
+            state.backgroundColor = newColor
+        }
     )
 
     KolorPickerDialog(
@@ -66,7 +69,10 @@ fun CanvasSlate(
             .safeContentPadding(),
         state = foregroundColorPickerState,
         enableAlphaPanel = true,
-        onSelectedColor = state::updateBrushColor
+        onSelectedColor = { newColor ->
+
+            state.brushColor = newColor
+        }
     )
 
     PenStrokeDialog(dialogVisibleState = penStrokeDialogVisibleState, state = state)

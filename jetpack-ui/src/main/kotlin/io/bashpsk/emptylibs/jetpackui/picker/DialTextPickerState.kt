@@ -11,9 +11,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import kotlinx.collections.immutable.ImmutableList
@@ -50,20 +48,11 @@ fun <T> rememberDialTextPickerState(
 
     val coroutineScope = rememberCoroutineScope()
 
-    return rememberSaveable(
-        textList,
-        initial,
-        coroutineScope,
-        saver = DialTextPickerState.Saver(
-            textList = textList,
-            initial = initial,
-            coroutineScope = coroutineScope
-        )
-    ) {
+    return retain(coroutineScope, textList, initial) {
         DialTextPickerState(
+            coroutineScope = coroutineScope,
             textList = textList,
-            initial = initial,
-            coroutineScope = coroutineScope
+            initial = initial
         )
     }
 }
@@ -77,16 +66,16 @@ fun <T> rememberDialTextPickerState(
  * and set the initial angle based on the initial item.
  *
  * @param T The type of items in the picker.
+ * @property coroutineScope The coroutine scope used for animations.
  * @property textList The immutable list of items to display in the picker.
  * @property initial The initially selected item. If null, the first item in [textList] will be
  * selected, or no item if [textList] is empty.
- * @property coroutineScope The coroutine scope used for animations.
  */
 @Stable
 class DialTextPickerState<T>(
+    val coroutineScope: CoroutineScope,
     val textList: ImmutableList<T>,
-    val initial: T?,
-    val coroutineScope: CoroutineScope
+    val initial: T?
 ) {
 
     /**
@@ -340,46 +329,5 @@ class DialTextPickerState<T>(
         }
 
         previousAngle = newAngle
-    }
-
-    companion object {
-
-        private const val KEY_TEXT = "DIAL-TEXT-PICKER-TEXT"
-        private const val KEY_INDEX = "DIAL-TEXT-PICKER-INDEX"
-        private const val KEY_CURRENT_ANGLE = "DIAL-TEXT-PICKER-CURRENT-ANGLE"
-        private const val KEY_PREVIOUS_ANGLE = "DIAL-TEXT-PICKER-PREVIOUS-ANGLE"
-
-        @Suppress("UNCHECKED_CAST")
-        internal fun <T> Saver(
-            textList: ImmutableList<T>,
-            initial: T?,
-            coroutineScope: CoroutineScope
-        ): Saver<DialTextPickerState<T>, Any> = mapSaver(
-            save = { state ->
-
-                mapOf(
-                    KEY_TEXT to state.selectedText,
-                    KEY_INDEX to state.selectedIndex,
-                    KEY_CURRENT_ANGLE to state.currentAngle.value,
-                    KEY_PREVIOUS_ANGLE to state.previousAngle
-                )
-            },
-            restore = { elements ->
-
-                DialTextPickerState(
-                    textList = textList,
-                    initial = initial,
-                    coroutineScope = coroutineScope
-                ).apply {
-
-                    selectedText = elements.getOrElse(KEY_TEXT) { initial } as T?
-                    selectedIndex = elements.getOrElse(KEY_INDEX) { initial } as Int
-                    previousAngle = elements.getOrElse(KEY_PREVIOUS_ANGLE) { 0F } as Float
-                    val savedAngle = elements.getOrElse(KEY_CURRENT_ANGLE) { 0F } as Float
-
-                    coroutineScope.launch { currentAngle.snapTo(savedAngle) }
-                }
-            }
-        )
     }
 }

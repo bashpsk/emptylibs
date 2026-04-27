@@ -120,7 +120,7 @@ internal fun CanvasSlateUI(
     }
 
     Box(
-        modifier = modifier.background(color = state.selectedBackgroundColor),
+        modifier = modifier.background(color = state.backgroundColor),
         contentAlignment = Alignment.Center
     ) {
 
@@ -370,7 +370,7 @@ private fun ColorSelectionBar(
         item {
 
             ColorBoxView(
-                color = state.selectedBackgroundColor,
+                color = state.backgroundColor,
                 onColorClick = {
 
                     backgroundColorPickerDialog.targetState = true
@@ -381,7 +381,7 @@ private fun ColorSelectionBar(
         item {
 
             ColorBoxView(
-                color = state.selectedBrushColor,
+                color = state.brushColor,
                 onColorClick = {
 
                     foregroundColorPickerDialog.targetState = true

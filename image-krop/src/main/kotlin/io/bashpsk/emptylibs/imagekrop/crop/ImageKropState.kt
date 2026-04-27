@@ -4,9 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -15,14 +13,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import io.bashpsk.emptylibs.composeutils.offset.OffsetData
-import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.composeutils.shape.BasicPathShapes
 import io.bashpsk.emptylibs.composeutils.shape.PathShape
-import io.bashpsk.emptylibs.composeutils.size.SizeData
-import io.bashpsk.emptylibs.composeutils.size.toSizeData
-import io.bashpsk.emptylibs.imagekrop.cache.BitmapCacheManager
-import io.bashpsk.emptylibs.imagekrop.cache.BitmapListCacheManager
 import io.bashpsk.emptylibs.imagekrop.crop.KropCorner.Companion.hasCornerCenter
 import io.bashpsk.emptylibs.imagekrop.offset.coerceAtLeast
 import io.bashpsk.emptylibs.imagekrop.offset.getKropCorner
@@ -30,17 +22,14 @@ import io.bashpsk.emptylibs.imagekrop.offset.itemRect
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlin.math.abs
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 /**
  * Composable function to remember an [ImageKropState] instance.
  *
  * This function creates and remembers an [ImageKropState] which holds the state
- * for the image cropping functionality. It uses [rememberSaveable] to ensure
- * the state is preserved across configuration changes.
+ * for the image cropping functionality. It uses [retain] to ensure the state is preserved across
+ * configuration changes.
  *
  * @param imageBitmap The initial [ImageBitmap] to be cropped.
  * @param config The [KropConfig] to configure the cropping behavior. Defaults to
@@ -55,17 +44,8 @@ fun rememberImageKropState(
 
     val density = LocalDensity.current
 
-    return rememberSaveable(
-        imageBitmap,
-        config,
-        density,
-        saver = ImageKropState.StateSaver(
-            imageBitmap = imageBitmap,
-            config = config,
-            density = density
-        )
-    ) {
-        ImageKropState(imageBitmap = imageBitmap, config = config, density = density)
+    return retain(density, imageBitmap, config) {
+        ImageKropState(density = density, imageBitmap = imageBitmap, config = config)
     }
 }
 
@@ -79,12 +59,12 @@ fun rememberImageKropState(
  * It provides functions to update the image, aspect ratio, shape, and manage a list
  * of image versions for undo functionality.
  *
+ * @param density The density of the display.
  * @param imageBitmap The initial [ImageBitmap] to be cropped. This is the base image.
  * @param config The [KropConfig] to be used for the cropping operations.
  */
-@OptIn(ExperimentalUuidApi::class)
 @Stable
-class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val density: Density) {
+class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val config: KropConfig) {
 
     /**
      * A persistent list of [PathShape] objects available for cropping.
@@ -124,7 +104,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      * It used for image undo functionality.
      * It can be updated using the [addImage] function.
      */
-    var imageList by mutableStateOf(persistentListOf(KEY_ORIGINAL_IMAGE))
+    var imageList by mutableStateOf(persistentListOf(imageBitmap))
         private set
 
     /**
@@ -165,19 +145,19 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      * The size of the canvas where the image is drawn.
      * This is used to calculate the correct scaling and positioning of the crop rectangle.
      */
-    internal var canvasSize by mutableStateOf(Size.Zero)
+    internal var canvasSize by mutableStateOf(Size.Unspecified)
 
     /**
      * The current position of the crop rectangle, represented by its top-left corner's offset.
      * This is used internally to track the location of the crop rectangle on the canvas.
      */
-    internal var kropRectPosition by mutableStateOf(Offset.Zero)
+    internal var kropRectPosition by mutableStateOf(Offset.Unspecified)
 
     /**
      * The size of the crop rectangle.
      * This is used to draw the crop rectangle on the canvas.
      */
-    internal var kropRectSize by mutableStateOf(Size.Zero)
+    internal var kropRectSize by mutableStateOf(Size.Unspecified)
 
     /**
      * Whether the aspect ratio selection menu is currently expanded.
@@ -198,11 +178,6 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      * of the selected shape. When `false`, the dialog is hidden.
      */
     internal var isShapeCustomizeDialog by mutableStateOf(false)
-
-    init {
-
-        BitmapListCacheManager.set(KEY_ORIGINAL_IMAGE, value = imageBitmap)
-    }
 
     /**
      * Updates the original image.
@@ -252,17 +227,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
             imageList.removeAt(index = index)
         } ?: imageList
 
-        val newKey = generateImageKey()
-
-        BitmapListCacheManager.resize(maxSize = imageList.size + 1)
-        BitmapListCacheManager.set(newKey, value = bitmap)
-        BitmapListCacheManager.contains(newKey).takeIf { hasAdded ->
-
-            hasAdded
-        }?.run {
-
-            imageList = safeImageList.add(element = newKey)
-        }
+        imageList = safeImageList.add(element = bitmap)
     }
 
     /**
@@ -278,12 +243,9 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
             imageList = imageList.removeAt(index = index)
         }
 
-        imageList.lastOrNull()?.let { key ->
+        imageList.lastOrNull()?.let { bitmap ->
 
-            BitmapListCacheManager[key]?.let { bitmap ->
-
-                updateOriginalImage(bitmap)
-            }
+            updateOriginalImage(bitmap)
         }
     }
 
@@ -293,7 +255,7 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      */
     fun clearImages() {
 
-        imageList = persistentListOf(KEY_ORIGINAL_IMAGE)
+        imageList = persistentListOf(imageBitmap)
     }
 
     /**
@@ -356,38 +318,10 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
      */
     internal fun existImageIndex(bitmap: ImageBitmap): Int? {
 
-        return imageList.indexOfFirst { key ->
+        return imageList.indexOfFirst { image ->
 
-            BitmapListCacheManager[key]?.sameAs(bitmap) == true
+            image.sameAs(bitmap)
         }.takeIf { index -> index > 0 }
-    }
-
-    /**
-     * Generates a unique key for an image.
-     *
-     * This function recursively calls [generateKey] until a unique key is found that is not
-     * already present in the [imageList]. This ensures that each image in the list has a
-     * distinct identifier.
-     *
-     * @return A unique [String] key for an image.
-     */
-    internal fun generateImageKey(): String {
-
-        return generateKey().takeIf { newKey ->
-
-            imageList.none { existingKey -> existingKey == newKey }
-        } ?: generateImageKey()
-    }
-
-    /**
-     * Generates a unique key using a random UUID.
-     * This key is used for identifying images in the cache.
-     *
-     * @return A string representation of a randomly generated UUID.
-     */
-    internal fun generateKey(): String {
-
-        return Uuid.random().toString()
     }
 
     /**
@@ -1283,15 +1217,11 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
     internal fun clearState() {
 
-        BitmapCacheManager.evictAll()
-        BitmapListCacheManager.evictAll()
-        BitmapListCacheManager.set(KEY_ORIGINAL_IMAGE, value = imageBitmap)
-
         shapeList = BasicPathShapes
         originalImage = imageBitmap
         modifiedImage = null
         previewImage = null
-        imageList = persistentListOf(KEY_ORIGINAL_IMAGE)
+        imageList = persistentListOf(imageBitmap)
         kropAspectRatio = KropAspectRatio.Ratio1to1
         isAspectLocked = false
         kropShape = PathShape.None
@@ -1303,106 +1233,5 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
         isAspectRatioMenuExpanded = false
         isShapeMenuExpanded = false
         isShapeCustomizeDialog = false
-    }
-
-    companion object {
-
-        private const val KEY_SHAPE_LIST = "IMAGE-KROP-SHAPE-LIST"
-        private const val KEY_ORIGINAL_IMAGE = "IMAGE-KROP-ORIGINAL"
-        private const val KEY_MODIFIED_IMAGE = "IMAGE-KROP-MODIFIED"
-        private const val KEY_PREVIEW_IMAGE = "IMAGE-KROP-PREVIEW"
-        private const val KEY_IMAGE_LIST = "IMAGE-KROP-IMAGE-LIST"
-        private const val KEY_ASPECT_RATIO = "IMAGE-KROP-ASPECT-RATIO"
-        private const val KEY_ASPECT_LOCKED = "IMAGE-KROP-ASPECT-LOCKED"
-        private const val KEY_KROP_SHAPE = "IMAGE-KROP-SHAPE"
-        private const val KEY_CURRENT_CORNER = "IMAGE-KROP-CURRENT-CORNER"
-        private const val KEY_CANVAS_SIZE = "IMAGE-KROP-CANVAS-SIZE"
-        private const val KEY_KROP_RECT_POSITION = "IMAGE-KROP-RECT-POSITION"
-        private const val KEY_KROP_RECT_SIZE = "IMAGE-KROP-RECT-SIZE"
-        private const val KEY_ASPECT_RATIO_MENU_EXPANDED = "IMAGE-KROP-ASPECT-RATIO-MENU-EXPANDED"
-        private const val KEY_SHAPE_MENU_EXPANDED = "IMAGE-KROP-SHAPE-MENU-EXPANDED"
-        private const val KEY_SHAPE_CUSTOMIZE_DIALOG = "IMAGE-KROP-SHAPE-CUSTOMIZE-DIALOG"
-
-        @Suppress("UNCHECKED_CAST")
-        fun StateSaver(
-            imageBitmap: ImageBitmap,
-            config: KropConfig,
-            density: Density
-        ): Saver<ImageKropState, Any> = mapSaver(
-            save = { state ->
-
-                BitmapCacheManager[KEY_ORIGINAL_IMAGE] = state.originalImage
-                state.modifiedImage?.let { BitmapCacheManager[KEY_MODIFIED_IMAGE] = it }
-                state.previewImage?.let { BitmapCacheManager[KEY_PREVIEW_IMAGE] = it }
-
-                mapOf(
-                    KEY_SHAPE_LIST to state.shapeList.toTypedArray(),
-                    KEY_IMAGE_LIST to state.imageList.toTypedArray(),
-                    KEY_ASPECT_RATIO to state.kropAspectRatio,
-                    KEY_ASPECT_LOCKED to state.isAspectLocked,
-                    KEY_KROP_SHAPE to state.kropShape,
-                    KEY_CURRENT_CORNER to state.currentCorner,
-                    KEY_CANVAS_SIZE to state.canvasSize.toSizeData(),
-                    KEY_KROP_RECT_POSITION to state.kropRectPosition.toOffsetData(),
-                    KEY_KROP_RECT_SIZE to state.kropRectSize.toSizeData(),
-                    KEY_ASPECT_RATIO_MENU_EXPANDED to state.isAspectRatioMenuExpanded,
-                    KEY_SHAPE_MENU_EXPANDED to state.isShapeMenuExpanded,
-                    KEY_SHAPE_CUSTOMIZE_DIALOG to state.isShapeCustomizeDialog
-                )
-            },
-            restore = { elements ->
-
-                ImageKropState(
-                    imageBitmap = imageBitmap,
-                    config = config,
-                    density = density
-                ).apply {
-
-                    shapeList = (elements.getOrElse(
-                        KEY_SHAPE_LIST
-                    ) { BasicPathShapes.toTypedArray() } as Array<PathShape>).toPersistentList()
-
-                    originalImage = BitmapCacheManager[KEY_ORIGINAL_IMAGE] ?: imageBitmap
-                    modifiedImage = BitmapCacheManager[KEY_MODIFIED_IMAGE]
-                    previewImage = BitmapCacheManager[KEY_PREVIEW_IMAGE]
-
-                    imageList = (elements.getOrElse(
-                        KEY_IMAGE_LIST
-                    ) { arrayOf(KEY_ORIGINAL_IMAGE) } as Array<String>).toPersistentList()
-
-                    kropAspectRatio = elements.getOrElse(
-                        KEY_ASPECT_RATIO
-                    ) { KropAspectRatio.Ratio1to1 } as KropAspectRatio
-
-                    isAspectLocked = elements.getOrElse(KEY_ASPECT_LOCKED) { false } as Boolean
-                    kropShape = elements.getOrElse(KEY_KROP_SHAPE) { PathShape.None } as PathShape
-                    currentCorner = elements.getOrElse(KEY_CURRENT_CORNER) { null } as KropCorner?
-
-                    canvasSize = (elements.getOrElse(
-                        KEY_CANVAS_SIZE
-                    ) { Size.Zero.toSizeData() } as SizeData).toSize()
-
-                    kropRectPosition = (elements.getOrElse(
-                        KEY_KROP_RECT_POSITION
-                    ) { Offset.Zero.toOffsetData() } as OffsetData).toOffset()
-
-                    kropRectSize = (elements.getOrElse(
-                        KEY_KROP_RECT_SIZE
-                    ) { Size.Zero.toSizeData() } as SizeData).toSize()
-
-                    isAspectRatioMenuExpanded = elements.getOrElse(
-                        KEY_ASPECT_RATIO_MENU_EXPANDED
-                    ) { false } as Boolean
-
-                    isShapeMenuExpanded = elements.getOrElse(
-                        KEY_SHAPE_MENU_EXPANDED
-                    ) { false } as Boolean
-
-                    isShapeCustomizeDialog = elements.getOrElse(
-                        KEY_SHAPE_CUSTOMIZE_DIALOG
-                    ) { false } as Boolean
-                }
-            }
-        )
     }
 }

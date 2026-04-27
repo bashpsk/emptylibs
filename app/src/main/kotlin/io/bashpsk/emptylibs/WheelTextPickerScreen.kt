@@ -42,7 +42,9 @@ fun WheelTextPickerScreen() {
     Scaffold { paddingValues ->
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

@@ -7,9 +7,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -34,22 +32,12 @@ fun <T> rememberWheelTextPickerState(
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
 
-    return rememberSaveable(
-        textList,
-        initial,
-        coroutineScope,
-        saver = WheelTextPickerState.StateSaver(
-            textList = textList,
-            initial = initial,
-            coroutineScope = coroutineScope,
-            density = density
-        )
-    ) {
+    return retain(density, coroutineScope, textList, initial) {
         WheelTextPickerState(
-            textList = textList,
-            initial = initial,
+            density = density,
             coroutineScope = coroutineScope,
-            density = density
+            textList = textList,
+            initial = initial
         )
     }
 }
@@ -65,10 +53,10 @@ fun <T> rememberWheelTextPickerState(
  */
 @Stable
 class WheelTextPickerState<T>(
-    val textList: ImmutableList<T>,
-    val initial: T?,
+    private val density: Density,
     private val coroutineScope: CoroutineScope,
-    private val density: Density
+    val textList: ImmutableList<T>,
+    val initial: T?
 ) {
 
     /**
@@ -132,10 +120,7 @@ class WheelTextPickerState<T>(
      * @param itemHeight The height of each item in the picker.
      * @param pickerCenterY The Y-coordinate of the center of the picker view.
      */
-    internal fun setInitialScroll(
-        itemHeight: Float,
-        pickerCenterY: Float
-    ) {
+    internal fun setInitialScroll(itemHeight: Float, pickerCenterY: Float) {
 
         coroutineScope.launch {
 
@@ -162,7 +147,7 @@ class WheelTextPickerState<T>(
      */
     internal fun onScroll(delta: Float) {
 
-        coroutineScope.launch { animatable.snapTo(animatable.value - delta)}
+        coroutineScope.launch { animatable.snapTo(animatable.value - delta) }
     }
 
     /**
@@ -173,11 +158,7 @@ class WheelTextPickerState<T>(
      * @param itemHeight The height of each item in the picker.
      * @param pickerCenterY The Y-coordinate of the center of the picker.
      */
-    internal fun onFling(
-        velocity: Float,
-        itemHeight: Float,
-        pickerCenterY: Float
-    ) {
+    internal fun onFling(velocity: Float, itemHeight: Float, pickerCenterY: Float) {
 
         coroutineScope.launch {
 
@@ -218,35 +199,5 @@ class WheelTextPickerState<T>(
                 animatable.animateTo((index * itemHeight + itemHeight / 2F) - pickerCenterY)
             }
         }
-    }
-
-    companion object {
-
-        private const val KEY_SELECTED_TEXT = "WHEEL-TEXT-PICKER-SELECTED-TEXT"
-
-        @Suppress("UNCHECKED_CAST")
-        fun <T> StateSaver(
-            textList: ImmutableList<T>,
-            initial: T?,
-            coroutineScope: CoroutineScope,
-            density: Density
-        ): Saver<WheelTextPickerState<T>, Any> = mapSaver(
-            save = { state ->
-
-                mapOf(KEY_SELECTED_TEXT to state.selectedText)
-            },
-            restore = { elements ->
-
-                WheelTextPickerState(
-                    textList = textList,
-                    initial = initial,
-                    coroutineScope = coroutineScope,
-                    density = density
-                ).apply {
-
-                    selectedText = elements.getOrElse(KEY_SELECTED_TEXT) { initial } as T?
-                }
-            }
-        )
     }
 }

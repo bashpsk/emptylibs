@@ -4,16 +4,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.mapSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.ImageBitmap
 import io.bashpsk.emptylibs.imagekolor.color.ImageKolorInput.Companion.getValue
 import io.bashpsk.emptylibs.imagekolor.filter.getKolorFilterBitmap
-import kotlinx.collections.immutable.toPersistentList
 import kotlin.math.pow
 
 /**
@@ -31,23 +29,29 @@ import kotlin.math.pow
 @Composable
 fun rememberImageKolorState(imageBitmap: ImageBitmap?): ImageKolorState {
 
-    return rememberSaveable(
-        imageBitmap,
-        saver = ImageKolorState.StateSaver(imageBitmap = imageBitmap)
-    ) {
-        ImageKolorState(imageBitmap = imageBitmap)
+    val state = retain { ImageKolorState() }
+
+    RetainedEffect(imageBitmap) {
+
+        state.imageBitmap = imageBitmap
+
+        onRetire { }
     }
+
+    return state
 }
 
 /**
  * State object that can be used to control the color adjustments applied to an image.
  * This state is typically remembered using [rememberImageKolorState].
- *
- * @param imageBitmap The [ImageBitmap] to apply color adjustments to. Can be null if no image is
- * loaded yet.
  */
 @Stable
-class ImageKolorState(val imageBitmap: ImageBitmap?) {
+class ImageKolorState() {
+
+    /**
+     * The [ImageBitmap] to apply color adjustments to. Can be null if no image is loaded yet.
+     */
+    var imageBitmap by mutableStateOf<ImageBitmap?>(null)
 
     /**
      * A list of [ImageKolorInput] objects representing the current color adjustment settings.
@@ -418,35 +422,5 @@ class ImageKolorState(val imageBitmap: ImageBitmap?) {
         )
 
         return ColorMatrix(matrixArray)
-    }
-
-    companion object {
-
-        private const val KEY_CURRENT_INPUT = "IMAGE-KOLOR-CURRENT-INPUT"
-        private const val KEY_INPUT_LIST = "IMAGE-KOLOR-INPUT-LIST"
-
-        @Suppress("UNCHECKED_CAST")
-        fun StateSaver(imageBitmap: ImageBitmap?): Saver<ImageKolorState, Any> = mapSaver(
-            save = { state ->
-
-                mapOf(
-                    KEY_INPUT_LIST to state.imageKolorInputList.toTypedArray(),
-                    KEY_CURRENT_INPUT to state.kolorInput
-                )
-            },
-            restore = { elements ->
-
-                ImageKolorState(imageBitmap = imageBitmap).apply {
-
-                    imageKolorInputList = (elements.getOrElse(KEY_INPUT_LIST) {
-                        ImageKolorInput.AllTypes.toTypedArray()
-                    } as Array<ImageKolorInput>).toPersistentList()
-
-                    kolorInput = elements.getOrElse(
-                        KEY_CURRENT_INPUT
-                    ) { ImageKolorInput.AllTypes.first() } as ImageKolorInput
-                }
-            }
-        )
     }
 }

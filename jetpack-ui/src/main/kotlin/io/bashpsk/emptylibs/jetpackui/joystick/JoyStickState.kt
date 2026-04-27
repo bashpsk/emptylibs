@@ -96,7 +96,7 @@ class JoyStickState(val properties: JoyStickProperties) {
     }
 
     /**
-     * Handles the initial touch down event.
+     * Handles the initial touch-down event.
      *
      * @param newPosition The initial position of the touch relative to the center.
      */

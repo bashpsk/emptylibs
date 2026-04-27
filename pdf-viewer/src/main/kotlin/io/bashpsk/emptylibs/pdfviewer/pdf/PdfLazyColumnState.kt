@@ -5,7 +5,6 @@ import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -84,9 +83,11 @@ fun rememberPdfLazyColumnState(
         PdfLazyColumnState(density = density, transformable = transformableState)
     }
 
-    LaunchedEffect(cacheSize) {
+    RetainedEffect(cacheSize) {
 
         state.scaledBitmapManager.resize(maxSize = cacheSize)
+
+        onRetire {  }
     }
 
     RetainedEffect(context, source) {
