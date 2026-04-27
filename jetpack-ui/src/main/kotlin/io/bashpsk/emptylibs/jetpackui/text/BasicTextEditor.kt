@@ -18,6 +18,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,7 +94,7 @@ inline fun BasicTextEditor(
 
     val horizontalScrollState = rememberScrollState()
     val verticalScrollState = rememberScrollState()
-    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+    var textLayoutResult by retain { mutableStateOf<TextLayoutResult?>(null) }
 
     val currentLine by remember(textLayoutResult, inputContent.selection) {
         derivedStateOf { textLayoutResult?.getLineForOffset(inputContent.selection.start) }

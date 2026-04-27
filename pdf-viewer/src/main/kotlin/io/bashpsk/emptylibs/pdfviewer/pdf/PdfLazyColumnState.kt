@@ -93,7 +93,7 @@ fun rememberPdfLazyColumnState(
 
         state.setLoadPdfSource(context = context, source = source)
 
-        onRetire { state.close() }
+        onRetire {  }
     }
 
     return state

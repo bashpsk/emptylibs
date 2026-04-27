@@ -92,8 +92,6 @@ internal fun ImageEditUI(
     state: ImageEditState
 ) {
 
-    val coroutineScope = rememberCoroutineScope()
-
     val sizeChangedModifier = Modifier.onSizeChanged { size ->
 
         state.canvasSize = size.toSize()

@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
@@ -47,14 +46,6 @@ fun CanvasSlate(
     val penStrokeDialogVisibleState = remember { MutableTransitionState(false) }
     val penThicknessDialogVisibleState = remember { MutableTransitionState(false) }
 
-    val onBackgroundColorSelected = remember<(Color) -> Unit> {
-        state::updateBackgroundColor
-    }
-
-    val onForegroundColorSelected = remember<(Color) -> Unit> {
-        state::updateBrushColor
-    }
-
     RetainedEffect(Unit) {
 
         onRetire { state.clearState() }
@@ -66,7 +57,7 @@ fun CanvasSlate(
             .safeContentPadding(),
         state = backgroundColorPickerState,
         enableAlphaPanel = true,
-        onSelectedColor = onBackgroundColorSelected
+        onSelectedColor = state::updateBackgroundColor
     )
 
     KolorPickerDialog(
@@ -75,7 +66,7 @@ fun CanvasSlate(
             .safeContentPadding(),
         state = foregroundColorPickerState,
         enableAlphaPanel = true,
-        onSelectedColor = onForegroundColorSelected
+        onSelectedColor = state::updateBrushColor
     )
 
     PenStrokeDialog(dialogVisibleState = penStrokeDialogVisibleState, state = state)

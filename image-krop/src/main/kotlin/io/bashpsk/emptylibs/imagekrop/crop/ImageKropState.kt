@@ -1143,7 +1143,6 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
 
                 KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT -> (fixedCorner.y - newPosition.y)
                 KropCorner.BOTTOM_LEFT, KropCorner.BOTTOM_RIGHT -> (newPosition.y - fixedCorner.y)
-                else -> return null
             }.coerceAtLeast(minSize)
         }
 
@@ -1183,8 +1182,6 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
                 x = fixedCorner.x + adjustedWidth,
                 y = fixedCorner.y + adjustedHeight
             )
-
-            else -> return null
         }
 
         var finalTopLeft = initialTopLeft.copy(
@@ -1227,8 +1224,6 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
                         currentWidth = currentHeight * ratio
                         finalBottomRight = finalBottomRight.copy(x = finalTopLeft.x + currentWidth)
                     }
-
-                    else -> {}
                 }
             } ?: (currentHeight > currentWidth / ratio).takeIf { isValid -> isValid }?.run {
 
@@ -1245,8 +1240,6 @@ class ImageKropState(val imageBitmap: ImageBitmap, val config: KropConfig, val d
                         currentHeight = currentWidth / ratio
                         finalBottomRight = finalBottomRight.copy(y = finalTopLeft.y + currentHeight)
                     }
-
-                    else -> {}
                 }
             }
         }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -63,7 +64,7 @@ fun MusicPlayingAnimation(
 
     val infiniteTransition = rememberInfiniteTransition(label = animationLabel)
 
-    val random = remember { Random(seed = 0) }
+    val random = retain { Random(seed = 0) }
     var isAnimationVisible by rememberSaveable { mutableStateOf(false) }
 
     val isPlayAnimation by remember(isAnimationVisible, isPlaying) {

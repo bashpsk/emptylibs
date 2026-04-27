@@ -27,7 +27,7 @@ fun TransformImageScreen() {
     val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper_large)
     var simpleList by remember { mutableStateOf(persistentListOf<Any?>()) }
 
-    val tooLongList = (0..333).map { simpleList }.flatten().toImmutableList()
+    val tooLongList = (0..333).flatMap { simpleList }.toImmutableList()
 
     LaunchedEffect(Unit) {
 

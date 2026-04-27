@@ -101,7 +101,7 @@ fun <T> WheelTextPicker(
     }
 
     val pickerCenterY by remember(pickerTotalHeight) {
-        derivedStateOf { pickerTotalHeight / 2f }
+        derivedStateOf { pickerTotalHeight / 2F }
     }
 
     LaunchedEffect(state, itemHeightPx, pickerCenterY) {

@@ -147,7 +147,7 @@ fun <K, V> ListOptionMenuPreference(
 ) {
 
     val coroutineScope = rememberCoroutineScope()
-    val dialogVisibleState = remember { MutableTransitionState(initialState = false) }
+    val dialogVisibleState = remember { MutableTransitionState(false) }
 
     val getSelectedItem by datastore.getPreference(
         key = key,

@@ -14,7 +14,7 @@ import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onFirstVisible
+import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -47,9 +47,9 @@ internal fun TextContentResultView(
         derivedStateOf { state.getFormattedLineNumber(index = itemPosition) }
     }
 
-    val firstVisibleModifier = Modifier.onFirstVisible(minFractionVisible = 0.1F) {
+    val firstVisibleModifier = Modifier.onVisibilityChanged(minFractionVisible = 0.1F) { visible ->
 
-        state.apply {
+        if (visible) state.apply {
 
             coroutineScope.launch { contentResult = readLineContent(index = itemPosition) }
         }

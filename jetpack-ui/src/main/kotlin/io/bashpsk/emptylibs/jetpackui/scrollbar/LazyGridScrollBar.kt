@@ -178,12 +178,14 @@ fun BoxWithConstraintsScope.LazyGridScrollBar(
         }
     }
 
-    val thumbShape = remember(orientation, alignment, thumbNotchWidth) {
-        ThumbNotchShape(
-            orientation = orientation,
-            alignment = alignment,
-            thumbNotchWidth = thumbNotchWidth
-        )
+    val thumbShape by remember(orientation, alignment, thumbNotchWidth) {
+        derivedStateOf {
+            ThumbNotchShape(
+                orientation = orientation,
+                alignment = alignment,
+                thumbNotchWidth = thumbNotchWidth
+            )
+        }
     }
 
     LaunchedEffect(state, orientation, maximumBarPosition) {

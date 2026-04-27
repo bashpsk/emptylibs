@@ -30,8 +30,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -73,7 +73,7 @@ internal fun WallpaperTypeDialog(
 ) {
 
     val context = LocalContext.current
-    val wallpaperManager = remember { WallpaperManager.getInstance(context) }
+    val wallpaperManager = retain { WallpaperManager.getInstance(context) }
     val coroutineScope = rememberCoroutineScope()
 
     var isWallpaperLoading by rememberSaveable { mutableStateOf(false) }

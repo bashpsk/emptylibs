@@ -1134,8 +1134,6 @@ class ImageEditState(
                 fixedCorner.x + adjustedWidth,
                 fixedCorner.y + adjustedHeight
             )
-
-            else -> return null
         }
 
         var finalTopLeft = initialTopLeft.copy(
@@ -1176,8 +1174,6 @@ class ImageEditState(
                     currentWidth = currentHeight * aspectRatio
                     finalBottomRight = finalBottomRight.copy(x = finalTopLeft.x + currentWidth)
                 }
-
-                else -> {}
             }
         } ?: (currentHeight > currentWidth / aspectRatio).takeIf { it }?.run {
 
@@ -1194,8 +1190,6 @@ class ImageEditState(
                     currentHeight = currentWidth / aspectRatio
                     finalBottomRight = finalBottomRight.copy(y = finalTopLeft.y + currentHeight)
                 }
-
-                else -> {}
             }
         }
 

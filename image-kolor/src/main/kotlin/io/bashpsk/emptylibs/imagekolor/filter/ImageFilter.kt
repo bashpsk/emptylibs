@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,9 +37,7 @@ fun ImageFilter(
     itemSize: Dp = 120.dp
 ) {
 
-    val kolorFilterList by remember {
-        derivedStateOf { ImageFilterType.entries.toImmutableList() }
-    }
+    val kolorFilterList = retain { ImageFilterType.entries.toImmutableList() }
 
     LazyVerticalGrid(
         modifier = modifier,

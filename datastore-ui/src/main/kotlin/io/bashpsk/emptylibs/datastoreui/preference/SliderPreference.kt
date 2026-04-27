@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -184,26 +185,10 @@ fun SliderPreference(
         initial = initialValue
     ).collectAsStateWithLifecycle(initialValue = initialValue)
 
-    var sliderPosition by remember { mutableFloatStateOf(getPosition) }
+    var sliderPosition by rememberSaveable { mutableFloatStateOf(getPosition) }
 
     val sliderValueLabel by remember(sliderPosition, decimalFraction) {
         derivedStateOf { "${sliderPosition.toRoundedDecimal(fraction = decimalFraction)}" }
-    }
-
-    val onValueChange = remember<(Float) -> Unit> {
-        { position ->
-            sliderPosition = position
-        }
-    }
-
-    val onValueChangeFinish = remember<() -> Unit>(sliderPosition) {
-        {
-
-            coroutineScope.launch(context = Dispatchers.IO) {
-
-                datastore.setPreference(key = key, value = sliderPosition)
-            }
-        }
     }
 
     ListItem(
@@ -251,11 +236,20 @@ fun SliderPreference(
                     value = sliderPosition,
                     valueRange = valueRange,
                     steps = steps,
-                    onValueChange = onValueChange,
-                    onValueChangeFinished = onValueChangeFinish,
+                    onValueChange = { position ->
+
+                        sliderPosition = position
+                    },
+                    onValueChangeFinished = {
+
+                        coroutineScope.launch(context = Dispatchers.IO) {
+
+                            datastore.setPreference(key = key, value = sliderPosition)
+                        }
+                    },
                     colors = sliderColors,
                     interactionSource = sliderInteractionSource,
-                    thumb = { sliderState ->
+                    thumb = { _ ->
 
                         SliderDefaults.Thumb(
                             interactionSource = sliderInteractionSource,

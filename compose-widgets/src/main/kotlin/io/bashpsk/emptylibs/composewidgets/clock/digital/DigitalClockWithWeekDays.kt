@@ -19,10 +19,9 @@ import io.bashpsk.emptylibs.composewidgets.extension.hasAM
 import io.bashpsk.emptylibs.composewidgets.extension.hasPM
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
 import io.bashpsk.emptylibs.formatter.format.dateTime
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format.DayOfWeekNames
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
 
@@ -84,11 +83,7 @@ fun DigitalClockWithWeekDays(
     clockIcon: @Composable (() -> Unit)? = {}
 ) {
 
-    val weekDaysList by remember {
-        derivedStateOf {
-            DayOfWeek.entries.map { day -> day.name.substring(0..2) }.toImmutableList()
-        }
-    }
+    val weekDaysList by remember { derivedStateOf { DayOfWeekNames.ENGLISH_ABBREVIATED.names } }
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
         derivedStateOf { localDateTime.dateTime(pattern = clockPattern).replace("1", " 1") }

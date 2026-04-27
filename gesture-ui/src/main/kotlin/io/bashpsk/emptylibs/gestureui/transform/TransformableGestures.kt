@@ -33,7 +33,8 @@ fun Modifier.transformableGestures(
         derivedStateOf { state.hasTransform() }
     }
 
-    val transformableState = rememberTransformableState { zoomChange, panChange, rotationChange ->
+    val transformableState = rememberTransformableState { _, zoomChange, panChange,
+                                                          rotationChange ->
 
         if (isTransforming.not()) return@rememberTransformableState
 

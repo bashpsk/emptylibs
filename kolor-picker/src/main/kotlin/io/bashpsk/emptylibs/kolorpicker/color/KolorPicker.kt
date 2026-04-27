@@ -37,6 +37,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -471,7 +472,7 @@ private fun HuePanel(
 
     val density = LocalDensity.current
 
-    val hueColors = remember {
+    val hueColors = retain {
         (0..359).map { hue ->
             Color.hsl(hue = hue.toFloat(), saturation = 1F, lightness = 0.5F)
         } + Color.hsl(0F, 1F, 0.5F)
@@ -942,7 +943,7 @@ private fun ColorCopyPasteButtons(
 
     val context = LocalContext.current
 
-    val clipboardManager = remember {
+    val clipboardManager = retain {
         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     }
 

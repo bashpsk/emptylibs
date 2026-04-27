@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onFirstVisible
+import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.round
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
@@ -85,12 +85,12 @@ internal fun PdfPageView(
         derivedStateOf { state.transformable.position.round().copy(y = 0) }
     }
 
-    val firstVisibleModifier = Modifier.onFirstVisible(
+    val firstVisibleModifier = Modifier.onVisibilityChanged(
         minDurationMs = 300,
         minFractionVisible = 0.05F
-    ) {
+    ) { visible ->
 
-        state.coroutineScope.launch(context = Dispatchers.IO) {
+        if (visible) state.coroutineScope.launch(context = Dispatchers.IO) {
 
             state.setRenderNormalBitmap(pageIndex = pageData.page)
         }

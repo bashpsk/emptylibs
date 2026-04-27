@@ -12,6 +12,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -30,7 +31,7 @@ fun FormatView(
     pattern: DateTimePattern
 ) {
 
-    val dateTimeInMillis by remember(pattern) {
+    val dateTimeInMillis by rememberSaveable(pattern) {
         mutableLongStateOf(Clock.System.now().toEpochMilliseconds())
     }
 
