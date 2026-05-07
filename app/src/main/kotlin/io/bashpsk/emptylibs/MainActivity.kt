@@ -68,6 +68,7 @@ class MainActivity : ComponentActivity() {
 //                    TransformImageScreen()
 //                    ZoomableLayoutScreen()
 //                    VideoGestureScreen()
+//                    WaveAnimationScreen()
 //                    WheelTextPickerScreen()
                 }
             }
