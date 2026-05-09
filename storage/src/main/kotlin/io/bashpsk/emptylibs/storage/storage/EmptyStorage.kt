@@ -37,6 +37,12 @@ internal interface EmptyStorage {
         extensions: Iterable<String>
     ): ImmutableList<FileData>
 
+    suspend fun getSearchDirectoryFileData(
+        context: Context,
+        path: String,
+        query: String
+    ): DirectoryFileData
+
     fun getTotalMemory(path: String): Long
 
     fun getFreeMemory(path: String): Long

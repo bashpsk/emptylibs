@@ -317,6 +317,36 @@ object StorageExt {
     }
 
     /**
+     * Recursively searches for files and directories within a specified path that match a query.
+     *
+     * This function performs a top-down traversal of the file system starting from [path].
+     * It filters for files and directories whose names contain the [query] string,
+     * performing a case-insensitive search. The results are collected into a
+     * [DirectoryFileData] object, which contains separate lists for folders and files.
+     *
+     * Note: The starting directory [path] is excluded from the resulting folders list
+     * even if its name matches the query.
+     *
+     * @param context The Android context used to retrieve storage volume information.
+     * @param path The absolute path of the directory to start the recursive search from.
+     * @param query The search term to match against file and directory names.
+     * @return A [DirectoryFileData] containing the matched [FileData] and [DirectoryData] items.
+     * Returns an empty [DirectoryFileData] if an error occurs or the path is inaccessible.
+     */
+    suspend fun getSearchDirectoryFileData(
+        context: Context,
+        path: String,
+        query: String
+    ): DirectoryFileData {
+
+        return emptyStorage.getSearchDirectoryFileData(
+            context = context,
+            path = path,
+            query = query
+        )
+    }
+
+    /**
      * Retrieves the total memory space of a storage volume.
      *
      * @param path The path to the storage volume.

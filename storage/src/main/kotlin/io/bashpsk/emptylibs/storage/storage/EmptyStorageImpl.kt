@@ -8,15 +8,15 @@ import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
+import io.bashpsk.emptylibs.storage.extension.fileLength
 import io.bashpsk.emptylibs.storage.storage.FileVisibleType.Companion.getFileVisibleType
+import io.bashpsk.emptylibs.storage.utils.LOG_TAG
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -71,7 +71,7 @@ internal class EmptyStorageImpl : EmptyStorage {
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             persistentListOf()
         }
     }
@@ -83,8 +83,8 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val folderList = MutableStateFlow(persistentListOf<DirectoryData>())
-            val fileList = MutableStateFlow(persistentListOf<FileData>())
+            val folderList = persistentListOf<DirectoryData>().builder()
+            val fileList = persistentListOf<FileData>().builder()
 
             val storageVolumes = getStorageVolumeList(context = context)
 
@@ -97,7 +97,7 @@ internal class EmptyStorageImpl : EmptyStorage {
                         storageVolumes = storageVolumes
                     )?.let { newFileData ->
 
-                        fileList.update { filesOld -> filesOld.add(element = newFileData) }
+                        fileList.add(element = newFileData)
                     }
 
                     false -> getDirectoryData(
@@ -105,7 +105,7 @@ internal class EmptyStorageImpl : EmptyStorage {
                         storageVolumes = storageVolumes
                     )?.let { newDirectoryData ->
 
-                        folderList.update { foldersOld -> foldersOld.add(newDirectoryData) }
+                        folderList.add(newDirectoryData)
                     }
                 }
             }
@@ -121,15 +121,15 @@ internal class EmptyStorageImpl : EmptyStorage {
             ) ?: StorageVolumeData()
 
             DirectoryFileData(
-                folders = folderList.value.toImmutableList(),
-                files = fileList.value.toImmutableList(),
+                directory = directoryData,
                 storage = storageVolume,
-                directory = directoryData
+                folders = folderList.build(),
+                files = fileList.build()
             )
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             DirectoryFileData()
         }
     }
@@ -172,7 +172,7 @@ internal class EmptyStorageImpl : EmptyStorage {
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             null
         }
     }
@@ -198,14 +198,14 @@ internal class EmptyStorageImpl : EmptyStorage {
                 extension = file.extension,
                 visibleType = file.getFileVisibleType(),
                 fileType = FileType.getFileType(extension = file.extension),
-                size = file.length(),
+                size = file.fileLength(),
                 modifiedDate = file.lastModified(),
                 storage = storageVolume
             )
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             null
         }
     }
@@ -218,7 +218,7 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val storageVolumes = getStorageVolumeList(context)
+            val storageVolumes = getStorageVolumeList(context = context)
 
             File(path).walkTopDown().filter { file ->
 
@@ -233,8 +233,71 @@ internal class EmptyStorageImpl : EmptyStorage {
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             persistentListOf()
+        }
+    }
+
+    override suspend fun getSearchDirectoryFileData(
+        context: Context,
+        path: String,
+        query: String
+    ): DirectoryFileData = withContext(context = Dispatchers.IO) {
+
+        return@withContext try {
+
+            val storageVolumes = getStorageVolumeList(context = context)
+
+            val directory = getDirectoryData(
+                path = path,
+                storageVolumes = storageVolumes
+            ) ?: DirectoryData()
+
+            val folderList = persistentListOf<DirectoryData>().builder()
+            val fileList = persistentListOf<FileData>().builder()
+
+            File(path).walkTopDown().filter { file ->
+
+                file.name.contains(other = query, ignoreCase = true) && file.exists()
+            }.forEach { file ->
+
+                when {
+
+                    file.isFile -> getFileData(
+                        path = file.path,
+                        storageVolumes = storageVolumes
+                    )?.takeIf { fileData ->
+
+                        fileData.path.isNotEmpty()
+                    }?.let { fileData ->
+
+                        fileList.add(fileData)
+                    }
+
+                    file.isDirectory && file.path != path -> getDirectoryData(
+                        path = file.path,
+                        storageVolumes = storageVolumes
+                    )?.takeIf { directoryData ->
+
+                        directoryData.path.isNotEmpty()
+                    }?.let { directoryData ->
+
+                        folderList.add(directoryData)
+                    }
+                }
+            }
+
+            DirectoryFileData(
+                directory = directory,
+                storage = directory.storage,
+                folders = folderList.build(),
+                files = fileList.build()
+            )
+        } catch (exception: Exception) {
+
+            currentCoroutineContext().ensureActive()
+            Log.w(LOG_TAG, exception.message, exception)
+            DirectoryFileData()
         }
     }
 
@@ -245,7 +308,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             File(path).totalSpace
         } catch (exception: Exception) {
 
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             0L
         }
     }
@@ -257,7 +320,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             File(path).freeSpace
         } catch (exception: Exception) {
 
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             0L
         }
     }
@@ -271,7 +334,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             file.totalSpace - file.freeSpace
         } catch (exception: Exception) {
 
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             0L
         }
     }
@@ -285,24 +348,24 @@ internal class EmptyStorageImpl : EmptyStorage {
             val foldersFileSize = files.filter { folder ->
 
                 folder.isDirectory
-            }.map { folder ->
+            }.flatMap { folder ->
 
                 folder.walkTopDown().filter { file ->
 
                     file.isFile
                 }.map { file ->
 
-                    file.length()
+                    file.fileLength()
                 }.toImmutableList()
-            }.flatten().sum()
+            }.sum()
 
-            val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.length() }
+            val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.fileLength() }
 
             foldersFileSize + fileSize
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             0L
         }
     }
@@ -338,7 +401,7 @@ internal class EmptyStorageImpl : EmptyStorage {
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
-            Log.e("StorageExt", exception.message, exception)
+            Log.e(LOG_TAG, exception.message, exception)
             MakeFileResult.Failed(message = exception.message ?: "Unknown Error")
         }
     }
@@ -354,25 +417,26 @@ internal class EmptyStorageImpl : EmptyStorage {
      * directory.
      * Returns an empty list if an error occurs or no storage directories are found.
      */
-    private fun getStorageDirectories(context: Context): ImmutableList<String> {
+    private fun getStorageDirectories(context: Context): Set<String> {
 
         return try {
 
             val emulatedStorage = System.getenv("EMULATED_STORAGE_TARGET")
-            val availableDirectories = hashSetOf<String>()
 
-            when (emulatedStorage?.isNotEmpty() == true) {
+            buildSet {
 
-                true -> getEmulatedStorageTarget()?.let(availableDirectories::add)
-                false -> availableDirectories.addAll(elements = getExternalStorage(context))
+                when {
+
+                    emulatedStorage?.isNotEmpty() == true -> getEmulatedStorageTarget()?.let(::add)
+                    else -> addAll(elements = getExternalStorage(context = context))
+                }
+
+                addAll(elements = getAllSecondaryStorages())
             }
-
-            availableDirectories.addAll(elements = getAllSecondaryStorages().toList())
-            availableDirectories.toImmutableList()
         } catch (exception: Exception) {
 
-            Log.w("StorageExt", exception.message, exception)
-            persistentListOf()
+            Log.w(LOG_TAG, exception.message, exception)
+            emptySet()
         }
     }
 
@@ -387,12 +451,12 @@ internal class EmptyStorageImpl : EmptyStorage {
      * @return An immutable list of strings, where each string is the root path of an external
      * storage device. Returns an empty list if no external storage is found or an error occurs.
      */
-    private fun getExternalStorage(context: Context): ImmutableList<String> {
+    private fun getExternalStorage(context: Context): List<String> {
 
         return context.getExternalFilesDirs(null).map { file ->
 
             file.absolutePath.substring(0, file.absolutePath.indexOf(string = "Android/data"))
-        }.toImmutableList()
+        }
     }
 
     /**
@@ -432,7 +496,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             }
         } catch (exception: Exception) {
 
-            Log.w("StorageExt", exception.message, exception)
+            Log.w(LOG_TAG, exception.message, exception)
             null
         }
     }
@@ -446,11 +510,11 @@ internal class EmptyStorageImpl : EmptyStorage {
      * If the environment variable is not set, empty, or an exception occurs during the process,
      * an empty immutable list is returned.
      *
-     * @return An [ImmutableList] of [String] objects, where each string is a path to a secondary
+     * @return An [List] of [String] objects, where each string is a path to a secondary
      * storage.
      * Returns an empty list if no secondary storage is found or an error occurs.
      */
-    private fun getAllSecondaryStorages(): ImmutableList<String> {
+    private fun getAllSecondaryStorages(): List<String> {
 
         return try {
 
@@ -458,13 +522,13 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             when (secondaryStorage?.isNotEmpty() == true) {
 
-                true -> secondaryStorage.split(File.pathSeparator).toImmutableList()
-                else -> persistentListOf()
+                true -> secondaryStorage.split(File.pathSeparator)
+                else -> emptyList()
             }
         } catch (exception: Exception) {
 
-            Log.w("StorageExt", exception.message, exception)
-            persistentListOf()
+            Log.w(LOG_TAG, exception.message, exception)
+            emptyList()
         }
     }
 }
