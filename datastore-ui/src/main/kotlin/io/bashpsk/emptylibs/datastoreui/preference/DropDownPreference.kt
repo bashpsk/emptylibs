@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
  * @param summaryAlpha The alpha value for the summary text, ranging from 0.0 to 1.0. Defaults to
  * [DatastoreUIDefaults.SUMMARY_ALPHA].
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun <K, V> DropDownPreference(

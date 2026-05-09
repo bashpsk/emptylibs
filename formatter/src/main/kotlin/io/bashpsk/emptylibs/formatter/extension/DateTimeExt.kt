@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.composewidgets.extension
+package io.bashpsk.emptylibs.formatter.extension
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone

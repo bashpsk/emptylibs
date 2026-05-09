@@ -138,7 +138,7 @@ fun FontPreference(
  * @param summaryAlpha The alpha value applied to the summary text.
  * @param enableResetButton Whether to show a reset button in the selection dialog.
  *
- * @note This version requires [LocalDatastore] to be provided via `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun FontPreference(

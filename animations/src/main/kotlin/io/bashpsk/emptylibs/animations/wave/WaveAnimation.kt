@@ -67,7 +67,7 @@ fun Modifier.waveAnimation(
         derivedStateOf { progress > 0F && progress < 1F && isAnimationVisible }
     }
 
-    onVisibilityChanged { isVisible ->
+    onVisibilityChanged(minFractionVisible = 0.05F) { isVisible ->
 
         isAnimationVisible = isVisible
     }.drawWithContent {

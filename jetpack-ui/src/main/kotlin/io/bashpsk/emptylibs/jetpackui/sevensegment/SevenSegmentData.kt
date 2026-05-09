@@ -127,7 +127,7 @@ data class SevenSegmentData(
         /**
          * A map of characters to their corresponding 7-segment data for numbers.
          */
-        val NumberSegmentList = persistentMapOf<Char, SevenSegmentData>(
+        val NumberSegmentList = persistentMapOf(
             ' ' to Empty,
             '0' to Zero,
             '1' to One,

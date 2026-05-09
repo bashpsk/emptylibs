@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.formatter.format.DurationPattern
-import io.bashpsk.emptylibs.formatter.format.duration
 import io.bashpsk.emptylibs.formatter.format.findPercentage
+import io.bashpsk.emptylibs.formatter.format.formattedDuration
 import io.bashpsk.emptylibs.formatter.format.toFileSize
 import io.bashpsk.emptylibs.formatter.meter.FileSpeedData
 import io.bashpsk.emptylibs.formatter.meter.fileSpeedMeter
@@ -36,7 +36,6 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
@@ -85,7 +84,7 @@ fun FileCopySpeedScreen() {
 
     val etaFormatted by remember(fileSpeedData) {
         derivedStateOf {
-            "ETA : ${fileSpeedData.eta.seconds.duration(pattern = DurationPattern.TimeLabel())}"
+            "ETA : ${fileSpeedData.eta.seconds.formattedDuration(pattern = DurationPattern.TimeLabel())}"
         }
     }
 
@@ -102,7 +101,7 @@ fun FileCopySpeedScreen() {
 
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
-                progress =  {
+                progress = {
 
                     findPercentage(
                         total = fileSpeedData.total,
@@ -124,7 +123,7 @@ fun FileCopySpeedScreen() {
 
                     coroutineScope.coroutineContext.cancelChildren()
 
-                    coroutineScope.launch(context= Dispatchers.IO) {
+                    coroutineScope.launch(context = Dispatchers.IO) {
 
                         sourceDestinationFileList.forEach { fileItem ->
 
@@ -139,7 +138,7 @@ fun FileCopySpeedScreen() {
                                     source = fileItem.first,
                                     destination = fileItem.second,
                                     interval = 250.milliseconds
-                                ).collectLatest { fileSpeedDataLatest->
+                                ) { fileSpeedDataLatest ->
 
                                     fileSpeedData = fileSpeedDataLatest ?: FileSpeedData()
                                     "PROGRESS : $fileSpeedData".setDebug()

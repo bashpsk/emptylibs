@@ -14,21 +14,21 @@ import kotlinx.serialization.Serializable
  * This class is designed to be immutable and parcelable, making it suitable for use in Android
  * applications, particularly with Jetpack Compose and data serialization.
  *
+ * @property directory Information about the directory itself.
+ * Defaults to a default [DirectoryData] instance.
+ * @property storage Information about the storage volume where this directory resides.
+ * Defaults to a default [StorageVolumeData] instance.
  * @property folders An immutable list of [DirectoryData] objects representing the subfolders
  * within this directory. Defaults to an empty persistent list.
  * @property files An immutable list of [FileData] objects representing the files
  * within this directory. Defaults to an empty persistent list.
- * @property storage Information about the storage volume where this directory resides.
- * Defaults to a default [StorageVolumeData] instance.
- * @property directory Information about the directory itself. Defaults to a default
- * [DirectoryData] instance.
  */
 @Immutable
 @Parcelize
 @Serializable
 data class DirectoryFileData(
-    val folders: ImmutableList<DirectoryData> = persistentListOf(),
-    val files: ImmutableList<FileData> = persistentListOf(),
+    val directory: DirectoryData = DirectoryData(),
     val storage: StorageVolumeData = StorageVolumeData(),
-    val directory: DirectoryData = DirectoryData()
+    val folders: ImmutableList<DirectoryData> = persistentListOf(),
+    val files: ImmutableList<FileData> = persistentListOf()
 ) : Parcelable

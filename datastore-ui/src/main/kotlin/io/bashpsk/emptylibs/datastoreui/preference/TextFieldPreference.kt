@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
  * @param enableResetButton Lambda function that determines whether the reset button should be
  * enabled.
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun TextFieldPreference(
@@ -306,7 +306,7 @@ fun TextFieldPreference(
  * @param enableResetButton A lambda function that determines whether a reset button is shown in the
  * dialog. Defaults to false.
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun <V> TextFieldPreference(

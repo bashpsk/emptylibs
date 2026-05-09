@@ -8,6 +8,7 @@ import io.bashpsk.emptylibs.formatter.utils.LOG_TAG
 import java.util.Locale
 import kotlin.math.log10
 import kotlin.math.pow
+import kotlin.math.round
 
 /**
  * Rounds a [Double] to a specified number of decimal places, returning `null` if an error occurs.
@@ -20,7 +21,8 @@ fun Double.toRoundedDecimalOrNull(fraction: Int = 0): Double? {
 
     return try {
 
-        "%.${fraction}f".format(locale = Locale.getDefault(), this).toDoubleOrNull()
+        val factor = 10.0.pow(fraction)
+        round(this * factor) / factor
     } catch (exception: Exception) {
 
         Log.e(LOG_TAG, exception.message, exception)
@@ -51,7 +53,8 @@ fun Float.toRoundedDecimalOrNull(fraction: Int = 0): Float? {
 
     return try {
 
-        "%.${fraction}f".format(locale = Locale.getDefault(), this).toFloatOrNull()
+        val factor = 10.0F.pow(fraction)
+        round(this * factor) / factor
     } catch (exception: Exception) {
 
         Log.e(LOG_TAG, exception.message, exception)
@@ -72,49 +75,29 @@ fun Float.toRoundedDecimal(fraction: Int = 0): Float {
 }
 
 /**
- * Formats a [Long] value into a human-readable string with scaling suffixes (K, M, B, etc.).
- *
- * @return A formatted [String] representation of the input value.
- * Example:
- * - 1234 -> "1.2K"
- * - 1234567 -> "1.2M"
- */
-@Stable
-fun Long.shortenedNumericalNotation(): String {
-
-    return this.toDouble().shortenedNumericalNotation()
-}
-
-/**
- * Formats an [Int] value into a human-readable string with scaling suffixes (K, M, B, etc.).
- *
- * @return A formatted [String] representation of the input value.
- * Example:
- * - 1234 -> "1.2K"
- * - 1234567 -> "1.2M"
- */
-@Stable
-fun Int.shortenedNumericalNotation(): String {
-
-    return this.toLong().shortenedNumericalNotation()
-}
-
-/**
- * Formats a [Double] value into a human-readable string with scaling suffixes (K, M, B, etc.).
+ * Formats an any [Number] value into a human-readable string with scaling suffixes (K, M, B, etc.).
  *
  * @return A formatted [String] representation of the input value.
  * Example:
  * - 1234.0 -> "1.2K"
- * - 1234567.0 -> "1.2M"
+ * - 1234567L -> "1.2M"
  */
 @Stable
-fun Double.shortenedNumericalNotation(): String {
+fun Number.shortenedNumericalNotation(): String {
 
-    val units = arrayOf("", "K", "M", "B", "T", "Q")
-    val powerOfThousand = (log10(this).toInt() / 3).coerceAtMost(units.lastIndex)
-    val displayValue = this / 10.0.pow(powerOfThousand * 3)
+    return when (val value = this.toDouble()) {
 
-    return "%.1f%s".format(locale = Locale.getDefault(), displayValue, units[powerOfThousand])
+        0.0 -> "0"
+
+        else -> {
+
+            val units = arrayOf("", "K", "M", "B", "T", "Q")
+            val powerOfThousand = (log10(value).toInt() / 3).coerceAtMost(units.lastIndex)
+            val displayValue = value / 10.0.pow(powerOfThousand * 3)
+
+            "%.1f%s".format(locale = Locale.getDefault(), displayValue, units[powerOfThousand])
+        }
+    }
 }
 
 /**
@@ -125,63 +108,12 @@ fun Double.shortenedNumericalNotation(): String {
  * @return The percentage value as an integer, or 0 if total is zero.
  */
 @Stable
-fun findPercentage(total: Long, obtained: Long): Int {
+fun findPercentage(total: Number, obtained: Number): Int {
 
     return when (total) {
 
         0L -> 0
-        else -> ((obtained.toDouble() / total) * 100).toInt()
-    }
-}
-
-/**
- * Calculates the percentage of obtained value relative to the total.
- *
- * @param total The total possible value.
- * @param obtained The obtained value.
- * @return The percentage value as an integer, or 0 if total is zero.
- */
-@Stable
-fun findPercentage(total: Int, obtained: Int): Int {
-
-    return when (total) {
-
-        0 -> 0
-        else -> ((obtained.toDouble() / total) * 100).toInt()
-    }
-}
-
-/**
- * Calculates the percentage of obtained value relative to the total.
- *
- * @param total The total possible value.
- * @param obtained The obtained value.
- * @return The percentage value rounded to one decimal place, or 0.0 if total is zero.
- */
-@Stable
-fun findPercentage(total: Double, obtained: Double): Double {
-
-    return when (total) {
-
-        0.0 -> 0.0
-        else -> ((obtained / total) * 100).toRoundedDecimal(fraction = 1)
-    }
-}
-
-/**
- * Calculates the percentage of obtained value relative to the total.
- *
- * @param total The total possible value.
- * @param obtained The obtained value.
- * @return The percentage value rounded to one decimal place, or 0.0F if total is zero.
- */
-@Stable
-fun findPercentage(total: Float, obtained: Float): Float {
-
-    return when (total) {
-
-        0.0F -> 0.0F
-        else -> ((obtained / total) * 100).toRoundedDecimal(fraction = 1)
+        else -> ((obtained.toDouble() / total.toDouble()) * 100).toInt()
     }
 }
 
@@ -190,47 +122,34 @@ fun findPercentage(total: Float, obtained: Float): Float {
  *
  * @param width The width of the dimension.
  * @param height The height of the dimension.
- * @return The aspect ratio as a [Float] (width / height), or 0.0F if height is 0.
+ * @return The aspect ratio as a [Float] (width / height), or 0.0F if width or height is 0.
  */
 @Stable
-fun findAspectRatio(width: Int, height: Int): Float {
+fun findAspectRatio(width: Number, height: Number): Float {
 
-    return if (height == 0) 0.0F else width / height.toFloat()
-}
-
-/**
- * Calculates the aspect ratio of a given width and height.
- *
- * @param width The width of the dimension.
- * @param height The height of the dimension.
- * @return The aspect ratio as a [Float] (width / height), or 0.0F if height is 0.0F.
- */
-@Stable
-fun findAspectRatio(width: Float, height: Float): Float {
-
-    return if (height == 0.0F) 0.0F else width / height
+    return if (width == 0 || height == 0) 0.0F else (width.toDouble() / height.toDouble()).toFloat()
 }
 
 /**
  * Calculates the aspect ratio of a given [Size].
  *
- * @return The aspect ratio as a [Float] (width / height), or 0.0F if height is 0.
+ * @return The aspect ratio as a [Float] (width / height), or 0.0F if width or height is 0.
  */
 @Stable
 fun Size.findAspectRatio(): Float {
 
-    return findAspectRatio(width = this.width, height = this.height)
+    return findAspectRatio(width = width, height = height)
 }
 
 /**
  * Calculates the aspect ratio of a given [IntSize].
  *
- * @return The aspect ratio as a [Float] (width / height), or 0.0F if height is 0.
+ * @return The aspect ratio as a [Float] (width / height), or 0.0F if width or height is 0.
  */
 @Stable
 fun IntSize.findAspectRatio(): Float {
 
-    return findAspectRatio(width = this.width, height = this.height)
+    return findAspectRatio(width = width, height = height)
 }
 
 /**

@@ -63,7 +63,7 @@ import kotlinx.coroutines.launch
  * @param enableResetButton A function that returns a boolean indicating whether to enable the reset
  * button in the color picker dialog. Defaults to false.
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun ColorPickPreference(

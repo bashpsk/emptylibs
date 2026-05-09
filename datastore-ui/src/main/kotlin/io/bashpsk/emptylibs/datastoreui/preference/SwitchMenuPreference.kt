@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
  * @param onMenuDismiss A lambda function that will be invoked when the menu item is clicked,
  * typically to dismiss the dropdown menu.
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun SwitchMenuPreference(

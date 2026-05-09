@@ -29,14 +29,14 @@ import kotlin.time.toDuration
  * @return The formatted date and time `String`.
  */
 @Stable
-fun Long.dateTime(
+fun Long.toFormattedDateTime(
     pattern: DateTimePattern,
     timeZone: TimeZone = TimeZone.currentSystemDefault()
 ): String {
 
     return Instant.fromEpochMilliseconds(
-        epochMilliseconds = this@dateTime
-    ).toLocalDateTime(timeZone = timeZone).dateTime(pattern = pattern)
+        epochMilliseconds = this@toFormattedDateTime
+    ).toLocalDateTime(timeZone = timeZone).toFormattedDateTime(pattern = pattern)
 }
 
 /**
@@ -48,7 +48,7 @@ fun Long.dateTime(
  * @return The formatted date and time `String`.
  */
 @Stable
-fun LocalDateTime.dateTime(
+fun LocalDateTime.toFormattedDateTime(
     pattern: DateTimePattern,
     dayOfWeekNames: DayOfWeekNames = DayOfWeekNames.ENGLISH_ABBREVIATED,
     monthNames: MonthNames = MonthNames.ENGLISH_ABBREVIATED
@@ -96,7 +96,7 @@ fun String.parseDateTimeToMilliseconds(
  * @return The formatted time `String`.
  */
 @Stable
-fun Long.time(pattern: DateTimePattern): String {
+fun Long.toFormattedTime(pattern: DateTimePattern): String {
 
     val duration = this.toDuration(unit = DurationUnit.MILLISECONDS)
     val hours = duration.inWholeHours
@@ -109,7 +109,7 @@ fun Long.time(pattern: DateTimePattern): String {
         minute = minutes.toInt().coerceIn(0..59),
         second = seconds.toInt().coerceIn(0..59),
         nanosecond = nanoseconds.toInt().coerceIn(0..999_999_999)
-    ).time(pattern = pattern)
+    ).toFormattedTime(pattern = pattern)
 }
 
 /**
@@ -119,7 +119,7 @@ fun Long.time(pattern: DateTimePattern): String {
  * @return The formatted time `String`.
  */
 @Stable
-fun LocalTime.time(pattern: DateTimePattern): String {
+fun LocalTime.toFormattedTime(pattern: DateTimePattern): String {
 
     return format(format = pattern.findTimeFormat())
 }

@@ -16,10 +16,10 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.composewidgets.extension.hasAM
-import io.bashpsk.emptylibs.composewidgets.extension.hasPM
+import io.bashpsk.emptylibs.formatter.extension.hasAM
+import io.bashpsk.emptylibs.formatter.extension.hasPM
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
-import io.bashpsk.emptylibs.formatter.format.dateTime
+import io.bashpsk.emptylibs.formatter.format.toFormattedDateTime
 import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentColors
 import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentDefault
 import io.bashpsk.emptylibs.jetpackui.sevensegment.SevenSegmentDisplay
@@ -83,7 +83,9 @@ fun DigitalClock(
 ) {
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
-        derivedStateOf { localDateTime.dateTime(pattern = clockPattern).replace("1", " 1") }
+        derivedStateOf {
+            localDateTime.toFormattedDateTime(pattern = clockPattern).replace("1", " 1")
+        }
     }
 
     val amIndicatorTextStyle by remember(localDateTime, textStyles, disableTextAlpha) {
@@ -206,7 +208,7 @@ fun DigitalClock(
 ){
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
-        derivedStateOf { localDateTime.dateTime(pattern = clockPattern) }
+        derivedStateOf { localDateTime.toFormattedDateTime(pattern = clockPattern) }
     }
 
     Row(

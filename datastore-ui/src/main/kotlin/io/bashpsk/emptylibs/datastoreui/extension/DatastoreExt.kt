@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import io.bashpsk.emptylibs.datastoreui.font.FontPreferenceItem
 import io.bashpsk.emptylibs.datastoreui.utils.LOG_TAG
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -82,13 +81,13 @@ fun <T> DataStore<Preferences>.getPreference(key: Preferences.Key<T>, initial: T
  * read operation is caught and logged, returning an empty preference set.
  *
  * @param key The [Preferences.Key] associated with the [FontPreferenceItem] label.
- * @param entities An [ImmutableList] of available [FontPreferenceItem]s to search within.
+ * @param entities An [Iterable] of available [FontPreferenceItem]s to search within.
  * @return A [Flow] emitting the matched [FontPreferenceItem], or `null` if no match is found.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 fun DataStore<Preferences>.getPreference(
     key: Preferences.Key<String>,
-    entities: ImmutableList<FontPreferenceItem>
+    entities: Iterable<FontPreferenceItem>
 ): Flow<FontPreferenceItem?> {
 
     return getPreferenceOrNull(key = key).flatMapLatest { labelLatest ->

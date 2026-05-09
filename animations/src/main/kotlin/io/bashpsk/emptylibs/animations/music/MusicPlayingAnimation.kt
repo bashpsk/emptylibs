@@ -96,7 +96,7 @@ fun MusicPlayingAnimation(
     Canvas(
         modifier = modifier
             .clipToBounds()
-            .onVisibilityChanged { isVisible ->
+            .onVisibilityChanged(minFractionVisible = 0.05F) { isVisible ->
 
                 isAnimationVisible = isVisible
             },

@@ -163,7 +163,7 @@ fun StorageScreen() {
                                         parentPath = volume.path,
                                         name = "Folder One",
                                         isFolder = true,
-                                        visibleType = FileVisibleType.PUBLIC
+                                        visibleType = FileVisibleType.Public
                                     ).let { result ->
 
                                         Log.d("StorageExt", result.toString())
@@ -187,7 +187,7 @@ fun StorageScreen() {
                                         parentPath = volume.path,
                                         name = "Folder Two",
                                         isFolder = true,
-                                        visibleType = FileVisibleType.HIDDEN
+                                        visibleType = FileVisibleType.Hidden
                                     ).let { result ->
 
                                         Log.d("StorageExt", result.toString())
@@ -211,7 +211,7 @@ fun StorageScreen() {
                                         parentPath = volume.path,
                                         name = "File One.txt",
                                         isFolder = false,
-                                        visibleType = FileVisibleType.PUBLIC
+                                        visibleType = FileVisibleType.Public
                                     ).let { result ->
 
                                         Log.d("StorageExt", result.toString())
@@ -235,7 +235,7 @@ fun StorageScreen() {
                                         parentPath = volume.path,
                                         name = "File Two.txt",
                                         isFolder = false,
-                                        visibleType = FileVisibleType.HIDDEN
+                                        visibleType = FileVisibleType.Hidden
                                     ).let { result ->
 
                                         Log.d("StorageExt", result.toString())

@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.composewidgets.clock.analog
 
+import androidx.compose.runtime.Stable
 import io.bashpsk.emptylibs.composeutils.shape.PathShape
 
 internal typealias ClockShape = PathShape
@@ -14,9 +15,11 @@ internal typealias ClockShape = PathShape
 object AnalogClockShape {
 
     /** A perfect circle, the classic shape for an analog clock. */
+    @Stable
     val Circle: ClockShape = PathShape.Circle
 
     /** A triangular shape for a unique clock design. */
+    @Stable
     val Triangle: ClockShape = PathShape.Polygon(sides = 3)
 
     /**
@@ -25,6 +28,7 @@ object AnalogClockShape {
      * @param sides The number of sides for the polygon.
      * @return A [ClockShape] in the form of a polygon.
      */
+    @Stable
     fun Polygon(sides: Short = 5): ClockShape = PathShape.Polygon(sides = sides)
 
     /**
@@ -33,6 +37,7 @@ object AnalogClockShape {
      * @param radius The corner radius as a fraction of the clock's size.
      * @return A [ClockShape] in the form of a rectangle.
      */
+    @Stable
     fun Rectangle(radius: Float = 0.05F): ClockShape = PathShape.Rectangle(radius = radius)
 
     /**
@@ -41,6 +46,7 @@ object AnalogClockShape {
      * @param radius The radius of the cut corners as a fraction of the clock's size.
      * @return A [ClockShape] with cut corners.
      */
+    @Stable
     fun CutCorner(radius: Float = 0.05F): ClockShape = PathShape.CutCorner(radius = radius)
 
     /**
@@ -51,6 +57,7 @@ object AnalogClockShape {
      * appearance.
      * @return A [ClockShape] in the form of a star.
      */
+    @Stable
     fun Star(edges: Int = 5, distance: Float = 2.5F): ClockShape = PathShape.Star(
         edges = edges,
         distance = distance

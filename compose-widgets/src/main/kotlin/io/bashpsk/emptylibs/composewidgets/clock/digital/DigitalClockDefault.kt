@@ -2,6 +2,7 @@ package io.bashpsk.emptylibs.composewidgets.clock.digital
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -15,11 +16,13 @@ object DigitalClockDefault {
     /**
      * The alpha value for disabled text.
      */
+    @Stable
     const val DISABLE_TEXT_ALPHA = 0.35F
 
     /**
      * The font family for the digital clock.
      */
+    @Stable
     val Digital7Font = FontFamily(Font(R.font.digital_7))
 
     /**
@@ -31,6 +34,7 @@ object DigitalClockDefault {
      * @param indicator The text style for the AM/PM indicator.
      * @return The [DigitalClockTextStyles] for the clock.
      */
+    @Stable
     @Composable
     fun textStyles(
         date: TextStyle = MaterialTheme.typography.bodyMedium.copy(
@@ -59,6 +63,7 @@ object DigitalClockDefault {
      * @param alpha The alpha to apply when the text is disabled.
      * @return The resulting [TextStyle].
      */
+    @Stable
     internal fun getTextStyle(textStyle: TextStyle, enabled: Boolean, alpha: Float): TextStyle {
 
         return textStyle.takeIf {

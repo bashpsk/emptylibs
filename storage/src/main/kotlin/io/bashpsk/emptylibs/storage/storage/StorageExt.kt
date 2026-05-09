@@ -441,12 +441,12 @@ object StorageExt {
      * @param parentPath The path to the parent directory where the new folder or file will be
      * created.
      * @param name The name of the new folder or file. Leading dots ('.') will be trimmed from the
-     * name unless the `visibleType` is [FileVisibleType.HIDDEN].
+     * name unless the `visibleType` is [FileVisibleType.Hidden].
      * @param isFolder `true` to create a folder, `false` to create a file.
      * @param visibleType Specifies the visibility of the file or folder. Defaults to
-     * [FileVisibleType.PUBLIC].
-     * If [FileVisibleType.HIDDEN], a '.' will be prepended to the `name`.
-     * [FileVisibleType.UNKNOWN] is treated the same as [FileVisibleType.PUBLIC].
+     * [FileVisibleType.Public].
+     * If [FileVisibleType.Hidden], a '.' will be prepended to the `name`.
+     * [FileVisibleType.Unknown] is treated the same as [FileVisibleType.Public].
      * @return A [MakeFileResult] indicating the outcome of the operation:
      * - [MakeFileResult.Success] if the folder or file was created successfully.
      * - [MakeFileResult.Exist] if a folder or file with the same name already exists at the
@@ -457,7 +457,7 @@ object StorageExt {
         parentPath: String,
         name: String,
         isFolder: Boolean,
-        visibleType: FileVisibleType = FileVisibleType.PUBLIC
+        visibleType: FileVisibleType = FileVisibleType.Public
     ): MakeFileResult {
 
         return withContext(context = Dispatchers.IO) {
@@ -468,9 +468,9 @@ object StorageExt {
 
                 val sourceFile = when (visibleType) {
 
-                    FileVisibleType.PUBLIC -> File(parentPath, fileName)
-                    FileVisibleType.HIDDEN -> File(parentPath, ".$fileName")
-                    FileVisibleType.UNKNOWN -> File(parentPath, fileName)
+                    FileVisibleType.Public -> File(parentPath, fileName)
+                    FileVisibleType.Hidden -> File(parentPath, ".$fileName")
+                    FileVisibleType.Unknown -> File(parentPath, fileName)
                 }
 
                 emptyStorage.makeFolderOrFile(destination = sourceFile.path, isFolder = isFolder)

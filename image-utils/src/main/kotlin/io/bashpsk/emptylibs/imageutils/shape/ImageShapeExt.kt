@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.imageutils.shape
 
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
@@ -19,6 +20,7 @@ import kotlin.math.roundToInt
  * @param imageBitmap The input [ImageBitmap] to be masked.
  * @return A new [ImageBitmap] with the shape mask applied.
  */
+@Stable
 fun PathShape.bitmapMask(imageBitmap: ImageBitmap): ImageBitmap {
 
     val imageSize = imageBitmap.toSize()

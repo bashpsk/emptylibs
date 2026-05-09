@@ -21,9 +21,9 @@ import kotlin.time.toDuration
  * @return A human-readable string representation of the duration.
  */
 @Stable
-fun duration(durationValue: Long, unit: DurationUnit, pattern: DurationPattern): String {
+fun formattedDuration(durationValue: Long, unit: DurationUnit, pattern: DurationPattern): String {
 
-    return durationValue.toDuration(unit).duration(pattern = pattern)
+    return durationValue.toDuration(unit).formattedDuration(pattern = pattern)
 }
 
 /**
@@ -54,14 +54,14 @@ fun duration(durationValue: Long, unit: DurationUnit, pattern: DurationPattern):
  * Example usage:
  * ```kotlin
  * // returns "01:02:03"
- * 3723.toDuration(DurationUnit.SECONDS).duration(DurationPattern.Separator(':'))
+ * 3723.toDuration(DurationUnit.SECONDS).formattedDuration(DurationPattern.Separator(':'))
  * ```
  *
  * @param pattern The formatting pattern to apply.
  * @return A human-readable string representation of the duration.
  */
 @Stable
-fun Duration.duration(pattern: DurationPattern): String {
+fun Duration.formattedDuration(pattern: DurationPattern): String {
 
     val patternMap = when (pattern) {
 

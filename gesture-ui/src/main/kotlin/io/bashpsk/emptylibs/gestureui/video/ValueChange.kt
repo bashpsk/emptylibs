@@ -6,18 +6,18 @@ package io.bashpsk.emptylibs.gestureui.video
 enum class ValueChange {
 
     /**
-     * Represents an Value Unknown or indeterminate change in value.
+     * Represents a Value Unknown or indeterminate change in value.
      * This is typically the initial state or a state where the change cannot be determined.
      */
     Unknown,
 
     /**
-    * Represents an Value Increased.
+    * Represents a Value Increased.
     */
     Increased,
 
     /**
-     * Represents an Value Decreased.
+     * Represents a Value Decreased.
      */
     Decreased;
 }

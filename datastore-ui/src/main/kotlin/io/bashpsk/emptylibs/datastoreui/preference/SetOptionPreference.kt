@@ -78,7 +78,7 @@ import kotlinx.coroutines.launch
  * @param enableResetButton A lambda function that returns `true` if a reset button should be shown
  * in the dialog, `false` otherwise. Defaults to `false`.
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun <K> SetOptionPreference(

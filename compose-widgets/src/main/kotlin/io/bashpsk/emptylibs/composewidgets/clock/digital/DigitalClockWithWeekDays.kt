@@ -15,10 +15,10 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.composewidgets.extension.hasAM
-import io.bashpsk.emptylibs.composewidgets.extension.hasPM
+import io.bashpsk.emptylibs.formatter.extension.hasAM
+import io.bashpsk.emptylibs.formatter.extension.hasPM
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
-import io.bashpsk.emptylibs.formatter.format.dateTime
+import io.bashpsk.emptylibs.formatter.format.toFormattedDateTime
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.DayOfWeekNames
@@ -86,7 +86,9 @@ fun DigitalClockWithWeekDays(
     val weekDaysList by remember { derivedStateOf { DayOfWeekNames.ENGLISH_ABBREVIATED.names } }
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
-        derivedStateOf { localDateTime.dateTime(pattern = clockPattern).replace("1", " 1") }
+        derivedStateOf {
+            localDateTime.toFormattedDateTime(pattern = clockPattern).replace("1", " 1")
+        }
     }
 
     val amIndicatorTextStyle by remember(localDateTime, textStyles, disableTextAlpha) {

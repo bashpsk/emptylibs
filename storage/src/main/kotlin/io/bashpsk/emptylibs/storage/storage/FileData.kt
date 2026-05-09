@@ -39,7 +39,7 @@ data class FileData(
     val path: String = "",
     val uri: String = "",
     val extension: String = "",
-    val visibleType: FileVisibleType = FileVisibleType.PUBLIC,
+    val visibleType: FileVisibleType = FileVisibleType.Public,
     val fileType: FileType = FileType.UNKNOWN,
     val size: Long = 0L,
     val modifiedDate: Long = 0L,

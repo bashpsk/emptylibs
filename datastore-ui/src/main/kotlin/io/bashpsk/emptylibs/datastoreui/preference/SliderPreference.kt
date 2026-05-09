@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
  * @param summaryAlpha The alpha (transparency) of the summary text, ranging from `0.0`
  * (fully transparent) to `1.0` (fully opaque). Defaults to [DatastoreUIDefaults.SUMMARY_ALPHA].
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

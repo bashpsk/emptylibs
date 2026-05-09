@@ -78,7 +78,7 @@ import kotlinx.coroutines.launch
  * @param K The type of the key in the `entities` map (usually the display name).
  * @param V The type of the value in the `entities` map and the type of the preference value.
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun <K, V> ListOptionPreference(

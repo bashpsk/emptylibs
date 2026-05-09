@@ -1,10 +1,11 @@
 package io.bashpsk.emptylibs.storage.storage
 
 import android.util.Log
+import io.bashpsk.emptylibs.storage.utils.LOG_TAG
 import java.io.File
 
 /**
- * Represents the visibility type of a file.
+ * Represents the visibility type of file.
  *
  * This enum class defines the possible visibility states for a file:
  * - `PUBLIC`: The file is not hidden and is generally accessible.
@@ -23,42 +24,41 @@ enum class FileVisibleType(val label: String = "") {
     /**
      * File is visible in public.
      */
-    PUBLIC(label = "Public"),
+    Public(label = "Public"),
 
     /**
      * Represents a hidden file.
      * Hidden files are typically not displayed by default in file explorers.
      */
-    HIDDEN(label = "Hidden"),
+    Hidden(label = "Hidden"),
 
     /**
      * File visibility type is unknown.
      * This may occur if an error happened while checking file visibility.
      */
-    UNKNOWN(label = "Unknown");
+    Unknown(label = "Unknown");
 
     companion object {
 
         /**
-         * Determines the visibility type of a given file.
+         * Determines the visibility type of given file.
          *
          * This function checks if a file is hidden or public.
-         * If an error occurs during the check, it defaults to [UNKNOWN].
+         * If an error occurs during the check, it defaults to [Unknown].
          *
-         * @param file The [File] object to check.
-         * @return [FileVisibleType.HIDDEN] if the file is hidden,
-         * [FileVisibleType.PUBLIC] if the file is not hidden,
-         * or [FileVisibleType.UNKNOWN] if an exception occurs during the check.
+         * @return [FileVisibleType.Hidden] if the file is hidden,
+         * [FileVisibleType.Public] if the file is not hidden,
+         * or [FileVisibleType.Unknown] if an exception occurs during the check.
          */
-        fun getFileVisibleType(file: File): FileVisibleType {
+        fun File.getFileVisibleType(): FileVisibleType {
 
             return try {
 
-                if (file.isHidden) HIDDEN else PUBLIC
+                if (isHidden) Hidden else Public
             } catch (exception: Exception) {
 
-                Log.w("StorageExt", exception.message, exception)
-                UNKNOWN
+                Log.w(LOG_TAG, exception.message, exception)
+                Unknown
             }
         }
     }

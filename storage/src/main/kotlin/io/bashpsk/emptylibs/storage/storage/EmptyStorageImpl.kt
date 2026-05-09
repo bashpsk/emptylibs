@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
+import io.bashpsk.emptylibs.storage.storage.FileVisibleType.Companion.getFileVisibleType
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -162,7 +163,7 @@ internal class EmptyStorageImpl : EmptyStorage {
                 title = file.name,
                 path = file.path,
                 uri = file.toUri().toString(),
-                visibleType = FileVisibleType.getFileVisibleType(file = file),
+                visibleType = file.getFileVisibleType(),
                 folders = folders,
                 files = files,
                 modifiedDate = file.lastModified(),
@@ -195,7 +196,7 @@ internal class EmptyStorageImpl : EmptyStorage {
                 path = file.path,
                 uri = file.toUri().toString(),
                 extension = file.extension,
-                visibleType = FileVisibleType.getFileVisibleType(file = file),
+                visibleType = file.getFileVisibleType(),
                 fileType = FileType.getFileType(extension = file.extension),
                 size = file.length(),
                 modifiedDate = file.lastModified(),

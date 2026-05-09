@@ -105,7 +105,7 @@ class VideoGestureBoxState(
 
     /**
      * Initiates a delayed reset of the [dragGestureAction].
-     * If a new drag action occurs before the delay completes, the previous reset is cancelled.
+     * If a new drag action occurs before the delay completes, the previous reset is canceled.
      * The delay is 1000 milliseconds.
      */
     internal fun onResetDragGestureAction() {
@@ -231,7 +231,7 @@ class VideoGestureBoxState(
 
     /**
      * Checks if pan or zoom gestures are enabled in the [config].
-     * @return `true` if either pan or zoom is enabled, `false` otherwise.
+     * @return `true` if either Pan or Zoom is enabled, `false` otherwise.
      */
     internal fun hasTransform(): Boolean {
 

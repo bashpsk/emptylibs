@@ -10,7 +10,7 @@ package io.bashpsk.emptylibs.formatter.resolution
  * @property width The width of the resolution in pixels.
  * @property height The height of the resolution in pixels.
  */
-@Suppress("spellcheckingInspection")
+@Suppress("spellcheckingInspection", "EnumEntryName")
 enum class ResolutionType(val label: String = "", val width: Int = 0, val height: Int = 0) {
 
     /** A special value representing an unknown or undefined resolution. */

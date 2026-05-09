@@ -1,22 +1,19 @@
 package io.bashpsk.emptylibs.formatter.meter
 
-import android.util.Log
-import io.bashpsk.emptylibs.formatter.extension.fileLength
-import io.bashpsk.emptylibs.formatter.utils.LOG_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * Creates a [Flow] that measures the speed of a file operation and emits [FileSpeedData] at regular
+ * Measures the speed of a file operation and update [FileSpeedData] at regular
  * intervals.
  *
  * This is useful for monitoring the progress of downloads, copies, or any operation where a file's
@@ -26,41 +23,31 @@ import kotlin.time.Duration.Companion.seconds
  * @param destination The destination file, which is being written to. Its size is monitored to
  * calculate progress and speed.
  * @param interval The time interval at which to emit new speed data.
- * @return A [Flow] that emits nullable [FileSpeedData] objects. It emits `null` if an error occurs
- * during monitoring.
+ * @param onSpeedChange Update an operation [FileSpeedData]; return null if its completed.
  */
-fun fileSpeedMeter(
+@Throws(IOException::class, FileNotFoundException::class, SecurityException::class)
+suspend fun fileSpeedMeter(
     source: File,
     destination: File,
-    interval: Duration = 1.seconds
-): Flow<FileSpeedData?> {
+    interval: Duration = 1.seconds,
+    onSpeedChange: (FileSpeedData?) -> Unit
+) = withContext(context = Dispatchers.IO) {
 
-    return flow {
+    while (currentCoroutineContext().isActive) {
 
-        try {
+        val previous = destination.length()
 
-            while (currentCoroutineContext().isActive) {
+        delay(duration = interval)
+        currentCoroutineContext().ensureActive()
 
-                val previous = destination.fileLength()
+        val newSpeedData = fileSpeedMeter(
+            total = source.length(),
+            current = destination.length(),
+            previous = previous
+        )
 
-                currentCoroutineContext().ensureActive()
-                delay(duration = interval)
-
-                val newSpeedData = fileSpeedMeter(
-                    total = source.fileLength(),
-                    current = destination.fileLength(),
-                    previous = previous
-                )
-
-                emit(value = newSpeedData)
-            }
-        } catch (exception: Exception) {
-
-            currentCoroutineContext().ensureActive()
-            Log.w(LOG_TAG, exception.message, exception)
-            emit(value = null)
-        }
-    }.flowOn(context = Dispatchers.IO)
+        onSpeedChange(newSpeedData)
+    }
 }
 
 /**
@@ -71,7 +58,9 @@ fun fileSpeedMeter(
  * @param previous The size of the file at the last measurement, in bytes.
  * @return A [FileSpeedData] object containing the calculated progress, speed, and ETA.
  */
-fun fileSpeedMeter(total: Long, current: Long, previous: Long): FileSpeedData {
+fun fileSpeedMeter(total: Long, current: Long, previous: Long): FileSpeedData? {
+
+    if (current >= total) return null
 
     val remaining = (total - current).coerceIn(range = 0L..total)
     val speed = (current - previous).coerceIn(range = 0L..total)

@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
  * @param summaryAlpha The alpha transparency for the summary text.
  * Must be a float between 0.0 and 1.0. Defaults to [DatastoreUIDefaults.SUMMARY_ALPHA].
  *
- * Note: Must be provide `LocalDatastore` using `CompositionLocalProvider`.
+ * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
  */
 @Composable
 fun SwitchPreference(

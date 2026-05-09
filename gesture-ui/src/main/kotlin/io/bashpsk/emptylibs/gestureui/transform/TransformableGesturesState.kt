@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.center
  * @param zoomRange The allowed range for zoom levels. Defaults to 0.5F..4.0F.
  * @return A new [TransformableGesturesState] instance.
  */
+@Stable
 @Composable
 fun rememberTransformableGesturesState(
     initialZoom: Float = 1.0F,

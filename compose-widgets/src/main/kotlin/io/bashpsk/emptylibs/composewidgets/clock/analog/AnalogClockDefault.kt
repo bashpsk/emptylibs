@@ -3,6 +3,7 @@ package io.bashpsk.emptylibs.composewidgets.clock.analog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -23,11 +24,13 @@ object AnalogClockDefault {
     /**
      * The default shape for the clock, which is a circle.
      */
+    @Stable
     val shape: ClockShape = AnalogClockShape.Circle
 
     /**
      * The default update interval for the clock, set to 250 milliseconds for smooth hand movement.
      */
+    @Stable
     val interval = 250.milliseconds
 
     /**
@@ -45,6 +48,7 @@ object AnalogClockDefault {
      * @param borderColor The color of the clock's outer border.
      * @return A fully configured [AnalogClockColors] instance.
      */
+    @Stable
     @Composable
     fun colors(
         containerColor: Color = MaterialTheme.colorScheme.surface,
@@ -84,6 +88,7 @@ object AnalogClockDefault {
      * @param majorDivisionThickness The thickness of the major tick marks.
      * @return A fully configured [AnalogClockProperties] instance.
      */
+    @Stable
     fun properties(
         borderWidth: Dp = 2.dp,
         hourHandThickness: Dp = 4.dp,

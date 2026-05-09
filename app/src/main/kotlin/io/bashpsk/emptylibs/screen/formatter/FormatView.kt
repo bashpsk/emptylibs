@@ -20,8 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
 import io.bashpsk.emptylibs.formatter.format.DurationPattern
-import io.bashpsk.emptylibs.formatter.format.dateTime
-import io.bashpsk.emptylibs.formatter.format.duration
+import io.bashpsk.emptylibs.formatter.format.toFormattedDateTime
+import io.bashpsk.emptylibs.formatter.format.formattedDuration
 import kotlin.time.Clock
 import kotlin.time.Duration
 
@@ -36,7 +36,7 @@ fun FormatView(
     }
 
     val formattedDateTime by remember(pattern) {
-        derivedStateOf { dateTimeInMillis.dateTime(pattern) }
+        derivedStateOf { dateTimeInMillis.toFormattedDateTime(pattern) }
     }
 
     ElevatedCard(
@@ -78,11 +78,11 @@ fun FormatView(
 ) {
 
     val durationFormatted by remember(duration) {
-        derivedStateOf { duration.duration(DurationPattern.TimeLabel()) }
+        derivedStateOf { duration.formattedDuration(DurationPattern.TimeLabel()) }
     }
 
     val durationFormattedWithLabel by remember(duration) {
-        derivedStateOf { duration.duration(DurationPattern.Separator(char = ":")) }
+        derivedStateOf { duration.formattedDuration(DurationPattern.Separator(char = ":")) }
     }
 
     ElevatedCard(

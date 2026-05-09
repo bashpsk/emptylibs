@@ -17,7 +17,7 @@ import kotlin.uuid.Uuid
  * @property uri The content URI of the directory, if applicable (e.g., for SAF). Defaults to an
  * empty string.
  * @property visibleType The visibility type of the directory (e.g., public, private). Defaults to
- * [FileVisibleType.PUBLIC].
+ * [FileVisibleType.Public].
  * @property folders The number of subfolders contained within this directory. Defaults to 0.
  * @property files The number of files (excluding subfolders) contained within this directory.
  * Defaults to 0.
@@ -35,7 +35,7 @@ data class DirectoryData(
     val title: String = "",
     val path: String = "",
     val uri: String = "",
-    val visibleType: FileVisibleType = FileVisibleType.PUBLIC,
+    val visibleType: FileVisibleType = FileVisibleType.Public,
     val folders: Int = 0,
     val files: Int = 0,
     val modifiedDate: Long = 0L,

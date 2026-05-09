@@ -32,7 +32,7 @@ import io.bashpsk.emptylibs.composewidgets.clock.analog.AnalogClock
 import io.bashpsk.emptylibs.composewidgets.clock.analog.AnalogClockDefault
 import io.bashpsk.emptylibs.composewidgets.clock.analog.AnalogClockShape
 import io.bashpsk.emptylibs.formatter.format.DateTimePattern
-import io.bashpsk.emptylibs.formatter.format.dateTime
+import io.bashpsk.emptylibs.formatter.format.toFormattedDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -55,7 +55,7 @@ fun AnalogClockScreen() {
     }
 
     val currentDateTimeFormatted by remember(currentDateTime) {
-        derivedStateOf { currentDateTime.dateTime(pattern = DateTimePattern.TIME_HH_MM_SS) }
+        derivedStateOf { currentDateTime.toFormattedDateTime(pattern = DateTimePattern.TIME_HH_MM_SS) }
     }
 
     val clockShape = AnalogClockShape.Circle

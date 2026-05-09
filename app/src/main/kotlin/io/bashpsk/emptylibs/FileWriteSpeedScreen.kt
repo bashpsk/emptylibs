@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.formatter.format.DurationPattern
-import io.bashpsk.emptylibs.formatter.format.duration
 import io.bashpsk.emptylibs.formatter.format.findPercentage
+import io.bashpsk.emptylibs.formatter.format.formattedDuration
 import io.bashpsk.emptylibs.formatter.format.toFileSize
 import io.bashpsk.emptylibs.formatter.meter.FileSpeedData
 import io.bashpsk.emptylibs.formatter.meter.fileSpeedMeter
@@ -58,7 +58,7 @@ fun FileWriteSpeedScreen() {
 
     val etaFormatted by remember(fileSpeedData) {
         derivedStateOf {
-            "ETA : ${fileSpeedData.eta.seconds.duration(pattern = DurationPattern.TimeLabel())}"
+            "ETA : ${fileSpeedData.eta.seconds.formattedDuration(pattern = DurationPattern.TimeLabel())}"
         }
     }
 
@@ -75,7 +75,7 @@ fun FileWriteSpeedScreen() {
 
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
-                progress =  {
+                progress = {
 
                     findPercentage(
                         total = fileSpeedData.total,
@@ -107,11 +107,14 @@ fun FileWriteSpeedScreen() {
                             previous = current
                             current = (current + increment).coerceAtMost(total)
 
-                            fileSpeedData = fileSpeedMeter(
+                            fileSpeedMeter(
                                 total = total,
                                 current = current,
                                 previous = previous
-                            )
+                            )?.let { speedData ->
+
+                                fileSpeedData = speedData
+                            }
 
                             delay(duration = 1000.milliseconds)
                         }
