@@ -166,15 +166,19 @@ private fun DrawScope.drawClockNumbers(
 
         val isHourDivision = division % 5 == 0
 
-        val divisionWidth = properties.majorDivisionWidth.toPx().takeIf {
-            isHourDivision
-        } ?: properties.minorDivisionWidth.toPx()
+        val divisionWidth = when {
 
-        val divisionThickness = properties.majorDivisionThickness.toPx().takeIf {
-            isHourDivision
-        } ?: properties.minorDivisionThickness.toPx()
+            isHourDivision -> properties.majorDivisionWidth.toPx()
+            else -> properties.minorDivisionWidth.toPx()
+        }
 
-        val divisionColor = colors.majorTickColor.takeIf { isHourDivision } ?: colors.minorTickColor
+        val divisionThickness = when {
+
+            isHourDivision -> properties.majorDivisionThickness.toPx()
+            else -> properties.minorDivisionThickness.toPx()
+        }
+
+        val divisionColor = if (isHourDivision) colors.majorTickColor else colors.minorTickColor
 
         rotate(degrees = (angleInRad * 180.0F / PI).toFloat() + 90.0F, pivot = intersectionOffset) {
 

@@ -204,20 +204,17 @@ sealed class ImageKolorInput(
          */
         fun ImageKolorInput.getIcon(isSelected: Boolean): ImageVector {
 
-            return isSelected.takeIf { it }?.let {
+            return if (isSelected) when (this) {
 
-                when (this) {
-
-                    is Brightness -> Icons.Filled.Brightness6
-                    is Exposure -> Icons.Filled.Exposure
-                    is Contrast -> Icons.Filled.Contrast
-                    is Saturation -> Icons.Filled.Colorize
-                    is Warmth -> Icons.Filled.Thermostat
-                    is Tint -> Icons.Filled.InvertColors
-                    is Highlights -> Icons.Filled.Animation
-                    is Shadows -> Icons.Filled.BlurLinear
-                }
-            } ?: when (this) {
+                is Brightness -> Icons.Filled.Brightness6
+                is Exposure -> Icons.Filled.Exposure
+                is Contrast -> Icons.Filled.Contrast
+                is Saturation -> Icons.Filled.Colorize
+                is Warmth -> Icons.Filled.Thermostat
+                is Tint -> Icons.Filled.InvertColors
+                is Highlights -> Icons.Filled.Animation
+                is Shadows -> Icons.Filled.BlurLinear
+            } else when (this) {
 
                 is Brightness -> Icons.Outlined.Brightness6
                 is Exposure -> Icons.Outlined.Exposure

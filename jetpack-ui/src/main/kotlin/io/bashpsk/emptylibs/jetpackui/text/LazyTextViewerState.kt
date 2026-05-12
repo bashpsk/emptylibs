@@ -245,7 +245,7 @@ class LazyTextViewerState(
         return@withContext textCacheManager[index]?.let { lineText ->
 
             TextContentResult.Content(text = lineText)
-        } ?: file?.takeIf { sourceFile -> sourceFile.exists() }?.let { sourceFile ->
+        } ?: file?.let { sourceFile ->
 
             RandomAccessFile(sourceFile, "r").use { randomFile ->
 

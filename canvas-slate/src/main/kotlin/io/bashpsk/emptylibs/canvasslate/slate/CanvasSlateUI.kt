@@ -91,7 +91,7 @@ internal fun CanvasSlateUI(
 
                 state.apply {
 
-                    onEditPathData(position = position)?.takeIf { isVisible -> isVisible }?.run {
+                    if (onEditPathData(position = position) == true) {
 
                         coroutineScope.launch { pathEditSheetState.show() }
                         return@detectTapGestures

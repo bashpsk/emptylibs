@@ -10,6 +10,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.PathEffect
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.composeutils.size.SizeData
 import io.bashpsk.emptylibs.composeutils.size.toSizeData
+import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.imageedit.cache.ImageEditCacheManager
 import io.bashpsk.emptylibs.imageedit.cache.ImageEditListCacheManager
 import io.bashpsk.emptylibs.imageedit.cache.ImageInputCacheManager
@@ -410,20 +413,16 @@ class ImageEditState(
      */
     fun onShapeItem() {
 
-        val sizeOfItem = shapeEditInput.size.takeIf { size ->
+        val sizeOfItem = if (shapeEditInput.size.isUnspecified) {
+            canvasSize.fittedImageSize(canvasSize / 2.0F)
+        } else shapeEditInput.size
 
-            size != Size.Unspecified
-        } ?: canvasSize.fittedImageSize(
-            Size(canvasSize.width / 2.0F, canvasSize.width / 2.0F)
-        )
-
-        val positionOfItem = shapeEditInput.position.takeIf { position ->
-
-            position != Offset.Unspecified
-        } ?: Offset(
-            x = (canvasSize.width - sizeOfItem.width) / 2.0F,
-            y = (canvasSize.height - sizeOfItem.height) / 2.0F
-        )
+        val positionOfItem = if (shapeEditInput.position.isUnspecified) {
+            Offset(
+                x = canvasSize.width - sizeOfItem.width,
+                y = canvasSize.height - sizeOfItem.height
+            ) / 2.0F
+        } else shapeEditInput.position
 
         val items = ImageEditItems.ShapeItem(
             shape = shapeEditInput.shape,
@@ -467,15 +466,13 @@ class ImageEditState(
      */
     fun onTextItem() {
 
-        val maxWidth = textEditInput.size.takeIf { size ->
+        val maxWidth = if (textEditInput.size.isUnspecified) {
+            canvasSize.width.toInt()
+        } else textEditInput.size.width.toInt()
 
-            size != Size.Unspecified
-        }?.width?.toInt() ?: canvasSize.width.toInt()
-
-        val maxHeight = textEditInput.size.takeIf { size ->
-
-            size != Size.Unspecified
-        }?.height?.toInt() ?: canvasSize.height.toInt()
+        val maxHeight = if (textEditInput.size.isUnspecified) {
+            canvasSize.height.toInt()
+        } else textEditInput.size.height.toInt()
 
         val sizeOfItem = textMeasurer.measure(
             text = textEditInput.content,
@@ -536,7 +533,7 @@ class ImageEditState(
     /**
      * Resets the current edit item being manipulated.
      *
-     * This function is typically called when an editing operation is completed or cancelled.
+     * This function is typically called when an editing operation is completed or canceled.
      * It sets the `currentImageEditItem` to `null`, effectively deselecting any active item.
      * This allows the user to start a new editing operation or select a different item.
      */
@@ -861,10 +858,11 @@ class ImageEditState(
         var calculatedTopLeft = position
         var calculatedSize = size
 
-        val aspectRatio = size.takeIf { itemSize ->
-
-            itemSize.width > 0.0F && itemSize.height > 0.0F && currentCorner.hasCornerEdge()
-        }?.let { itemSize -> itemSize.width / itemSize.height } ?: 1.0F
+        val aspectRatio = if ((size != Size.Zero || size.isSpecified)
+            && currentCorner.hasCornerEdge()
+        ) {
+            size.findAspectRatio()
+        } else 1.0F
 
         when (currentCorner) {
 
@@ -997,23 +995,21 @@ class ImageEditState(
             y = finalTopLeft.y.coerceIn(minY, (maxY - finalSize.height).coerceAtLeast(minY))
         )
 
-        currentCorner.takeIf { corner -> corner.hasCornerEdge() }?.let { corner ->
+        if (currentCorner.hasCornerEdge()) {
 
             var tempWidth = finalSize.width
             var tempHeight = finalSize.height
 
-            (tempWidth / aspectRatio > tempHeight).takeIf { it }?.run {
+            when {
 
-                tempWidth = tempHeight * aspectRatio
-            } ?: (tempHeight > tempWidth / aspectRatio).takeIf { it }?.run {
-
-                tempHeight = tempWidth / aspectRatio
+                tempWidth / aspectRatio > tempHeight -> tempWidth = tempHeight * aspectRatio
+                tempHeight > tempWidth / aspectRatio -> tempHeight = tempWidth / aspectRatio
             }
 
             tempWidth = tempWidth.coerceAtLeast(sizeLimit)
             tempHeight = tempHeight.coerceAtLeast(sizeLimit)
 
-            val adjustedTopLeftX = when (corner) {
+            val adjustedTopLeftX = when (currentCorner) {
 
                 EditItemCorner.TOP_LEFT -> initialBottomRight.x - tempWidth
                 EditItemCorner.TOP_RIGHT -> position.x
@@ -1022,7 +1018,7 @@ class ImageEditState(
                 else -> finalTopLeft.x
             }
 
-            val adjustedTopLeftY = when (corner) {
+            val adjustedTopLeftY = when (currentCorner) {
 
                 EditItemCorner.TOP_LEFT -> initialBottomRight.y - tempHeight
                 EditItemCorner.TOP_RIGHT -> initialBottomRight.y - tempHeight
@@ -1105,7 +1101,7 @@ class ImageEditState(
         var adjustedWidth = proposedWidth
         var adjustedHeight = proposedWidth / aspectRatio
 
-        (adjustedHeight < minSize).takeIf { it }?.run {
+        if (adjustedHeight < minSize) {
 
             adjustedHeight = minSize
             adjustedWidth = adjustedHeight * aspectRatio
@@ -1159,9 +1155,9 @@ class ImageEditState(
         var currentWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
         var currentHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
 
-        (currentWidth / aspectRatio > currentHeight).takeIf { it }?.run {
+        when {
 
-            when (cornerType) {
+            currentWidth / aspectRatio > currentHeight -> when (cornerType) {
 
                 EditItemCorner.TOP_LEFT, EditItemCorner.BOTTOM_LEFT -> {
 
@@ -1175,9 +1171,8 @@ class ImageEditState(
                     finalBottomRight = finalBottomRight.copy(x = finalTopLeft.x + currentWidth)
                 }
             }
-        } ?: (currentHeight > currentWidth / aspectRatio).takeIf { it }?.run {
 
-            when (cornerType) {
+            currentHeight > currentWidth / aspectRatio -> when (cornerType) {
 
                 EditItemCorner.TOP_LEFT, EditItemCorner.TOP_RIGHT -> {
 
@@ -1212,10 +1207,7 @@ class ImageEditState(
         val finalWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
         val finalHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
 
-        (finalWidth < minSize || finalHeight < minSize).takeIf { it }?.run {
-
-            return null
-        }
+        if (finalWidth < minSize || finalHeight < minSize) return null
 
         val resultBottomRight = Offset(
             x = (finalTopLeft.x + finalWidth).coerceIn(finalTopLeft.x + minSize, canvasWidth),
@@ -1227,11 +1219,9 @@ class ImageEditState(
             y = (resultBottomRight.y - finalHeight).coerceIn(0.0F, canvasHeight - minSize)
         )
 
-        ((resultBottomRight.x - resultTopLeft.x) < minSize ||
-                (resultBottomRight.y - resultTopLeft.y) < minSize).takeIf { it }?.run {
-
-            return null
-        }
+        if ((resultBottomRight.x - resultTopLeft.x) < minSize ||
+            (resultBottomRight.y - resultTopLeft.y) < minSize
+        ) return null
 
         return Pair(resultTopLeft, resultBottomRight)
     }
@@ -1306,7 +1296,8 @@ class ImageEditState(
                     textMeasurer = textMeasurer
                 ).apply {
 
-                    imageEditItemList = ImageEditListCacheManager[KEY_EDIT_ITEM_LIST] ?: persistentListOf()
+                    imageEditItemList = ImageEditListCacheManager[KEY_EDIT_ITEM_LIST]
+                        ?: persistentListOf()
 
                     currentImageEditItem = ImageEditCacheManager[KEY_CURRENT_EDIT_ITEM]
 
@@ -1322,15 +1313,20 @@ class ImageEditState(
                         KEY_CURRENT_CORNER
                     ) { null } as EditItemCorner?
 
-                    brushEditInput = (ImageInputCacheManager[KEY_BRUSH_INPUT] ?: ImageEditInput.BrushItem()) as ImageEditInput.BrushItem
+                    brushEditInput = (ImageInputCacheManager[KEY_BRUSH_INPUT]
+                        ?: ImageEditInput.BrushItem()) as ImageEditInput.BrushItem
 
-                    eraseEditInput = (ImageInputCacheManager[KEY_ERASE_INPUT] ?: ImageEditInput.EraseItem()) as ImageEditInput.EraseItem
+                    eraseEditInput = (ImageInputCacheManager[KEY_ERASE_INPUT]
+                        ?: ImageEditInput.EraseItem()) as ImageEditInput.EraseItem
 
-                    imageEditInput = (ImageInputCacheManager[KEY_IMAGE_INPUT] ?: ImageEditInput.ImageItem()) as ImageEditInput.ImageItem
+                    imageEditInput = (ImageInputCacheManager[KEY_IMAGE_INPUT]
+                        ?: ImageEditInput.ImageItem()) as ImageEditInput.ImageItem
 
-                    shapeEditInput = (ImageInputCacheManager[KEY_SHAPE_INPUT] ?: ImageEditInput.ShapeItem()) as ImageEditInput.ShapeItem
+                    shapeEditInput = (ImageInputCacheManager[KEY_SHAPE_INPUT]
+                        ?: ImageEditInput.ShapeItem()) as ImageEditInput.ShapeItem
 
-                    textEditInput = (ImageInputCacheManager[KEY_TEXT_INPUT] ?: ImageEditInput.TextItem()) as ImageEditInput.TextItem
+                    textEditInput = (ImageInputCacheManager[KEY_TEXT_INPUT]
+                        ?: ImageEditInput.TextItem()) as ImageEditInput.TextItem
                 }
             }
         )

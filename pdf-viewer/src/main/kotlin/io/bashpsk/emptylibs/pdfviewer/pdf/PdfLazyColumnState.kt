@@ -87,14 +87,14 @@ fun rememberPdfLazyColumnState(
 
         state.scaledBitmapManager.resize(maxSize = cacheSize)
 
-        onRetire {  }
+        onRetire { }
     }
 
     RetainedEffect(context, source) {
 
         state.setLoadPdfSource(context = context, source = source)
 
-        onRetire {  }
+        onRetire { }
     }
 
     return state
@@ -255,17 +255,14 @@ class PdfLazyColumnState(
         val targetWidth = containerWidth * transformable.initialZoom.toInt()
         val targetHeight = ((targetWidth.toFloat() / pageData.width) * pageData.height).toInt()
 
-        ((targetWidth > 0 || targetHeight > 0) && pageData.bitmap == null).takeIf { it }?.run {
+        if ((targetWidth > 0 || targetHeight > 0) && pageData.bitmap == null) getRenderBitmap(
+            renderer = renderer,
+            pageIndex = pageIndex,
+            targetWidth = targetWidth,
+            targetHeight = targetHeight
+        )?.let { bitmap ->
 
-            getRenderBitmap(
-                renderer = renderer,
-                pageIndex = pageIndex,
-                targetWidth = targetWidth,
-                targetHeight = targetHeight
-            )?.let { bitmap ->
-
-                pageDataList = pageDataList.put(pageIndex, pageData.copy(bitmap = bitmap))
-            }
+            pageDataList = pageDataList.put(pageIndex, pageData.copy(bitmap = bitmap))
         }
     }
 
@@ -356,21 +353,18 @@ class PdfLazyColumnState(
 
                 try {
 
-                    searchQuery.takeIf { newQuery -> newQuery.isNotEmpty() }?.let { newQuery ->
+                    if (searchQuery.isNotEmpty()) pdfRenderer?.let { renderer ->
 
-                        pdfRenderer?.let { renderer ->
+                        pageDataList = pageDataList.mapValues { (pageIndex, pageData) ->
 
-                            pageDataList = pageDataList.mapValues { (pageIndex, pageData) ->
+                            renderer.openPage(pageData.page).use { page ->
 
-                                renderer.openPage(pageData.page).use { page ->
+                                val newRectList = page.getSearchRectList(query = searchQuery)
 
-                                    val newRectList = page.getSearchRectList(query = newQuery)
-
-                                    pageData.copy(searchRectList = newRectList)
-                                }
-                            }.toPersistentMap()
-                        }
-                    } ?: return@withLock
+                                pageData.copy(searchRectList = newRectList)
+                            }
+                        }.toPersistentMap()
+                    } else return@withLock
                 } catch (exception: Exception) {
 
                     currentCoroutineContext().ensureActive()

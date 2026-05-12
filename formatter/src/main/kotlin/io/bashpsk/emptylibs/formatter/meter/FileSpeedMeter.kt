@@ -23,14 +23,14 @@ import kotlin.time.Duration.Companion.seconds
  * @param destination The destination file, which is being written to. Its size is monitored to
  * calculate progress and speed.
  * @param interval The time interval at which to emit new speed data.
- * @param onSpeedChange Update an operation [FileSpeedData]; return null if its completed.
+ * @param onSpeedChange Update an operation [FileSpeedData].
  */
 @Throws(IOException::class, FileNotFoundException::class, SecurityException::class)
 suspend fun fileSpeedMeter(
     source: File,
     destination: File,
     interval: Duration = 1.seconds,
-    onSpeedChange: (FileSpeedData?) -> Unit
+    onSpeedChange: (FileSpeedData) -> Unit
 ) = withContext(context = Dispatchers.IO) {
 
     while (currentCoroutineContext().isActive) {
@@ -58,9 +58,7 @@ suspend fun fileSpeedMeter(
  * @param previous The size of the file at the last measurement, in bytes.
  * @return A [FileSpeedData] object containing the calculated progress, speed, and ETA.
  */
-fun fileSpeedMeter(total: Long, current: Long, previous: Long): FileSpeedData? {
-
-    if (current >= total) return null
+fun fileSpeedMeter(total: Long, current: Long, previous: Long): FileSpeedData {
 
     val remaining = (total - current).coerceIn(range = 0L..total)
     val speed = (current - previous).coerceIn(range = 0L..total)

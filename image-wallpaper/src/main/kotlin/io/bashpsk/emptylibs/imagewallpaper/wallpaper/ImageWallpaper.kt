@@ -59,12 +59,16 @@ fun ImageWallpaper(
     val wallpaperAspectRatio by remember(configuration.orientation, windowInfo.containerSize) {
         derivedStateOf {
             findAspectRatio(
-                width = windowInfo.containerSize.width.takeIf {
-                    configuration.orientation != Configuration.ORIENTATION_LANDSCAPE
-                } ?: windowInfo.containerSize.height,
-                height = windowInfo.containerSize.height.takeIf {
-                    configuration.orientation != Configuration.ORIENTATION_LANDSCAPE
-                } ?: windowInfo.containerSize.width
+                width = when (configuration.orientation) {
+
+                    Configuration.ORIENTATION_LANDSCAPE -> windowInfo.containerSize.height
+                    else -> windowInfo.containerSize.width
+                },
+                height = when (configuration.orientation) {
+
+                    Configuration.ORIENTATION_LANDSCAPE ->windowInfo.containerSize.width
+                    else -> windowInfo.containerSize.height
+                }
             )
         }
     }

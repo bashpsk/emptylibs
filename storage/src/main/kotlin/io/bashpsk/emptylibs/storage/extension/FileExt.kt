@@ -16,7 +16,7 @@ fun File.fileLengthOrNull(): Long? {
 
     return try {
 
-        length().takeIf { exists() }
+        length()
     } catch (exception: Exception) {
 
         null

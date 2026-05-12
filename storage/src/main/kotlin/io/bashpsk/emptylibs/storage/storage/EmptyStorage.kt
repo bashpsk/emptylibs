@@ -39,9 +39,9 @@ internal interface EmptyStorage {
 
     suspend fun getSearchDirectoryFileData(
         context: Context,
-        path: String,
+        paths: Iterable<String>,
         query: String
-    ): DirectoryFileData
+    ): DirectorySearchData
 
     fun getTotalMemory(path: String): Long
 
@@ -51,5 +51,8 @@ internal interface EmptyStorage {
 
     suspend fun getFileSize(paths: Iterable<String>): Long
 
-    suspend fun makeFolderOrFile(destination: String, isFolder: Boolean): MakeFileResult
+    suspend fun makeFolderOrFile(
+        destination: String,
+        isFolder: Boolean
+    ): MakeFileResult
 }

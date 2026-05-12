@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -16,7 +17,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -32,22 +32,23 @@ import kotlinx.serialization.ExperimentalSerializationApi
 @Composable
 fun rememberSvgKolorState(source: String): SvgKolorState {
 
-    return retain(source) { SvgKolorState(source = source) }
+    val coroutineScope = rememberCoroutineScope()
+
+    return retain(source) { SvgKolorState(coroutineScope = coroutineScope, source = source) }
 }
 
 /**
  * State holder for SVG recoloring logic.
  *
+ * @property coroutineScope Coroutine scope used for performing background tasks such as parsing the
+ * SVG source and applying color transformations on a background dispatcher.
  * @property source The original SVG source string.
  */
 @Stable
-class SvgKolorState(val source: String) {
-
-    /**
-     * Coroutine scope used for performing background tasks such as parsing the SVG source
-     * and applying color transformations on a background dispatcher.
-     */
-    private val coroutineScope = CoroutineScope(context = SupervisorJob() + Dispatchers.Default)
+class SvgKolorState(
+    private val coroutineScope: CoroutineScope,
+    val source: String
+) {
 
     /**
      * Regex pattern to identify hex color codes in the SVG.

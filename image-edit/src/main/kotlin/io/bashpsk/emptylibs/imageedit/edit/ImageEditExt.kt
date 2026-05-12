@@ -17,6 +17,8 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toIntSize
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
+import io.bashpsk.emptylibs.composeutils.shape.toPath
 import io.bashpsk.emptylibs.imageedit.extension.toBottomCenter
 import io.bashpsk.emptylibs.imageedit.extension.toBottomLeft
 import io.bashpsk.emptylibs.imageedit.extension.toBottomRight
@@ -24,8 +26,6 @@ import io.bashpsk.emptylibs.imageedit.extension.toLeftCenter
 import io.bashpsk.emptylibs.imageedit.extension.toRightCenter
 import io.bashpsk.emptylibs.imageedit.extension.toTopCenter
 import io.bashpsk.emptylibs.imageedit.extension.toTopRight
-import io.bashpsk.emptylibs.composeutils.shape.PathShape
-import io.bashpsk.emptylibs.composeutils.shape.toPath
 import kotlin.math.abs
 
 /**
@@ -90,32 +90,22 @@ private fun DrawScope.drawEditBrush(item: ImageEditItems.BrushItem) {
 
     val smoothedPath = Path().apply {
 
-        item.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
+        if (item.path.isNotEmpty()) {
 
-            moveTo(x = points.first().x, y = points.first().y)
+            moveTo(x = item.path.first().x, y = item.path.first().y)
+            if (item.path.size == 1) lineTo(x = item.path.first().x, y = item.path.first().y)
 
-            points.size.takeIf { counts -> counts == 1 }?.run {
-
-                lineTo(x = points.first().x, y = points.first().y)
-            }
-
-            points.zipWithNext().forEach { (from, to) ->
+            item.path.zipWithNext().forEach { (from, to) ->
 
                 val dx = abs(from.x - to.x)
                 val dy = abs(from.y - to.y)
 
-                (dx >= item.smoothness || dy >= item.smoothness).takeIf { hasValid ->
-
-                    hasValid
-                }?.run {
-
-                    quadraticTo(
-                        x1 = (from.x + to.x) / 2,
-                        y1 = (from.y + to.y) / 2,
-                        x2 = to.x,
-                        y2 = to.y
-                    )
-                }
+                if (dx >= item.smoothness || dy >= item.smoothness) quadraticTo(
+                    x1 = (from.x + to.x) / 2,
+                    y1 = (from.y + to.y) / 2,
+                    x2 = to.x,
+                    y2 = to.y
+                )
             }
         }
     }
@@ -136,32 +126,22 @@ private fun DrawScope.drawEditErase(item: ImageEditItems.EraseItem) {
 
     val smoothedPath = Path().apply {
 
-        item.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
+        if (item.path.isNotEmpty()) {
 
-            moveTo(x = points.first().x, y = points.first().y)
+            moveTo(x = item.path.first().x, y = item.path.first().y)
+            if (item.path.size == 1) lineTo(x = item.path.first().x, y = item.path.first().y)
 
-            points.size.takeIf { counts -> counts == 1 }?.run {
-
-                lineTo(x = points.first().x, y = points.first().y)
-            }
-
-            points.zipWithNext().forEach { (from, to) ->
+            item.path.zipWithNext().forEach { (from, to) ->
 
                 val dx = abs(from.x - to.x)
                 val dy = abs(from.y - to.y)
 
-                (dx >= item.smoothness || dy >= item.smoothness).takeIf { hasValid ->
-
-                    hasValid
-                }?.run {
-
-                    quadraticTo(
-                        x1 = (from.x + to.x) / 2,
-                        y1 = (from.y + to.y) / 2,
-                        x2 = to.x,
-                        y2 = to.y
-                    )
-                }
+                if (dx >= item.smoothness || dy >= item.smoothness) quadraticTo(
+                    x1 = (from.x + to.x) / 2,
+                    y1 = (from.y + to.y) / 2,
+                    x2 = to.x,
+                    y2 = to.y
+                )
             }
         }
     }

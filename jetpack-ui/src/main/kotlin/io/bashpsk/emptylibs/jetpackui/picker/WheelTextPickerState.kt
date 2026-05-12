@@ -188,16 +188,12 @@ class WheelTextPickerState<T>(
 
         coroutineScope.launch {
 
-            textList.takeIf { itemsList ->
+            if (textList.isNotEmpty() && itemHeight > 0) ((pickerCenterY + animatable
+                .value - itemHeight / 2F) / itemHeight).toInt()
+                .coerceIn(textList.indices).let { index ->
 
-                itemsList.isNotEmpty() && itemHeight > 0
-            }?.let { itemsList ->
-
-                val index = ((pickerCenterY + animatable.value - itemHeight / 2F) / itemHeight)
-                    .toInt().coerceIn(itemsList.indices)
-
-                animatable.animateTo((index * itemHeight + itemHeight / 2F) - pickerCenterY)
-            }
+                    animatable.animateTo((index * itemHeight + itemHeight / 2F) - pickerCenterY)
+                }
         }
     }
 }

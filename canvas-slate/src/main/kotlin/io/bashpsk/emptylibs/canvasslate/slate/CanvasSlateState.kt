@@ -241,7 +241,7 @@ class CanvasSlateState(private val density: Density) {
      */
     internal fun onPathStart() {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
+        if (isDrawingMode) {
 
             val path = CanvasSlatePath(
                 id = Clock.System.now().toEpochMilliseconds().toString(),
@@ -264,14 +264,11 @@ class CanvasSlateState(private val density: Density) {
      */
     internal fun onPathEnd() {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
+        if (isDrawingMode) currentPath?.let { pathData ->
 
-            currentPath?.let { pathData ->
-
-                allPathList = allPathList.add(element = pathData)
-                onCurrentPath(path = null)
-            } ?: return
-        }
+            allPathList = allPathList.add(element = pathData)
+            onCurrentPath(path = null)
+        } ?: return
     }
 
     /**
@@ -288,15 +285,12 @@ class CanvasSlateState(private val density: Density) {
      */
     internal fun onPathDraw(position: Offset) {
 
-        isDrawingMode.takeIf { canDraw -> canDraw }?.run {
+        if (isDrawingMode) currentPath?.let { pathData ->
 
-            currentPath?.let { pathData ->
+            val path = pathData.copy(path = pathData.path.add(position.toOffsetData()))
 
-                val path = pathData.copy(path = pathData.path.add(position.toOffsetData()))
-
-                onCurrentPath(path = path)
-            } ?: return
-        }
+            onCurrentPath(path = path)
+        } ?: return
     }
 
     /**
@@ -316,15 +310,14 @@ class CanvasSlateState(private val density: Density) {
      *  - It returns `true` to indicate that a path was successfully selected for editing.
      *
      * If the application is in drawing mode (`isDrawingMode` is true) or if no path is found near
-     * the `position`, this function returns `null` (due to the `takeIf { canDraw.not() }?.run`
-     * structure).
+     * the `position`.
      *
      * @param position The [Offset] on the canvas where the interaction occurred.
      * @return `true` if a path was selected for editing, `null` otherwise.
      */
     internal fun onEditPathData(position: Offset): Boolean? {
 
-        return isDrawingMode.takeIf { canDraw -> canDraw.not() }?.run {
+        return if (isDrawingMode.not()) {
 
             allPathList.find { pathData ->
 
@@ -340,7 +333,7 @@ class CanvasSlateState(private val density: Density) {
                 previewPathList = allPathList
                 true
             }
-        }
+        } else null
     }
 
     /**
@@ -430,15 +423,15 @@ class CanvasSlateState(private val density: Density) {
      */
     suspend fun getImageBitmap(): ImageBitmap? = withContext(Dispatchers.IO) {
 
-        return@withContext canvasSize.takeIf { size -> size != Size.Zero }?.let { size ->
+        return@withContext if (canvasSize != Size.Zero) {
 
-            val imageBitmap = ImageBitmap(size.width.toInt(), size.height.toInt())
+            val imageBitmap = ImageBitmap(canvasSize.width.toInt(), canvasSize.height.toInt())
 
             CanvasDrawScope().draw(
                 density = density,
                 layoutDirection = LayoutDirection.Ltr,
                 canvas = Canvas(image = imageBitmap),
-                size = size
+                size = canvasSize
             ) {
 
                 drawRect(color = backgroundColor)
@@ -447,7 +440,7 @@ class CanvasSlateState(private val density: Density) {
             }
 
             imageBitmap
-        }
+        } else null
     }
 
     internal fun clearState() {

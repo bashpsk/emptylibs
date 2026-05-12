@@ -12,7 +12,7 @@ import kotlin.math.abs
  * Draws a [CanvasSlatePath] on the [DrawScope].
  *
  * This function takes a [CanvasSlatePath] object, which contains the path points, color,
- * thickness, stroke cap, and stroke join. It then smooths the path using quadratic Bezier
+ * thickness, stroke cap, and stroke join. It then smooths the path using quadratic Bézier
  * curves if the distance between points is greater than or equal to a predefined `smoothness`
  * value. Finally, it draws the smoothed path onto the `DrawScope`.
  *
@@ -24,29 +24,26 @@ internal fun DrawScope.drawSlatePath(slatePath: CanvasSlatePath) {
 
         val smoothness = 3
 
-        slatePath.path.takeIf { paths -> paths.isNotEmpty() }?.let { points ->
+        if (slatePath.path.isNotEmpty()) {
 
-            moveTo(x = points.first().x, y = points.first().y)
+            moveTo(x = slatePath.path.first().x, y = slatePath.path.first().y)
 
-            points.size.takeIf { counts -> counts == 1 }?.run {
+            if (slatePath.path.size == 1) lineTo(
+                x = slatePath.path.first().x,
+                y = slatePath.path.first().y
+            )
 
-                lineTo(x = points.first().x, y = points.first().y)
-            }
-
-            points.zipWithNext().forEach { (from, to) ->
+            slatePath.path.zipWithNext().forEach { (from, to) ->
 
                 val dx = abs(from.x - to.x)
                 val dy = abs(from.y - to.y)
 
-                (dx >= smoothness || dy >= smoothness).takeIf { hasValid -> hasValid }?.run {
-
-                    quadraticTo(
-                        x1 = (from.x + to.x) / 2,
-                        y1 = (from.y + to.y) / 2,
-                        x2 = to.x,
-                        y2 = to.y
-                    )
-                }
+                if (dx >= smoothness || dy >= smoothness) quadraticTo(
+                    x1 = (from.x + to.x) / 2,
+                    y1 = (from.y + to.y) / 2,
+                    x2 = to.x,
+                    y2 = to.y
+                )
             }
         }
     }

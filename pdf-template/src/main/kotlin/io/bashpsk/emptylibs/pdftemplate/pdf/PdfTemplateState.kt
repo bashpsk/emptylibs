@@ -647,7 +647,7 @@ class PdfTemplateState(
                                 positionY = section.positionY
                             }
 
-                            section.title.text.takeIf { text -> text.isNotEmpty() }?.run {
+                            if (section.title.text.isNotEmpty()) {
 
                                 val height = section.titleLayout.size.height
 

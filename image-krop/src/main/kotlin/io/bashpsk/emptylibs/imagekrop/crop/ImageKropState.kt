@@ -405,11 +405,11 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         kropAspectRatio.ratio?.let { ratio ->
 
-            (canvasSize.width / canvasSize.height > ratio).takeIf { it }?.run {
+            if (canvasSize.width / canvasSize.height > ratio) {
 
                 rectH = canvasSize.height * 0.8F
                 rectW = rectH * ratio
-            } ?: run {
+            } else {
 
                 rectW = canvasSize.width * 0.8F
                 rectH = rectW / ratio
@@ -425,31 +425,31 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         kropAspectRatio.ratio?.takeIf { isAspectLocked }?.let { ratio ->
 
-            (abs((rectW / ratio) - rectH) > 1.0F).takeIf { it }?.run {
+            if (abs((rectW / ratio) - rectH) > 1.0F) {
 
                 rectH = rectW / ratio
 
-                (rectH < sizeLimit).takeIf { it }?.run {
+                if (rectH < sizeLimit) {
 
                     rectH = sizeLimit
                     rectW = rectH * ratio
                 }
             }
 
-            (rectW > canvasSize.width).takeIf { it }?.run {
+            if (rectW > canvasSize.width) {
 
                 rectW = canvasSize.width
                 rectH = rectW / ratio
             }
 
-            (rectH > canvasSize.height).takeIf { it }?.run {
+            if (rectH > canvasSize.height) {
 
                 rectH = canvasSize.height
                 rectW = rectH * ratio
             }
         }
 
-        (rectW > canvasSize.width).takeIf { it }?.run {
+        if (rectW > canvasSize.width) {
 
             rectW = canvasSize.width
 
@@ -459,7 +459,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
             } ?: rectH.coerceAtMost(canvasSize.height)
         }
 
-        (rectH > canvasSize.height).takeIf { it }?.run {
+        if (rectH > canvasSize.height) {
 
             rectH = canvasSize.height
 
@@ -474,21 +474,15 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         kropAspectRatio.ratio?.takeIf { isAspectLocked }?.let { ratio ->
 
-            (abs(rectW / rectH - ratio) > 0.01F).takeIf { it }?.run {
+            if (abs(rectW / rectH - ratio) > 0.01F) {
 
                 val targetH = (rectW / ratio).coerceAtLeast(sizeLimit)
 
-                (targetH <= canvasSize.height).takeIf { it }?.run {
-
-                    rectH = targetH
-                } ?: run {
+                if (targetH <= canvasSize.height) rectH = targetH else {
 
                     val targetW = (rectH * ratio).coerceAtLeast(sizeLimit)
 
-                    (targetW <= canvasSize.width).takeIf { it }?.run {
-
-                        rectW = targetW
-                    }
+                    if (targetW <= canvasSize.width) rectW = targetW
                 }
             }
         }
@@ -608,7 +602,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         val targetAspectRatio = kropAspectRatio.ratio?.takeIf { isAspectLocked }
 
-        currentCorner.takeIf { corner -> corner != null }?.let { corner ->
+        currentCorner?.let { corner ->
 
             when (corner) {
 
@@ -948,7 +942,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         val newPosition = draggedCorner + dragDelta
 
-        cornerType.takeIf { corner -> corner.hasCornerCenter() }?.let { corner ->
+        if (cornerType.hasCornerCenter()) {
 
             var currentTopLeft = Offset(
                 minOf(draggedCorner.x, fixedCorner.x),
@@ -959,7 +953,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
                 maxOf(draggedCorner.y, fixedCorner.y)
             )
 
-            when (corner) {
+            when (cornerType) {
 
                 KropCorner.TOP_CENTRE -> {
 
@@ -996,13 +990,10 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
                 else -> return null
             }
 
-            (cornerType == KropCorner.TOP_CENTRE
-                    || cornerType == KropCorner.BOTTOM_CENTRE).takeIf { isHorizontal ->
+            when {
 
-                isHorizontal && (currentBottomRight.y - currentTopLeft.y < minSize)
-            }?.run {
-
-                when (cornerType) {
+                (cornerType == KropCorner.TOP_CENTRE || cornerType == KropCorner.BOTTOM_CENTRE)
+                        && currentBottomRight.y - currentTopLeft.y < minSize -> when (cornerType) {
 
                     KropCorner.TOP_CENTRE -> currentTopLeft = currentTopLeft.copy(
                         y = currentBottomRight.y - minSize
@@ -1012,13 +1003,10 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
                         y = currentTopLeft.y + minSize
                     )
                 }
-            } ?: (cornerType == KropCorner.LEFT_CENTRE
-                    || cornerType == KropCorner.RIGHT_CENTRE).takeIf { isVertical ->
 
-                isVertical && (currentBottomRight.x - currentTopLeft.x < minSize)
-            }?.run {
+                (cornerType == KropCorner.LEFT_CENTRE || cornerType == KropCorner.RIGHT_CENTRE)
+                        && currentBottomRight.x - currentTopLeft.x < minSize -> when (cornerType) {
 
-                when (cornerType) {
                     KropCorner.LEFT_CENTRE -> currentTopLeft = currentTopLeft.copy(
                         x = currentBottomRight.x - minSize
                     )
@@ -1051,11 +1039,9 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
                 y = (finalTopLeft.y + finalHeight).coerceIn(finalTopLeft.y + minSize, canvasHeight)
             )
 
-            ((finalBottomRight.x - finalTopLeft.x) < minSize
-                    || (finalBottomRight.y - finalTopLeft.y) < minSize).takeIf { isNotValid ->
-
-                isNotValid
-            }?.run { return null }
+            if ((finalBottomRight.x - finalTopLeft.x) < minSize
+                || (finalBottomRight.y - finalTopLeft.y) < minSize
+            ) return null
 
             return Pair(finalTopLeft, finalBottomRight)
         }
@@ -1143,9 +1129,9 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         aspectRatio?.let { ratio ->
 
-            (currentWidth / ratio > currentHeight).takeIf { isValid -> isValid }?.run {
+            when {
 
-                when (cornerType) {
+                currentWidth / ratio > currentHeight -> when (cornerType) {
 
                     KropCorner.TOP_LEFT, KropCorner.BOTTOM_LEFT -> {
 
@@ -1159,9 +1145,8 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
                         finalBottomRight = finalBottomRight.copy(x = finalTopLeft.x + currentWidth)
                     }
                 }
-            } ?: (currentHeight > currentWidth / ratio).takeIf { isValid -> isValid }?.run {
 
-                when (cornerType) {
+                currentHeight > currentWidth / ratio -> when (cornerType) {
 
                     KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT -> {
 
@@ -1198,19 +1183,14 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
         val finalWidth = (finalBottomRight.x - finalTopLeft.x)
         val finalHeight = (finalBottomRight.y - finalTopLeft.y)
 
-        (finalWidth < minSize || finalHeight < minSize).takeIf { inNotValid ->
-
-            inNotValid
-        }?.run { return null }
+        if (finalWidth < minSize || finalHeight < minSize) return null
 
         val resultTopLeft = finalTopLeft
         val resultBottomRight = finalBottomRight
 
-        (((resultBottomRight.x - resultTopLeft.x) < minSize) ||
-                ((resultBottomRight.y - resultTopLeft.y) < minSize)).takeIf { isNotValid ->
-
-            isNotValid
-        }?.run { return null }
+        if (((resultBottomRight.x - resultTopLeft.x) < minSize) ||
+            ((resultBottomRight.y - resultTopLeft.y) < minSize)
+        ) return null
 
         return Pair(resultTopLeft, resultBottomRight)
     }

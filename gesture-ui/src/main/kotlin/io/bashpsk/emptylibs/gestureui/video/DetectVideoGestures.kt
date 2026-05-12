@@ -167,7 +167,7 @@ internal suspend fun PointerInputScope.detectVideoGestures(
                         val dragPosition = change.positionChange()
                         val isDragValid = dragPosition.x != 0F || dragPosition.y != 0F
 
-                        (isDragValid).takeIf { isValid -> isValid }?.let { _ ->
+                        if (isDragValid) {
 
                             val isDragHorizontal = abs(dragPosition.x) > abs(dragPosition.y)
                             val isDragVertical = abs(dragPosition.y) > abs(dragPosition.x)
@@ -179,7 +179,7 @@ internal suspend fun PointerInputScope.detectVideoGestures(
                             val isLockHorizontalDrag = isVertical && isDragHorizontal
                             val isDragLocked = isLockVerticalDrag || isLockHorizontalDrag
 
-                            (isDragLocked).takeIf { isLocked -> isLocked }?.let { _ ->
+                            if (isDragLocked) {
 
                                 val initialTouchIsInLeftHalf = touchX < viewWidth / 2F
                                 val initialTouchIsInTopHalf = touchY < viewHeight / 2F

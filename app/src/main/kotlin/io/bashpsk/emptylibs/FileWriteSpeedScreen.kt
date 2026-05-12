@@ -29,6 +29,7 @@ import io.bashpsk.emptylibs.formatter.meter.FileSpeedData
 import io.bashpsk.emptylibs.formatter.meter.fileSpeedMeter
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -99,7 +100,7 @@ fun FileWriteSpeedScreen() {
                         previous = 0L
                         fileSpeedData = FileSpeedData()
 
-                        while (current <= total) {
+                        while (current <= total && isActive) {
 
                             val increment = total / 10
 //                            val increment = (100 * 1024..500 * 1024).randomOrNull() ?: 0
@@ -111,7 +112,7 @@ fun FileWriteSpeedScreen() {
                                 total = total,
                                 current = current,
                                 previous = previous
-                            )?.let { speedData ->
+                            ).let { speedData ->
 
                                 fileSpeedData = speedData
                             }

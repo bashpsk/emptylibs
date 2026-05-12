@@ -165,7 +165,7 @@ fun VideoGestureBox(
 
             state.swipeAmount += dragAmount
 
-            state.touchCount.takeIf { count -> count == 2 }?.run {
+            if (state.touchCount == 2) {
 
                 state.dragGestureAction = when (state.dragGestureAction) {
 
@@ -183,7 +183,7 @@ fun VideoGestureBox(
 
                     state.hasHorizontalTopSwipe() -> {
 
-                        state.isDragStartSend.takeIf { hasSend -> hasSend.not() }?.run {
+                        if (state.isDragStartSend.not()) {
 
                             onDragChanges(DragChanges.HorizontalBottomStart)
                             state.isDragStartSend = true
@@ -203,7 +203,7 @@ fun VideoGestureBox(
 
                     state.hasHorizontalBottomSwipe() -> {
 
-                        state.isDragStartSend.takeIf { hasSend -> hasSend.not() }?.run {
+                        if (state.isDragStartSend.not()) {
 
                             onDragChanges(DragChanges.HorizontalBottomStart)
                             state.isDragStartSend = true
@@ -284,14 +284,11 @@ fun VideoGestureBox(
 
     val transformableState = rememberTransformableState { _, zoomChange, panChange, _ ->
 
-        state.hasTransform().takeIf { isTransform -> isTransform.not() }?.run {
+        if (state.hasTransform().not()) return@rememberTransformableState
 
-            return@rememberTransformableState
-        }
+        when (state.touchCount) {
 
-        state.touchCount.takeIf { count -> count == 2 }?.run {
-
-            when (state.dragGestureAction) {
+            2 -> when (state.dragGestureAction) {
 
                 null -> {
 
@@ -300,8 +297,8 @@ fun VideoGestureBox(
 
                 DragGestureAction.Transform -> {
 
-                    val newZoomChange = zoomChange.takeIf { state.config.isZoomEnable } ?: 1.0F
-                    val newPanChange = panChange.takeIf { state.config.isPanEnable } ?: Offset.Zero
+                    val newZoomChange = if (state.config.isZoomEnable) zoomChange else 1.0F
+                    val newPanChange = if (state.config.isPanEnable) panChange else Offset.Zero
 
                     onDragChanges(DragChanges.TransformChanges(newZoomChange, newPanChange))
                     state.onResetDragGestureAction()
@@ -309,15 +306,17 @@ fun VideoGestureBox(
 
                 else -> return@rememberTransformableState
             }
-        } ?: run {
 
-            when (state.dragGestureAction) {
+            else -> {
 
-                DragGestureAction.Transform -> state.dragGestureAction = null
-                else -> {}
+                when (state.dragGestureAction) {
+
+                    DragGestureAction.Transform -> state.dragGestureAction = null
+                    else -> {}
+                }
+
+                return@rememberTransformableState
             }
-
-            return@rememberTransformableState
         }
     }
 

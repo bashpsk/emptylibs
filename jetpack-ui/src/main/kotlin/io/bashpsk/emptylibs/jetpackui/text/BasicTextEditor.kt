@@ -60,9 +60,9 @@ inline fun BasicTextEditor(
 
     LaunchedEffect(inputContent) {
 
-        inputContent.takeIf { text -> text != textFieldValue.text }?.let { text ->
+       if( inputContent != textFieldValue.text) {
 
-            textFieldValue = textFieldValue.copy(text = text)
+            textFieldValue = textFieldValue.copy(text = inputContent)
         }
     }
 

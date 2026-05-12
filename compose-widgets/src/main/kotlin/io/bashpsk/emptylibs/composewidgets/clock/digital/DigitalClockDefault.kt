@@ -66,8 +66,8 @@ object DigitalClockDefault {
     @Stable
     internal fun getTextStyle(textStyle: TextStyle, enabled: Boolean, alpha: Float): TextStyle {
 
-        return textStyle.takeIf {
-            enabled
-        } ?: textStyle.copy(color = textStyle.color.copy(alpha = alpha))
+        return if (enabled) textStyle else textStyle.copy(
+            color = textStyle.color.copy(alpha = alpha)
+        )
     }
 }

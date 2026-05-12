@@ -233,18 +233,18 @@ class DialTextPickerState<T>(
      */
     private fun updateSelectionFromAngle(angle: Float) {
 
-        textList.takeIf { items -> items.isNotEmpty() }?.let { items ->
+        if(textList.isNotEmpty()) {
 
-            val anglePerItem = 360F / items.size
+            val anglePerItem = 360F / textList.size
             val normalizedAngle = (-angle % 360F + 360F) % 360F
             val centeredAngle = (normalizedAngle + anglePerItem / 2F) % 360F
 
-            (floor(centeredAngle / anglePerItem).toInt() % items.size).takeIf { itemIndex ->
+            (floor(centeredAngle / anglePerItem).toInt() % textList.size).takeIf { itemIndex ->
 
-                itemIndex in items.indices
+                itemIndex in textList.indices
             }?.let { itemIndex ->
 
-                selectedText = items[itemIndex]
+                selectedText = textList[itemIndex]
                 selectedIndex = itemIndex
             }
         }
@@ -272,17 +272,17 @@ class DialTextPickerState<T>(
      */
     internal fun onDialEnd() {
 
-        textList.takeIf { items -> items.isNotEmpty() }?.let { items ->
+        if(textList.isNotEmpty()) {
 
             val animationSpec = tween<Float>(
                 durationMillis = 250,
                 easing = FastOutSlowInEasing
             )
 
-            val anglePerItem = 360F / items.size
+            val anglePerItem = 360F / textList.size
             val normalizedAngle = (-currentAngle.value % 360F + 360F) % 360F
             val centeredAngle = (normalizedAngle + anglePerItem / 2F) % 360F
-            val currentSelectedIndex = (floor(centeredAngle / anglePerItem).toInt() % items.size)
+            val currentSelectedIndex = (floor(centeredAngle / anglePerItem).toInt() % textList.size)
             val targetRotation = -(currentSelectedIndex.toFloat() * anglePerItem)
             val angleDifference = (targetRotation - currentAngle.value) % 360F
 

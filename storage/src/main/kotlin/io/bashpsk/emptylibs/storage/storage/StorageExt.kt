@@ -31,6 +31,7 @@ import java.io.File
  * Many operations are performed on the [Dispatchers.IO] thread to avoid blocking the main thread.
  * Error handling is implemented, with relevant messages logged for debugging.
  */
+@Suppress("unused")
 object StorageExt {
 
     private val emptyStorage: EmptyStorage = EmptyStorageImpl()
@@ -337,11 +338,40 @@ object StorageExt {
         context: Context,
         path: String,
         query: String
-    ): DirectoryFileData {
+    ): DirectorySearchData {
 
         return emptyStorage.getSearchDirectoryFileData(
             context = context,
-            path = path,
+            paths = persistentListOf(path),
+            query = query
+        )
+    }
+
+    /**
+     * Recursively searches for files and directories across all available storage volumes that
+     * match a query.
+     *
+     * This function identifies all available storage volumes (e.g., internal storage, SD cards)
+     * and performs a top-down, case-insensitive search for files and directories whose names
+     * contain the [query] string.
+     *
+     * The results from all volumes are aggregated into a single [DirectorySearchData] object,
+     * which categorizes the matches into separate lists for folders and files.
+     *
+     * @param context The Android context used to retrieve the list of storage volumes.
+     * @param query The search term to match against file and directory names.
+     * @return A [DirectorySearchData] containing the aggregated [FileData] and [DirectoryData]
+     * items from all storage volumes.
+     * Returns an empty result if no matches are found or an error occurs.
+     */
+    suspend fun getSearchDirectoryFileData(
+        context: Context,
+        query: String
+    ): DirectorySearchData {
+
+        return emptyStorage.getSearchDirectoryFileData(
+            context = context,
+            paths = getStorageVolumeList(context = context).map { volumeData -> volumeData.path },
             query = query
         )
     }

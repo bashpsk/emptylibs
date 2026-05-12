@@ -35,24 +35,25 @@ internal class EmptyStorageImpl : EmptyStorage {
 
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
 
-                    storageManager.storageVolumes.map { volume ->
+                    storageManager.storageVolumes.mapNotNull { volume ->
 
-                        val path = volume.directory?.path ?: ""
+                        volume.directory?.path?.let { path ->
 
-                        StorageVolumeData(
-                            title = volume.getDescription(context),
-                            path = path,
-                            totalSize = getTotalMemory(path = path),
-                            availableSize = getFreeMemory(path = path),
-                            usedSize = getUsedMemory(path = path),
-                            volumeType = StorageVolumeType.getVolumeType(volume = volume)
-                        )
+                            StorageVolumeData(
+                                title = volume.getDescription(context),
+                                path = path,
+                                totalSize = getTotalMemory(path = path),
+                                availableSize = getFreeMemory(path = path),
+                                usedSize = getUsedMemory(path = path),
+                                volumeType = StorageVolumeType.getVolumeType(volume = volume)
+                            )
+                        }
                     }.toImmutableList()
                 }
 
                 else -> {
 
-                    getStorageDirectories(context = context).map { path ->
+                    getStorageDirectories(context = context).mapNotNull { path ->
 
                         storageManager.getStorageVolume(File(path))?.let { volume ->
 
@@ -64,10 +65,10 @@ internal class EmptyStorageImpl : EmptyStorage {
                                 usedSize = getUsedMemory(path = path),
                                 volumeType = StorageVolumeType.getVolumeType(volume = volume)
                             )
-                        } ?: StorageVolumeData()
+                        }
                     }.toImmutableList()
                 }
-            }.filter { volumeData -> volumeData.path.isNotEmpty() }.toImmutableList()
+            }
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -88,37 +89,27 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             val storageVolumes = getStorageVolumeList(context = context)
 
-            File(path).listFiles()?.forEach { fileItem ->
+            File(path).walkTopDown().filter { file ->
 
-                when (fileItem.isFile) {
+                file.path != path
+            }.forEach { file ->
 
-                    true -> getFileData(
-                        path = fileItem.path,
+                when {
+
+                    file.isFile -> getFileData(
+                        path = file.path,
                         storageVolumes = storageVolumes
-                    )?.let { newFileData ->
+                    )?.let(fileList::add)
 
-                        fileList.add(element = newFileData)
-                    }
-
-                    false -> getDirectoryData(
-                        path = fileItem.path,
+                    file.isDirectory -> getDirectoryData(
+                        path = file.path,
                         storageVolumes = storageVolumes
-                    )?.let { newDirectoryData ->
-
-                        folderList.add(newDirectoryData)
-                    }
+                    )?.let(folderList::add)
                 }
             }
 
-            val directoryData = getDirectoryData(
-                path = path,
-                storageVolumes = storageVolumes
-            ) ?: DirectoryData()
-
-            val storageVolume = findStorageVolumeData(
-                path = path,
-                storageVolumes = storageVolumes
-            ) ?: StorageVolumeData()
+            val directoryData = getDirectoryData(path = path, storageVolumes = storageVolumes)
+            val storageVolume = findStorageVolumeData(path = path, storageVolumes = storageVolumes)
 
             DirectoryFileData(
                 directory = directoryData,
@@ -154,10 +145,13 @@ internal class EmptyStorageImpl : EmptyStorage {
             val storageVolume = findStorageVolumeData(
                 path = file.path,
                 storageVolumes = storageVolumes
-            ) ?: StorageVolumeData()
+            )
 
-            val folders = file.listFiles()?.count { folder -> folder.isDirectory } ?: 0
-            val files = file.listFiles()?.count { file -> file.isFile } ?: 0
+            val folders = file.walkTopDown().count { folder ->
+
+                folder.isDirectory && folder.path != file.path
+            }
+            val files = file.walkTopDown().count { file -> file.isFile }
 
             DirectoryData(
                 title = file.name,
@@ -189,7 +183,7 @@ internal class EmptyStorageImpl : EmptyStorage {
             val storageVolume = findStorageVolumeData(
                 path = file.path,
                 storageVolumes = storageVolumes
-            ) ?: StorageVolumeData()
+            )
 
             FileData(
                 title = file.name,
@@ -222,13 +216,13 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             File(path).walkTopDown().filter { file ->
 
-                extensions.any { extension -> file.extension.equals(extension, ignoreCase = true) }
-            }.toImmutableList().mapNotNull { file ->
+                file.isFile && file.exists() && extensions.any { extension ->
 
-                getFileData(path = file.path, storageVolumes = storageVolumes)?.takeIf { fileData ->
-
-                    fileData.path.isNotEmpty()
+                    file.extension.equals(extension, ignoreCase = true)
                 }
+            }.asIterable().mapNotNull { file ->
+
+                getFileData(path = file.path, storageVolumes = storageVolumes)
             }.toImmutableList()
         } catch (exception: Exception) {
 
@@ -240,64 +234,48 @@ internal class EmptyStorageImpl : EmptyStorage {
 
     override suspend fun getSearchDirectoryFileData(
         context: Context,
-        path: String,
+        paths: Iterable<String>,
         query: String
-    ): DirectoryFileData = withContext(context = Dispatchers.IO) {
+    ): DirectorySearchData = withContext(context = Dispatchers.IO) {
 
         return@withContext try {
 
             val storageVolumes = getStorageVolumeList(context = context)
 
-            val directory = getDirectoryData(
-                path = path,
-                storageVolumes = storageVolumes
-            ) ?: DirectoryData()
-
             val folderList = persistentListOf<DirectoryData>().builder()
             val fileList = persistentListOf<FileData>().builder()
 
-            File(path).walkTopDown().filter { file ->
+            paths.forEach { path ->
 
-                file.name.contains(other = query, ignoreCase = true) && file.exists()
-            }.forEach { file ->
+                File(path).walkTopDown().filter { file ->
 
-                when {
+                    file.exists() && file.path != path && file.name.contains(
+                        other = query,
+                        ignoreCase = true
+                    )
+                }.forEach { file ->
 
-                    file.isFile -> getFileData(
-                        path = file.path,
-                        storageVolumes = storageVolumes
-                    )?.takeIf { fileData ->
+                    when {
 
-                        fileData.path.isNotEmpty()
-                    }?.let { fileData ->
+                        file.isFile -> getFileData(
+                            path = file.path,
+                            storageVolumes = storageVolumes
+                        )?.let(fileList::add)
 
-                        fileList.add(fileData)
-                    }
-
-                    file.isDirectory && file.path != path -> getDirectoryData(
-                        path = file.path,
-                        storageVolumes = storageVolumes
-                    )?.takeIf { directoryData ->
-
-                        directoryData.path.isNotEmpty()
-                    }?.let { directoryData ->
-
-                        folderList.add(directoryData)
+                        file.isDirectory -> getDirectoryData(
+                            path = file.path,
+                            storageVolumes = storageVolumes
+                        )?.let(folderList::add)
                     }
                 }
             }
 
-            DirectoryFileData(
-                directory = directory,
-                storage = directory.storage,
-                folders = folderList.build(),
-                files = fileList.build()
-            )
+            DirectorySearchData(folders = folderList.build(), files = fileList.build())
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
             Log.w(LOG_TAG, exception.message, exception)
-            DirectoryFileData()
+            DirectorySearchData()
         }
     }
 
@@ -345,15 +323,9 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             val files = paths.map { path -> File(path) }
 
-            val foldersFileSize = files.filter { folder ->
+            val foldersSize = files.filter { folder -> folder.isDirectory }.flatMap { folder ->
 
-                folder.isDirectory
-            }.flatMap { folder ->
-
-                folder.walkTopDown().filter { file ->
-
-                    file.isFile
-                }.map { file ->
+                folder.walkTopDown().filter { file -> file.isFile }.map { file ->
 
                     file.fileLength()
                 }.toImmutableList()
@@ -361,7 +333,7 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.fileLength() }
 
-            foldersFileSize + fileSize
+            foldersSize + fileSize
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()

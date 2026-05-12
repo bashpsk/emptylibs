@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.imageedit.edit
 
-import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -61,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
@@ -537,18 +537,14 @@ private fun InputEditImage(state: ImageEditState) {
 
                     state.apply {
 
-                        val sizeOfItem = imageEditInput.size.takeIf { size ->
+                        val sizeOfItem = if (imageEditInput.size.isUnspecified) {
+                            canvasSize.fittedImageSize(newBitmap.toSize())
+                        } else imageEditInput.size
 
-                            size != Size.Unspecified
-                        } ?: canvasSize.fittedImageSize(newBitmap.toSize())
-
-                        val positionOfItem = imageEditInput.position.takeIf { position ->
-
-                            position != Offset.Unspecified
-                        } ?: Offset(
+                        val positionOfItem = if (imageEditInput.position.isUnspecified) Offset(
                             x = (canvasSize.width - sizeOfItem.width) / 2.0F,
                             y = (canvasSize.height - sizeOfItem.height) / 2.0F
-                        )
+                        ) else imageEditInput.position
 
                         imageEditInput = imageEditInput.copy(
                             bitmap = newBitmap,
@@ -812,20 +808,14 @@ private fun InputEditShape(state: ImageEditState) {
 
                     state.apply {
 
-                        val sizeOfItem = shapeEditInput.size.takeIf { size ->
+                        val sizeOfItem = if (shapeEditInput.size.isUnspecified) {
+                            canvasSize.fittedImageSize(canvasSize / 2.0F)
+                        } else shapeEditInput.size
 
-                            size != Size.Unspecified
-                        } ?: canvasSize.fittedImageSize(
-                            Size(canvasSize.width / 2.0F, canvasSize.width / 2.0F)
-                        )
-
-                        val positionOfItem = shapeEditInput.position.takeIf { position ->
-
-                            position != Offset.Unspecified
-                        } ?: Offset(
-                            x = (canvasSize.width - sizeOfItem.width) / 2.0F,
-                            y = (canvasSize.height - sizeOfItem.height) / 2.0F
-                        )
+                        val positionOfItem = if(shapeEditInput.position.isUnspecified) Offset(
+                                x = (canvasSize.width - sizeOfItem.width),
+                                y = (canvasSize.height - sizeOfItem.height)
+                            ) / 2.0F else shapeEditInput.position
 
                         shapeEditInput = shapeEditInput.copy(
                             shape = newShape,
@@ -926,7 +916,7 @@ private fun PositionSelectionView(
             NumberInputField(
                 modifier = Modifier.weight(weight = 1.0F),
                 label = "X",
-                value = position.x.takeIf { number -> number > 0.0F }?.toString() ?: "",
+                value = if(position.x > 0.0F) position.x.toString() else "",
                 onValueChange = { newValue ->
 
                     onPositionChange(position.copy(x = newValue.toFloatOrNull() ?: 0.0F))
@@ -936,7 +926,7 @@ private fun PositionSelectionView(
             NumberInputField(
                 modifier = Modifier.weight(weight = 1.0F),
                 label = "Y",
-                value = position.y.takeIf { number -> number > 0.0F }?.toString() ?: "",
+                value = if(position.y > 0.0F) position.y.toString() else "",
                 onValueChange = { newValue ->
 
                     onPositionChange(position.copy(y = newValue.toFloatOrNull() ?: 0.0F))
@@ -984,7 +974,7 @@ private fun SizeSelectionView(
             NumberInputField(
                 modifier = Modifier.weight(weight = 1.0F),
                 label = "Width",
-                value = size.width.takeIf { number -> number > 0.0F }?.toString() ?: "",
+                value = if(size.width > 0.0F) size.width.toString() else "",
                 onValueChange = { newValue ->
 
                     onSizeChange(size.copy(width = newValue.toFloatOrNull() ?: 0.0F))
@@ -994,7 +984,7 @@ private fun SizeSelectionView(
             NumberInputField(
                 modifier = Modifier.weight(weight = 1.0F),
                 label = "Height",
-                value = size.height.takeIf { number -> number > 0.0F }?.toString() ?: "",
+                value = if(size.height > 0.0F) size.height.toString() else "",
                 onValueChange = { newValue ->
 
                     onSizeChange(size.copy(height = newValue.toFloatOrNull() ?: 0.0F))
@@ -1348,13 +1338,13 @@ private fun BitmapSelectionView(
 
     val context = LocalContext.current
 
-    var selectedImageUri by rememberSaveable { mutableStateOf("") }
+    var selectedImageUri by rememberSaveable { mutableStateOf<String?>(null) }
 
     val imagePickLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
+    ) { uri ->
 
-        selectedImageUri = uri.takeIf { uri -> uri != null }?.toString() ?: ""
+        selectedImageUri = uri?.toString()
     }
 
     val imageViewModifier = Modifier
@@ -1364,7 +1354,7 @@ private fun BitmapSelectionView(
 
     LaunchedEffect(selectedImageUri) {
 
-        selectedImageUri.takeIf { uri -> uri.isNotEmpty() }?.let { uri ->
+        selectedImageUri?.let { uri ->
 
             try {
 

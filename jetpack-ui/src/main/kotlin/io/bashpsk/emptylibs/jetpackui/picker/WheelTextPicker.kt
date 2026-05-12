@@ -148,7 +148,7 @@ fun <T> WheelTextPicker(
             contentDescription = "Wheel Text Picker"
         ) {
 
-            state.textList.takeIf { itemsList -> itemsList.isNotEmpty() }?.let { itemsList ->
+            if (state.textList.isNotEmpty()) {
 
                 val firstVisibleIndex = floor(
                     (state.animatable.value - itemHeightPx) / itemHeightPx
@@ -156,7 +156,7 @@ fun <T> WheelTextPicker(
 
                 val lastVisibleIndex = floor(
                     (pickerTotalHeight + state.animatable.value + itemHeightPx) / itemHeightPx
-                ).toInt().coerceAtMost(itemsList.lastIndex)
+                ).toInt().coerceAtMost(state.textList.lastIndex)
 
                 (firstVisibleIndex..lastVisibleIndex).forEach { index ->
 
@@ -170,7 +170,7 @@ fun <T> WheelTextPicker(
                     val alpha = (1.0F - textAlphaLevel * distanceNormalized).coerceAtLeast(0.1f)
 
                     val textLayoutResult = textMeasurer.measure(
-                        text = "${itemsList[index]}",
+                        text = "${state.textList[index]}",
                         style = textStyle.copy(color = textStyle.color.copy(alpha = alpha))
                     )
 

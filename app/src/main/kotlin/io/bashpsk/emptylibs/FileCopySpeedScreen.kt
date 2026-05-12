@@ -27,7 +27,6 @@ import io.bashpsk.emptylibs.formatter.format.formattedDuration
 import io.bashpsk.emptylibs.formatter.format.toFileSize
 import io.bashpsk.emptylibs.formatter.meter.FileSpeedData
 import io.bashpsk.emptylibs.formatter.meter.fileSpeedMeter
-import io.bashpsk.emptylibs.utils.setDebug
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
@@ -132,20 +131,15 @@ fun FileCopySpeedScreen() {
 
                             progressMonitorJob = launch(context = Dispatchers.IO) {
 
-                                "PROGRESS START : ${fileItem.first.name}".setDebug()
-
                                 fileSpeedMeter(
                                     source = fileItem.first,
                                     destination = fileItem.second,
-                                    interval = 250.milliseconds
+                                    interval = 1.seconds
                                 ) { fileSpeedDataLatest ->
 
                                     fileSpeedData = fileSpeedDataLatest ?: FileSpeedData()
-                                    "PROGRESS : $fileSpeedData".setDebug()
                                 }
                             }
-
-                            "COPYING : ${fileItem.first.name}".setDebug()
 
                             fileItem.first.inputStream().use { inputStream ->
 
@@ -167,7 +161,6 @@ fun FileCopySpeedScreen() {
                                 }
                             }
 
-                            "COPIED : ${fileItem.first.name}".setDebug()
                             progressMonitorJob?.cancel()
                             fileSpeedData = FileSpeedData()
                         }

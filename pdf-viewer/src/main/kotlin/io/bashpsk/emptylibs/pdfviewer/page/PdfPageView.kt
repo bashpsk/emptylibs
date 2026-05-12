@@ -68,7 +68,7 @@ internal fun PdfPageView(
     }
 
     val imageBitmap by remember(pageData, isImageZoomed, scaledBitmap) {
-        derivedStateOf { scaledBitmap.takeIf { isImageZoomed } ?: pageData.bitmap }
+        derivedStateOf { if (isImageZoomed) scaledBitmap else pageData.bitmap }
     }
 
     val aspectRatio by remember(pageData) {
