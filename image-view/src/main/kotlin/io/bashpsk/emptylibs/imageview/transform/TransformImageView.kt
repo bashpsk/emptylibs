@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.imageview.transform
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -21,13 +19,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.round
 import coil3.compose.SubcomposeAsyncImage
 import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
-import io.bashpsk.emptylibs.imageview.R
 import io.bashpsk.emptylibs.imageview.tile.TileImageView
 import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
 import kotlinx.collections.immutable.ImmutableList
@@ -55,24 +51,20 @@ import kotlinx.collections.immutable.ImmutableList
  * bounds. Defaults to [ContentScale.Fit].
  */
 @Composable
-fun TransformImageView(
+fun <T> TransformImageView(
     modifier: Modifier = Modifier,
     state: TransformableGesturesState = rememberTransformableGesturesState(),
-    imageModel: Any?,
+    imageModel: T?,
     contentScale: ContentScale = ContentScale.Fit,
     onClick: (offset: Offset) -> Unit = {},
     onLongClick: (offset: Offset) -> Unit = {},
     loadingIndicator: (@Composable () -> Unit)? = {
 
-        CircularProgressIndicator()
+        TransformImageViewDefault.LoadingIndicator()
     },
     errorIndicator: (@Composable () -> Unit)? = {
 
-        Image(
-            modifier = Modifier.fillMaxSize(fraction = 0.65F),
-            painter = painterResource(id = R.drawable.image_broken),
-            contentDescription = "Image Load Failed"
-        )
+        TransformImageViewDefault.ErrorIndicator()
     }
 ) {
 
@@ -190,27 +182,23 @@ fun TransformImageView(
  * @param content A composable to be displayed on top of the image view.
  */
 @Composable
-fun TransformImageView(
+fun <T> TransformImageView(
     modifier: Modifier = Modifier,
     state: TransformableGesturesState = rememberTransformableGesturesState(),
-    imageModelList: ImmutableList<Any?>,
-    initialImage: Any? = null,
-    onImageChanges: (image: Any?) -> Unit = {},
+    imageModelList: ImmutableList<T>,
+    initialImage: T? = null,
+    onImageChanges: (image: T?) -> Unit = {},
     contentScale: ContentScale = ContentScale.Fit,
     enableSwipe: Boolean = true,
     onClick: (offset: Offset) -> Unit = {},
     onLongClick: (offset: Offset) -> Unit = {},
     loadingIndicator: (@Composable () -> Unit)? = {
 
-        CircularProgressIndicator()
+        TransformImageViewDefault.LoadingIndicator()
     },
     errorIndicator: (@Composable () -> Unit)? = {
 
-        Image(
-            modifier = Modifier.fillMaxSize(fraction = 0.65F),
-            painter = painterResource(id = R.drawable.image_broken),
-            contentDescription = "Image Load Failed"
-        )
+        TransformImageViewDefault.ErrorIndicator()
     },
     content: @Composable BoxScope.(pagerState: PagerState) -> Unit = {}
 ) {
@@ -330,22 +318,18 @@ private fun TransformImageViewLayout(
  * @param errorIndicator A composable to be displayed if the image fails to load.
  */
 @Composable
-private fun ImageView(
+private fun <T> ImageView(
     modifier: Modifier = Modifier,
     state: TransformableGesturesState,
-    model: Any?,
+    model: T?,
     contentScale: ContentScale = ContentScale.Fit,
     loadingIndicator: (@Composable () -> Unit)? = {
 
-        CircularProgressIndicator()
+        TransformImageViewDefault.LoadingIndicator()
     },
     errorIndicator: (@Composable () -> Unit)? = {
 
-        Image(
-            modifier = Modifier.fillMaxSize(fraction = 0.65F),
-            painter = painterResource(id = R.drawable.image_broken),
-            contentDescription = "Image Load Failed"
-        )
+        TransformImageViewDefault.ErrorIndicator()
     }
 ) {
 

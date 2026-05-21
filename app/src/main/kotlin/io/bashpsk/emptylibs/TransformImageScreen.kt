@@ -3,7 +3,6 @@ package io.bashpsk.emptylibs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -20,9 +19,13 @@ import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesSta
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun TransformImageScreen() {
+
+    val transformableGesturesState = rememberTransformableGesturesState(enableRotation = true)
 
     val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper_large)
     var simpleList by remember { mutableStateOf(persistentListOf<Any?>()) }
@@ -31,7 +34,7 @@ fun TransformImageScreen() {
 
     LaunchedEffect(Unit) {
 
-//        delay(2.seconds)
+        delay(2.seconds)
 
         simpleList = persistentListOf(
             R.drawable.wallpaper01,
@@ -53,19 +56,19 @@ fun TransformImageScreen() {
             verticalArrangement = Arrangement.Center
         ) {
 
-            /*TransformImageView(
-                modifier = Modifier.fillMaxWidth(),
-                state = rememberTransformableGesturesState(enableRotation = true),
+            TransformImageView(
+                modifier = Modifier.weight(1F),
+                state = transformableGesturesState,
                 imageModelList = simpleList,
                 initialImage = simpleList.firstOrNull()
-            )*/
+            )
 
-            TransformImageView(
+            /*TransformImageView(
                 modifier = Modifier.fillMaxWidth(),
-                state = rememberTransformableGesturesState(enableRotation = true),
+                state = transformableGesturesState,
                 imageModel = imageBitmap,
                 tileSize = 256
-            )
+            )*/
         }
     }
 }
