@@ -207,20 +207,21 @@ internal class EmptyStorageImpl : EmptyStorage {
         return@withContext try {
 
             val storageVolumes = getStorageVolumeList(context = context)
+            val extensionList = extensions.map { extension -> extension.lowercase() }
+            val fileList = persistentListOf<FileData>().builder()
 
             File(path).walkTopDown().onEnter { file ->
 
                 !file.isHidden
             }.filter { file ->
 
-                file.isFile && file.exists() && extensions.any { extension ->
+                file.isFile && file.exists() && extensionList.contains(file.extension.lowercase())
+            }.forEach { file ->
 
-                    file.extension.equals(extension, ignoreCase = true)
-                }
-            }.asIterable().mapNotNull { file ->
+                getFileData(path = file.path, storageVolumes = storageVolumes)?.let(fileList::add)
+            }
 
-                getFileData(path = file.path, storageVolumes = storageVolumes)
-            }.toImmutableList()
+            fileList.build()
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -240,6 +241,7 @@ internal class EmptyStorageImpl : EmptyStorage {
         return@withContext try {
 
             val storageVolumes = getStorageVolumeList(context = context)
+            val extensionList = extensions?.map { extension -> extension.lowercase() }
 
             val folderList = persistentListOf<DirectoryData>().builder()
             val fileList = persistentListOf<FileData>().builder()
@@ -251,13 +253,10 @@ internal class EmptyStorageImpl : EmptyStorage {
                     !file.isHidden
                 }.filter { file ->
 
-                    if (!includeFolders) file.isFile && file.exists() else file.exists()
-                }.filter { file ->
-
-                    file.path != path && file.name.contains(
+                    file.path != path && (includeFolders || file.isFile) && file.name.contains(
                         other = query,
                         ignoreCase = true
-                    ) && extensions.hasExtMatched(other = file)
+                    ) && extensionList.hasExtMatched(other = file)
                 }.forEach { file ->
 
                     when {
@@ -326,22 +325,19 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         try {
 
-            val files = paths.map { path -> File(path) }
+            paths.map { path -> File(path) }.flatMap { file ->
 
-            val foldersSize = files.filter { folder -> folder.isDirectory }.flatMap { folder ->
-
-                folder.walkTopDown().onEnter { file ->
+                if (file.isDirectory) file.walkTopDown().onEnter { file ->
 
                     !file.isHidden
-                }.filter { file -> file.isFile }.map { file ->
+                }.filter { file ->
+
+                    file.isFile
+                }.map { file ->
 
                     file.fileLength()
-                }
+                } else sequenceOf(file.fileLength())
             }.sum()
-
-            val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.fileLength() }
-
-            foldersSize + fileSize
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
