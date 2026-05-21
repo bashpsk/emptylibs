@@ -1,5 +1,11 @@
 package io.bashpsk.emptylibs.storage.extension
 
+import android.util.Log
+import io.bashpsk.emptylibs.storage.utils.LOG_TAG
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -35,4 +41,30 @@ fun File.fileLengthOrNull(): Long? {
 fun File.fileLength(): Long {
 
     return fileLengthOrNull() ?: 0L
+}
+
+suspend fun File.folderCount(): Int = withContext(context = Dispatchers.IO) {
+
+    return@withContext try {
+
+        listFiles { file -> file.isDirectory }?.count() ?: 0
+    } catch (exception: Exception) {
+
+        currentCoroutineContext().ensureActive()
+        Log.w(LOG_TAG, exception.message, exception)
+        0
+    }
+}
+
+suspend fun File.fileCount(): Int = withContext(context = Dispatchers.IO) {
+
+    return@withContext try {
+
+        listFiles { file -> file.isFile }?.count() ?: 0
+    } catch (exception: Exception) {
+
+        currentCoroutineContext().ensureActive()
+        Log.w(LOG_TAG, exception.message, exception)
+        0
+    }
 }

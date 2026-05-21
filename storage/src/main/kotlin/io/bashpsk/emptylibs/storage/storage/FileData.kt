@@ -21,7 +21,6 @@ import kotlin.uuid.Uuid
  * @property path The absolute file system path to the file.
  * @property uri The content URI of the file, typically used for accessing files through content
  * providers.
- * @property extension The file extension (e.g., "txt", "jpg").
  * @property visibleType The visibility type of the file (e.g., public, private).
  * @property fileType The general type of the file (e.g., document, image, video).
  * @property size The size of the file in bytes.
@@ -38,7 +37,6 @@ data class FileData(
     val title: String = "",
     val path: String = "",
     val uri: String = "",
-    val extension: String = "",
     val visibleType: FileVisibleType = FileVisibleType.Unknown,
     val fileType: FileType = FileType.Unknown,
     val size: Long = 0L,

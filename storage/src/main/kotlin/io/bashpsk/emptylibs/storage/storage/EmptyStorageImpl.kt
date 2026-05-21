@@ -8,8 +8,11 @@ import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.core.net.toUri
 import androidx.core.text.isDigitsOnly
+import io.bashpsk.emptylibs.storage.extension.fileCount
 import io.bashpsk.emptylibs.storage.extension.fileLength
+import io.bashpsk.emptylibs.storage.extension.folderCount
 import io.bashpsk.emptylibs.storage.storage.FileVisibleType.Companion.getFileVisibleType
+import io.bashpsk.emptylibs.storage.storage.StorageVolumeType.Companion.getVolumeType
 import io.bashpsk.emptylibs.storage.utils.LOG_TAG
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -45,7 +48,7 @@ internal class EmptyStorageImpl : EmptyStorage {
                                 totalSize = getTotalMemory(path = path),
                                 availableSize = getFreeMemory(path = path),
                                 usedSize = getUsedMemory(path = path),
-                                volumeType = StorageVolumeType.getVolumeType(volume = volume)
+                                volumeType = volume.getVolumeType()
                             )
                         }
                     }.toImmutableList()
@@ -63,7 +66,7 @@ internal class EmptyStorageImpl : EmptyStorage {
                                 totalSize = getTotalMemory(path = path),
                                 availableSize = getFreeMemory(path = path),
                                 usedSize = getUsedMemory(path = path),
-                                volumeType = StorageVolumeType.getVolumeType(volume = volume)
+                                volumeType = volume.getVolumeType()
                             )
                         }
                     }.toImmutableList()
@@ -137,26 +140,24 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val sourceFile = File(path)
+            File(path).takeIf { sourceFile -> sourceFile.isDirectory }?.let { sourceFile ->
 
-            val storageVolume = findStorageVolumeData(
-                path = sourceFile.path,
-                storageVolumes = storageVolumes
-            )
+                val storageVolume = findStorageVolumeData(
+                    path = sourceFile.path,
+                    storageVolumes = storageVolumes
+                )
 
-            val folders = sourceFile.listFiles { file -> file.isDirectory }?.count() ?: 0
-            val files = sourceFile.listFiles { file -> file.isFile }?.count() ?: 0
-
-            DirectoryData(
-                title = sourceFile.name,
-                path = sourceFile.path,
-                uri = sourceFile.toUri().toString(),
-                visibleType = sourceFile.getFileVisibleType(),
-                folders = folders,
-                files = files,
-                modifiedDate = sourceFile.lastModified(),
-                storage = storageVolume
-            )
+                DirectoryData(
+                    title = sourceFile.name,
+                    path = sourceFile.path,
+                    uri = sourceFile.toUri().toString(),
+                    visibleType = sourceFile.getFileVisibleType(),
+                    folders = sourceFile.folderCount(),
+                    files = sourceFile.fileCount(),
+                    modifiedDate = sourceFile.lastModified(),
+                    storage = storageVolume
+                )
+            }
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()
@@ -172,24 +173,24 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val file = File(path)
+            File(path).takeIf { sourceFile -> sourceFile.isFile }?.let { sourceFile ->
 
-            val storageVolume = findStorageVolumeData(
-                path = file.path,
-                storageVolumes = storageVolumes
-            )
+                val storageVolume = findStorageVolumeData(
+                    path = sourceFile.path,
+                    storageVolumes = storageVolumes
+                )
 
-            FileData(
-                title = file.name,
-                path = file.path,
-                uri = file.toUri().toString(),
-                extension = file.extension,
-                visibleType = file.getFileVisibleType(),
-                fileType = FileType.getFileType(extension = file.extension),
-                size = file.fileLength(),
-                modifiedDate = file.lastModified(),
-                storage = storageVolume
-            )
+                FileData(
+                    title = sourceFile.name,
+                    path = sourceFile.path,
+                    uri = sourceFile.toUri().toString(),
+                    visibleType = sourceFile.getFileVisibleType(),
+                    fileType = FileType.getFileType(extension = sourceFile.extension),
+                    size = sourceFile.fileLength(),
+                    modifiedDate = sourceFile.lastModified(),
+                    storage = storageVolume
+                )
+            }
         } catch (exception: Exception) {
 
             currentCoroutineContext().ensureActive()

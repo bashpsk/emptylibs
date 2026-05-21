@@ -35,5 +35,5 @@ data class StorageVolumeData(
     val totalSize: Long = 0L,
     val availableSize: Long = 0L,
     val usedSize: Long = 0L,
-    val volumeType: StorageVolumeType = StorageVolumeType.UNKNOWN
+    val volumeType: StorageVolumeType = StorageVolumeType.Unknown
 ) : Parcelable

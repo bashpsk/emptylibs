@@ -13,43 +13,37 @@ enum class StorageVolumeType(val label: String = "") {
     /**
      * Represents the internal storage of the device.
      */
-    INTERNAL(label = "Internal"),
+    Internal(label = "Internal"),
 
     /**
      * Represents an SD card storage volume.
      */
-    SD_CARD(label = "SD Card"),
+    SdCard(label = "SD Card"),
 
     /**
      * OTG (On-The-Go) storage, typically a USB drive connected to the device.
      */
-    OTG(label = "OTG"),
+    Otg(label = "OTG"),
 
     /**
      * Represents an unknown storage volume type.
      * This is typically used as a fallback or when the volume type cannot be definitively
      * determined.
      */
-    UNKNOWN(label = "Unknown");
+    Unknown(label = "Unknown");
 
     companion object {
 
         /**
-         * Determines the [StorageVolumeType] of a given [StorageVolume].
-         *
-         * @param volume The [StorageVolume] to analyze.
-         * @return The corresponding [StorageVolumeType].
-         * - [INTERNAL] if the volume is the primary storage.
-         * - [SD_CARD] if the volume is removable.
-         * - [OTG] otherwise (assumed to be an On-The-Go device).
+         * Determines the [StorageVolumeType] of this [StorageVolume].
          */
-        fun getVolumeType(volume: StorageVolume): StorageVolumeType {
+        fun StorageVolume.getVolumeType(): StorageVolumeType {
 
             return when {
 
-                volume.isPrimary -> INTERNAL
-                volume.isRemovable -> SD_CARD
-                else -> OTG
+                isPrimary -> Internal
+                isRemovable -> SdCard
+                else -> Otg
             }
         }
     }

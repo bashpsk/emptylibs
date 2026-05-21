@@ -319,10 +319,10 @@ private fun StorageVolumeSmall(
                     modifier = Modifier.size(64.dp),
                     imageVector = when (volumeData().volumeType) {
 
-                        StorageVolumeType.INTERNAL -> Icons.Filled.Storage
-                        StorageVolumeType.SD_CARD -> Icons.Filled.SdCard
-                        StorageVolumeType.OTG -> Icons.Filled.Usb
-                        StorageVolumeType.UNKNOWN -> Icons.Filled.QuestionMark
+                        StorageVolumeType.Internal -> Icons.Filled.Storage
+                        StorageVolumeType.SdCard -> Icons.Filled.SdCard
+                        StorageVolumeType.Otg -> Icons.Filled.Usb
+                        StorageVolumeType.Unknown -> Icons.Filled.QuestionMark
                     },
                     contentDescription = "Volume Type"
                 )
