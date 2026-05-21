@@ -89,10 +89,7 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             val storageVolumes = getStorageVolumeList(context = context)
 
-            File(path).walkTopDown().filter { file ->
-
-                file.path != path
-            }.forEach { file ->
+            File(path).listFiles()?.forEach { file ->
 
                 when {
 
@@ -140,27 +137,24 @@ internal class EmptyStorageImpl : EmptyStorage {
 
         return@withContext try {
 
-            val file = File(path)
+            val sourceFile = File(path)
 
             val storageVolume = findStorageVolumeData(
-                path = file.path,
+                path = sourceFile.path,
                 storageVolumes = storageVolumes
             )
 
-            val folders = file.walkTopDown().count { folder ->
-
-                folder.isDirectory && folder.path != file.path
-            }
-            val files = file.walkTopDown().count { file -> file.isFile }
+            val folders = sourceFile.listFiles { file -> file.isDirectory }?.count() ?: 0
+            val files = sourceFile.listFiles { file -> file.isFile }?.count() ?: 0
 
             DirectoryData(
-                title = file.name,
-                path = file.path,
-                uri = file.toUri().toString(),
-                visibleType = file.getFileVisibleType(),
+                title = sourceFile.name,
+                path = sourceFile.path,
+                uri = sourceFile.toUri().toString(),
+                visibleType = sourceFile.getFileVisibleType(),
                 folders = folders,
                 files = files,
-                modifiedDate = file.lastModified(),
+                modifiedDate = sourceFile.lastModified(),
                 storage = storageVolume
             )
         } catch (exception: Exception) {
@@ -214,7 +208,10 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             val storageVolumes = getStorageVolumeList(context = context)
 
-            File(path).walkTopDown().filter { file ->
+            File(path).walkTopDown().onEnter { file ->
+
+                !file.isHidden
+            }.filter { file ->
 
                 file.isFile && file.exists() && extensions.any { extension ->
 
@@ -235,7 +232,9 @@ internal class EmptyStorageImpl : EmptyStorage {
     override suspend fun getSearchDirectoryFileData(
         context: Context,
         paths: Iterable<String>,
-        query: String
+        query: String,
+        includeFolders: Boolean,
+        extensions: Iterable<String>?
     ): DirectorySearchData = withContext(context = Dispatchers.IO) {
 
         return@withContext try {
@@ -247,12 +246,18 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             paths.forEach { path ->
 
-                File(path).walkTopDown().filter { file ->
+                File(path).walkTopDown().onEnter { file ->
 
-                    file.exists() && file.path != path && file.name.contains(
+                    !file.isHidden
+                }.filter { file ->
+
+                    if (!includeFolders) file.isFile && file.exists() else file.exists()
+                }.filter { file ->
+
+                    file.path != path && file.name.contains(
                         other = query,
                         ignoreCase = true
-                    )
+                    ) && extensions.hasExtMatched(other = file)
                 }.forEach { file ->
 
                     when {
@@ -325,10 +330,13 @@ internal class EmptyStorageImpl : EmptyStorage {
 
             val foldersSize = files.filter { folder -> folder.isDirectory }.flatMap { folder ->
 
-                folder.walkTopDown().filter { file -> file.isFile }.map { file ->
+                folder.walkTopDown().onEnter { file ->
+
+                    !file.isHidden
+                }.filter { file -> file.isFile }.map { file ->
 
                     file.fileLength()
-                }.toImmutableList()
+                }
             }.sum()
 
             val fileSize = files.filter { file -> file.isFile }.sumOf { file -> file.fileLength() }

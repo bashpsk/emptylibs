@@ -55,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.bashpsk.emptylibs.formatter.format.toFileSize
 import io.bashpsk.emptylibs.storage.storage.FileData
 import io.bashpsk.emptylibs.storage.storage.FileType
+import io.bashpsk.emptylibs.storage.storage.FileType.Companion.extension
 import io.bashpsk.emptylibs.storage.storage.FileVisibleType
 import io.bashpsk.emptylibs.storage.storage.StorageExt
 import io.bashpsk.emptylibs.storage.storage.StorageVolumeData
@@ -84,7 +85,7 @@ fun StorageScreen() {
     val imageFileList by StorageExt.getFileListByExtensionsFlow(
         context = context,
         dcimDirectory?.path ?: "",
-        extensions = FileType.IMAGE.extension
+        extensions = FileType.Image.extension
     ).collectAsStateWithLifecycle(initialValue = persistentListOf())
 
     Scaffold(

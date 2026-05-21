@@ -26,11 +26,11 @@ import kotlin.time.Duration.Companion.seconds
  * @param onSpeedChange Update an operation [FileSpeedData].
  */
 @Throws(IOException::class, FileNotFoundException::class, SecurityException::class)
-suspend fun fileSpeedMeter(
+suspend inline fun fileSpeedMeter(
     source: File,
     destination: File,
     interval: Duration = 1.seconds,
-    onSpeedChange: (FileSpeedData) -> Unit
+    crossinline onSpeedChange: suspend (FileSpeedData) -> Unit
 ) = withContext(context = Dispatchers.IO) {
 
     while (currentCoroutineContext().isActive) {

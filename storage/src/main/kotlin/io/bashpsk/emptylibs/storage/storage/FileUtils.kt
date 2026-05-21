@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.storage.storage
 
 import androidx.compose.runtime.Stable
+import java.io.File
 
 /**
  * Checks if a given string is a valid folder name.
@@ -40,4 +41,17 @@ fun hasValidFileName(name: String): Boolean {
     val ignoreDotRegex = Regex("^\\.")
 
     return !name.contains(folderRegex) && !name.matches(ignoreDotRegex) && name.length <= 127
+}
+
+internal fun Iterable<String>?.hasExtMatched(other: File): Boolean {
+
+    return when {
+
+        other.isFile && this != null -> this.any { extension ->
+
+            extension.contentEquals(other = other.extension, ignoreCase = true)
+        }
+
+        else -> true
+    }
 }

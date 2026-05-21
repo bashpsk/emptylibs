@@ -19,24 +19,24 @@ import java.io.File
  * The companion object provides a utility function `getFileVisibleType`
  * to determine the visibility of a given [File] object.
  */
-enum class FileVisibleType(val label: String = "") {
+enum class FileVisibleType {
 
     /**
      * File is visible in public.
      */
-    Public(label = "Public"),
+    Public,
 
     /**
      * Represents a hidden file.
      * Hidden files are typically not displayed by default in file explorers.
      */
-    Hidden(label = "Hidden"),
+    Hidden,
 
     /**
      * File visibility type is unknown.
      * This may occur if an error happened while checking file visibility.
      */
-    Unknown(label = "Unknown");
+    Unknown;
 
     companion object {
 

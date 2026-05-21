@@ -331,19 +331,27 @@ object StorageExt {
      * @param context The Android context used to retrieve storage volume information.
      * @param path The absolute path of the directory to start the recursive search from.
      * @param query The search term to match against file and directory names.
+     * @param includeFolders Whether to include matching directories in the results.
+     * Defaults to `true`.
+     * @param extensions An optional list of file extensions (e.g., "png", "txt") to filter files.
+     * If null, all file types are considered.
      * @return A [DirectoryFileData] containing the matched [FileData] and [DirectoryData] items.
      * Returns an empty [DirectoryFileData] if an error occurs or the path is inaccessible.
      */
     suspend fun getSearchDirectoryFileData(
         context: Context,
         path: String,
-        query: String
+        query: String,
+        includeFolders: Boolean = true,
+        extensions: Iterable<String>? = null
     ): DirectorySearchData {
 
         return emptyStorage.getSearchDirectoryFileData(
             context = context,
             paths = persistentListOf(path),
-            query = query
+            query = query,
+            includeFolders = includeFolders,
+            extensions = extensions
         )
     }
 
@@ -360,19 +368,27 @@ object StorageExt {
      *
      * @param context The Android context used to retrieve the list of storage volumes.
      * @param query The search term to match against file and directory names.
+     * @param includeFolders Whether to include matching directories in the results.
+     * Defaults to `true`.
+     * @param extensions An optional list of file extensions (e.g., "png", "txt") to filter files.
+     * If null, all file types are considered.
      * @return A [DirectorySearchData] containing the aggregated [FileData] and [DirectoryData]
      * items from all storage volumes.
      * Returns an empty result if no matches are found or an error occurs.
      */
     suspend fun getSearchDirectoryFileData(
         context: Context,
-        query: String
+        query: String,
+        includeFolders: Boolean = true,
+        extensions: Iterable<String>? = null
     ): DirectorySearchData {
 
         return emptyStorage.getSearchDirectoryFileData(
             context = context,
             paths = getStorageVolumeList(context = context).map { volumeData -> volumeData.path },
-            query = query
+            query = query,
+            includeFolders = includeFolders,
+            extensions = extensions
         )
     }
 

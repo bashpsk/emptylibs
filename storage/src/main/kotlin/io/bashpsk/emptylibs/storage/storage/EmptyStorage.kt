@@ -40,7 +40,9 @@ internal interface EmptyStorage {
     suspend fun getSearchDirectoryFileData(
         context: Context,
         paths: Iterable<String>,
-        query: String
+        query: String,
+        includeFolders: Boolean,
+        extensions: Iterable<String>?
     ): DirectorySearchData
 
     fun getTotalMemory(path: String): Long

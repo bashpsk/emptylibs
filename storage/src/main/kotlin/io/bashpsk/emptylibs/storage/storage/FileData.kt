@@ -40,7 +40,7 @@ data class FileData(
     val uri: String = "",
     val extension: String = "",
     val visibleType: FileVisibleType = FileVisibleType.Unknown,
-    val fileType: FileType = FileType.UNKNOWN,
+    val fileType: FileType = FileType.Unknown,
     val size: Long = 0L,
     val modifiedDate: Long = 0L,
     val storage: StorageVolumeData? = null
