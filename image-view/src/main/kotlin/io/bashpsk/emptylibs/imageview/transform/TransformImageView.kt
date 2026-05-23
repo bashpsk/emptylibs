@@ -11,8 +11,11 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.RetainedEffect
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -205,6 +208,8 @@ fun <T> TransformImageView(
 
     val pagerState = rememberPagerState { imageModelList.size }
 
+    var isInitialImageLoaded by rememberSaveable { mutableStateOf(false) }
+
     val isTransforming by remember(state.touchCount, state.zoom, state.rotation) {
         derivedStateOf { state.hasTransform() }
     }
@@ -213,21 +218,23 @@ fun <T> TransformImageView(
         derivedStateOf { enableSwipe && isTransforming.not() }
     }
 
-    RetainedEffect(initialImage) {
+    RetainedEffect(initialImage, imageModelList) {
 
-        imageModelList.indexOf(initialImage).takeIf { index ->
+        if (!isInitialImageLoaded) imageModelList.indexOf(initialImage).takeIf { index ->
+
             index in imageModelList.indices
         }?.let { index ->
 
             pagerState.requestScrollToPage(index)
+            isInitialImageLoaded = true
         }
 
-        onRetire {}
+        onRetire { }
     }
 
-    RetainedEffect(pagerState.currentPage) {
+    RetainedEffect(pagerState.settledPage) {
 
-        onImageChanges(imageModelList.getOrNull(pagerState.currentPage))
+        onImageChanges(imageModelList.getOrNull(pagerState.settledPage))
 
         onRetire { state.resetAllValues() }
     }
@@ -249,7 +256,7 @@ fun <T> TransformImageView(
             ImageView(
                 modifier = Modifier.fillMaxWidth(),
                 state = state,
-                model = imageModelList[page],
+                model = imageModelList.getOrNull(page),
                 contentScale = contentScale,
                 loadingIndicator = loadingIndicator,
                 errorIndicator = errorIndicator

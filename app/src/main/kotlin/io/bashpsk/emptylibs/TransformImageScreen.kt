@@ -27,21 +27,27 @@ fun TransformImageScreen() {
 
     val transformableGesturesState = rememberTransformableGesturesState(enableRotation = true)
 
+    val imageList = remember {
+        persistentListOf(
+            R.drawable.wallpaper01,
+            R.drawable.wallpaper02,
+            R.drawable.empty_layer,
+            333
+        )
+    }
+
     val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper_large)
     var simpleList by remember { mutableStateOf(persistentListOf<Any?>()) }
+    var initialImage by remember { mutableStateOf<Any?>(null) }
 
     val tooLongList = (0..333).flatMap { simpleList }.toImmutableList()
 
     LaunchedEffect(Unit) {
 
         delay(2.seconds)
-
-        simpleList = persistentListOf(
-            R.drawable.wallpaper01,
-            R.drawable.wallpaper02,
-            R.drawable.empty_layer,
-            333
-        )
+        simpleList = imageList
+        delay(2.seconds)
+        initialImage = simpleList.getOrNull(1)
     }
 
     Scaffold(
@@ -60,7 +66,11 @@ fun TransformImageScreen() {
                 modifier = Modifier.weight(1F),
                 state = transformableGesturesState,
                 imageModelList = simpleList,
-                initialImage = simpleList.firstOrNull()
+                initialImage = initialImage,
+                onImageChanges = { image ->
+
+                    image?.let { initialImage = it }
+                }
             )
 
             /*TransformImageView(
