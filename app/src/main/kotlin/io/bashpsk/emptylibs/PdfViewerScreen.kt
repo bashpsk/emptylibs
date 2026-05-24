@@ -82,10 +82,9 @@ fun PdfViewerScreen() {
             }
 
             else -> PdfLazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
+                modifier = Modifier.fillMaxSize(),
                 state = pdfLazyColumnState,
+                contentPadding = paddingValues,
                 colorFilter = ImageFilterType.Original.colorFilter
             )
         }

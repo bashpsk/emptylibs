@@ -4,6 +4,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +38,7 @@ import kotlinx.collections.immutable.toImmutableList
  * @param state The state of the PDF viewer.
  * @param pageSpace The space between pages.
  * @param scrollBarAlignment The alignment of the scrollbar.
+ * @param contentPadding The padding of around the PDF content.
  * @param colorFilter The color filter to apply to the image.
  * @param placeholder The color to use for the placeholder.
  * @param properties The properties for the PDF viewer.
@@ -49,6 +51,7 @@ fun PdfLazyColumn(
     state: PdfLazyColumnState,
     pageSpace: Dp = 4.dp,
     scrollBarAlignment: Alignment = Alignment.TopEnd,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
     colorFilter: ColorFilter? = null,
     placeholder: Color = MaterialTheme.colorScheme.surface,
     properties: PdfLazyColumnProperties = PdfLazyColumnDefaults.properties(),
@@ -91,6 +94,7 @@ fun PdfLazyColumn(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = pdfLazyListState,
+            contentPadding = contentPadding,
             userScrollEnabled = isScrollEnabled,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = pageSpace)
@@ -98,7 +102,8 @@ fun PdfLazyColumn(
 
             items(
                 items = pageDataList,
-                key = { pageData -> pageData.page }
+                key = { pageData -> pageData.page },
+                contentType = { "PdfPageData" }
             ) { pageData ->
 
                 PdfPageView(
