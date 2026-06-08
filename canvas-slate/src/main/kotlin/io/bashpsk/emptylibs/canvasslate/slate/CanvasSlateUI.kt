@@ -5,8 +5,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -43,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,13 +48,10 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
-import kotlinx.coroutines.launch
+import io.bashpsk.emptylibs.canvasslate.gesture.canvasSlateGestures
 
 /**
  * Composable function that renders the canvas for drawing and editing paths.
@@ -77,48 +71,6 @@ internal fun CanvasSlateUI(
     pathEditSheetState: SheetState,
 ) {
 
-    val coroutineScope = rememberCoroutineScope()
-
-    val screenSizeChanged = Modifier.onSizeChanged { size ->
-
-        state.canvasSize = size.toSize()
-    }
-
-    val tapPointerInputModifier = Modifier.pointerInput(Unit) {
-
-        detectTapGestures(
-            onTap = { position ->
-
-                state.apply {
-
-                    if (onEditPathData(position = position) == true) {
-
-                        coroutineScope.launch { pathEditSheetState.show() }
-                        return@detectTapGestures
-                    }
-
-                    onPathStart()
-                    onPathDraw(position = position)
-                    onPathEnd()
-                }
-            }
-        )
-    }
-
-    val drawPointerInputModifier = Modifier.pointerInput(Unit) {
-
-        detectDragGestures(
-            onDragStart = { state.onPathStart() },
-            onDragEnd = state::onPathEnd,
-            onDragCancel = state::onPathEnd,
-            onDrag = { change, _ ->
-
-                change.consume()
-                state.onPathDraw(position = change.position)
-            }
-        )
-    }
-
     Box(
         modifier = modifier.background(color = state.backgroundColor),
         contentAlignment = Alignment.Center
@@ -128,9 +80,7 @@ internal fun CanvasSlateUI(
             modifier = Modifier
                 .fillMaxSize()
                 .clipToBounds()
-                .then(screenSizeChanged)
-                .then(tapPointerInputModifier)
-                .then(drawPointerInputModifier),
+                .canvasSlateGestures(state = state, pathEditSheetState = pathEditSheetState),
             contentDescription = "Canvas Slate"
         ) {
 

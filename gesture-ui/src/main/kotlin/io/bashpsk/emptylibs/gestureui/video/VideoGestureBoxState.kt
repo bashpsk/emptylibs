@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.gestureui.video
 
+import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -95,6 +96,53 @@ class VideoGestureBoxState(
      * This is reset when a drag gesture starts or ends.
      */
     internal var swipeAmount by mutableStateOf(Offset.Zero)
+
+    /**
+     * A lambda that is invoked during drag gestures.
+     * It receives a [DragChanges] sealed class instance indicating the state and type of drag.
+     */
+    internal var onDragChanges: (changes: DragChanges) -> Unit = {}
+
+    /**
+     * A [TransformableState] that handles zoom and pan gestures.
+     */
+    val transformableState = TransformableState { _, zoomChange, panChange, _ ->
+
+        if (hasTransform().not()) return@TransformableState
+
+        when (touchCount) {
+
+            2 -> when (dragGestureAction) {
+
+                null -> {
+
+                    dragGestureAction = DragGestureAction.Transform
+                }
+
+                DragGestureAction.Transform -> {
+
+                    val newZoomChange = if (config.isZoomEnable) zoomChange else 1.0F
+                    val newPanChange = if (config.isPanEnable) panChange else Offset.Zero
+
+                    onDragChanges(DragChanges.TransformChanges(newZoomChange, newPanChange))
+                    onResetDragGestureAction()
+                }
+
+                else -> return@TransformableState
+            }
+
+            else -> {
+
+                when (dragGestureAction) {
+
+                    DragGestureAction.Transform -> dragGestureAction = null
+                    else -> {}
+                }
+
+                return@TransformableState
+            }
+        }
+    }
 
     /**
      * Initiates a delayed reset of the [dragGestureAction].

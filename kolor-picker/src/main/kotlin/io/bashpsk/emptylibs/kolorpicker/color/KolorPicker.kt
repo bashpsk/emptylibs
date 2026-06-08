@@ -8,8 +8,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -57,7 +55,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -70,6 +67,10 @@ import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.formatter.format.parseHexToColor
 import io.bashpsk.emptylibs.formatter.format.toHexString
 import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
+import io.bashpsk.emptylibs.kolorpicker.modifier.alphaGestures
+import io.bashpsk.emptylibs.kolorpicker.modifier.hueGestures
+import io.bashpsk.emptylibs.kolorpicker.modifier.imageKolorPickerGestures
+import io.bashpsk.emptylibs.kolorpicker.modifier.saturationLightnessGestures
 
 /**
  * A composable function that provides a color picker interface.
@@ -268,31 +269,11 @@ fun ImageKolorPicker(
                 }
             }
 
-            val tapPointerInput = Modifier.pointerInput(Unit) {
-
-                detectTapGestures(
-                    onPress = { offset ->
-
-                        handleColorSelection(offset)
-                    }
-                )
-            }
-
-            val dragPointerInput = Modifier.pointerInput(Unit) {
-
-                detectDragGestures { change, _ ->
-
-                    change.consume()
-                    handleColorSelection(change.position)
-                }
-            }
-
             Image(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(shape = MaterialTheme.shapes.extraSmall)
-                    .then(tapPointerInput)
-                    .then(dragPointerInput)
+                    .imageKolorPickerGestures(onColorSelection = handleColorSelection)
                     .drawWithContent {
 
                         drawContent()
@@ -383,38 +364,10 @@ private fun SaturationLightnessPanel(
             }
         }
 
-        val tapPointerInput = Modifier.pointerInput(panelWidth, panelHeight) {
-
-            detectTapGestures(
-                onPress = { offset ->
-
-                    val newSaturation = (offset.x / panelWidth).coerceIn(range = 0F..1F)
-                    val newLightness = (1F - (offset.y / panelHeight)).coerceIn(range = 0F..1F)
-
-                    onSelectionChanged(newSaturation, newLightness)
-                }
-            )
-        }
-
-        val dragPointerInput = Modifier.pointerInput(panelWidth, panelHeight) {
-
-            detectDragGestures { change, _ ->
-
-                val newX = (change.position.x).coerceIn(0F..panelWidth)
-                val newY = (change.position.y).coerceIn(0F..panelHeight)
-                val newSaturation = (newX / panelWidth).coerceIn(range = 0F..1F)
-                val newLightness = (1F - (newY / panelHeight)).coerceIn(range = 0F..1F)
-
-                onSelectionChanged(newSaturation, newLightness)
-                change.consume()
-            }
-        }
-
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .then(tapPointerInput)
-                .then(dragPointerInput)
+                .saturationLightnessGestures(onSelectionChanged = onSelectionChanged)
                 .clip(shape = MaterialTheme.shapes.extraSmall)
                 .border(
                     width = 0.6.dp,
@@ -521,69 +474,28 @@ private fun HuePanel(
                 }
             }
 
-            val tapPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
-
-                detectTapGestures(
-                    onPress = { position ->
-
-                        val newX = position.x.coerceIn(
-                            range = thumbRadiusPx..panelWidth - thumbRadiusPx
-                        )
-
-                        val minHue = (0F..360F).start
-                        val maxHue = (0F..360F).endInclusive
-                        val sliderWidth = panelWidth - (2 * thumbRadiusPx)
-                        val normalizedPosition = (newX - thumbRadiusPx) / sliderWidth
-                        val newValue = minHue + (normalizedPosition * (maxHue - minHue))
-
-                        onHueChanged(newValue.coerceIn(range = 0F..360F))
-                    }
-                )
-            }
-
-            val dragPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
-
-                detectDragGestures { change, _ ->
-
-                    val newX = change.position.x.coerceIn(
-                        range = thumbRadiusPx..panelWidth - thumbRadiusPx
-                    )
-
-                    val minHue = (0F..360F).start
-                    val maxHue = (0F..360F).endInclusive
-                    val sliderWidth = panelWidth - (2 * thumbRadiusPx)
-                    val normalizedPosition = (newX - thumbRadiusPx) / sliderWidth
-                    val newValue = minHue + (normalizedPosition * (maxHue - minHue))
-
-                    onHueChanged(newValue.coerceIn(range = 0F..360F))
-                    change.consume()
-                }
-            }
-
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(tapPointerInput)
-                    .then(dragPointerInput),
+                    .hueGestures(thumbRadiusPx = thumbRadiusPx, onHueChanged = onHueChanged),
                 contentDescription = "Hue Panel"
             ) {
 
                 val centerY = size.height / 2F
-                val trackStartX = thumbRadiusPx
                 val trackEndX = size.width - thumbRadiusPx
                 val cornerRadius = 4.dp.toPx()
                 val thumbPosition = Offset(currentThumbX, centerY)
 
                 drawRoundRect(
-                    topLeft = Offset(trackStartX, centerY - (trackHeightPx / 2)),
-                    size = Size(width = trackEndX - trackStartX, height = trackHeightPx),
+                    topLeft = Offset(thumbRadiusPx, centerY - (trackHeightPx / 2)),
+                    size = Size(width = trackEndX - thumbRadiusPx, height = trackHeightPx),
                     brush = Brush.horizontalGradient(colors = hueColors),
                     cornerRadius = CornerRadius(x = cornerRadius, y = cornerRadius)
                 )
 
                 drawRoundRect(
-                    topLeft = Offset(trackStartX, centerY - (trackHeightPx / 2)),
-                    size = Size(width = trackEndX - trackStartX, height = trackHeightPx),
+                    topLeft = Offset(thumbRadiusPx, centerY - (trackHeightPx / 2)),
+                    size = Size(width = trackEndX - thumbRadiusPx, height = trackHeightPx),
                     color = panelBorderColor,
                     cornerRadius = CornerRadius(x = cornerRadius, y = cornerRadius),
                     style = Stroke(width = 0.6.dp.toPx())
@@ -621,7 +533,7 @@ private fun AlphaPanel(
     modifier: Modifier = Modifier,
     currentAlpha: Float,
     baseColor: Color,
-    onAlphaChanged: (Float) -> Unit
+    onAlphaChanged: (alpha: Float) -> Unit
 ) {
 
     val density = LocalDensity.current
@@ -672,50 +584,10 @@ private fun AlphaPanel(
                 }
             }
 
-            val tapPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
-
-                detectTapGestures(
-                    onPress = { position ->
-
-                        val newX = position.x.coerceIn(
-                            range = thumbRadiusPx..panelWidth - thumbRadiusPx
-                        )
-
-                        val minAlpha = (0F..1F).start
-                        val maxAlpha = (0F..1F).endInclusive
-                        val sliderWidth = panelWidth - (2 * thumbRadiusPx)
-                        val normalizedPosition = (newX - thumbRadiusPx) / sliderWidth
-                        val newValue = minAlpha + (normalizedPosition * (maxAlpha - minAlpha))
-
-                        onAlphaChanged(newValue.coerceIn(range = 0F..1F))
-                    }
-                )
-            }
-
-            val dragPointerInput = Modifier.pointerInput(panelWidth, thumbRadiusPx) {
-
-                detectDragGestures { change, _ ->
-
-                    val newX = change.position.x.coerceIn(
-                        range = thumbRadiusPx..panelWidth - thumbRadiusPx
-                    )
-
-                    val minAlpha = (0F..1F).start
-                    val maxAlpha = (0F..1F).endInclusive
-                    val sliderWidth = panelWidth - (2 * thumbRadiusPx)
-                    val normalizedPosition = (newX - thumbRadiusPx) / sliderWidth
-                    val newValue = minAlpha + (normalizedPosition * (maxAlpha - minAlpha))
-
-                    onAlphaChanged(newValue.coerceIn(range = 0F..1F))
-                    change.consume()
-                }
-            }
-
             Canvas(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(tapPointerInput)
-                    .then(dragPointerInput),
+                    .alphaGestures(thumbRadiusPx = thumbRadiusPx, onAlphaChanged = onAlphaChanged),
                 contentDescription = "Alpha Panel"
             ) {
 
@@ -723,9 +595,8 @@ private fun AlphaPanel(
                 val trackTopY = (size.height - trackActualHeight) / 2F
                 val trackBottomY = trackTopY + trackActualHeight
 
-                val trackStartX = thumbRadiusPx
                 val trackEndX = size.width - thumbRadiusPx
-                val trackWidth = trackEndX - trackStartX
+                val trackWidth = trackEndX - thumbRadiusPx
                 val cornerRadius = 4.dp.toPx()
                 val checkerSizePx = trackActualHeight / 3F
 
@@ -733,7 +604,7 @@ private fun AlphaPanel(
 
                     val cellRect = RoundRect(
                         rect = Rect(
-                            left = trackStartX,
+                            left = thumbRadiusPx,
                             top = trackTopY,
                             right = trackEndX,
                             bottom = trackBottomY
@@ -753,7 +624,7 @@ private fun AlphaPanel(
 
                         (0 until columnCount).forEach { columnIndex ->
 
-                            val rectLeft = trackStartX + columnIndex * checkerSizePx
+                            val rectLeft = thumbRadiusPx + columnIndex * checkerSizePx
                             val rectTop = trackTopY + rowIndex * checkerSizePx
 
 
@@ -776,7 +647,7 @@ private fun AlphaPanel(
                 }
 
                 drawRoundRect(
-                    topLeft = Offset(trackStartX, trackTopY),
+                    topLeft = Offset(thumbRadiusPx, trackTopY),
                     brush = Brush.horizontalGradient(
                         colors = listOf(
                             baseColor.copy(alpha = 0F),
@@ -788,7 +659,7 @@ private fun AlphaPanel(
                 )
 
                 drawRoundRect(
-                    topLeft = Offset(trackStartX, trackTopY),
+                    topLeft = Offset(thumbRadiusPx, trackTopY),
                     size = Size(width = trackWidth, height = trackActualHeight),
                     color = panelBorderColor,
                     cornerRadius = CornerRadius(x = cornerRadius, y = cornerRadius),

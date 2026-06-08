@@ -1,14 +1,9 @@
 package io.bashpsk.emptylibs.jetpackui.joystick
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 
 /**
  * A customizable joystick component for touch-based user interfaces.
@@ -28,46 +23,10 @@ fun JoyStick(
     onUp: () -> Unit = { state.onUp() }
 ) {
 
-    val sizeChangedModifier = Modifier.onSizeChanged { size ->
-
-        state.boundRadius = size.width / 2F
-    }
-
-    val tapPointerInputModifier = Modifier.pointerInput(Unit) {
-
-        detectTapGestures(
-            onPress = { position ->
-
-                state.onDown(newPosition = position - Offset(state.boundRadius, state.boundRadius))
-                awaitRelease()
-                onUp()
-            }
-        )
-    }
-
-    val dragPointerInputModifier = Modifier.pointerInput(Unit) {
-
-        detectDragGestures(
-            onDragStart = { position ->
-
-                state.onDown(newPosition = position - Offset(state.boundRadius, state.boundRadius))
-            },
-            onDrag = { change, dragAmount ->
-
-                change.consume()
-                state.onDrag(amount = dragAmount)
-            },
-            onDragEnd = onUp,
-            onDragCancel = onUp
-        )
-    }
-
     Canvas(
         modifier = modifier
             .aspectRatio(ratio = 1F)
-            .then(sizeChangedModifier)
-            .then(tapPointerInputModifier)
-            .then(dragPointerInputModifier),
+            .joyStickGestures(state = state, onUp = onUp),
         contentDescription = "Joy Stick"
     ) {
 

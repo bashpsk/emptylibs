@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs.gestureui.transform
 
+import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -129,6 +130,19 @@ class TransformableGesturesState(
      */
     var boundSize by mutableStateOf(Size.Unspecified)
         internal set
+
+    /**
+     * A [TransformableState] that delegates to [onTransformation] if [hasTransform] is true.
+     */
+    internal val transformableState = TransformableState { _, zoomChange, panChange,
+                                                           rotationChange ->
+
+        if (hasTransform()) onTransformation(
+            zoomChange = zoomChange,
+            panChange = panChange,
+            rotationChange = rotationChange
+        )
+    }
 
     /**
      * Returns true if a transform gesture is currently in progress.

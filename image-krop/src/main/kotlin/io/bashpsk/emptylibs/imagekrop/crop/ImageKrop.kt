@@ -2,7 +2,6 @@ package io.bashpsk.emptylibs.imagekrop.crop
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -13,14 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.unit.toSize
+import io.bashpsk.emptylibs.imagekrop.modifier.imageKropModifier
 import kotlinx.collections.immutable.ImmutableList
 
 /**
@@ -59,45 +53,6 @@ fun ImageKrop(
 
     val imagePreviewSheetState = rememberModalBottomSheetState()
 
-    val imagePlacedModifier = Modifier.onPlaced { layoutCoordinates ->
-
-        val imageWidth = layoutCoordinates.size.width.toFloat()
-        val imageHeight = layoutCoordinates.size.height.toFloat()
-
-        state.apply {
-
-            kropRectPosition = Offset(imageWidth * 0.05F, imageHeight * 0.05F)
-            kropRectSize = Size(width = imageWidth * 0.90F, height = imageHeight * 0.90F)
-            canvasSize = layoutCoordinates.size.toSize()
-        }
-    }
-
-    val pointerInputModifier = Modifier.pointerInput(Unit) {
-
-        detectDragGestures(
-            onDragStart = state::onKropStart,
-            onDragEnd = state::onKropEnd,
-            onDragCancel = state::onKropEnd,
-            onDrag = { change, dragAmount ->
-
-                change.consume()
-                state.onKropChanges(position = change.position, amount = dragAmount)
-            }
-        )
-    }
-
-    val cropCanvasModifier = Modifier.drawWithContent {
-
-        drawContent()
-
-        drawKropHandle(
-            kropShape = state.kropShape,
-            topLeft = state.kropRectPosition,
-            rectSize = state.kropRectSize,
-            config = state.config
-        )
-    }
-
     RetainedEffect(
         state.canvasSize,
         state.originalImage,
@@ -107,7 +62,7 @@ fun ImageKrop(
 
         if (state.canvasSize.isSpecified) state.onKropRectInitialized()
 
-        onRetire {  }
+        onRetire { }
     }
 
     KropImagePreview(
@@ -140,10 +95,7 @@ fun ImageKrop(
         ) {
 
             Image(
-                modifier = Modifier
-                    .then(imagePlacedModifier)
-                    .then(pointerInputModifier)
-                    .then(cropCanvasModifier),
+                modifier = Modifier.imageKropModifier(state = state),
                 bitmap = state.originalImage,
                 contentScale = ContentScale.Fit,
                 contentDescription = "Image View"
