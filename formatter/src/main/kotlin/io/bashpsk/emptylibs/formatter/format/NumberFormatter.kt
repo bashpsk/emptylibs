@@ -88,9 +88,9 @@ fun Number.shortenedNumericalNotation(): String {
 
     val value = this.toDouble()
 
-    return when {
+    return when(value.roundToInt()) {
 
-         value > -1000.0 && value < 1000.0 -> "${value.roundToInt()}"
+         in -999 .. 999 -> "$value"
 
         else -> {
 
