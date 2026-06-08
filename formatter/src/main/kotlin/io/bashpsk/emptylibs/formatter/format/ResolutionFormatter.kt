@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntSize
 import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
+import kotlin.math.roundToInt
 
 /**
  * Finds a human-readable resolution label (e.g., "1080p HD", "4K UHD") for a given width and
@@ -59,7 +60,7 @@ fun findResolutionLabel(width: Int, height: Int): String {
 @Stable
 fun Size.findResolutionLabel(): String {
 
-    return this.findResolutionLabelOrNull() ?: "${width.toInt()}x${height.toInt()}"
+    return this.findResolutionLabelOrNull() ?: "${width.roundToInt()}x${height.roundToInt()}"
 }
 
 /**
@@ -146,7 +147,7 @@ fun findResolutionLabelOrNull(width: Int, height: Int): String? {
 @Stable
 fun Size.findResolutionLabelOrNull(): String? {
 
-    return findResolutionLabelOrNull(width = width.toInt(), height = height.toInt())
+    return findResolutionLabelOrNull(width = width.roundToInt(), height = height.roundToInt())
 }
 
 /**

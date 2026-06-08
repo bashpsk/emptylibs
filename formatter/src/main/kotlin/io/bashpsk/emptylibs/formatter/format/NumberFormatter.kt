@@ -9,6 +9,7 @@ import java.util.Locale
 import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 /**
  * Rounds a [Double] to a specified number of decimal places, returning `null` if an error occurs.
@@ -85,9 +86,11 @@ fun Float.toRoundedDecimal(fraction: Int = 0): Float {
 @Stable
 fun Number.shortenedNumericalNotation(): String {
 
-    return when (val value = this.toDouble()) {
+    val value = this.toDouble()
 
-        0.0 -> "0"
+    return when {
+
+         value > -1000.0 && value < 1000.0 -> "${value.roundToInt()}"
 
         else -> {
 
@@ -112,8 +115,8 @@ fun findPercentage(total: Number, obtained: Number): Int {
 
     return when (total) {
 
-        0L -> 0
-        else -> ((obtained.toDouble() / total.toDouble()) * 100).toInt()
+        0 -> 0
+        else -> ((obtained.toDouble() / total.toDouble()) * 100).roundToInt()
     }
 }
 

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -119,7 +120,7 @@ fun PdfLazyColumn(
         }
 
         LazyListScrollBar(
-            modifier = Modifier,
+            modifier = Modifier.padding(paddingValues = contentPadding),
             state = pdfLazyListState,
             orientation = Orientation.Vertical,
             alignment = scrollBarAlignment,
