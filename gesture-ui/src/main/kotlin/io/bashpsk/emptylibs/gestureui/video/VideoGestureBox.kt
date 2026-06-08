@@ -15,7 +15,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.toSize
 
 /**
  * A Composable function that provides a box with gesture detection capabilities,
@@ -60,7 +59,7 @@ fun VideoGestureBox(
 
     val screenSizeChanged = Modifier.onSizeChanged { size ->
 
-        state.screenSize = size.toSize()
+        state.screenSize = size
     }
 
     val touchPointerInput = Modifier.pointerInput(state.screenSize) {
@@ -79,11 +78,11 @@ fun VideoGestureBox(
     val tapPointerInput = Modifier.pointerInput(state.screenSize) {
 
         detectTapGestures(
-            onTap = { position: Offset ->
+            onTap = { position ->
 
                 onTapChanges(TapChanges.SingleTap(position))
             },
-            onDoubleTap = { position: Offset ->
+            onDoubleTap = { position ->
 
                 when {
 
@@ -108,7 +107,7 @@ fun VideoGestureBox(
         detectVideoGestures(
             screenSize = state.screenSize,
             deadZone = state.config.gestureMargin / 100.0F,
-            onDragStart = { offset: Offset ->
+            onDragStart = { offset ->
 
                 state.onDragStart()
                 onDragChanges(DragChanges.DragStart(position = offset))
@@ -183,12 +182,6 @@ fun VideoGestureBox(
 
                     state.hasHorizontalTopSwipe() -> {
 
-                        if (state.isDragStartSend.not()) {
-
-                            onDragChanges(DragChanges.HorizontalBottomStart)
-                            state.isDragStartSend = true
-                        }
-
                         state.dragGestureAction = DragGestureAction.HorizontalTop
                         change.consume()
                         onDragChanges(
@@ -202,12 +195,6 @@ fun VideoGestureBox(
                 direction.hasHorizontalBottom() && state.hasHorizontalSwipe() -> when {
 
                     state.hasHorizontalBottomSwipe() -> {
-
-                        if (state.isDragStartSend.not()) {
-
-                            onDragChanges(DragChanges.HorizontalBottomStart)
-                            state.isDragStartSend = true
-                        }
 
                         state.dragGestureAction = DragGestureAction.HorizontalBottom
                         change.consume()

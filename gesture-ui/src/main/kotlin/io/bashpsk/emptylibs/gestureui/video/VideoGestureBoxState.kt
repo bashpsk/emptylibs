@@ -9,7 +9,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.IntSize
 import io.bashpsk.emptylibs.gestureui.video.DragGestureAction.Companion.hasHorizontalBottom
 import io.bashpsk.emptylibs.gestureui.video.DragGestureAction.Companion.hasHorizontalTop
 import io.bashpsk.emptylibs.gestureui.video.DragGestureAction.Companion.hasNull
@@ -35,12 +35,12 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 @Composable
 fun rememberVideoGestureBoxState(
-    config: VideoGestureConfig = VideoGestureConfig(),
+    config: VideoGestureConfig = VideoGestureConfig()
 ): VideoGestureBoxState {
 
     val coroutineScope = rememberCoroutineScope()
 
-    return retain(config, coroutineScope) {
+    return retain(coroutineScope, config) {
         VideoGestureBoxState(coroutineScope = coroutineScope, config = config)
     }
 }
@@ -62,14 +62,14 @@ fun rememberVideoGestureBoxState(
 @Stable
 class VideoGestureBoxState(
     private val coroutineScope: CoroutineScope,
-    internal val config: VideoGestureConfig
+    internal val config: VideoGestureConfig,
 ) {
 
     /**
      * The size of the screen or the area where gestures are detected.
      * This is updated when the [VideoGestureBox] is laid out.
      */
-    internal var screenSize by mutableStateOf(Size.Zero)
+    internal var screenSize by mutableStateOf(IntSize.Zero)
 
     /**
      * A [Job] that handles the delayed reset of the current drag action.
@@ -97,23 +97,16 @@ class VideoGestureBoxState(
     internal var swipeAmount by mutableStateOf(Offset.Zero)
 
     /**
-     * A flag indicating whether the `onDragStart` event has been sent for the current drag
-     * gesture.
-     * This is used to ensure that `onDragStart` is called only once per drag.
-     */
-    internal var isDragStartSend by mutableStateOf(false)
-
-    /**
      * Initiates a delayed reset of the [dragGestureAction].
      * If a new drag action occurs before the delay completes, the previous reset is canceled.
-     * The delay is 1000 milliseconds.
+     * The delay is 750 milliseconds.
      */
     internal fun onResetDragGestureAction() {
 
         resetDragActionJob?.cancel()
         resetDragActionJob = coroutineScope.launch(context = Dispatchers.Default) {
 
-            delay(duration = 1000.milliseconds)
+            delay(duration = 750.milliseconds)
             onResetDragAction()
         }
     }
@@ -127,16 +120,6 @@ class VideoGestureBoxState(
     }
 
     /**
-     * Resets the flag indicating whether the drag start event has been sent.
-     * This is typically called when a drag gesture ends or is reset, ensuring that
-     * a new "drag start" event can be correctly identified for subsequent gestures.
-     */
-    internal fun onResetDragStartEvent() {
-
-        isDragStartSend = false
-    }
-
-    /**
      * Checks if a double tap at the given [position] should trigger a "backward" action.
      * This is true if double tap is enabled in the [config] and the tap occurs on the left half of
      * the screen.
@@ -145,7 +128,7 @@ class VideoGestureBoxState(
      */
     internal fun hasBackwardTap(position: Offset): Boolean {
 
-        return config.isDoubleTapEnable && position.x in 0.0F..(screenSize.width / 2)
+        return config.isDoubleTapEnable && position.x in 0.0F..(screenSize.width.toFloat() / 2)
     }
 
     /**
@@ -158,7 +141,7 @@ class VideoGestureBoxState(
     internal fun hasForwardTap(position: Offset): Boolean {
 
         return config.isDoubleTapEnable
-                && position.x in (screenSize.width / 2)..screenSize.width
+                && position.x in (screenSize.width.toFloat() / 2)..screenSize.width.toFloat()
     }
 
     /**
@@ -244,7 +227,6 @@ class VideoGestureBoxState(
     internal fun onDragStart() {
 
         onResetSwipeAmount()
-        onResetDragStartEvent()
     }
 
     /**
@@ -255,7 +237,6 @@ class VideoGestureBoxState(
 
         onResetSwipeAmount()
         onResetDragGestureAction()
-        onResetDragStartEvent()
     }
 
     /**

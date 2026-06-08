@@ -4,10 +4,10 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.unit.IntSize
 import kotlin.math.abs
 
 /**
@@ -53,7 +53,7 @@ private const val DEAD_ZONE_PERCENTAGE = 0.05F // 5%
  */
 @OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun PointerInputScope.detectVideoGestures(
-    screenSize: Size = Size.Zero,
+    screenSize: IntSize = IntSize.Zero,
     deadZone: Float? = DEAD_ZONE_PERCENTAGE,
     onDragStart: (position: Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},
@@ -65,7 +65,7 @@ internal suspend fun PointerInputScope.detectVideoGestures(
     ) -> Unit
 ) {
 
-    if (screenSize == Size.Zero) return
+    if (screenSize == IntSize.Zero) return
 
     val effectiveDeadZone = deadZone ?: DEAD_ZONE_PERCENTAGE
 
