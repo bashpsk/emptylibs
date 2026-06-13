@@ -20,7 +20,7 @@ android {
     defaultConfig {
 
         applicationId = "io.bashpsk.emptylibs"
-        minSdk = 26
+        minSdk = 28
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -94,6 +94,10 @@ dependencies {
 
     //  NAVIGATION      :
     implementation(libs.androidx.navigation.compose)
+
+    implementation("androidx.pdf:pdf-viewer:1.0.0-alpha18")
+    implementation("androidx.pdf:pdf-compose:1.0.0-alpha18")
+    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha18")
 
     //  MODULE          :
     implementation(project(":animations"))

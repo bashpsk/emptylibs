@@ -215,7 +215,7 @@ class CanvasSlateState(private val density: Density) {
 
         allPathList.lastOrNull()?.let { pathData ->
 
-            allPathList = allPathList.remove(element = pathData)
+            allPathList = allPathList.removing(element = pathData)
         }
     }
 
@@ -266,7 +266,7 @@ class CanvasSlateState(private val density: Density) {
 
         if (isDrawingMode) currentPath?.let { pathData ->
 
-            allPathList = allPathList.add(element = pathData)
+            allPathList = allPathList.adding(element = pathData)
             onCurrentPath(path = null)
         } ?: return
     }
@@ -287,7 +287,7 @@ class CanvasSlateState(private val density: Density) {
 
         if (isDrawingMode) currentPath?.let { pathData ->
 
-            val path = pathData.copy(path = pathData.path.add(position.toOffsetData()))
+            val path = pathData.copy(path = pathData.path.adding(position.toOffsetData()))
 
             onCurrentPath(path = path)
         } ?: return
@@ -360,7 +360,7 @@ class CanvasSlateState(private val density: Density) {
 
         previewPathList.find { pathData -> pathData.id == path.id }?.let { pathData ->
 
-            previewPathList = previewPathList.remove(element = pathData).add(element = path)
+            previewPathList = previewPathList.removing(element = pathData).adding(element = path)
         }
     }
 
@@ -380,7 +380,7 @@ class CanvasSlateState(private val density: Density) {
             allPathList.find { path -> pathData.id == path.id }?.let { path ->
 
                 onUpdateEditPath(path = path)
-                previewPathList = previewPathList.remove(element = pathData).add(element = path)
+                previewPathList = previewPathList.removing(element = pathData).adding(path)
             }
         }
     }
@@ -407,7 +407,7 @@ class CanvasSlateState(private val density: Density) {
 
         editCanvasSlatePath?.let { pathData ->
 
-            allPathList = previewPathList.removeAll { path -> pathData.id == path.id }
+            allPathList = previewPathList.removingAll { path -> pathData.id == path.id }
             onUpdateEditPath(path = null)
         }
     }

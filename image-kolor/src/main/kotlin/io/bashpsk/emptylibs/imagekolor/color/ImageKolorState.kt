@@ -120,7 +120,11 @@ class ImageKolorState() {
             }
 
             kolorInput = newInput
-            imageKolorInputList = imageKolorInputList.set(index = index, element = kolorInput)
+
+            imageKolorInputList = imageKolorInputList.replacingAt(
+                index = index,
+                element = kolorInput
+            )
         }
     }
 

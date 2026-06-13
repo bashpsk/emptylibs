@@ -59,7 +59,7 @@ class BottomOptionBarViewModel : ViewModel() {
 
     fun addPathSelection(path: String) {
 
-        _selectedPaths.update { oldList -> oldList.add(element = path) }
+        _selectedPaths.update { oldList -> oldList.adding(element = path) }
     }
 
     fun clearPathSelection() {

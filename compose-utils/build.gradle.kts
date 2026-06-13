@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     //  COIL            :
+    implementation(platform(libs.coil3.bom))
     implementation(libs.coil3.compose)
 
     //  MODULE          :

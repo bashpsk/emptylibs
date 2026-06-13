@@ -11,12 +11,12 @@ compose-bom = "2026.05.01"
 material-icons = "1.7.8"
 graphics-shapes = "1.1.0"
 kotlinx-serialization-json = "1.11.0"
-kotlinx-collections-immutable = "0.4.0"
+kotlinx-collections-immutable = "0.5.0"
 kotlinx-datetime = "0.8.0"
 kotlinx-io = "0.9.0"
 datastore-preferences = "1.2.1"
 navigation-compose = "2.9.8"
-coil-kt = "3.4.0"
+coil-kt = "3.5.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -43,8 +43,9 @@ kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime",
 kotlinx-io-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-io-core", version.ref = "kotlinx-io" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore-preferences" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
-coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil-kt" }
-coil3-svg = { group = "io.coil-kt.coil3", name = "coil-svg", version.ref = "coil-kt" }
+coil3-bom = { group = "io.coil-kt.coil3", name = "coil-bom", version.ref = "coil-kt" }
+coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose" }
+coil3-svg = { group = "io.coil-kt.coil3", name = "coil-svg" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

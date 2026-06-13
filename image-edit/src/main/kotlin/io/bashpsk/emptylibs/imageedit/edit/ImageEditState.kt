@@ -244,10 +244,10 @@ class ImageEditState(
 
         imageEditItemList.find { editItems -> editItems.uuid == items.uuid }?.let { editItems ->
 
-            imageEditItemList = imageEditItemList.remove(element = editItems).add(element = items)
+            imageEditItemList = imageEditItemList.removing(element = editItems).adding(items)
         } ?: run {
 
-            imageEditItemList = imageEditItemList.add(element = items)
+            imageEditItemList = imageEditItemList.adding(element = items)
         }
     }
 
@@ -262,7 +262,7 @@ class ImageEditState(
      */
     fun removeImageEditItem(items: ImageEditItems) {
 
-        imageEditItemList = imageEditItemList.remove(element = items)
+        imageEditItemList = imageEditItemList.removing(element = items)
     }
 
     /**
@@ -708,7 +708,7 @@ class ImageEditState(
 
                 is ImageEditItems.BrushItem -> {
 
-                    val newItems = items.copy(path = items.path.add(position)).apply {
+                    val newItems = items.copy(path = items.path.adding(position)).apply {
 
                         uuid = items.uuid
                     }
@@ -718,7 +718,7 @@ class ImageEditState(
 
                 is ImageEditItems.EraseItem -> {
 
-                    val newItems = items.copy(path = items.path.add(position)).apply {
+                    val newItems = items.copy(path = items.path.adding(position)).apply {
 
                         uuid = items.uuid
                     }
@@ -820,7 +820,7 @@ class ImageEditState(
         }?.let { items ->
 
             onCurrentImageEdit(items = items)
-            imageEditItemList = imageEditItemList.remove(element = items)
+            imageEditItemList = imageEditItemList.removing(element = items)
             true
         }
     }

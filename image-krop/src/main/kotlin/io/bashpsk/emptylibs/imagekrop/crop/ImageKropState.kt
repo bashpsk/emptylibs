@@ -224,10 +224,10 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         val safeImageList = existImageIndex(bitmap = bitmap)?.let { index ->
 
-            imageList.removeAt(index = index)
+            imageList.removingAt(index = index)
         } ?: imageList
 
-        imageList = safeImageList.add(element = bitmap)
+        imageList = safeImageList.adding(element = bitmap)
     }
 
     /**
@@ -240,7 +240,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         imageList.lastIndex.takeIf { index -> index > 0 }?.let { index ->
 
-            imageList = imageList.removeAt(index = index)
+            imageList = imageList.removingAt(index = index)
         }
 
         imageList.lastOrNull()?.let { bitmap ->
@@ -303,7 +303,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         shapeList = existShapeIndex(shape = shape)?.let { index ->
 
-            shapeList.set(index = index, element = shape)
+            shapeList.replacingAt(index = index, element = shape)
         } ?: shapeList
     }
 

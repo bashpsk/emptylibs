@@ -133,7 +133,7 @@ fun PdfTemplateScreen() {
             template = templateTitleContent
         )?.let { imageBitmap ->
 
-            previewImageList = previewImageList.add(imageBitmap)
+            previewImageList = previewImageList.adding(imageBitmap)
         }
     }
 
@@ -143,7 +143,7 @@ fun PdfTemplateScreen() {
             template = templateTitleContentWithIndex
         )?.let { imageBitmap ->
 
-            previewImageList = previewImageList.add(imageBitmap)
+            previewImageList = previewImageList.adding(imageBitmap)
         }
     }
 

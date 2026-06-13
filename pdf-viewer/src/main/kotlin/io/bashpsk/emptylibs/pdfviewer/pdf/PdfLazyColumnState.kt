@@ -262,7 +262,7 @@ class PdfLazyColumnState(
             targetHeight = targetHeight
         )?.let { bitmap ->
 
-            pageDataList = pageDataList.put(pageIndex, pageData.copy(bitmap = bitmap))
+            pageDataList = pageDataList.putting(pageIndex, pageData.copy(bitmap = bitmap))
         }
     }
 

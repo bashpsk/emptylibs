@@ -96,7 +96,7 @@ class SvgKolorState(
 
             findIndex(element = hex)?.let { existIndex ->
 
-                hexKolorDataList = hexKolorDataList.set(
+                hexKolorDataList = hexKolorDataList.replacingAt(
                     index = existIndex,
                     element = hex.copy(newHex = newColor.toHexString(includeAlpha = false))
                 )
