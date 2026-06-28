@@ -92,6 +92,7 @@ dependencies {
     implementation(project(":compose-utils"))
     implementation(project(":formatter"))
     implementation(project(":lrucache-manager"))
+    implementation(project(":gesture-ui"))
     implementation(project(":storage"))
 }
 
