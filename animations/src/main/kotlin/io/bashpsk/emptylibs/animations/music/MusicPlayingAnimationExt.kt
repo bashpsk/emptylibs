@@ -7,8 +7,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import kotlin.math.PI
-import kotlin.math.sin
 
 /**
  * Draws the music playing animation on the canvas.
@@ -16,41 +14,50 @@ import kotlin.math.sin
  * This function is an internal implementation detail of the [MusicPlayingAnimation] composable.
  * It draws the animated bars based on the provided animation values.
  *
- * @param color The color of the bars.
- * @param barAnimationList A list of states that represent the height of each bar.
- * @param spacingRatio The spacing between the bars, as a fraction of the bar width.
- * @param cornerRadiusRatio The corner radius of the bars, as a fraction of the bar width.
+ * @param amplitudes A list of states that represent the height of each bar.
+ * @param barCount The number of bars to display in the animation.
+ * @param boxCount The maximum number of ticks (segments) in each bar.
+ * @param boxSpacing The spacing between the bars & boxes, as a fraction of the bar width.
+ * @param boxCornerRadius The corner radius of the bars & boxes, as a fraction of the bar width.
+ * @param boxColor The color of the animated bars.
  */
 internal fun DrawScope.drawMusicPlayingAnimation(
-    color: Color = Color.Unspecified,
-    barAnimationList: List<State<Float>>,
+    amplitudes: Array<State<Int>>,
+    barCount: Int,
+    boxCount: Int,
     @FloatRange(0.0, 1.0)
-    spacingRatio: Float = 0.10F,
+    boxSpacing: Float,
     @FloatRange(0.0, 1.0)
-    cornerRadiusRatio: Float = 0.05F,
+    boxCornerRadius: Float,
+    boxColor: Color
 ) {
 
-    val barCount = barAnimationList.size
+    if (amplitudes.isEmpty()) return
 
-    if (barCount == 0) return
+    val totalRelativeWidth = barCount + boxSpacing * (barCount - 1).coerceAtLeast(0)
+    val totalRelativeHeight = boxCount + boxSpacing * (boxCount - 1).coerceAtLeast(0)
+    val barWidth = size.width / totalRelativeWidth
+    val barHeight = (size.height / totalRelativeHeight) / 1.75F
+    val horizontalSpacing = barWidth * boxSpacing
+    val verticalSpacing = barWidth * boxSpacing
+    val barRadius = (barHeight / 2.0F) * boxCornerRadius
 
-    val horizontalSpace = barCount + spacingRatio * (barCount - 1).coerceAtLeast(0)
-    val barWidth = size.width / horizontalSpace
-    val spacing = barWidth * spacingRatio
-    val canvasCenterY = size.height / 2F
-    val cornerRadius = (barWidth / 2F) * cornerRadiusRatio
+    val boxSize = Size(width = barWidth, height = barHeight)
+    val cornerRadius = CornerRadius(x = barRadius, y = barRadius)
 
-    barAnimationList.forEachIndexed { index, heightAnimation ->
+    amplitudes.forEachIndexed { barIndex, amplitudeState ->
 
-        val animatedBarHeight = heightAnimation.value.coerceAtLeast(0F)
-        val barPositionAngle = (index + 1) * PI / (barCount + 1)
-        val barHeight = animatedBarHeight * canvasCenterY * sin(barPositionAngle).toFloat()
+        (0..amplitudeState.value).forEach { boxIndex ->
 
-        drawRoundRect(
-            color = color,
-            topLeft = Offset(x = index * (barWidth + spacing), y = canvasCenterY - barHeight),
-            size = Size(width = barWidth, height = barHeight * 2),
-            cornerRadius = CornerRadius(x = cornerRadius, y = cornerRadius)
-        )
+            drawRoundRect(
+                topLeft = Offset(
+                    x = barIndex * (barWidth + horizontalSpacing),
+                    y = (size.height - barHeight) - (boxIndex * (barHeight + verticalSpacing))
+                ),
+                size = boxSize,
+                cornerRadius = cornerRadius,
+                color = boxColor
+            )
+        }
     }
 }

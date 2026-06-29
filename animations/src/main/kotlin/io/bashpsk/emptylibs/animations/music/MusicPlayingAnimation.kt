@@ -4,7 +4,8 @@ import androidx.annotation.FloatRange
 import androidx.compose.animation.core.EaseInBounce
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateValue
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -34,11 +35,11 @@ import kotlin.random.Random
  *
  * @param modifier The modifier to be applied to the animation canvas.
  * @param isPlaying A boolean that controls whether the animation is playing.
- * @param color The color of the animated bars.
+ * @param boxColor The color of the animated bars.
  * @param barCount The number of bars to display in the animation.
- * @param initialValue The initial height of the bars as a fraction of their total height.
- * @param spacingRatio The spacing between the bars, as a fraction of the bar width.
- * @param cornerRadiusRatio The corner radius of the bars, as a fraction of the bar width.
+ * @param boxCount The maximum number of ticks (segments) in each bar.
+ * @param boxSpacing The spacing between the bars & boxes, as a fraction of the bar width.
+ * @param boxCornerRadius The corner radius of the bars & boxes, as a fraction of the bar width.
  * @param easing The easing function to use for the animation.
  * @param duration The duration of the animation for a single bar.
  * @param delay The delay before the animation starts for a single bar.
@@ -47,21 +48,19 @@ import kotlin.random.Random
 fun MusicPlayingAnimation(
     modifier: Modifier = Modifier,
     isPlaying: Boolean = false,
-    color: Color = MaterialTheme.colorScheme.secondary,
+    boxColor: Color = MaterialTheme.colorScheme.secondary,
     barCount: Int = 5,
-    @FloatRange(0.0, 1.0)
-    initialValue: Float = 0.15F,
-    @FloatRange(0.0, 1.0)
-    spacingRatio: Float = 0.10F,
-    @FloatRange(0.0, 1.0)
-    cornerRadiusRatio: Float = 0.05F,
+    boxCount: Int = 4,
+    @FloatRange(from = 0.0, to = 1.0)
+    boxSpacing: Float = 0.05F,
+    @FloatRange(from = 0.0, to = 1.0)
+    boxCornerRadius: Float = 0.05F,
     easing: Easing = EaseInBounce,
-    duration: Int = 1000,
-    delay: Int = 500
+    duration: Int = 2500,
+    delay: Int = 25
 ) {
 
     val animationLabel = "Music Playing Animation"
-
     val infiniteTransition = rememberInfiniteTransition(label = animationLabel)
 
     val random = retain { Random(seed = 0) }
@@ -71,27 +70,26 @@ fun MusicPlayingAnimation(
         derivedStateOf { isAnimationVisible && isPlaying }
     }
 
-    val barAnimationList = when (isPlayAnimation) {
+    val amplitudes = if (isPlayAnimation) Array(size = barCount) { index ->
 
-        true -> List(size = barCount) {
-
-            infiniteTransition.animateFloat(
-                initialValue = initialValue,
-                targetValue = 1.0F,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = random.nextInt(from = duration / 2, until = duration),
-                        easing = easing,
-                        delayMillis = random.nextInt(from = delay / 2, until = delay)
+        infiniteTransition.animateValue(
+            initialValue = 0,
+            targetValue = boxCount,
+            typeConverter = Int.VectorConverter,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = random.nextInt(
+                        from = (duration / 4).coerceAtLeast(100),
+                        until = duration
                     ),
-                    repeatMode = RepeatMode.Reverse
+                    easing = easing,
+                    delayMillis = delay
                 ),
-                label = animationLabel
-            )
-        }
-
-        false -> emptyList()
-    }
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = animationLabel
+        )
+    } else emptyArray()
 
     Canvas(
         modifier = modifier
@@ -104,10 +102,12 @@ fun MusicPlayingAnimation(
     ) {
 
         if (isPlayAnimation) drawMusicPlayingAnimation(
-            color = color,
-            barAnimationList = barAnimationList,
-            spacingRatio = spacingRatio,
-            cornerRadiusRatio = cornerRadiusRatio
+            amplitudes = amplitudes,
+            barCount = barCount,
+            boxCount = boxCount,
+            boxSpacing = boxSpacing,
+            boxCornerRadius = boxCornerRadius,
+            boxColor = boxColor
         )
     }
 }

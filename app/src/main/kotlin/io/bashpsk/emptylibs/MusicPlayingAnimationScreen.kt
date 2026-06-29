@@ -29,17 +29,14 @@ import kotlin.time.Duration.Companion.seconds
 fun MusicPlayingAnimationScreen() {
 
     var isPlaying1 by rememberSaveable { mutableStateOf(false) }
-    var isPlaying2 by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
 
         delay(3.seconds)
         isPlaying1 = true
         delay(3.seconds)
-        isPlaying2 = true
         delay(10.seconds)
         isPlaying1 = false
-        isPlaying2 = false
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
@@ -59,6 +56,7 @@ fun MusicPlayingAnimationScreen() {
                     .border(width = 1.dp, color = Color.Red),
                 isPlaying = isPlaying1,
                 barCount = 3,
+                boxCount = 4,
                 easing = EaseOutBounce
             )
 
@@ -67,8 +65,9 @@ fun MusicPlayingAnimationScreen() {
                     .fillMaxWidth()
                     .aspectRatio(1F)
                     .border(width = 1.dp, color = Color.Red),
-                isPlaying = isPlaying2,
+                isPlaying = true,
                 barCount = 5,
+                boxCount = 5,
                 easing = EaseInOutBounce
             )
         }
