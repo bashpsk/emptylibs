@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.imageview.tile
 
 import android.graphics.Bitmap
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.IntOffset
 import io.bashpsk.emptylibs.imageutils.extension.toIntSize
+import io.bashpsk.emptylibs.imageview.tile.TileImageViewState.Companion.TILE_SIZE_DEFAULT
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
@@ -50,11 +52,12 @@ internal class TileImageViewState() {
      * Parses the given [ImageBitmap] into tiles of the specified size and updates [imageGridList].
      *
      * @param bitmap The [ImageBitmap] to be tiled.
-     * @param tileSize The size of each tile in pixels. Defaults to 512.
+     * @param tileSize The size of each tile in pixels. Defaults to [TILE_SIZE_DEFAULT].
      */
     internal suspend fun setParseImageTile(
         bitmap: ImageBitmap,
-        tileSize: Int = 512
+        @IntRange(1L, Int.MAX_VALUE.toLong())
+        tileSize: Int = TILE_SIZE_DEFAULT
     ) = withContext(context = Dispatchers.Default) {
 
         onStateClear()
@@ -97,5 +100,10 @@ internal class TileImageViewState() {
     internal fun onStateClear() {
 
         imageGridList = persistentListOf()
+    }
+
+    companion object {
+
+        const val TILE_SIZE_DEFAULT = 512
     }
 }

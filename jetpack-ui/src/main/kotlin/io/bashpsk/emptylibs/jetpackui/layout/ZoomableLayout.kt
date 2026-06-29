@@ -1,6 +1,10 @@
 package io.bashpsk.emptylibs.jetpackui.layout
 
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -9,8 +13,30 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toSize
+import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
+import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
+import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
 import kotlin.math.roundToInt
+
+@Composable
+inline fun ZoomableLayout(
+    modifier: Modifier = Modifier,
+    state: TransformableGesturesState = rememberTransformableGesturesState(),
+    crossinline content: @Composable ZoomableLayoutScope.() -> Unit
+) {
+
+    val layoutPosition by remember(state.position) { derivedStateOf { state.position.round() } }
+
+    ZoomableLayout(
+        modifier = modifier
+            .transformableGestures(state = state)
+            .offset { layoutPosition },
+        zoomScale = state.zoom,
+        content = content
+    )
+}
 
 /**
  * A layout that zooms its content.
@@ -20,10 +46,10 @@ import kotlin.math.roundToInt
  * @param content The content to be zoomed, with [ZoomableLayoutScope].
  */
 @Composable
-fun ZoomableLayout(
+inline fun ZoomableLayout(
     modifier: Modifier = Modifier,
     zoomScale: Float = 1.0F,
-    content: @Composable ZoomableLayoutScope.() -> Unit
+    crossinline content: @Composable ZoomableLayoutScope.() -> Unit
 ) {
 
     val scope = retain { ZoomableLayoutScopeImpl() }

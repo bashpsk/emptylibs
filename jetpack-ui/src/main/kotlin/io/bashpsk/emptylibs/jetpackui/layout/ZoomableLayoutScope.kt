@@ -25,6 +25,7 @@ interface ZoomableLayoutScope {
  * property, allowing UI components to respond to changes in position and scale.
  */
 @Stable
+@PublishedApi
 internal class ZoomableLayoutScopeImpl : ZoomableLayoutScope {
 
     override var viewport: Rect by mutableStateOf(Rect.Zero)
