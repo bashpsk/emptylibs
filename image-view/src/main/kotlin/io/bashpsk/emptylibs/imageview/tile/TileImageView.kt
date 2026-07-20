@@ -5,8 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -27,7 +25,6 @@ import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.imageutils.extension.findAspectRatio
 import io.bashpsk.emptylibs.imageutils.extension.toSize
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
@@ -56,18 +53,10 @@ fun TileImageView(
     tileSize: Int = TileImageViewState.TILE_SIZE_DEFAULT
 ) {
 
-    val coroutineScope = rememberCoroutineScope()
-    val state = rememberTileImageViewState()
+    val state = rememberTileImageViewState(imageBitmap = imageBitmap, tileSize = tileSize)
 
-    val aspectRatio by remember(imageBitmap) {
-        derivedStateOf { imageBitmap.findAspectRatio() ?: 0F }
-    }
-
-    RetainedEffect(imageBitmap, tileSize) {
-
-        coroutineScope.launch { state.setParseImageTile(bitmap = imageBitmap, tileSize = tileSize) }
-
-        onRetire { state.onStateClear() }
+    val aspectRatio by remember(state.imageBitmap) {
+        derivedStateOf { state.imageBitmap.findAspectRatio() ?: 0F }
     }
 
     Layout(
@@ -98,7 +87,7 @@ fun TileImageView(
             .drawBehind {
 
 //                var visibleTiles = 0
-                val srcSize = imageBitmap.toSize()
+                val srcSize = state.imageBitmap.toSize()
 
                 val baseScale = contentScale.computeScaleFactor(
                     srcSize = srcSize,

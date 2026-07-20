@@ -52,6 +52,7 @@ fun TileImageViewScreen() {
                 TileImageView(
                     modifier = Modifier.fillMaxWidth(),
                     imageBitmap = largeImage,
+                    tileSize = 128,
                     colorFilter = ImageFilterType.Original.colorFilter
                 )
             }
