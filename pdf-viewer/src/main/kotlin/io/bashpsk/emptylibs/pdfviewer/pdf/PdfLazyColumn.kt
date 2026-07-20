@@ -20,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -74,7 +73,7 @@ fun PdfLazyColumn(
 
     BoxWithConstraints(
         modifier = modifier
-            .clipToBounds()
+            .padding(paddingValues = contentPadding)
             .transformableGestures(
                 state = state.transformable,
                 onClick = onClick,
@@ -95,7 +94,7 @@ fun PdfLazyColumn(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = pdfLazyListState,
-            contentPadding = contentPadding,
+//            contentPadding = contentPadding,
             userScrollEnabled = isScrollEnabled,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(space = pageSpace)
@@ -120,7 +119,7 @@ fun PdfLazyColumn(
         }
 
         LazyListScrollBar(
-            modifier = Modifier.padding(paddingValues = contentPadding),
+            modifier = Modifier,
             state = pdfLazyListState,
             orientation = Orientation.Vertical,
             alignment = scrollBarAlignment,

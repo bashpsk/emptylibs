@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,28 +55,29 @@ import androidx.compose.ui.unit.dp
  * state metadata.
  * @param thumb A composable lambda that defines the content inside the scrollbar thumb.
  */
+@PublishedApi
 @Composable
-internal fun BoxWithConstraintsScope.ScrollBarView(
+internal inline fun BoxWithConstraintsScope.ScrollBarView(
     modifier: Modifier = Modifier,
     visibleState: MutableTransitionState<Boolean>,
     orientation: Orientation,
     alignment: Alignment,
     barPositionOffset: IntOffset,
     barDraggableState: DraggableState,
-    onSizeChanged: (IntSize) -> Unit,
-    onDragStarted: () -> Unit,
-    onDragStopped: () -> Unit,
+    noinline onSizeChanged: (IntSize) -> Unit,
+    crossinline onDragStarted: () -> Unit,
+    crossinline onDragStopped: () -> Unit,
     thumbShape: Shape,
     thumbColor: Color,
     firstVisibleItemIndex: Int,
     visibleItemsCount: Int,
     totalItemsCount: Int,
-    label: @Composable (
+    crossinline label: @Composable (
         firstVisibleItemIndex: Int,
         visibleItemsCount: Int,
         totalItemsCount: Int
     ) -> Unit,
-    thumb: @Composable () -> Unit
+    crossinline thumb:@Composable BoxScope.() -> Unit
 ) {
 
     AnimatedVisibility(
@@ -140,11 +142,9 @@ internal fun BoxWithConstraintsScope.ScrollBarView(
                         onDragStarted = { onDragStarted() },
                         onDragStopped = { onDragStopped() }
                     ),
-                contentAlignment = Alignment.Center
-            ) {
-
-                thumb()
-            }
+                contentAlignment = Alignment.Center,
+                content = thumb
+            )
         }
 
         val labelContent = @Composable {

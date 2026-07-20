@@ -86,7 +86,7 @@ internal fun PdfPageView(
     }
 
     val firstVisibleModifier = Modifier.onVisibilityChanged(
-        minDurationMs = 300,
+        minDurationMs = 50,
         minFractionVisible = 0.05F
     ) { visible ->
 
@@ -115,7 +115,6 @@ internal fun PdfPageView(
         ZoomableLayout(
             modifier = modifier
                 .fillMaxWidth()
-                .then(firstVisibleModifier)
                 .offset { layoutPosition },
             zoomScale = state.transformable.zoom
         ) {

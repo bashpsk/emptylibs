@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.min
 
 @Stable
+@PublishedApi
 internal class ThumbNotchShape(
     private val orientation: Orientation,
     private val alignment: Alignment,

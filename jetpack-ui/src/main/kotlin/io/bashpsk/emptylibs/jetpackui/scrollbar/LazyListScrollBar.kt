@@ -3,6 +3,7 @@ package io.bashpsk.emptylibs.jetpackui.scrollbar
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
@@ -54,7 +55,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 @OptIn(FlowPreview::class)
 @Composable
-fun BoxWithConstraintsScope.LazyListScrollBar(
+inline fun BoxWithConstraintsScope.LazyListScrollBar(
     modifier: Modifier = Modifier,
     state: LazyListState,
     orientation: Orientation = state.layoutInfo.orientation,
@@ -65,12 +66,12 @@ fun BoxWithConstraintsScope.LazyListScrollBar(
     },
     thumbColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     thumbNotchWidth: Dp = 12.dp,
-    label: @Composable (
+    crossinline label: @Composable (
         firstVisibleItemIndex: Int,
         visibleItemsCount: Int,
         totalItemsCount: Int
     ) -> Unit = { _, _, _ -> },
-    thumb: @Composable () -> Unit = {
+    crossinline thumb: @Composable BoxScope.() -> Unit = {
 
         Icon(
             modifier = Modifier.size(size = 28.dp),
