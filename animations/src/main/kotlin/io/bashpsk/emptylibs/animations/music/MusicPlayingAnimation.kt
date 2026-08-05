@@ -9,9 +9,10 @@ import androidx.compose.animation.core.animateValue
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +71,7 @@ fun MusicPlayingAnimation(
         derivedStateOf { isAnimationVisible && isPlaying }
     }
 
-    val amplitudes = if (isPlayAnimation) Array(size = barCount) { index ->
+    val amplitudes = if (isPlayAnimation) List(size = barCount) {
 
         infiniteTransition.animateValue(
             initialValue = 0,
@@ -89,25 +90,50 @@ fun MusicPlayingAnimation(
             ),
             label = animationLabel
         )
-    } else emptyArray()
+    } else emptyList()
 
-    Canvas(
+    Box(
         modifier = modifier
             .clipToBounds()
             .onVisibilityChanged(minFractionVisible = 0.05F) { isVisible ->
 
                 isAnimationVisible = isVisible
-            },
-        contentDescription = animationLabel
-    ) {
-
-        if (isPlayAnimation) drawMusicPlayingAnimation(
-            amplitudes = amplitudes,
-            barCount = barCount,
-            boxCount = boxCount,
-            boxSpacing = boxSpacing,
-            boxCornerRadius = boxCornerRadius,
-            boxColor = boxColor
-        )
-    }
+            }
+            .musicPlayingAnimation(
+                amplitudes = amplitudes,
+                isPlaying = isPlayAnimation,
+                barCount = barCount,
+                boxCount = boxCount,
+                boxSpacing = boxSpacing,
+                boxCornerRadius = boxCornerRadius,
+                boxColor = boxColor
+            )
+    )
 }
+
+/**
+ * Applies a music playing visualizer animation to the [Modifier].
+ *
+ * @param boxColor The color of the animated bars.
+ * @param barCount The number of bars to display in the animation.
+ * @param boxCount The maximum number of ticks (segments) in each bar.
+ * @param boxSpacing The spacing between the bars & boxes, as a fraction of the bar width.
+ * @param boxCornerRadius The corner radius of the bars & boxes, as a fraction of the bar width.
+ */
+fun Modifier.musicPlayingAnimation(
+    amplitudes: List<State<Int>>,
+    isPlaying: Boolean,
+    barCount: Int,
+    boxCount: Int,
+    boxColor: Color,
+    boxSpacing: Float,
+    boxCornerRadius: Float
+): Modifier = this then MusicPlayingAnimationElement(
+    amplitudes = amplitudes,
+    isPlaying = isPlaying,
+    barCount = barCount,
+    boxCount = boxCount,
+    boxColor = boxColor,
+    boxSpacing = boxSpacing,
+    boxCornerRadius = boxCornerRadius
+)

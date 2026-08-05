@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
  * @param boxColor The color of the animated bars.
  */
 internal fun DrawScope.drawMusicPlayingAnimation(
-    amplitudes: Array<State<Int>>,
+    amplitudes: List<State<Int>>,
     barCount: Int,
     boxCount: Int,
     @FloatRange(0.0, 1.0)
@@ -37,7 +37,7 @@ internal fun DrawScope.drawMusicPlayingAnimation(
     val totalRelativeWidth = barCount + boxSpacing * (barCount - 1).coerceAtLeast(0)
     val totalRelativeHeight = boxCount + boxSpacing * (boxCount - 1).coerceAtLeast(0)
     val barWidth = size.width / totalRelativeWidth
-    val barHeight = (size.height / totalRelativeHeight) / 1.75F
+    val barHeight = (size.height / totalRelativeHeight)
     val horizontalSpacing = barWidth * boxSpacing
     val verticalSpacing = barWidth * boxSpacing
     val barRadius = (barHeight / 2.0F) * boxCornerRadius

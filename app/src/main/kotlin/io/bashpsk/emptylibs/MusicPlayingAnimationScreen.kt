@@ -52,7 +52,7 @@ fun MusicPlayingAnimationScreen() {
 
             MusicPlayingAnimation(
                 modifier = Modifier
-                    .size(size = 40.dp)
+                    .size(width = 40.dp, height = 30.dp)
                     .border(width = 1.dp, color = Color.Red),
                 isPlaying = isPlaying1,
                 barCount = 3,
@@ -63,7 +63,7 @@ fun MusicPlayingAnimationScreen() {
             MusicPlayingAnimation(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1F)
+                    .aspectRatio(16F / 9F)
                     .border(width = 1.dp, color = Color.Red),
                 isPlaying = true,
                 barCount = 5,

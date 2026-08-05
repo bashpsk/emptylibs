@@ -1,5 +1,11 @@
 package io.bashpsk.emptylibs
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +36,19 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun WaveAnimationScreen() {
 
+    val infiniteTransition = rememberInfiniteTransition(label = "Wave Animation")
+
     var progressLevel by rememberSaveable { mutableFloatStateOf(0.0F) }
+
+    val waveOffset by infiniteTransition.animateFloat(
+        initialValue = 0F,
+        targetValue = 1F,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 5000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "Wave Offset"
+    )
 
     LaunchedEffect(Unit) {
 
@@ -55,7 +73,11 @@ fun WaveAnimationScreen() {
             Column(
                 modifier = Modifier
                     .border(width = 2.dp, color = Color.Red)
-                    .waveAnimation(progress = 0.69F, waveColor = Color.Blue),
+                    .waveAnimation(
+                        progress = 0.69F,
+                        waveOffset = waveOffset,
+                        waveColor = Color.Blue
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -70,14 +92,22 @@ fun WaveAnimationScreen() {
                     .fillMaxWidth()
                     .height(200.dp)
                     .border(width = 2.dp, color = Color.Red)
-                    .waveAnimation(progress = 0.69F, waveColor = Color.Magenta)
+                    .waveAnimation(
+                        progress = 0.69F,
+                        waveOffset = waveOffset,
+                        waveColor = Color.Magenta
+                    )
             )
 
             Box(
                 modifier = Modifier
                     .size(200.dp)
                     .border(width = 2.dp, color = Color.Red)
-                    .waveAnimation(progress = progressLevel, waveColor = Color.Green)
+                    .waveAnimation(
+                        progress = progressLevel,
+                        waveOffset = waveOffset,
+                        waveColor = Color.Green
+                    )
             )
         }
     }
