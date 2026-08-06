@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
 //                    AnalogClockScreen()
 //                    BasicTextEditorScreen()
 //                    BottomOptionBarScreen()
-                    CanvasSlateScreen()
+//                    CanvasSlateScreen()
 //                    ColorPickerDialogScreen()
 //                    ColorPickerScreen()
 //                    DatastoreUIScreen()

@@ -24,7 +24,7 @@ import kotlin.time.Instant
  * and will only update when the component is visible and the app is in the foreground.
  *
  * @param modifier The modifier to be applied to the clock.
- * @param localDateTime The local date and time to display, in milliseconds.
+ * @param dateTimeMillis The local date and time to display, in milliseconds.
  * @param timeZone The time zone to use for displaying the time.
  * @param shape The [ClockShape] of the clock's border. Defines the outer boundary of the clock.
  * @param properties The [AnalogClockProperties] to customize the visual appearance of the clock's
@@ -34,16 +34,16 @@ import kotlin.time.Instant
 @Composable
 fun AnalogClock(
     modifier: Modifier = Modifier,
-    localDateTime: Long,
+    dateTimeMillis: Long,
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
     shape: ClockShape = AnalogClockDefault.shape,
     properties: AnalogClockProperties = AnalogClockDefault.properties(),
     colors: AnalogClockColors = AnalogClockDefault.colors()
 ) {
 
-    val currentDateTime by remember(localDateTime, timeZone) {
+    val currentDateTime by remember(dateTimeMillis, timeZone) {
         derivedStateOf {
-            Instant.fromEpochMilliseconds(localDateTime).toLocalDateTime(timeZone = timeZone)
+            Instant.fromEpochMilliseconds(dateTimeMillis).toLocalDateTime(timeZone = timeZone)
         }
     }
 

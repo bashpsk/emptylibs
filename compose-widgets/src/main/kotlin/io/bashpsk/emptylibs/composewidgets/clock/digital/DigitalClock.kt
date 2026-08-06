@@ -33,7 +33,7 @@ import kotlin.time.Instant
  * A digital clock composable that displays the time.
  *
  * @param modifier The modifier to be applied to the composable.
- * @param localDateTime The local date and time to display, in milliseconds.
+ * @param dateTimeMillis The local date and time to display, in milliseconds.
  * @param timeZone The time zone to use.
  * @param clockPattern The pattern for formatting the time.
  * @param textStyles The styles for the text elements in the clock.
@@ -42,16 +42,16 @@ import kotlin.time.Instant
 @Composable
 fun DigitalClock(
     modifier: Modifier = Modifier,
-    localDateTime: Long,
+    dateTimeMillis: Long,
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     textStyles: DigitalClockTextStyles = DigitalClockDefault.textStyles(),
     disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA
 ) {
 
-    val currentDateTime by remember(localDateTime, timeZone) {
+    val currentDateTime by remember(dateTimeMillis, timeZone) {
         derivedStateOf {
-            Instant.fromEpochMilliseconds(localDateTime).toLocalDateTime(timeZone = timeZone)
+            Instant.fromEpochMilliseconds(dateTimeMillis).toLocalDateTime(timeZone = timeZone)
         }
     }
 
@@ -158,7 +158,7 @@ fun DigitalClock(
  * A digital clock composable that displays the time using a seven-segment display.
  *
  * @param modifier The modifier to be applied to the composable.
- * @param localDateTime The local date and time to display, in milliseconds.
+ * @param dateTimeMillis The local date and time to display, in milliseconds.
  * @param timeZone The time zone to use.
  * @param clockPattern The pattern for formatting the time.
  * @param colors The colors for the seven-segment display.
@@ -167,16 +167,16 @@ fun DigitalClock(
 @Composable
 fun DigitalClock(
     modifier: Modifier = Modifier,
-    localDateTime: Long,
+    dateTimeMillis: Long,
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     colors: SevenSegmentColors = SevenSegmentDefault.colors(),
     properties: SevenSegmentProperties = SevenSegmentDefault.properties()
 ) {
 
-    val currentDateTime by remember(localDateTime, timeZone) {
+    val currentDateTime by remember(dateTimeMillis, timeZone) {
         derivedStateOf {
-            Instant.fromEpochMilliseconds(localDateTime).toLocalDateTime(timeZone = timeZone)
+            Instant.fromEpochMilliseconds(dateTimeMillis).toLocalDateTime(timeZone = timeZone)
         }
     }
 
@@ -205,7 +205,7 @@ fun DigitalClock(
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     colors: SevenSegmentColors = SevenSegmentDefault.colors(),
     properties: SevenSegmentProperties = SevenSegmentDefault.properties(),
-){
+) {
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
         derivedStateOf { localDateTime.toFormattedDateTime(pattern = clockPattern) }

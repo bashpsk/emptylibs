@@ -111,7 +111,7 @@ fun DigitalClockScreen() {
 
                 DigitalClock(
                     modifier = Modifier,
-                    localDateTime = currentDateTime,
+                    dateTimeMillis = currentDateTime,
                     textStyles = DigitalClockDefault.textStyles()
                 )
             }
@@ -123,7 +123,7 @@ fun DigitalClockScreen() {
 
                 DigitalClock(
                     modifier = Modifier,
-                    localDateTime = currentDateTime,
+                    dateTimeMillis = currentDateTime,
                     properties = SevenSegmentDefault.properties()
                 )
             }

@@ -3,6 +3,7 @@ package io.bashpsk.emptylibs.composewidgets.clock.analog
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathMeasure
@@ -318,7 +319,7 @@ private fun Path.getIntersectionOffset(center: Offset, angle: Float, clockRadius
         val distance = (step.toFloat() / pathSegments) * pathMeasure.length
         val point = pathMeasure.getPosition(distance)
 
-        if (point == Offset.Unspecified) continue
+        if (point.isUnspecified) continue
 
         val position = point - center
         val pointAngle = (atan2(position.y, position.x) + 2 * PI).toFloat() % (2 * PI).toFloat()

@@ -87,7 +87,7 @@ fun AnalogClockScreen() {
         borderColor = MaterialTheme.colorScheme.outlineVariant
     )
 
-    RetainedEffect(lifecycleOwner) {
+    RetainedEffect(lifecycleOwner.lifecycle) {
 
         currentTimeJob?.cancel()
 
@@ -153,7 +153,7 @@ fun AnalogClockScreen() {
                     shape = clockShape,
                     properties = properties,
                     colors = colors,
-                    localDateTime = currentDateTime
+                    dateTimeMillis = currentDateTime
                 )
 
 //                Box(modifier = Modifier.fillMaxSize().border(width = 1.dp, Color.Red))
