@@ -76,6 +76,64 @@ fun Float.toRoundedDecimal(fraction: Int = 0): Float {
 }
 
 /**
+ * Rounds a [Double] to a specified number of decimal places and returns it as a [String],
+ * or `null` if an error occurs.
+ *
+ * @param fraction The number of decimal places to round to. Defaults to 0.
+ * @return The rounded value as a [String], or `null` if an exception occurs.
+ */
+@Stable
+fun Double.toRoundedDecimalStringOrNull(fraction: Int = 0): String? {
+
+    return try {
+
+        "%.${fraction}f".format(this)
+    } catch (exception: Exception) {
+
+        Log.e(LOG_TAG, exception.message, exception)
+        null
+    }
+}
+
+/**
+ * Rounds a [Double] to a specified number of decimal places and returns it as a [String].
+ *
+ * @param fraction The number of decimal places to round to. Defaults to 0.
+ * @return The rounded value as a [String], or "0" if an error occurs.
+ */
+@Stable
+fun Double.toRoundedDecimalString(fraction: Int = 0): String {
+
+    return this.toRoundedDecimalStringOrNull(fraction) ?: "0"
+}
+
+/**
+ * Rounds a [Float] to a specified number of decimal places and returns it as a [String],
+ * or `null` if an error occurs.
+ */
+@Stable
+fun Float.toRoundedDecimalStringOrNull(fraction: Int = 0): String? {
+
+    return try {
+
+        "%.${fraction}f".format(this)
+    } catch (exception: Exception) {
+
+        Log.e(LOG_TAG, exception.message, exception)
+        null
+    }
+}
+
+/**
+ * Rounds a [Float] to a specified number of decimal places and returns it as a [String].
+ */
+@Stable
+fun Float.toRoundedDecimalString(fraction: Int = 0): String {
+
+    return this.toRoundedDecimalStringOrNull(fraction) ?: "0"
+}
+
+/**
  * Formats an any [Number] value into a human-readable string with scaling suffixes (K, M, B, etc.).
  *
  * @return A formatted [String] representation of the input value.
