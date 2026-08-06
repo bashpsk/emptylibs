@@ -99,6 +99,14 @@ dependencies {
     implementation("androidx.pdf:pdf-compose:1.0.0-alpha18")
     implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha18")
 
+    implementation("androidx.ink:ink-authoring-compose:1.0.0")
+    implementation("androidx.ink:ink-brush-compose:1.0.0")
+    implementation("androidx.ink:ink-geometry-compose:1.0.0")
+    implementation("androidx.ink:ink-nativeloader:1.0.0")
+    implementation("androidx.ink:ink-rendering:1.0.0")
+    implementation("androidx.ink:ink-storage:1.0.0")
+    implementation("androidx.ink:ink-strokes:1.0.0")
+
     //  MODULE          :
     implementation(project(":animations"))
     implementation(project(":canvas-slate"))
