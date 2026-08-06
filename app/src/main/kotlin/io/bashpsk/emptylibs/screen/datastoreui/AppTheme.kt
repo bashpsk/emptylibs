@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 
 enum class AppTheme {
 
-    SYSTEM,
-    DARK,
-    LIGHT;
+    System,
+    Dark,
+    Light;
 
     companion object {
 
@@ -16,9 +16,9 @@ enum class AppTheme {
 
             return when (valueOf(value = theme)) {
 
-                SYSTEM -> isSystemInDarkTheme()
-                DARK -> true
-                LIGHT -> false
+                System -> isSystemInDarkTheme()
+                Dark -> true
+                Light -> false
             }
         }
     }

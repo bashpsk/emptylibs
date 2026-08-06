@@ -10,6 +10,7 @@ import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.isSpecified
 
 /**
  * Remembers the state of a color picker.
@@ -87,7 +88,7 @@ class KolorPickerState {
      * This value is updated when [selectedColor] changes or when [updateHslA] is called.
      * It can be observed to react to changes in the alpha of the selected color.
      */
-    internal var alphaValue by mutableFloatStateOf(0F)
+    internal var alphaValue by mutableFloatStateOf(1F)
         private set
 
     /**
@@ -100,7 +101,7 @@ class KolorPickerState {
         val hslComponents = color.toHslComponents()
 
         selectedColor = color
-        alphaValue = color.alpha
+        if (color.isSpecified) alphaValue = color.alpha
         hslComponents.getOrNull(0)?.let { value -> hueValue = value }
         hslComponents.getOrNull(1)?.let { value -> saturationValue = value }
         hslComponents.getOrNull(2)?.let { value -> lightnessValue = value }

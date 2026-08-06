@@ -25,8 +25,8 @@ class MainActivity : ComponentActivity() {
 
             val getAppTheme by datastore.getPreference(
                 key = stringPreferencesKey("SINGLE-OPTION-MENU-PREFERENCE"),
-                initial = AppTheme.SYSTEM.name
-            ).collectAsStateWithLifecycle(initialValue = AppTheme.SYSTEM.name)
+                initial = AppTheme.System.name
+            ).collectAsStateWithLifecycle(initialValue = AppTheme.System.name)
 
             CompositionLocalProvider(LocalDatastore provides datastore) {
 

@@ -1,9 +1,6 @@
 package io.bashpsk.emptylibs
 
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,12 +39,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -61,9 +59,10 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
+import io.bashpsk.emptylibs.datastoreui.component.PreferenceTitle
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
-import io.bashpsk.emptylibs.datastoreui.extension.toReverseMap
 import io.bashpsk.emptylibs.datastoreui.preference.CardPreference
 import io.bashpsk.emptylibs.datastoreui.preference.CheckBoxPreference
 import io.bashpsk.emptylibs.datastoreui.preference.ColorPickPreference
@@ -79,6 +78,8 @@ import io.bashpsk.emptylibs.datastoreui.preference.TextFieldPreference
 import io.bashpsk.emptylibs.screen.datastoreui.AppFont
 import io.bashpsk.emptylibs.screen.datastoreui.AppTheme
 import io.bashpsk.emptylibs.screen.datastoreui.datastore2
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableMap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +88,7 @@ fun DatastoreUIScreen() {
     val context = LocalContext.current
     val datastore = LocalDatastore.current
     val datastore2 = context.datastore2
-    val optionMenuVisibleState = remember { MutableTransitionState(initialState = false) }
+    val optionMenuVisibleState = remember { MutableTransitionState(false) }
 
     val getFieldText by datastore.getPreference(
         key = stringPreferencesKey("TEXT-FIELD-PREFERENCE"),
@@ -96,31 +97,25 @@ fun DatastoreUIScreen() {
 
     val getAppTheme by datastore.getPreference(
         key = stringPreferencesKey("SINGLE-OPTION-MENU-PREFERENCE"),
-        initial = AppTheme.SYSTEM.name
-    ).collectAsStateWithLifecycle(initialValue = AppTheme.SYSTEM.name)
+        initial = AppTheme.System.name
+    ).collectAsStateWithLifecycle(initialValue = AppTheme.System.name)
 
-    val getSelectedItem by datastore.getPreference(
-        key = stringSetPreferencesKey("MULTI-OPTION-PREFERENCE"),
-        initial = emptySet()
-    ).collectAsStateWithLifecycle(initialValue = emptySet())
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(getFieldText)) }
 
-    var textFieldValue by remember { mutableStateOf(value = TextFieldValue(text = getFieldText)) }
-
-    val sampleEntities = mapOf("One" to "Kotlin", "Two" to "Bash PSK", "Three" to "Empty Layer")
-    val sampleTwoEntities = mapOf(1 to "Kotlin", 2 to "Bash PSK", 3 to "Empty Layer")
+    val sampleEntities = persistentMapOf(
+        "One" to "Kotlin",
+        "Two" to "Bash PSK",
+        "Three" to "Empty Layer"
+    )
+    val sampleTwoEntities = persistentMapOf(
+        1 to "Kotlin",
+        2 to "Bash PSK",
+        3 to "Empty Layer"
+    )
 
     val themeEntities = AppTheme.entries.associate { theme ->
-
-        theme.name.lowercase().replaceFirstChar { char -> char.uppercaseChar() } to theme.name
-    }
-
-    val reverseEntities by remember(sampleEntities) {
-        derivedStateOf { sampleEntities.toReverseMap() }
-    }
-
-    val summaryItems by remember(getSelectedItem, reverseEntities) {
-        derivedStateOf { getSelectedItem.mapNotNull { item -> reverseEntities[item] } }
-    }
+        theme.name to theme.name
+    }.toImmutableMap()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -161,25 +156,26 @@ fun DatastoreUIScreen() {
                     ) {
 
                         ListOptionMenuPreference(
+                            datastore = null,
                             key = stringPreferencesKey("SINGLE-OPTION-MENU-PREFERENCE"),
-                            initialValue = AppTheme.SYSTEM.name,
+                            initialValue = AppTheme.System.name,
                             entities = themeEntities,
-                            title = "App Theme",
+                            title = { PreferenceTitle(title = "App Theme") },
                             leadingContent = {
 
                                 when (AppTheme.valueOf(getAppTheme)) {
 
-                                    AppTheme.SYSTEM -> Icon(
+                                    AppTheme.System -> Icon(
                                         imageVector = Icons.Filled.BrightnessAuto,
                                         contentDescription = "App Theme"
                                     )
 
-                                    AppTheme.DARK -> Icon(
+                                    AppTheme.Dark -> Icon(
                                         imageVector = Icons.Filled.Brightness2,
                                         contentDescription = "App Theme"
                                     )
 
-                                    AppTheme.LIGHT -> Icon(
+                                    AppTheme.Light -> Icon(
                                         imageVector = Icons.Filled.Brightness6,
                                         contentDescription = "App Theme"
                                     )
@@ -192,9 +188,10 @@ fun DatastoreUIScreen() {
                         )
 
                         SwitchMenuPreference(
+                            datastore = null,
                             key = booleanPreferencesKey("SWITCH-MENU-PREFERENCE"),
                             initialValue = false,
-                            title = "Switch Menu",
+                            title = { PreferenceTitle(title = "Switch Menu") },
                             leadingContent = {
 
                                 Icon(
@@ -228,16 +225,9 @@ fun DatastoreUIScreen() {
             item {
 
                 CardPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
-                    title = "Card Preference",
-                    summary = "Select video download path.",
+                    modifier = Modifier.fillMaxWidth(),
+                    title = { PreferenceTitle(title = "Card Preference") },
+                    summary = { PreferenceSummary(summary = "Select video download path.") },
                     leadingContent = {
 
                         Icon(
@@ -260,19 +250,19 @@ fun DatastoreUIScreen() {
             item {
 
                 CheckBoxPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
                     datastore = datastore2,
                     key = booleanPreferencesKey("CHECK-BOX-PREFERENCE"),
                     initialValue = false,
-                    title = "Check Box Preference",
-                    summary = "Enable the check box preference.",
+                    title = { PreferenceTitle(title = "Check Box Preference") },
+                    summary = { checked ->
+
+                        PreferenceSummary(
+                            summary = "${
+                                if (checked) "Enable" else "Disable"
+                            } the check box preference."
+                        )
+                    },
                     leadingContent = {
 
                         Icon(
@@ -288,42 +278,34 @@ fun DatastoreUIScreen() {
             item {
 
                 ColorPickPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = intPreferencesKey("COLOR-PICK-PREFERENCE"),
-                    title = "Color Picker Preference",
-                    summary = "Select a color for color pick preference.",
+                    title = { PreferenceTitle(title = "Color Picker Preference") },
+                    summary = {
+                        PreferenceSummary(summary = "Select a color for color pick preference.")
+                    },
                     leadingContent = {
 
                         Icon(
                             imageVector = Icons.Filled.Colorize,
                             contentDescription = ""
                         )
-                    },
-                    enableAlphaPanel = true
+                    }
                 )
             }
 
             item {
 
                 ColorPickPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = intPreferencesKey("COLOR-PICK-PREFERENCE-TWO"),
-                    title = "Color Picker Preference Two",
-                    summary = "Select a color for color pick preference two.",
+                    initialValue = Color.Black.toArgb(),
+                    title = { PreferenceTitle(title = "Color Picker Preference") },
+                    summary = {
+                        PreferenceSummary(summary = "Select a color for color pick preference.")
+                    },
                     leadingContent = {
 
                         Icon(
@@ -331,7 +313,7 @@ fun DatastoreUIScreen() {
                             contentDescription = ""
                         )
                     },
-                    enableResetButton = true
+                    enableAlphaPanel = false
                 )
             }
 
@@ -340,19 +322,15 @@ fun DatastoreUIScreen() {
             item {
 
                 DropDownPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = stringPreferencesKey("DROP-DOWN-PREFERENCE"),
                     initialValue = "",
                     entities = sampleEntities,
-                    title = "Drop Down Preference",
-                    summary = "Select one entity from the list.",
+                    title = { PreferenceTitle(title = "Drop Down Preference") },
+                    summary = {
+                        PreferenceSummary(summary = "Select one entity from the list. $it")
+                    },
                     leadingContent = {
 
                         Icon(
@@ -368,18 +346,14 @@ fun DatastoreUIScreen() {
             item {
 
                 FontPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = stringPreferencesKey("FONT-PREFERENCE"),
                     entities = AppFont.fontEntities,
-                    title = "Font Preference",
-                    summary = "Select font from the list.",
+                    title = { PreferenceTitle(title = "Font Preference") },
+                    summary = {
+                        PreferenceSummary(summary = "Select font from the list.", fontFamily = it)
+                    },
                     previewText = "This Font Preference UI. In 2000.",
                     leadingContent = {
 
@@ -388,7 +362,6 @@ fun DatastoreUIScreen() {
                             contentDescription = ""
                         )
                     },
-                    enableResetButton = true
                 )
             }
 
@@ -397,19 +370,15 @@ fun DatastoreUIScreen() {
             item {
 
                 SetOptionPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = stringSetPreferencesKey("MULTI-OPTION-PREFERENCE"),
                     initialValue = emptySet(),
                     entities = sampleTwoEntities,
-                    title = "Multiple Option Selection Preference",
-                    summary = "Select entities from the list. $summaryItems",
+                    title = { PreferenceTitle(title = "Multiple Option Selection Preference") },
+                    summary = {
+                        PreferenceSummary(summary = "Select entities from the list. $it")
+                    },
                     leadingContent = {
 
                         Icon(
@@ -432,19 +401,15 @@ fun DatastoreUIScreen() {
             item {
 
                 ListOptionPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = stringPreferencesKey("SINGLE-OPTION-PREFERENCE"),
                     initialValue = "",
                     entities = sampleEntities,
-                    title = "Single Option Selection Preference",
-                    summary = "Select one entity from the list.",
+                    title = { PreferenceTitle(title = "Single Option Selection Preference") },
+                    summary = {
+                        PreferenceSummary(summary = "Select one entity from the list. $it")
+                    },
                     leadingContent = {
 
                         Icon(
@@ -467,18 +432,12 @@ fun DatastoreUIScreen() {
             item {
 
                 SliderPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = floatPreferencesKey("SLIDER-PREFERENCE"),
                     initialValue = 0.0F,
-                    title = "Slider Preference",
-                    summary = "Adjust slider value.",
+                    title = { PreferenceTitle(title = "Slider Preference") },
+                    summary = { PreferenceSummary(summary = "Adjust slider value.") },
                     leadingContent = {
 
                         Icon(
@@ -486,9 +445,7 @@ fun DatastoreUIScreen() {
                             contentDescription = ""
                         )
                     },
-                    valueRange = 0.0F..1.0F,
-                    isValueVisible = true,
-                    decimalFraction = 1
+                    valueRange = 0.0F..1.0F
                 )
             }
 
@@ -497,18 +454,12 @@ fun DatastoreUIScreen() {
             item {
 
                 SliderPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = floatPreferencesKey("SLIDER-STEP-PREFERENCE"),
                     initialValue = 0.0F,
-                    title = "Slider Step Preference",
-                    summary = "Adjust slider value from 0 to 50.",
+                    title = { PreferenceTitle(title = "Slider Step Preference") },
+                    summary = { PreferenceSummary(summary = "Adjust slider value from 0 to 50.") },
                     leadingContent = {
 
                         Icon(
@@ -516,7 +467,7 @@ fun DatastoreUIScreen() {
                             contentDescription = ""
                         )
                     },
-                    isValueVisible = false,
+                    trailingContent = null,
                     valueRange = 0.0F..50.0F,
                     steps = 9
                 )
@@ -527,18 +478,18 @@ fun DatastoreUIScreen() {
             item {
 
                 SwitchPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = booleanPreferencesKey("SWITCH-PREFERENCE"),
                     initialValue = false,
-                    title = "Switch Preference",
-                    summary = "Enable the switch preference.",
+                    title = { PreferenceTitle(title = "Switch Preference") },
+                    summary = {
+                        PreferenceSummary(
+                            summary = "${
+                                if (it) "Enable" else "Disable"
+                            } the switch preference."
+                        )
+                    },
                     leadingContent = {
 
                         Icon(
@@ -554,17 +505,14 @@ fun DatastoreUIScreen() {
             item {
 
                 TextFieldPreference(
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = tween(durationMillis = 250),
-                        fadeOutSpec = tween(durationMillis = 100),
-                        placementSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                            dampingRatio = Spring.DampingRatioMediumBouncy
-                        )
-                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    datastore = null,
                     key = stringPreferencesKey("TEXT-FIELD-PREFERENCE"),
-                    title = "Text Field Preference",
-                    summary = "Enter a text field preference.",
+                    initialValue = "",
+                    title = { PreferenceTitle(title = "Text Field Preference") },
+                    summary = {
+                        PreferenceSummary(summary = "Enter a text field preference. $it")
+                    },
                     leadingContent = {
 
                         Icon(
@@ -590,10 +538,7 @@ fun DatastoreUIScreen() {
                                 textFieldValue = newInput
                             },
                             singleLine = true,
-                            label = {
-
-                                Text(text = "User Name")
-                            },
+                            label = { Text(text = "User Name") },
                             leadingIcon = {
 
                                 Icon(

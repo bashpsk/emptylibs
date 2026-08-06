@@ -7,11 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
@@ -21,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -30,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -38,10 +33,14 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.bashpsk.emptylibs.datastoreui.component.DialogConfirmButton
+import io.bashpsk.emptylibs.datastoreui.component.DialogResetButton
+import io.bashpsk.emptylibs.datastoreui.component.PreferenceListEntryItem
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
-import io.bashpsk.emptylibs.datastoreui.extension.setPreference
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -50,6 +49,8 @@ import kotlinx.coroutines.launch
  * allowing the user to select one. The selected option is saved to DataStore.
  *
  * @param modifier Modifier to be applied to the drop-down menu.
+ * @param datastore The DataStore instance to use for this preference. If DataStore instance is
+ * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
  * @param key A lambda function that returns the DataStore key for this preference.
  * @param initialValue A lambda function that returns the initial value for this preference.
  * @param entities A lambda function that returns a map of options, where the key is the display
@@ -59,97 +60,79 @@ import kotlinx.coroutines.launch
  * menu item.
  * @param trailingContent A Composable lambda function to display content at the end of the menu
  * item.
+ * @param itemContent Composable lambda for rendering each option in the dialog list.
  * @param colors Colors to be used for the menu item.
- * @param isDismissOnBackPress Whether the dialog should be dismissed when the back button is
- * pressed.
- * @param isDismissOnClickOutside Whether the dialog should be dismissed when clicking outside the
- * dialog.
+ * @param properties The [DialogProperties] to be applied to the option selection dialog.
  * @param onMenuDismiss A lambda function to be called when the dialog is dismissed.
- * @param enableResetButton A lambda function that determines whether a reset button should be shown
- * in the dialog.
- *
- * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
+ * @param confirmButton A Composable lambda function for the confirmation button in the dialog.
+ * @param resetButton A Composable lambda function for the reset button in the dialog,
+ * which provides access to the [CoroutineScope] and [DataStore].
  */
 @Composable
-fun <K, V> ListOptionMenuPreference(
+inline fun <K, V> ListOptionMenuPreference(
     modifier: Modifier = Modifier,
+    datastore: DataStore<Preferences>?,
     key: Preferences.Key<V>,
     initialValue: V,
-    entities: Map<K, V> = emptyMap(),
-    title: String,
-    leadingContent: @Composable (() -> Unit) = {},
-    trailingContent: @Composable (() -> Unit) = {},
+    entities: ImmutableMap<K, V>,
+    noinline title: @Composable () -> Unit,
+    dialogTitle: String = "Select Option",
+    noinline leadingContent: @Composable () -> Unit = {},
+    noinline trailingContent: @Composable () -> Unit = {},
+    crossinline itemContent: @Composable CoroutineScope.(
+        datastore: DataStore<Preferences>,
+        entry: Pair<K, V>,
+        selected: Boolean
+    ) -> Unit = { preferenceDatastore, entryItem, isSelected ->
+
+        PreferenceListEntryItem(
+            modifier = Modifier.fillMaxWidth(),
+            preferenceDatastore = preferenceDatastore,
+            key = key,
+            entryItem = entryItem,
+            isSelected = isSelected
+        )
+    },
     colors: MenuItemColors = MenuDefaults.itemColors(),
-    isDismissOnBackPress: Boolean = true,
-    isDismissOnClickOutside: Boolean = true,
-    onMenuDismiss: () -> Unit = {},
-    enableResetButton: Boolean = false
+    properties: DialogProperties = DialogProperties(
+        usePlatformDefaultWidth = false,
+        dismissOnBackPress = true,
+        dismissOnClickOutside = false
+    ),
+    noinline onMenuDismiss: () -> Unit = {},
+    crossinline confirmButton: @Composable (
+        state: MutableTransitionState<Boolean>
+    ) -> Unit = { state ->
+
+        DialogConfirmButton {
+
+            state.targetState = false
+            onMenuDismiss()
+        }
+    },
+    crossinline resetButton: @Composable CoroutineScope.(
+        datastore: DataStore<Preferences>,
+        state: MutableTransitionState<Boolean>
+    ) -> Unit = { preferenceDatastore, state ->
+
+        DialogResetButton {
+
+            launch(context = Dispatchers.IO) {
+
+                preferenceDatastore.resetPreference(key = key)
+            }
+
+            state.targetState = false
+            onMenuDismiss()
+        }
+    }
 ) {
 
-    val datastore = LocalDatastore.current
-
-    ListOptionMenuPreference(
-        modifier = modifier,
-        datastore = datastore,
-        key = key,
-        initialValue = initialValue,
-        entities = entities,
-        title = title,
-        leadingContent = leadingContent,
-        trailingContent = trailingContent,
-        colors = colors,
-        isDismissOnBackPress = isDismissOnBackPress,
-        isDismissOnClickOutside = isDismissOnClickOutside,
-        onMenuDismiss = onMenuDismiss,
-        enableResetButton = enableResetButton
-    )
-}
-
-/**
- * A Composable function that displays a list of options in a drop-down menu items,
- * allowing the user to select one. The selected option is saved to DataStore.
- *
- * @param modifier Modifier to be applied to the drop-down menu.
- * @param datastore The DataStore instance to use for this preference.
- * @param key A lambda function that returns the DataStore key for this preference.
- * @param initialValue A lambda function that returns the initial value for this preference.
- * @param entities A lambda function that returns a map of options, where the key is the display
- * name and the value is the actual value to be stored.
- * @param title A lambda function that returns the title to be displayed for the preference.
- * @param leadingContent A Composable lambda function to display content at the beginning of the
- * menu item.
- * @param trailingContent A Composable lambda function to display content at the end of the menu
- * item.
- * @param colors Colors to be used for the menu item.
- * @param isDismissOnBackPress Whether the dialog should be dismissed when the back button is
- * pressed.
- * @param isDismissOnClickOutside Whether the dialog should be dismissed when clicking outside the
- * dialog.
- * @param onMenuDismiss A lambda function to be called when the dialog is dismissed.
- * @param enableResetButton A lambda function that determines whether a reset button should be shown
- * in the dialog.
- */
-@Composable
-fun <K, V> ListOptionMenuPreference(
-    modifier: Modifier = Modifier,
-    datastore: DataStore<Preferences>,
-    key: Preferences.Key<V>,
-    initialValue: V,
-    entities: Map<K, V> = emptyMap(),
-    title: String,
-    leadingContent: @Composable (() -> Unit) = {},
-    trailingContent: @Composable (() -> Unit) = {},
-    colors: MenuItemColors = MenuDefaults.itemColors(),
-    isDismissOnBackPress: Boolean = true,
-    isDismissOnClickOutside: Boolean = true,
-    onMenuDismiss: () -> Unit = {},
-    enableResetButton: Boolean = false
-) {
-
+    val preferenceDatastore = datastore ?: LocalDatastore.current
     val coroutineScope = rememberCoroutineScope()
     val dialogVisibleState = remember { MutableTransitionState(false) }
 
-    val getSelectedItem by datastore.getPreference(
+    val currentValue by preferenceDatastore.getPreference(
         key = key,
         initial = initialValue
     ).collectAsStateWithLifecycle(initialValue = initialValue)
@@ -167,11 +150,7 @@ fun <K, V> ListOptionMenuPreference(
                 dialogVisibleState.targetState = false
                 onMenuDismiss()
             },
-            properties = DialogProperties(
-                usePlatformDefaultWidth = false,
-                dismissOnBackPress = isDismissOnBackPress,
-                dismissOnClickOutside = isDismissOnClickOutside
-            ),
+            properties = properties,
             shape = MaterialTheme.shapes.small,
             title = {
 
@@ -183,7 +162,7 @@ fun <K, V> ListOptionMenuPreference(
 
                     Text(
                         modifier = Modifier.weight(weight = 1.0F),
-                        text = title,
+                        text = dialogTitle,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
                         style = MaterialTheme.typography.titleMedium,
@@ -218,83 +197,23 @@ fun <K, V> ListOptionMenuPreference(
                         key = { entryItem -> entryItem.first.toString() }
                     ) { entryItem ->
 
-                        val isSelected by remember(getSelectedItem, entryItem) {
-                            derivedStateOf { getSelectedItem == entryItem.second }
+                        val isSelected by remember(currentValue, entryItem) {
+                            derivedStateOf { currentValue == entryItem.second }
                         }
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = isSelected,
-                                    role = Role.RadioButton,
-                                    onClick = {
-
-                                        coroutineScope.launch(context = Dispatchers.IO) {
-
-                                            datastore.setPreference(
-                                                key = key,
-                                                value = entryItem.second
-                                            )
-                                        }
-                                    }
-                                )
-                                .padding(all = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            RadioButton(selected = isSelected, onClick = null)
-
-                            Text(
-                                text = "${entryItem.first}",
-                                textAlign = TextAlign.Start,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
+                        coroutineScope.itemContent(preferenceDatastore, entryItem, isSelected)
                     }
                 }
             },
-            confirmButton = {
-
-                when (enableResetButton) {
-
-                    true -> PreferenceDialogButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onDoneClick = {
-
-                            dialogVisibleState.targetState = false
-                            onMenuDismiss()
-                        },
-                        onResetClick = {
-
-                            coroutineScope.launch(context = Dispatchers.IO) {
-
-                                datastore.resetPreference(key = key)
-                            }
-                        }
-                    )
-
-                    false -> PreferenceDialogButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onDoneClick = {
-
-                            dialogVisibleState.targetState = false
-                            onMenuDismiss()
-                        }
-                    )
-                }
-            }
+            confirmButton = { confirmButton(dialogVisibleState) },
+            dismissButton = { coroutineScope.resetButton(preferenceDatastore, dialogVisibleState) }
         )
     }
 
     DropdownMenuItem(
         modifier = modifier,
         colors = colors,
-        text = {
-
-            PreferenceTitle(modifier = Modifier.wrapContentWidth(), title = title)
-        },
+        text = title,
         leadingIcon = leadingContent,
         trailingIcon = trailingContent,
         onClick = {

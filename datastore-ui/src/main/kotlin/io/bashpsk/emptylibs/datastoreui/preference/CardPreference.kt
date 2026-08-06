@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.datastoreui.preference
 
-import androidx.annotation.FloatRange
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
@@ -9,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
-import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
+import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
 
 /**
  * A Composable function that displays a card-style preference item.
@@ -22,31 +21,27 @@ import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
  * preference.
  * @param summary A lambda function that returns the string to be displayed as the summary or
  * description below the title. Defaults to an empty string if not provided.
- * @param leadingContent A Composable lambda function that defines the content to be displayed at the
- * beginning of the preference item (e.g., an icon). Defaults to an empty Composable.
- * @param trailingContent A Composable lambda function that defines the content to be displayed at the
- * end of the preference item (e.g., a switch or a chevron). Defaults to an empty Composable.
+ * @param leadingContent A Composable lambda function that defines the content to be displayed at
+ * the beginning of the preference item (e.g., an icon). Defaults to an empty Composable.
+ * @param trailingContent A Composable lambda function that defines the content to be displayed at
+ * the end of the preference item (e.g., a switch or a chevron). Defaults to an empty Composable.
  * @param colors [ListItemColors] to be used for this list item.
  * @param tonalElevation The tonal elevation of this list item.
  * @param shadowElevation The shadow elevation of this list item.
  * @param onClick A lambda function to be executed when the preference item is clicked. Defaults to
  * an empty lambda.
- * @param summaryAlpha A float value between 0.0 and 1.0 (inclusive) that controls the alpha
- * (opacity) of the summary text. Defaults to [DatastoreUIDefaults.SUMMARY_ALPHA].
  */
 @Composable
 fun CardPreference(
     modifier: Modifier = Modifier,
-    title:  String,
-    summary: String = "",
-    leadingContent: @Composable (() -> Unit) = {},
-    trailingContent: @Composable (() -> Unit) = {},
+    title: @Composable () -> Unit,
+    summary: @Composable () -> Unit = { PreferenceSummary() },
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
     shadowElevation: Dp = ListItemDefaults.Elevation,
-    onClick: () -> Unit = {},
-    @FloatRange(from = 0.0, to = 1.0)
-    summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA
+    onClick: () -> Unit = {}
 ) {
 
     ListItem(
@@ -56,13 +51,7 @@ fun CardPreference(
         shadowElevation = shadowElevation,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        headlineContent = {
-
-            PreferenceTitle(title = title)
-        },
-        supportingContent = {
-
-            PreferenceSummary(summary = summary, alpha = summaryAlpha)
-        }
+        headlineContent = title,
+        supportingContent = summary
     )
 }

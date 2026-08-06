@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.datastoreui.preference
 
-import androidx.annotation.FloatRange
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.clickable
@@ -41,13 +40,16 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.bashpsk.emptylibs.datastoreui.component.DialogConfirmButton
+import io.bashpsk.emptylibs.datastoreui.component.DialogResetButton
+import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
 import io.bashpsk.emptylibs.datastoreui.extension.setPreference
 import io.bashpsk.emptylibs.datastoreui.font.FontPreferenceItem
-import io.bashpsk.emptylibs.datastoreui.resources.DatastoreUIDefaults
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -57,6 +59,8 @@ import kotlinx.coroutines.launch
  * The selected font label is persisted in the DataStore.
  *
  * @param modifier The [Modifier] to be applied to the preference item.
+ * @param datastore The DataStore instance to use for this preference. If DataStore instance is
+ * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
  * @param key The [Preferences.Key] used to store the selected font label.
  * @param entities An [ImmutableList] of [FontPreferenceItem] containing font resources and labels.
  * @param title The title text for the preference item.
@@ -67,117 +71,75 @@ import kotlinx.coroutines.launch
  * @param colors [ListItemColors] to be used for the preference item.
  * @param tonalElevation The tonal elevation of the preference item.
  * @param shadowElevation The shadow elevation of the preference item.
- * @param isDismissOnBackPress Whether the dialog can be dismissed by pressing the back button.
- * @param isDismissOnClickOutside Whether the dialog can be dismissed by clicking outside.
- * @param summaryAlpha The alpha value applied to the summary text.
- * @param enableResetButton Whether to show a reset button in the selection dialog.
- *
- * @note This version requires [LocalDatastore] to be provided via `CompositionLocalProvider`.
+ * @param properties The [DialogProperties] to be applied to the font selection dialog.
+ * @param confirmButton A Composable lambda function for the confirmation button in the dialog.
+ * @param resetButton A Composable lambda function for the reset button in the dialog,
+ * which provides access to the [CoroutineScope] and [DataStore].
  */
 @Composable
-fun FontPreference(
+inline fun FontPreference(
     modifier: Modifier = Modifier,
+    datastore: DataStore<Preferences>?,
     key: Preferences.Key<String>,
     entities: ImmutableList<FontPreferenceItem>,
-    title: String,
-    summary: String = "",
-    previewText: String = "This is sample text. Time: 03:33.069 AM",
-    leadingContent: @Composable (() -> Unit) = {},
-    trailingContent: @Composable (() -> Unit) = {},
+    noinline title: @Composable () -> Unit,
+    crossinline summary: @Composable (font: FontFamily) -> Unit = { font ->
+
+        PreferenceSummary(fontFamily = font)
+    },
+    dialogTitle: String = "Select Font",
+    previewText: String = "This is sample text. Time is 03:33 AM",
+    noinline leadingContent: @Composable () -> Unit = {},
+    noinline trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     tonalElevation: Dp = ListItemDefaults.Elevation,
     shadowElevation: Dp = ListItemDefaults.Elevation,
-    isDismissOnBackPress: Boolean = true,
-    isDismissOnClickOutside: Boolean = true,
-    @FloatRange(from = 0.0, to = 1.0)
-    summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
-    enableResetButton: Boolean = false
+    properties: DialogProperties = DialogProperties(
+        usePlatformDefaultWidth = false,
+        dismissOnBackPress = true,
+        dismissOnClickOutside = false
+    ),
+    crossinline confirmButton: @Composable (state: MutableTransitionState<Boolean>) -> Unit = { state ->
+
+        DialogConfirmButton { state.targetState = false }
+    },
+    crossinline resetButton: @Composable CoroutineScope.(
+        datastore: DataStore<Preferences>,
+        state: MutableTransitionState<Boolean>
+    ) -> Unit = { preferenceDatastore, state ->
+
+        DialogResetButton {
+
+            launch(context = Dispatchers.IO) {
+
+                preferenceDatastore.resetPreference(key = key)
+            }
+
+            state.targetState = false
+        }
+    }
 ) {
 
-    val datastore = LocalDatastore.current
-
-    FontPreference(
-        modifier = modifier,
-        datastore = datastore,
-        key = key,
-        entities = entities,
-        title = title,
-        summary = summary,
-        previewText = previewText,
-        leadingContent = leadingContent,
-        trailingContent = trailingContent,
-        colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        isDismissOnBackPress = isDismissOnBackPress,
-        isDismissOnClickOutside = isDismissOnClickOutside,
-        summaryAlpha = summaryAlpha,
-        enableResetButton = enableResetButton
-    )
-}
-
-/**
- * A Composable function that displays a font preference item using the [LocalDatastore].
- * This preference allows the user to select a font from a list of available [entities].
- * The selected font label is persisted in the DataStore.
- *
- * @param modifier The [Modifier] to be applied to the preference item.
- * @param datastore The [DataStore] instance to be used for preference management.
- * @param key The [Preferences.Key] used to store the selected font label.
- * @param entities An [ImmutableList] of [FontPreferenceItem] containing font resources and labels.
- * @param title The title text for the preference item.
- * @param summary The summary text for the preference item.
- * @param previewText The sample text displayed in the selection dialog to preview different fonts.
- * @param leadingContent An optional Composable to be displayed at the start of the item.
- * @param trailingContent An optional Composable to be displayed at the end of the item.
- * @param colors [ListItemColors] to be used for the preference item.
- * @param tonalElevation The tonal elevation of the preference item.
- * @param shadowElevation The shadow elevation of the preference item.
- * @param isDismissOnBackPress Whether the dialog can be dismissed by pressing the back button.
- * @param isDismissOnClickOutside Whether the dialog can be dismissed by clicking outside.
- * @param summaryAlpha The alpha value applied to the summary text.
- * @param enableResetButton Whether to show a reset button in the selection dialog.
- *
- * Note: Must be provided `LocalDatastore` using `CompositionLocalProvider`.
- */
-@Composable
-fun FontPreference(
-    modifier: Modifier = Modifier,
-    datastore: DataStore<Preferences>,
-    key: Preferences.Key<String>,
-    entities: ImmutableList<FontPreferenceItem>,
-    title: String,
-    summary: String = "",
-    previewText: String = "This is sample text. Time - 3:33 AM",
-    leadingContent: @Composable (() -> Unit) = {},
-    trailingContent: @Composable (() -> Unit) = {},
-    colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
-    isDismissOnBackPress: Boolean = true,
-    isDismissOnClickOutside: Boolean = true,
-    @FloatRange(from = 0.0, to = 1.0)
-    summaryAlpha: Float = DatastoreUIDefaults.SUMMARY_ALPHA,
-    enableResetButton: Boolean = false
-) {
-
+    val preferenceDatastore = datastore ?: LocalDatastore.current
     val coroutineScope = rememberCoroutineScope()
 
-    val getSelectedItem by datastore.getPreference(
+    val currentValue by preferenceDatastore.getPreference(
         key = key,
         entities = entities
     ).collectAsStateWithLifecycle(initialValue = null)
 
     val dialogVisibleState = remember { MutableTransitionState(false) }
 
-    val selectedFontRes by remember(getSelectedItem) {
+    val currentFontFamily by remember(currentValue) {
         derivedStateOf {
-            getSelectedItem?.resId?.let { fontRes ->
+            currentValue?.resId?.let { fontRes ->
 
                 FontFamily(Font(resId = fontRes))
             } ?: FontFamily.Default
         }
     }
+
+    val onClick = remember { { dialogVisibleState.targetState = true } }
 
     AnimatedVisibility(visibleState = dialogVisibleState) {
 
@@ -187,11 +149,7 @@ fun FontPreference(
 
                 dialogVisibleState.targetState = false
             },
-            properties = DialogProperties(
-                usePlatformDefaultWidth = false,
-                dismissOnBackPress = isDismissOnBackPress,
-                dismissOnClickOutside = isDismissOnClickOutside
-            ),
+            properties = properties,
             shape = MaterialTheme.shapes.small,
             titleContentColor = AlertDialogDefaults.titleContentColor,
             containerColor = AlertDialogDefaults.containerColor.copy(alpha = 0.70f),
@@ -207,7 +165,7 @@ fun FontPreference(
 
                     Text(
                         modifier = Modifier.weight(weight = 1.0F),
-                        text = title,
+                        text = dialogTitle,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
                         style = MaterialTheme.typography.titleMedium,
@@ -241,8 +199,8 @@ fun FontPreference(
                         key = { fontItem -> fontItem.label }
                     ) { fontItem ->
 
-                        val isSelected by remember(getSelectedItem, fontItem) {
-                            derivedStateOf { getSelectedItem?.label == fontItem.label }
+                        val isSelected by remember(currentValue, fontItem) {
+                            derivedStateOf { currentValue?.label == fontItem.label }
                         }
 
                         Row(
@@ -255,7 +213,7 @@ fun FontPreference(
 
                                         coroutineScope.launch(context = Dispatchers.IO) {
 
-                                            datastore.setPreference(
+                                            preferenceDatastore.setPreference(
                                                 key = key,
                                                 value = fontItem.label
                                             )
@@ -279,62 +237,19 @@ fun FontPreference(
                     }
                 }
             },
-            confirmButton = {
-
-                when (enableResetButton) {
-
-                    true -> PreferenceDialogButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onDoneClick = {
-
-                            dialogVisibleState.targetState = false
-                        },
-                        onResetClick = {
-
-                            coroutineScope.launch(context = Dispatchers.IO) {
-
-                                datastore.resetPreference(key = key)
-                            }
-                        }
-                    )
-
-                    false -> PreferenceDialogButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        onDoneClick = {
-
-                            dialogVisibleState.targetState = false
-                        }
-                    )
-                }
-            }
+            confirmButton = { confirmButton(dialogVisibleState) },
+            dismissButton = { coroutineScope.resetButton(preferenceDatastore, dialogVisibleState) }
         )
     }
 
     ListItem(
-        modifier = modifier
-            .clickable(
-                role = Role.Button,
-                onClick = {
-
-                    dialogVisibleState.targetState = true
-                }
-            ),
+        modifier = modifier.clickable(role = Role.Button, onClick = onClick),
         colors = colors,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        headlineContent = {
-
-            PreferenceTitle(title = title)
-        },
-        supportingContent = {
-
-            PreferenceSummary(
-                summary = summary,
-                alpha = summaryAlpha,
-                fontFamily = selectedFontRes
-            )
-        }
+        headlineContent = title,
+        supportingContent = { summary(currentFontFamily) }
     )
 }

@@ -15,7 +15,7 @@ package io.bashpsk.emptylibs.datastoreui.extension
  *
  * @return A new map with keys and values swapped.
  */
-fun <K, V> Map<K, V>.toReverseMap(): Map<V, K> {
+fun <K, V> Map<K, V>.toSwappedMap(): Map<V, K> {
 
     return entries.associateBy({ it.value }, { it.key })
 }

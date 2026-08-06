@@ -69,7 +69,7 @@ import androidx.compose.ui.window.DialogProperties
 import io.bashpsk.emptylibs.canvasslate.extension.toStrokeCap
 import io.bashpsk.emptylibs.canvasslate.extension.toStrokeJoin
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
-import io.bashpsk.emptylibs.formatter.format.toRoundedDecimal
+import io.bashpsk.emptylibs.formatter.format.toRoundedDecimalString
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 import kotlinx.collections.immutable.persistentListOf
@@ -511,7 +511,9 @@ private fun BrushThicknessSelectionView(
 ) {
 
     val selectedThickness by remember(penThickness) {
-        derivedStateOf { "Brush Thickness - ${penThickness.toRoundedDecimal(fraction = 1)} Px" }
+        derivedStateOf {
+            "Brush Thickness - ${penThickness.toRoundedDecimalString(fraction = 1)} Px"
+        }
     }
 
     Column(
