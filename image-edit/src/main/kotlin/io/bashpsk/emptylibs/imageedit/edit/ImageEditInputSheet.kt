@@ -82,7 +82,6 @@ import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.toBitmap
-import io.bashpsk.emptylibs.composeutils.shape.BasicPathShapes
 import io.bashpsk.emptylibs.composeutils.shape.PathShape
 import io.bashpsk.emptylibs.composeutils.shape.toLabel
 import io.bashpsk.emptylibs.formatter.format.toRoundedDecimal
@@ -616,7 +615,7 @@ private fun InputEditImage(state: ImageEditState) {
                     )
                 ),
                 imageShape = state.imageEditInput.shape,
-                imageShapeList = BasicPathShapes,
+                imageShapeList = PathShape.BasicPathShapes,
                 onShapeChange = { newShape ->
 
                     state.apply {
@@ -803,7 +802,7 @@ private fun InputEditShape(state: ImageEditState) {
                     )
                 ),
                 imageShape = state.shapeEditInput.shape,
-                imageShapeList = BasicPathShapes,
+                imageShapeList = PathShape.BasicPathShapes,
                 onShapeChange = { newShape ->
 
                     state.apply {

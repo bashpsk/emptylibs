@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.composeutils.shape.BasicPathShapes
+import io.bashpsk.emptylibs.composeutils.shape.PathShape
 import io.bashpsk.emptylibs.composeutils.shape.toLabel
 import io.bashpsk.emptylibs.composeutils.shape.toPath
 
@@ -28,7 +28,7 @@ fun PathShapeScreen() {
             verticalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
 
-            items(items = BasicPathShapes) { pathShape ->
+            items(items = PathShape.BasicPathShapes) { pathShape ->
 
                 Canvas(
                     modifier = Modifier

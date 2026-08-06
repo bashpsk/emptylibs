@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import io.bashpsk.emptylibs.composeutils.shape.BasicPathShapes
 import io.bashpsk.emptylibs.composeutils.shape.PathShape
 import io.bashpsk.emptylibs.imagekrop.crop.KropCorner.Companion.hasCornerCenter
 import io.bashpsk.emptylibs.imagekrop.offset.coerceAtLeast
@@ -69,10 +68,10 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
     /**
      * A persistent list of [PathShape] objects available for cropping.
      * This list defines the different shapes that can be used for the crop area.
-     * It is initialized with [BasicPathShapes].
+     * It is initialized with [PathShape.BasicPathShapes].
      * The list can be updated using the [updateShapeList] function.
      */
-    var shapeList: PersistentList<PathShape> = BasicPathShapes
+    var shapeList: PersistentList<PathShape> = PathShape.BasicPathShapes
 
     /**
      * The original image bitmap that is being cropped.
@@ -1197,7 +1196,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
     internal fun clearState() {
 
-        shapeList = BasicPathShapes
+        shapeList = PathShape.BasicPathShapes
         originalImage = imageBitmap
         modifiedImage = null
         previewImage = null

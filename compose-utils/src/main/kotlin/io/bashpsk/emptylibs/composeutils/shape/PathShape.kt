@@ -2,6 +2,7 @@ package io.bashpsk.emptylibs.composeutils.shape
 
 import android.os.Parcelable
 import androidx.compose.runtime.Stable
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
@@ -63,4 +64,34 @@ sealed class PathShape : Parcelable {
      * (outerRadius / innerRadius).
      */
     data class Star(val edges: Int, val distance: Float) : PathShape()
+
+    companion object {
+
+        /**
+         * A predefined list of basic shapes that can be used as defaults or examples.
+         *
+         * This collection includes common geometric shapes like circles and triangles,
+         * along with parameterized shapes like polygons and stars.
+         *
+         * The list contains:
+         * - [PathShape.None]: Represents the full rectangular bounds.
+         * - [PathShape.Circle]: A circular shape fitting the bounds.
+         * - [PathShape.Triangle]: An isosceles triangle pointing upwards.
+         * - [PathShape.Polygon]: A regular pentagon(5 sides).
+         * - [PathShape.Polygon]: A regular hexagon(6 sides).
+         * - [PathShape.Rectangle]: A rounded rectangle with a 15% corner radius.
+         * - [PathShape.CutCorner]: A cut-corner rectangle with a 15% corner radius.
+         * - [PathShape.Star]: A 5-pointed star with a 2.5 distance ratio.
+         */
+        val BasicPathShapes = persistentListOf(
+            None,
+            Circle,
+            Triangle,
+            Polygon(sides = 5),
+            Polygon(sides = 6),
+            Rectangle(radius = 0.15F),
+            CutCorner(radius = 0.15F),
+            Star(edges = 5, distance = 2.5F)
+        )
+    }
 }
