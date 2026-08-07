@@ -22,6 +22,7 @@ fun File.fileLengthOrNull(): Long? {
 
     return try {
 
+        if (!exists()) throw NoSuchFileException(this)
         length()
     } catch (exception: Exception) {
 
