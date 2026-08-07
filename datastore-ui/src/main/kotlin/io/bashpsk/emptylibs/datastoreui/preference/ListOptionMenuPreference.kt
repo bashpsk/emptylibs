@@ -49,13 +49,15 @@ import kotlinx.coroutines.launch
  * allowing the user to select one. The selected option is saved to DataStore.
  *
  * @param modifier Modifier to be applied to the drop-down menu.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A lambda function that returns the DataStore key for this preference.
- * @param initialValue A lambda function that returns the initial value for this preference.
- * @param entities A lambda function that returns a map of options, where the key is the display
- * name and the value is the actual value to be stored.
- * @param title A lambda function that returns the title to be displayed for the preference.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The DataStore [Preferences.Key] for this preference.
+ * @param initialValue The initial value for this preference.
+ * @param entities An [ImmutableMap] of options, where the key is the display name and the value is
+ * the actual value to be stored.
+ * @param title A Composable lambda function that defines the title to be displayed for the
+ * preference.
+ * @param dialogTitle The title displayed in the selection dialog.
  * @param leadingContent A Composable lambda function to display content at the beginning of the
  * menu item.
  * @param trailingContent A Composable lambda function to display content at the end of the menu

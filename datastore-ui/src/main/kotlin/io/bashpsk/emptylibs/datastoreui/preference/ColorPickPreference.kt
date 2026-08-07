@@ -39,26 +39,28 @@ import kotlinx.coroutines.launch
  * This preference item allows the user to select a color, which is then stored in DataStore.
  *
  * @param modifier The modifier to be applied to the preference item.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A function that returns the DataStore key for storing the selected color.
- * @param initialValue A function that returns the initial color value. Defaults to an unspecified
- * color.
- * @param title A function that returns the title of the preference item.
- * @param summary A function that returns the summary text for the preference item. Defaults to an
- * empty string.
- * @param leadingContent A composable function to display content at the beginning of the preference
- * item.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The DataStore [Preferences.Key] for storing the selected color.
+ * @param initialValue The initial color value. Defaults to [Color.Unspecified].
+ * @param title A Composable lambda function that defines the title of the preference item.
+ * @param summary A Composable lambda function that defines the summary text for the preference
+ * item, which can depend on the current argb color value. Defaults to [PreferenceSummary].
+ * @param leadingContent A Composable lambda function to display content at the beginning of the
+ * preference item.
+ * @param trailingContent A Composable lambda function to display content at the end of the
+ * preference item, which can depend on the current argb color value. Defaults to
+ * [PreferenceColorPreviewBox].
  * @param colors The colors to be used for the list item. Defaults to [ListItemDefaults.colors].
  * @param tonalElevation The tonal elevation of the list item. Defaults to
  * [ListItemDefaults.Elevation].
  * @param shadowElevation The shadow elevation of the list item. Defaults to
  * [ListItemDefaults.Elevation].
  * @param enableAlphaPanel Whether to enable the alpha panel in the color picker.
- * Defaults to false.
+ * Defaults to `true`.
  * @param enableCopyPasteButton Whether to enable the copy & paste buttons in the color picker.
- * Defaults to true.
- * @param resetButton A composable lambda defining the dismiss/secondary action button in the
+ * Defaults to `true`.
+ * @param resetButton A Composable lambda defining the dismiss/secondary action button in the
  * dialog. Defaults to a reset button that clears the preference key.
  */
 @Composable

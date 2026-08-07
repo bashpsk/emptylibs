@@ -43,17 +43,18 @@ import kotlinx.coroutines.launch
  * The selected value is stored in and retrieved from DataStore.
  *
  * @param modifier Optional [Modifier] for this Composable.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A lambda function that returns the [Preferences.Key] for storing the float value.
- * @param initialValue A lambda function that returns the initial float value if no value is found
- * in DataStore. Defaults to `0.0F`.
- * @param title A lambda function that returns the title of the preference.
- * @param summary A lambda function that returns a brief summary or description of the preference.
- * Defaults to an empty string.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The [Preferences.Key] for storing the float value.
+ * @param initialValue The initial float value if no value is found in DataStore.
+ * Defaults to `0.0F`.
+ * @param title A Composable lambda function that defines the title of the preference.
+ * @param summary A Composable lambda function that defines a brief summary or description of the
+ * preference, which can depend on the current slider position. Defaults to an empty Composable.
  * @param leadingContent A Composable lambda for content to be displayed at the leading edge of the
  * preference item. Defaults to an empty Composable.
- * @param trailingContent A Composable lambda for displaying content at the end of the list item.
+ * @param trailingContent A Composable lambda for displaying content at the end of the list item,
+ * which can depend on the current slider position.
  * @param colors [ListItemColors] to be used for this preference item. Defaults to
  * [ListItemDefaults.colors].
  * @param tonalElevation The tonal elevation of this preference item. Defaults to

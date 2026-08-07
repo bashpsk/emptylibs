@@ -44,13 +44,15 @@ import kotlinx.coroutines.launch
 /**
  * Composable function for a text field preference item.
  *
+ * @param V The type of the value stored in the preference.
  * @param modifier Modifier for styling the preference item.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key Lambda function that returns the Preferences.Key for the preference.
- * @param initialValue A lambda function that returns the initial value for this preference.
- * @param title Lambda function that returns the title of the preference.
- * @param summary Lambda function that returns the summary of the preference.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The [Preferences.Key] for the preference.
+ * @param initialValue The initial value for this preference.
+ * @param title A Composable lambda function that defines the title of the preference.
+ * @param summary A Composable lambda function that defines the summary of the preference,
+ * which can depend on the current item value. Defaults to an empty Composable.
  * @param dialogTitle A title for option selection dialog.
  * @param leadingContent Composable content to be displayed at the leading edge of the preference
  * item.

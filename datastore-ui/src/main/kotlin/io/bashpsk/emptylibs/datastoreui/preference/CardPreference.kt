@@ -17,10 +17,9 @@ import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
  * with a title, an optional summary, optional leading and trailing content, and click handling.
  *
  * @param modifier Optional [Modifier] for theming and behavior of this preference.
- * @param title A lambda function that returns the string to be displayed as the main title of the
- * preference.
- * @param summary A lambda function that returns the string to be displayed as the summary or
- * description below the title. Defaults to an empty string if not provided.
+ * @param title A Composable lambda function that defines the main title of the preference.
+ * @param summary A Composable lambda function that defines the summary or description below the
+ * title. Defaults to [PreferenceSummary].
  * @param leadingContent A Composable lambda function that defines the content to be displayed at
  * the beginning of the preference item (e.g., an icon). Defaults to an empty Composable.
  * @param trailingContent A Composable lambda function that defines the content to be displayed at

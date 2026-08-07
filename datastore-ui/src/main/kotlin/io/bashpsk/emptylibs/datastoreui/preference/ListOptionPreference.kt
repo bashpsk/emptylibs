@@ -52,15 +52,15 @@ import kotlinx.coroutines.launch
  * option is saved to DataStore.
  *
  * @param modifier Modifier to be applied to the underlying `ListItem`.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A lambda function that returns the [Preferences.Key] for this preference.
- * @param initialValue A lambda function that returns the initial value for this preference.
- * @param entities A lambda function that returns a [Map] of options, where the key (`K`)
- * is typically the display name and the value (`V`) is the value to be stored.
- * @param title A lambda function that returns the title of the preference.
- * @param summary A lambda function that returns the summary text for the preference.
- * Defaults to an empty string.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The [Preferences.Key] for this preference.
+ * @param initialValue The initial value for this preference.
+ * @param entities An [ImmutableMap] of options, where the key (`K`) is typically the display name
+ * and the value (`V`) is the value to be stored.
+ * @param title A Composable lambda function that defines the title of the preference.
+ * @param summary A Composable lambda function that defines the summary text for the preference,
+ * which can depend on the current selected item. Defaults to an empty Composable.
  * @param dialogTitle A title for option selection dialog.
  * @param leadingContent A Composable lambda for displaying content at the beginning of the list
  * item. Defaults to an empty Composable.
@@ -108,7 +108,9 @@ inline fun <K, V> ListOptionPreference(
         dismissOnBackPress = true,
         dismissOnClickOutside = false
     ),
-    crossinline confirmButton: @Composable (state: MutableTransitionState<Boolean>) -> Unit = { state ->
+    crossinline confirmButton: @Composable (
+        state: MutableTransitionState<Boolean>
+    ) -> Unit = { state ->
 
         DialogConfirmButton { state.targetState = false }
     },

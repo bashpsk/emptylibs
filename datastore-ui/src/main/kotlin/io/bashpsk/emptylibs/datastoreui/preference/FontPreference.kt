@@ -59,12 +59,14 @@ import kotlinx.coroutines.launch
  * The selected font label is persisted in the DataStore.
  *
  * @param modifier The [Modifier] to be applied to the preference item.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
  * @param key The [Preferences.Key] used to store the selected font label.
  * @param entities An [ImmutableList] of [FontPreferenceItem] containing font resources and labels.
- * @param title The title text for the preference item.
- * @param summary The summary text for the preference item.
+ * @param title A Composable lambda function that defines the title text for the preference item.
+ * @param summary A Composable lambda function that defines the summary text for the preference
+ * item, which can depend on the current [font] family. Defaults to [PreferenceSummary].
+ * @param dialogTitle The title displayed in the font selection dialog.
  * @param previewText The sample text displayed in the selection dialog to preview different fonts.
  * @param leadingContent An optional Composable to be displayed at the start of the item.
  * @param trailingContent An optional Composable to be displayed at the end of the item.

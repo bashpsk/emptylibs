@@ -53,16 +53,16 @@ import kotlinx.coroutines.launch
  *
  * @param K The type of the key for the entities map.
  * @param modifier Optional [Modifier] for the preference item.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A lambda function that returns the [Preferences.Key] for storing the selected set of
- * strings.
- * @param initialValue A lambda function that returns the initial set of selected string values.
- * @param entities A lambda function that returns a map of options, where the key is of type [K] and
- * the value is the display string. Defaults to an empty map.
- * @param title A lambda function that returns the title of the preference.
- * @param summary A lambda function that returns the summary text displayed below the title.
- * Defaults to an empty string.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The [Preferences.Key] for storing the selected set of strings.
+ * @param initialValue The initial set of selected string values.
+ * @param entities An [ImmutableMap] of options, where the key is of type [K] and the value is the
+ * display string.
+ * @param title A Composable lambda function that defines the title of the preference.
+ * @param summary A Composable lambda function that defines the summary text displayed below the
+ * title, which can depend on the currently selected [items]. Defaults to an empty Composable.
+ * @param dialogTitle A title for option selection dialog.
  * @param leadingContent A Composable lambda for content to be displayed at the beginning of the
  * preference item.
  * @param trailingContent A Composable lambda for content to be displayed at the end of the

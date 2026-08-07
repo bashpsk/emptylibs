@@ -47,21 +47,19 @@ import kotlinx.coroutines.launch
  * @param K The type of the key in the `entities` map.
  * @param V The type of the value in the `entities` map and the type of the preference.
  * @param modifier Optional [Modifier] for this Composable.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A lambda function that returns the [Preferences.Key] for this preference.
- * @param initialValue A lambda function that returns the initial value for this preference if no
- * value is stored.
- * @param entities A lambda function that returns a [Map] of key-value pairs representing the
- * options in the drop-down menu. The key is displayed in the menu, and the value is stored.
- * Defaults to an empty map.
- * @param title A lambda function that returns the title text for this preference.
- * @param summary A lambda function that returns the summary text for this preference. Defaults to
- * an empty string.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The [Preferences.Key] for this preference.
+ * @param initialValue The initial value for this preference if no value is stored.
+ * @param entities An [ImmutableMap] of key-value pairs representing the options in the drop-down
+ * menu. The key is displayed in the menu, and the value is stored.
+ * @param title A Composable lambda function that defines the title text for this preference.
+ * @param summary A Composable lambda function that defines the summary text for this preference,
+ * which can depend on the current selected entry. Defaults to [PreferenceSummary].
  * @param leadingContent An optional Composable lambda for content to be displayed at the beginning
  * of the preference item.
  * @param trailingContent An optional Composable lambda for content to be displayed at the ending
- * of the preference item.
+ * of the preference item, which can depend on whether the menu isMenuExpanded.
  * @param colors [ListItemColors] to be used for this list item.
  * @param tonalElevation The tonal elevation of this list item.
  * @param shadowElevation The shadow elevation of this list item.

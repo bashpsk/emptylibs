@@ -27,16 +27,18 @@ import kotlinx.coroutines.launch
  * This preference item allows the user to toggle a boolean value, which is stored in DataStore.
  *
  * @param modifier Modifier to be applied to the ListItem.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A lambda function that returns the DataStore [Preferences.Key] for this preference.
- * @param initialValue A lambda function that returns the initial boolean value if no value is
- * stored in DataStore. Defaults to `false`.
- * @param title A lambda function that returns the title of the preference.
- * @param summary A lambda function that returns the summary text for the preference. Defaults to an
- * empty string.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The DataStore [Preferences.Key] for this preference.
+ * @param initialValue The initial boolean value if no value is stored in DataStore.
+ * Defaults to `false`.
+ * @param title A Composable lambda function that defines the title of the preference.
+ * @param summary A Composable lambda function that defines the summary text for the preference,
+ * which can depend on the current checked state. Defaults to [PreferenceSummary].
  * @param leadingContent A Composable lambda function to display content at the beginning of the
  * ListItem. Defaults to an empty Composable.
+ * @param trailingContent A Composable lambda function to display content at the end of the
+ * ListItem, which can depend on the current checked state. Defaults to a [Checkbox].
  * @param colors [ListItemColors] to be used for this ListItem. Defaults to
  * `ListItemDefaults.colors()`.
  * @param tonalElevation The tonal elevation of this ListItem. Defaults to

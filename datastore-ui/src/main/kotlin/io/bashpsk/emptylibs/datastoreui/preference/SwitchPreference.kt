@@ -25,18 +25,19 @@ import kotlinx.coroutines.launch
  * This preference allows users to toggle a boolean value which is stored in DataStore.
  *
  * @param modifier Optional [Modifier] for this Composable.
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A lambda function that returns the [Preferences.Key] for this preference.
- * This key is used to store and retrieve the boolean value from DataStore.
- * @param initialValue A lambda function that returns the initial boolean value of the preference
- * if it's not already set in DataStore. Defaults to `false`.
- * @param title A lambda function that returns the title string for the preference.
- * @param summary A lambda function that returns the summary string for the preference.
- * Displayed below the title. Defaults to an empty string.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The [Preferences.Key] for this preference. This key is used to store and retrieve the
+ * boolean value from DataStore.
+ * @param initialValue The initial boolean value of the preference if it's not already set in
+ * DataStore. Defaults to `false`.
+ * @param title A Composable lambda function that defines the title string for the preference.
+ * @param summary A Composable lambda function that defines the summary string for the preference,
+ * which can depend on the current checked state. Defaults to an empty Composable.
  * @param leadingContent An optional Composable lambda to display content at the start of the
  * preference item. Defaults to an empty Composable.
- * @param trailingContent A Composable lambda for displaying content at the end of the list item.
+ * @param trailingContent A Composable lambda for displaying content at the end of the list item,
+ * which can depend on the current checked state. Defaults to a [SwitchButton].
  * @param colors [ListItemColors] to be used for this list item.
  * @param tonalElevation The tonal elevation of this list item.
  * @param shadowElevation The shadow elevation of this list item.

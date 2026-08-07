@@ -23,15 +23,17 @@ import kotlinx.coroutines.launch
  * This item allows users to toggle a boolean preference, which is persisted using DataStore.
  *
  * @param modifier Optional [Modifier] for styling the [DropdownMenuItem].
- * @param datastore The DataStore instance to use for this preference. If DataStore instance is
- * `null` must be provided [LocalDatastore] using `CompositionLocalProvider`.
- * @param key A lambda function that returns the [Preferences.Key] for the boolean preference.
- * @param initialValue A lambda function that returns the initial boolean value of the preference
- * if not already set. Defaults to `false`.
- * @param title A lambda function that returns the title string to be displayed for the preference.
+ * @param datastore The [DataStore] instance to use for this preference. If the DataStore instance
+ * is `null`, it will attempt to use the [LocalDatastore] provided via `CompositionLocalProvider`.
+ * @param key The [Preferences.Key] for the boolean preference.
+ * @param initialValue The initial boolean value of the preference if not already set.
+ * Defaults to `false`.
+ * @param title A Composable lambda function that defines the title string to be displayed for the
+ * preference.
  * @param leadingContent An optional Composable lambda to display content at the leading edge of the
  * menu item (e.g., an icon). Defaults to an empty Composable.
- * @param trailingContent A Composable lambda for displaying content at the end of the list item.
+ * @param trailingContent A Composable lambda for displaying content at the end of the menu item,
+ * which can depend on the current checked state. Defaults to a [SwitchButton].
  * @param colors Optional [MenuItemColors] to customize the appearance of the menu item. Defaults to
  * [MenuDefaults.itemColors].
  * @param onMenuDismiss A lambda function that will be invoked when the menu item is clicked,
