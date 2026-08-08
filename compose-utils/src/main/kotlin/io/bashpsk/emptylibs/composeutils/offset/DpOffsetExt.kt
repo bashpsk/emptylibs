@@ -36,3 +36,43 @@ fun DpOffset.toDpOffsetData(): DpOffsetData {
 
     return DpOffsetData(x.value, y.value)
 }
+
+/**
+ * Constrains the x and y components of this [DpOffset] to be at least the corresponding components
+ * of [minimum].
+ *
+ * @param minimum The [DpOffset] representing the lower bounds for the x and y components.
+ * @return A new [DpOffset] where each component is at least the value specified in [minimum].
+ */
+fun DpOffset.coerceAtLeast(minimum: DpOffset): DpOffset {
+
+    return DpOffset(x = x.coerceAtLeast(minimum.x), y = y.coerceAtLeast(minimum.y))
+}
+
+/**
+ * Constrains the x and y components of this [DpOffset] to be at most the corresponding components
+ * of [maximum].
+ *
+ * @param maximum The [DpOffset] representing the upper bounds for the x and y components.
+ * @return A new [DpOffset] where each component is at most the value specified in [maximum].
+ */
+fun DpOffset.coerceAtMost(maximum: DpOffset): DpOffset {
+
+    return DpOffset(x = x.coerceAtMost(maximum.x), y = y.coerceAtMost(maximum.y))
+}
+
+/**
+ * Constrains the x and y components of this [DpOffset] to be within the range defined by the
+ * corresponding components of [minimum] and [maximum].
+ *
+ * @param minimum The [DpOffset] representing the lower bounds for the x and y components.
+ * @param maximum The [DpOffset] representing the upper bounds for the x and y components.
+ * @return A new [DpOffset] with its components coerced to the specified range.
+ */
+fun DpOffset.coerceIn(minimum: DpOffset, maximum: DpOffset): DpOffset {
+
+    return DpOffset(
+        x = x.coerceIn(minimum.x..maximum.x),
+        y = y.coerceIn(minimum.y..maximum.y)
+    )
+}
