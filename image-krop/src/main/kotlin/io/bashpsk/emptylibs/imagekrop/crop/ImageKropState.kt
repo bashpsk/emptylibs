@@ -13,15 +13,15 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import io.bashpsk.emptylibs.composeutils.offset.coerceAtLeast
+import io.bashpsk.emptylibs.composeutils.offset.coerceIn
 import io.bashpsk.emptylibs.composeutils.shape.PathShape
-import io.bashpsk.emptylibs.imagekrop.crop.KropCorner.Companion.hasCornerCenter
-import io.bashpsk.emptylibs.imagekrop.offset.coerceAtLeast
+import io.bashpsk.emptylibs.composeutils.size.coerceIn
 import io.bashpsk.emptylibs.imagekrop.offset.getKropCorner
 import io.bashpsk.emptylibs.imagekrop.offset.itemRect
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-import kotlin.math.abs
 
 /**
  * Composable function to remember an [ImageKropState] instance.
@@ -373,130 +373,6 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
     }
 
     /**
-     * Initializes the crop rectangle position and size based on the current aspect ratio,
-     * canvas size, and minimum crop size configuration.
-     *
-     * This function calculates an initial size for the crop rectangle, aiming for 80% of the
-     * smaller dimension of the canvas while respecting the configured aspect ratio and minimum
-     * size. It then centers this rectangle within the canvas.
-     *
-     * The logic handles:
-     * - Aspect ratio: If an aspect ratio is set, the rectangle's dimensions will adhere to it.
-     * - No aspect ratio: If no aspect ratio is set (freeform), the rectangle will be a square
-     *   initially, sized at 80% of the smaller canvas dimension.
-     * - Minimum size: Ensures the rectangle's width and height are at least
-     *   `config.minimumCropSize`.
-     * - Canvas boundaries: Ensures the rectangle fits within the canvas. If the calculated size
-     *   exceeds canvas dimensions (even after aspect ratio adjustments), it's clamped to the
-     *   canvas bounds, and the other dimension is adjusted to maintain the aspect ratio if locked.
-     * - Aspect lock refinement: If `isAspectLocked` is true, it performs additional checks
-     *   and adjustments to ensure the final rectangle strictly adheres to the aspect ratio,
-     *   especially after clamping to minimum size or canvas boundaries.
-     *
-     * Finally, it updates `kropRectPosition` and `kropRectSize` with the calculated values.
-     */
-    internal fun onKropRectInitialized() {
-
-        val sizeLimit = config.minimumCropSize.toPixel(density = density)
-
-        var rectW: Float
-        var rectH: Float
-
-        kropAspectRatio.ratio?.let { ratio ->
-
-            if (canvasSize.width / canvasSize.height > ratio) {
-
-                rectH = canvasSize.height * 0.8F
-                rectW = rectH * ratio
-            } else {
-
-                rectW = canvasSize.width * 0.8F
-                rectH = rectW / ratio
-            }
-        } ?: run {
-
-            rectW = canvasSize.width.coerceAtMost(canvasSize.height) * 0.8F
-            rectH = rectW
-        }
-
-        rectW = rectW.coerceAtLeast(sizeLimit)
-        rectH = rectH.coerceAtLeast(sizeLimit)
-
-        kropAspectRatio.ratio?.takeIf { isAspectLocked }?.let { ratio ->
-
-            if (abs((rectW / ratio) - rectH) > 1.0F) {
-
-                rectH = rectW / ratio
-
-                if (rectH < sizeLimit) {
-
-                    rectH = sizeLimit
-                    rectW = rectH * ratio
-                }
-            }
-
-            if (rectW > canvasSize.width) {
-
-                rectW = canvasSize.width
-                rectH = rectW / ratio
-            }
-
-            if (rectH > canvasSize.height) {
-
-                rectH = canvasSize.height
-                rectW = rectH * ratio
-            }
-        }
-
-        if (rectW > canvasSize.width) {
-
-            rectW = canvasSize.width
-
-            rectH = kropAspectRatio.ratio?.let { ratio ->
-
-                (rectW / ratio).coerceAtMost(canvasSize.height)
-            } ?: rectH.coerceAtMost(canvasSize.height)
-        }
-
-        if (rectH > canvasSize.height) {
-
-            rectH = canvasSize.height
-
-            rectW = kropAspectRatio.ratio?.let { ratio ->
-
-                (rectH * ratio).coerceAtMost(canvasSize.width)
-            } ?: rectW.coerceAtMost(canvasSize.width)
-        }
-
-        rectW = rectW.coerceAtLeast(sizeLimit)
-        rectH = rectH.coerceAtLeast(sizeLimit)
-
-        kropAspectRatio.ratio?.takeIf { isAspectLocked }?.let { ratio ->
-
-            if (abs(rectW / rectH - ratio) > 0.01F) {
-
-                val targetH = (rectW / ratio).coerceAtLeast(sizeLimit)
-
-                if (targetH <= canvasSize.height) rectH = targetH else {
-
-                    val targetW = (rectH * ratio).coerceAtLeast(sizeLimit)
-
-                    if (targetW <= canvasSize.width) rectW = targetW
-                }
-            }
-        }
-
-        val finalRectW = rectW.coerceIn(sizeLimit, canvasSize.width)
-        val finalRectH = rectH.coerceIn(sizeLimit, canvasSize.height)
-
-        val initialTopLeftX = (canvasSize.width - finalRectW) / 2
-        val initialTopLeftY = (canvasSize.height - finalRectH) / 2
-
-        kropRectPosition = Offset(initialTopLeftX, initialTopLeftY)
-        kropRectSize = Size(finalRectW, finalRectH)
-    }
-
-    /**
      * Handles the start of a crop operation.
      *
      * This function is called when the user starts interacting with the crop rectangle
@@ -510,7 +386,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
         currentCorner = kropRectSize.itemRect(position = kropRectPosition).getKropCorner(
             clickPosition = position,
-            threshold = maxOf(config.handleWidth, config.handleHeight).toPixel(density)
+            threshold = maxOf(config.handleWidth, config.handleHeight).toPixel(density = density)
         )
     }
 
@@ -549,39 +425,57 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
     }
 
     /**
-     * Calculates the new position and size of the crop rectangle based on user interaction.
+     * Initializes the crop rectangle using the current canvas size, aspect ratio, and minimum crop
+     * size configuration.
      *
-     * This function determines the new crop rectangle dimensions and location after a drag
-     * operation on one of its corners or edges, or when the entire rectangle is moved.
-     * It considers the current corner being dragged, the drag amount, canvas boundaries,
-     * minimum crop size, and locked aspect ratio.
+     * When an aspect ratio is configured, the crop rectangle is initialized to approximately 80% of
+     * the available canvas area while maintaining the requested aspect ratio. When no aspect ratio
+     * is configured, a square crop rectangle is created using 80% of the smaller canvas dimension.
      *
-     * If a corner is being dragged ([currentCorner] is not null):
-     * - For corner drags (TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT):
-     *   It uses [calculateNewEditRect] to determine the new rectangle based on the dragged
-     *   and fixed corners, applying aspect ratio constraints if locked.
-     * - For edge drags (TOP_CENTRE, BOTTOM_CENTRE, LEFT_CENTRE, RIGHT_CENTRE):
-     *   It adjusts the corresponding edge of the rectangle, ensuring it stays within canvas
-     *   bounds and maintains the minimum size. If the aspect ratio is locked, it further
-     *   adjusts the rectangle to fit the aspect ratio while staying within bounds and
-     *   maintaining the minimum size.
+     * The resulting rectangle is constrained by [config.minimumCropSize] and the canvas boundaries,
+     * and is positioned at the center of the canvas.
+     */
+    internal fun onKropRectInitialized() {
+
+        val minSize = config.minimumCropSize.toPixel(density = density)
+
+        kropRectSize = kropAspectRatio.ratio?.let { ratio ->
+
+            fitInitialSize(canvasSize = canvasSize, aspectRatio = ratio, minSize = minSize)
+        } ?: run {
+
+            val value = minOf(a = canvasSize.width, b = canvasSize.height) * 0.8F
+
+            Size(width = value, height = value).coerceIn(
+                minimum = Size(width = minSize, height = minSize),
+                maximum = canvasSize
+            )
+        }
+
+        kropRectPosition = Offset(
+            x = (canvasSize.width - kropRectSize.width) / 2F,
+            y = (canvasSize.height - kropRectSize.height) / 2F
+        )
+    }
+
+    /**
+     * Calculates the crop rectangle position and size after a user interaction.
      *
-     * If no corner is being dragged ([currentCorner] is null), it means the entire crop
-     * rectangle is being moved. In this case, it simply translates the rectangle by the
-     * [amount], ensuring it stays within the canvas boundaries.
+     * The operation performed depends on [currentCorner]:
      *
-     * After calculating the initial new position and size, it performs final adjustments
-     * to ensure the rectangle:
-     * - Adheres to the minimum size limit.
-     * - Stays entirely within the canvas boundaries.
-     * - If the aspect ratio is locked, it makes a final pass to ensure the aspect ratio is
-     *   maintained while respecting the canvas boundaries and minimum size. This might involve
-     *   shrinking one dimension to fit the other based on the aspect ratio and available space.
+     * - When no corner or edge is active, the entire crop rectangle is moved.
+     * - When a corner is active, the corresponding corner is resized while the opposite corner
+     *   remains fixed.
+     * - When an edge center is active, the corresponding edge is resized.
+     *
+     * When [isAspectLocked] is enabled and an aspect ratio is configured, resizing maintains the
+     * selected aspect ratio. All resulting rectangles are constrained by the configured minimum
+     * crop size and the canvas boundaries.
      *
      * @param position The current top-left position of the crop rectangle.
      * @param size The current size of the crop rectangle.
-     * @param amount The offset representing the drag amount or movement.
-     * @return A [Pair] containing the new [Offset] (top-left position) and [Size] of the
+     * @param amount The change in pointer position since the previous gesture event.
+     * @return A [Pair] containing the new top-left position and size of the crop rectangle.
      */
     internal fun getKropRectPositionSize(
         position: Offset,
@@ -589,609 +483,451 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
         amount: Offset,
     ): Pair<Offset, Size> {
 
-        val sizeLimit = config.minimumCropSize.toPixel(density = density)
-        val minX = 0.0F
-        val minY = 0.0F
-        val maxX = canvasSize.width
-        val maxY = canvasSize.height
-        val initialRect = size.itemRect(position = position)
+        val minSize = config.minimumCropSize.toPixel(density = density)
+        val rect = size.itemRect(position = position)
+        val aspectRatio = kropAspectRatio.ratio?.takeIf { isAspectLocked }
 
-        var calculatedTopLeft = initialRect.topLeft
-        var calculatedSize = initialRect.size
+        return when (val corner = currentCorner) {
 
-        val targetAspectRatio = kropAspectRatio.ratio?.takeIf { isAspectLocked }
+            null -> moveRect(rect = rect, amount = amount, canvasSize = canvasSize)
 
-        currentCorner?.let { corner ->
-
-            when (corner) {
-
-                KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT, KropCorner.BOTTOM_LEFT,
-                KropCorner.BOTTOM_RIGHT -> {
-
-                    val fixedCorner = when (currentCorner) {
-
-                        KropCorner.TOP_LEFT -> initialRect.bottomRight
-                        KropCorner.TOP_RIGHT -> Offset(initialRect.left, initialRect.bottom)
-                        KropCorner.BOTTOM_LEFT -> Offset(initialRect.right, initialRect.top)
-                        KropCorner.BOTTOM_RIGHT -> initialRect.topLeft
-                        else -> initialRect.topLeft
-                    }
-
-                    val draggedPoint = when (currentCorner) {
-
-                        KropCorner.TOP_LEFT -> initialRect.topLeft
-                        KropCorner.TOP_RIGHT -> initialRect.topRight
-                        KropCorner.BOTTOM_LEFT -> initialRect.bottomLeft
-                        KropCorner.BOTTOM_RIGHT -> initialRect.bottomRight
-                        else -> initialRect.topLeft
-                    }
-
-                    calculateNewEditRect(
-                        draggedCorner = draggedPoint,
-                        fixedCorner = fixedCorner,
-                        dragDelta = amount,
-                        cornerType = corner,
-                        aspectRatio = targetAspectRatio,
-                        minSize = sizeLimit,
-                        canvasWidth = maxX,
-                        canvasHeight = maxY
-                    )?.let { (newRectTopLeft, newRectBottomRight) ->
-
-                        calculatedTopLeft = newRectTopLeft
-                        calculatedSize = Size(
-                            width = (newRectBottomRight.x - newRectTopLeft.x).coerceAtLeast(
-                                sizeLimit
-                            ),
-                            height = (newRectBottomRight.y - newRectTopLeft.y).coerceAtLeast(
-                                sizeLimit
-                            )
-                        )
-                    } ?: run {
-
-                        calculatedTopLeft = initialRect.topLeft
-                        calculatedSize = initialRect.size
-                    }
-                }
-
-                KropCorner.TOP_CENTRE, KropCorner.BOTTOM_CENTRE, KropCorner.LEFT_CENTRE,
-                KropCorner.RIGHT_CENTRE -> {
-
-                    var tempRect = initialRect
-
-                    when (currentCorner) {
-
-                        KropCorner.TOP_CENTRE -> {
-
-                            val newTop = (tempRect.top + amount.y).coerceIn(
-                                minY..tempRect.bottom - sizeLimit
-                            )
-
-                            tempRect = tempRect.copy(top = newTop)
-                        }
-
-                        KropCorner.BOTTOM_CENTRE -> {
-
-                            val newBottom = (tempRect.bottom + amount.y).coerceIn(
-                                tempRect.top + sizeLimit..maxY
-                            )
-
-                            tempRect = tempRect.copy(bottom = newBottom)
-                        }
-
-                        KropCorner.LEFT_CENTRE -> {
-
-                            val newLeft = (tempRect.left + amount.x).coerceIn(
-                                minX..tempRect.right - sizeLimit
-                            )
-
-                            tempRect = tempRect.copy(left = newLeft)
-                        }
-
-                        KropCorner.RIGHT_CENTRE -> {
-
-                            val newRight = (tempRect.right + amount.x).coerceIn(
-                                tempRect.left + sizeLimit..maxX
-                            )
-
-                            tempRect = tempRect.copy(right = newRight)
-                        }
-
-                        else -> {}
-                    }
-
-                    targetAspectRatio?.let { ratio ->
-
-                        var width = tempRect.width.coerceAtLeast(sizeLimit)
-                        var height = tempRect.height.coerceAtLeast(sizeLimit)
-                        val originalCenterX = tempRect.left + width / 2
-                        val originalCenterY = tempRect.top + height / 2
-
-                        when (currentCorner) {
-
-                            KropCorner.TOP_CENTRE, KropCorner.BOTTOM_CENTRE -> {
-
-                                height = tempRect.height.coerceAtLeast(sizeLimit)
-
-                                val idealWidth = (height * ratio).coerceAtLeast(sizeLimit)
-                                var newLeft = originalCenterX - idealWidth / 2
-                                var newRight = newLeft + idealWidth
-
-                                if (newLeft < minX) {
-
-                                    newLeft = minX
-                                    newRight = (newLeft + idealWidth).coerceAtMost(maxX)
-                                } else if (newRight > maxX) {
-
-                                    newRight = maxX
-                                    newLeft = (newRight - idealWidth).coerceAtLeast(minX)
-                                }
-
-                                width = (newRight - newLeft).coerceAtLeast(sizeLimit)
-
-                                val verticalAnchor = when (currentCorner) {
-                                    KropCorner.TOP_CENTRE -> tempRect.bottom - tempRect.height
-                                    else -> tempRect.top
-                                }
-
-                                height = (width / ratio).coerceIn(
-                                    sizeLimit..maxY - verticalAnchor
-                                )
-
-                                tempRect = when (currentCorner) {
-
-                                    KropCorner.TOP_CENTRE -> Rect(
-                                        left = newLeft,
-                                        top = (tempRect.bottom - height).coerceAtLeast(minY),
-                                        right = newRight,
-                                        bottom = tempRect.bottom
-                                    )
-
-                                    else -> Rect(
-                                        left = newLeft,
-                                        top = tempRect.top,
-                                        right = newRight,
-                                        bottom = (tempRect.top + height).coerceAtMost(maxY)
-                                    )
-                                }
-                            }
-
-                            KropCorner.LEFT_CENTRE, KropCorner.RIGHT_CENTRE -> {
-
-                                width = tempRect.width.coerceAtLeast(sizeLimit)
-
-                                val idealHeight = (width / ratio).coerceAtLeast(sizeLimit)
-                                var newTop = originalCenterY - idealHeight / 2
-                                var newBottom = newTop + idealHeight
-
-                                if (newTop < minY) {
-
-                                    newTop = minY
-                                    newBottom = (newTop + idealHeight).coerceAtMost(maxY)
-                                } else if (newBottom > maxY) {
-
-                                    newBottom = maxY
-                                    newTop = (newBottom - idealHeight).coerceAtLeast(minY)
-                                }
-
-                                height = (newBottom - newTop).coerceAtLeast(sizeLimit)
-
-                                val horizontalAnchor = when (currentCorner) {
-
-                                    KropCorner.LEFT_CENTRE -> tempRect.right - tempRect.width
-                                    else -> tempRect.left
-                                }
-
-                                width = (height * ratio).coerceIn(
-                                    sizeLimit, maxX - horizontalAnchor
-                                )
-
-                                tempRect = when (currentCorner) {
-
-                                    KropCorner.LEFT_CENTRE -> Rect(
-                                        left = (tempRect.right - width).coerceAtLeast(minX),
-                                        top = newTop,
-                                        right = tempRect.right,
-                                        bottom = newBottom
-                                    )
-
-                                    else -> Rect(
-                                        left = tempRect.left,
-                                        top = newTop,
-                                        right = (tempRect.left + width).coerceAtMost(maxX),
-                                        bottom = newBottom
-                                    )
-                                }
-                            }
-
-                            else -> {}
-                        }
-                    }
-
-                    calculatedTopLeft = tempRect.topLeft
-
-                    calculatedSize = tempRect.size.coerceAtLeast(
-                        width = sizeLimit,
-                        height = sizeLimit
-                    )
-                }
-            }
-
-            var finalTopLeft = calculatedTopLeft
-            var finalWidth = calculatedSize.width.coerceAtLeast(sizeLimit)
-            var finalHeight = calculatedSize.height.coerceAtLeast(sizeLimit)
-
-            finalTopLeft = finalTopLeft.copy(
-                x = finalTopLeft.x.coerceIn(minX, (maxX - finalWidth).coerceAtLeast(minX)),
-                y = finalTopLeft.y.coerceIn(minY, (maxY - finalHeight).coerceAtLeast(minY))
+            KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT, KropCorner.BOTTOM_LEFT,
+            KropCorner.BOTTOM_RIGHT -> resizeFromCorner(
+                rect = rect,
+                corner = corner,
+                amount = amount,
+                aspectRatio = aspectRatio,
+                minSize = minSize,
+                canvasSize = canvasSize
             )
 
-            finalWidth = (maxX - finalTopLeft.x).coerceAtLeast(sizeLimit).coerceAtMost(finalWidth)
-            finalHeight = (maxY - finalTopLeft.y).coerceAtLeast(sizeLimit).coerceAtMost(finalHeight)
-
-            targetAspectRatio?.let { ratio ->
-
-                val hBasedOnW = (finalWidth / ratio).coerceAtLeast(sizeLimit)
-                val wBasedOnH = (finalHeight * ratio).coerceAtLeast(sizeLimit)
-
-                val canFitHBasedOnW = finalTopLeft.y + hBasedOnW <= maxY + 0.01F
-                val canFitWBasedOnH = finalTopLeft.x + wBasedOnH <= maxX + 0.01F
-
-                when {
-
-                    canFitHBasedOnW && (!canFitWBasedOnH || abs(finalWidth / hBasedOnW - ratio)
-                            < abs(wBasedOnH / finalHeight - ratio)) -> finalHeight = hBasedOnW
-
-                    canFitWBasedOnH -> finalWidth = wBasedOnH
-
-                    else -> {
-
-                        var h = (finalWidth / ratio).coerceIn(sizeLimit, maxY - finalTopLeft.y)
-                        val w = (h * ratio).coerceIn(sizeLimit, maxX - finalTopLeft.x)
-
-                        h = (w / ratio).coerceIn(sizeLimit, maxY - finalTopLeft.y)
-                        finalWidth = w
-                        finalHeight = h
-                    }
-                }
-            }
-
-            finalTopLeft = finalTopLeft.copy(
-                x = finalTopLeft.x.coerceIn(minX, (maxX - finalWidth).coerceAtLeast(minX)),
-                y = finalTopLeft.y.coerceIn(minY, (maxY - finalHeight).coerceAtLeast(minY))
+            KropCorner.TOP_CENTRE, KropCorner.BOTTOM_CENTRE, KropCorner.LEFT_CENTRE,
+            KropCorner.RIGHT_CENTRE -> resizeFromEdge(
+                rect = rect,
+                edge = corner,
+                amount = amount,
+                aspectRatio = aspectRatio,
+                minSize = minSize,
+                canvasSize = canvasSize
             )
-
-            calculatedSize = Size(
-                width = finalWidth.coerceAtMost(maxX - finalTopLeft.x).coerceAtLeast(sizeLimit),
-                height = finalHeight.coerceAtMost(maxY - finalTopLeft.y).coerceAtLeast(sizeLimit)
-            )
-
-            calculatedTopLeft = finalTopLeft.copy(
-                x = (maxX - calculatedSize.width).takeIf { xPosition ->
-
-                    finalTopLeft.x > xPosition && xPosition >= minX
-                } ?: finalTopLeft.x,
-                y = (maxY - calculatedSize.height).takeIf { yPosition ->
-
-                    finalTopLeft.y > yPosition && yPosition >= minY
-                } ?: finalTopLeft.y
-            )
-
-            calculatedTopLeft = calculatedTopLeft.copy(
-                x = calculatedTopLeft.x.coerceAtLeast(minX),
-                y = calculatedTopLeft.y.coerceAtLeast(minY)
-            )
-        } ?: run {
-
-            val currentWidth = initialRect.width.coerceAtLeast(sizeLimit)
-            val currentHeight = initialRect.height.coerceAtLeast(sizeLimit)
-
-            val newLeft = (initialRect.left + amount.x).coerceIn(
-                minX..(maxX - currentWidth).coerceAtLeast(minX)
-            )
-            val newTop = (initialRect.top + amount.y).coerceIn(
-                minY..(maxY - currentHeight).coerceAtLeast(minY)
-            )
-
-            calculatedTopLeft = Offset(newLeft, newTop)
-            calculatedSize = Size(currentWidth, currentHeight)
         }
-
-        return Pair(calculatedTopLeft, calculatedSize)
     }
 
     /**
-     * Calculates the new top-left and bottom-right points of a rectangle
-     * after a corner or edge drag, maintaining a given aspect ratio if specified.
+     * Moves the crop rectangle by the supplied offset.
      *
-     * This function handles two main scenarios:
-     * 1. Dragging a corner ([KropCorner.TOP_LEFT], [KropCorner.TOP_RIGHT],
-     * [KropCorner.BOTTOM_LEFT], [KropCorner.BOTTOM_RIGHT]):
-     *    - Calculates the proposed new width and height based on the drag.
-     *    - If an aspect ratio is provided, adjusts the height (or width if height adjustment leads
-     *    to a size smaller than `minSize`) to maintain the ratio.
-     *    - Determines the initial new top-left and bottom-right corners based on the fixed corner
-     *    and adjusted dimensions.
-     *    - Coerces the new rectangle within the canvas boundaries and `minSize`.
-     *    - If an aspect ratio is provided, performs a final adjustment to ensure the aspect ratio
-     *    is strictly maintained while respecting boundaries and `minSize`. This involves checking
-     *    if adjusting width or height to match the ratio is more appropriate based on which
-     *    dimension is currently further from the target ratio.
+     * The rectangle is constrained so that it remains completely inside the canvas boundaries.
      *
-     * 2. Dragging an edge center ([KropCorner.TOP_CENTRE], [KropCorner.BOTTOM_CENTRE],
-     * [KropCorner.LEFT_CENTRE], [KropCorner.RIGHT_CENTRE]):
-     *    - Calculates the initial new position of the dragged edge, coercing it within canvas
-     *    bounds and ensuring it doesn't cross the opposite fixed edge minus `minSize`.
-     *    - Updates the corresponding coordinate (top, bottom, left, or right) of the rectangle.
-     *    - If the resulting dimension (width or height) is less than `minSize`, it adjusts the
-     *    dragged edge to meet `minSize`.
-     *    - Coerces the final rectangle within the canvas boundaries and `minSize`.
-     *    - If an aspect ratio is *not* provided (freeform drag of an edge), this is the final step
-     *    for edge drags.
+     * @param rect The current crop rectangle.
+     * @param amount The amount by which the rectangle should be moved.
+     * @param canvasSize The size of the canvas containing the crop rectangle.
+     * @return A [Pair] containing the new top-left position and the unchanged rectangle size.
      */
-    private fun calculateNewEditRect(
-        draggedCorner: Offset,
-        fixedCorner: Offset,
-        dragDelta: Offset,
-        cornerType: KropCorner,
+    private fun moveRect(rect: Rect, amount: Offset, canvasSize: Size): Pair<Offset, Size> {
+
+        val newPosition = (rect.topLeft + amount).coerceIn(
+            minimum = Offset.Zero,
+            maximum = Offset(
+                x = canvasSize.width - rect.width,
+                y = canvasSize.height - rect.height
+            ).coerceAtLeast(minimum = Offset.Zero)
+        )
+
+        return newPosition to rect.size
+    }
+
+    /**
+     * Resizes the crop rectangle from one of its four corners.
+     *
+     * The corner specified by [corner] follows the pointer movement while the opposite corner
+     * remains fixed. The resulting rectangle is constrained by the minimum crop size and canvas
+     * boundaries.
+     *
+     * When [aspectRatio] is not null, the crop rectangle maintains the specified aspect ratio
+     * during resizing.
+     *
+     * @param rect The current crop rectangle.
+     * @param corner The corner being dragged.
+     * @param amount The pointer movement since the previous gesture event.
+     * @param aspectRatio The target aspect ratio, or null for freeform resizing.
+     * @param minSize The minimum allowed width and height of the crop rectangle.
+     * @param canvasSize The size of the canvas containing the crop rectangle.
+     * @return A [Pair] containing the resized rectangle's top-left position and size.
+     */
+    private fun resizeFromCorner(
+        rect: Rect,
+        corner: KropCorner,
+        amount: Offset,
         aspectRatio: Float?,
         minSize: Float,
-        canvasWidth: Float,
-        canvasHeight: Float
-    ): Pair<Offset, Offset>? {
+        canvasSize: Size
+    ): Pair<Offset, Size> {
 
-        val newPosition = draggedCorner + dragDelta
+        val dragged = cornerPoint(rect = rect, corner = corner) + amount
+        val fixed = oppositeCorner(rect = rect, corner = corner)
 
-        if (cornerType.hasCornerCenter()) {
+        var width = when (corner) {
 
-            var currentTopLeft = Offset(
-                minOf(draggedCorner.x, fixedCorner.x),
-                minOf(draggedCorner.y, fixedCorner.y)
-            )
-            var currentBottomRight = Offset(
-                maxOf(draggedCorner.x, fixedCorner.x),
-                maxOf(draggedCorner.y, fixedCorner.y)
-            )
+            KropCorner.TOP_LEFT, KropCorner.BOTTOM_LEFT -> fixed.x - dragged.x
+            KropCorner.TOP_RIGHT, KropCorner.BOTTOM_RIGHT -> dragged.x - fixed.x
+            else -> return rect.topLeft to rect.size
+        }.coerceAtLeast(minimumValue = minSize)
 
-            when (cornerType) {
+        var height = when (corner) {
 
-                KropCorner.TOP_CENTRE -> {
-
-                    val newY = newPosition.y.coerceIn(0f, fixedCorner.y - minSize)
-
-                    currentTopLeft = currentTopLeft.copy(y = newY)
-                    currentBottomRight = currentBottomRight.copy(y = fixedCorner.y)
-                }
-
-                KropCorner.BOTTOM_CENTRE -> {
-
-                    val newY = newPosition.y.coerceIn(fixedCorner.y + minSize, canvasHeight)
-
-                    currentTopLeft = currentTopLeft.copy(y = fixedCorner.y)
-                    currentBottomRight = currentBottomRight.copy(y = newY)
-                }
-
-                KropCorner.LEFT_CENTRE -> {
-
-                    val newX = newPosition.x.coerceIn(0f, fixedCorner.x - minSize)
-
-                    currentTopLeft = currentTopLeft.copy(x = newX)
-                    currentBottomRight = currentBottomRight.copy(x = fixedCorner.x)
-                }
-
-                KropCorner.RIGHT_CENTRE -> {
-
-                    val newX = newPosition.x.coerceIn(fixedCorner.x + minSize, canvasWidth)
-
-                    currentTopLeft = currentTopLeft.copy(x = fixedCorner.x)
-                    currentBottomRight = currentBottomRight.copy(x = newX)
-                }
-
-                else -> return null
-            }
-
-            when {
-
-                (cornerType == KropCorner.TOP_CENTRE || cornerType == KropCorner.BOTTOM_CENTRE)
-                        && currentBottomRight.y - currentTopLeft.y < minSize -> when (cornerType) {
-
-                    KropCorner.TOP_CENTRE -> currentTopLeft = currentTopLeft.copy(
-                        y = currentBottomRight.y - minSize
-                    )
-
-                    else -> currentBottomRight = currentBottomRight.copy(
-                        y = currentTopLeft.y + minSize
-                    )
-                }
-
-                (cornerType == KropCorner.LEFT_CENTRE || cornerType == KropCorner.RIGHT_CENTRE)
-                        && currentBottomRight.x - currentTopLeft.x < minSize -> when (cornerType) {
-
-                    KropCorner.LEFT_CENTRE -> currentTopLeft = currentTopLeft.copy(
-                        x = currentBottomRight.x - minSize
-                    )
-
-                    else -> currentBottomRight = currentBottomRight.copy(
-                        x = currentTopLeft.x + minSize
-                    )
-                }
-            }
-
-            var finalTopLeft = currentTopLeft.copy(
-                x = currentTopLeft.x.coerceIn(0f, canvasWidth - minSize),
-                y = currentTopLeft.y.coerceIn(0f, canvasHeight - minSize)
-            )
-
-            var finalBottomRight = currentBottomRight.copy(
-                x = currentBottomRight.x.coerceIn(finalTopLeft.x + minSize, canvasWidth),
-                y = currentBottomRight.y.coerceIn(finalTopLeft.y + minSize, canvasHeight)
-            )
-
-            val finalWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
-            val finalHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
-
-            finalTopLeft = finalTopLeft.copy(
-                x = (finalBottomRight.x - finalWidth).coerceIn(0f, canvasWidth - minSize),
-                y = (finalBottomRight.y - finalHeight).coerceIn(0f, canvasHeight - minSize)
-            )
-            finalBottomRight = finalBottomRight.copy(
-                x = (finalTopLeft.x + finalWidth).coerceIn(finalTopLeft.x + minSize, canvasWidth),
-                y = (finalTopLeft.y + finalHeight).coerceIn(finalTopLeft.y + minSize, canvasHeight)
-            )
-
-            if ((finalBottomRight.x - finalTopLeft.x) < minSize
-                || (finalBottomRight.y - finalTopLeft.y) < minSize
-            ) return null
-
-            return Pair(finalTopLeft, finalBottomRight)
-        }
-
-        val proposedWidth = when (cornerType) {
-
-            KropCorner.TOP_LEFT, KropCorner.BOTTOM_LEFT -> fixedCorner.x - newPosition.x
-            KropCorner.TOP_RIGHT, KropCorner.BOTTOM_RIGHT -> newPosition.x - fixedCorner.x
-            else -> return null
-        }.coerceAtLeast(minSize)
-
-        var adjustedWidth = proposedWidth
-        var adjustedHeight = aspectRatio?.let { ratio ->
-
-            (proposedWidth / ratio).coerceAtLeast(minSize)
-        } ?: run {
-
-            when (cornerType) {
-
-                KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT -> (fixedCorner.y - newPosition.y)
-                KropCorner.BOTTOM_LEFT, KropCorner.BOTTOM_RIGHT -> (newPosition.y - fixedCorner.y)
-            }.coerceAtLeast(minSize)
-        }
-
-        aspectRatio?.takeIf { adjustedHeight < minSize }?.let { ratio ->
-
-            adjustedHeight = minSize
-            adjustedWidth = (adjustedHeight * ratio).coerceAtLeast(minSize)
-        } ?: run {
-
-            adjustedWidth = adjustedWidth.coerceAtLeast(minSize)
-        }
-
-        val (initialTopLeft, initialBottomRight) = when (cornerType) {
-
-            KropCorner.TOP_LEFT -> Offset(
-                x = fixedCorner.x - adjustedWidth,
-                y = fixedCorner.y - adjustedHeight
-            ) to fixedCorner
-
-            KropCorner.TOP_RIGHT -> Offset(
-                x = fixedCorner.x,
-                y = fixedCorner.y - adjustedHeight
-            ) to Offset(
-                x = fixedCorner.x + adjustedWidth,
-                y = fixedCorner.y
-            )
-
-            KropCorner.BOTTOM_LEFT -> Offset(
-                x = fixedCorner.x - adjustedWidth,
-                y = fixedCorner.y
-            ) to Offset(
-                x = fixedCorner.x,
-                y = fixedCorner.y + adjustedHeight
-            )
-
-            KropCorner.BOTTOM_RIGHT -> fixedCorner to Offset(
-                x = fixedCorner.x + adjustedWidth,
-                y = fixedCorner.y + adjustedHeight
-            )
-        }
-
-        var finalTopLeft = initialTopLeft.copy(
-            x = initialTopLeft.x.coerceIn(0.0F, canvasWidth - minSize),
-            y = initialTopLeft.y.coerceIn(0.0F, canvasHeight - minSize)
-        )
-
-        var finalBottomRight = initialBottomRight.copy(
-            x = initialBottomRight.x.coerceIn(finalTopLeft.x + minSize, canvasWidth),
-            y = initialBottomRight.y.coerceIn(finalTopLeft.y + minSize, canvasHeight)
-        )
-
-        finalTopLeft = finalTopLeft.copy(
-            x = finalTopLeft.x.coerceAtMost(finalBottomRight.x - minSize),
-            y = finalTopLeft.y.coerceAtMost(finalBottomRight.y - minSize)
-        )
-
-        finalBottomRight = finalBottomRight.copy(
-            x = finalBottomRight.x.coerceAtLeast(finalTopLeft.x + minSize),
-            y = finalBottomRight.y.coerceAtLeast(finalTopLeft.y + minSize)
-        )
-
-        var currentWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
-        var currentHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
+            KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT -> fixed.y - dragged.y
+            KropCorner.BOTTOM_LEFT, KropCorner.BOTTOM_RIGHT -> dragged.y - fixed.y
+        }.coerceAtLeast(minimumValue = minSize)
 
         aspectRatio?.let { ratio ->
 
-            when {
+            val fitted = fitSizeToAspect(
+                width = width,
+                height = height,
+                aspectRatio = ratio,
+                minSize = minSize,
+                maxWidth = canvasSize.width,
+                maxHeight = canvasSize.height
+            )
 
-                currentWidth / ratio > currentHeight -> when (cornerType) {
-
-                    KropCorner.TOP_LEFT, KropCorner.BOTTOM_LEFT -> {
-
-                        currentWidth = currentHeight * ratio
-                        finalTopLeft = finalTopLeft.copy(x = finalBottomRight.x - currentWidth)
-                    }
-
-                    KropCorner.TOP_RIGHT, KropCorner.BOTTOM_RIGHT -> {
-
-                        currentWidth = currentHeight * ratio
-                        finalBottomRight = finalBottomRight.copy(x = finalTopLeft.x + currentWidth)
-                    }
-                }
-
-                currentHeight > currentWidth / ratio -> when (cornerType) {
-
-                    KropCorner.TOP_LEFT, KropCorner.TOP_RIGHT -> {
-
-                        currentHeight = currentWidth / ratio
-                        finalTopLeft = finalTopLeft.copy(y = finalBottomRight.y - currentHeight)
-                    }
-
-                    KropCorner.BOTTOM_LEFT, KropCorner.BOTTOM_RIGHT -> {
-
-                        currentHeight = currentWidth / ratio
-                        finalBottomRight = finalBottomRight.copy(y = finalTopLeft.y + currentHeight)
-                    }
-                }
-            }
+            width = fitted.width
+            height = fitted.height
         }
 
-        finalTopLeft = finalTopLeft.copy(
-            x = finalTopLeft.x.coerceIn(0.0F, canvasWidth - minSize),
-            y = finalTopLeft.y.coerceIn(0.0F, canvasHeight - minSize)
+        val result = when (corner) {
+
+            KropCorner.TOP_LEFT -> Rect(
+                left = fixed.x - width,
+                top = fixed.y - height,
+                right = fixed.x,
+                bottom = fixed.y
+            )
+
+            KropCorner.TOP_RIGHT -> Rect(
+                left = fixed.x,
+                top = fixed.y - height,
+                right = fixed.x + width,
+                bottom = fixed.y
+            )
+
+            KropCorner.BOTTOM_LEFT -> Rect(
+                left = fixed.x - width,
+                top = fixed.y,
+                right = fixed.x,
+                bottom = fixed.y + height
+            )
+
+            KropCorner.BOTTOM_RIGHT -> Rect(
+                left = fixed.x,
+                top = fixed.y,
+                right = fixed.x + width,
+                bottom = fixed.y + height
+            )
+        }
+
+        val clamped = clampRectToCanvas(rect = result, canvasSize = canvasSize, minSize = minSize)
+
+        return clamped.topLeft to clamped.size
+    }
+
+    /**
+     * Resizes the crop rectangle from one of its four edge centers.
+     *
+     * The selected edge follows the pointer movement while the opposite edge remains anchored.
+     * When [aspectRatio] is provided, the other dimension is adjusted to maintain the requested
+     * aspect ratio.
+     *
+     * The resulting rectangle is constrained by the minimum crop size and canvas boundaries.
+     *
+     * @param rect The current crop rectangle.
+     * @param edge The edge center being dragged.
+     * @param amount The pointer movement since the previous gesture event.
+     * @param aspectRatio The target aspect ratio, or null for Freeform resizing.
+     * @param minSize The minimum allowed width and height of the crop rectangle.
+     * @param canvasSize The size of the canvas containing the crop rectangle.
+     * @return A [Pair] containing the resized rectangle's top-left position and size.
+     */
+    private fun resizeFromEdge(
+        rect: Rect,
+        edge: KropCorner,
+        amount: Offset,
+        aspectRatio: Float?,
+        minSize: Float,
+        canvasSize: Size
+    ): Pair<Offset, Size> {
+
+        var result = when (edge) {
+
+            KropCorner.TOP_CENTRE -> rect.copy(
+                top = (rect.top + amount.y).coerceIn(0F..rect.bottom - minSize)
+            )
+
+            KropCorner.BOTTOM_CENTRE -> rect.copy(
+                bottom = (rect.bottom + amount.y).coerceIn(
+                    rect.top + minSize..canvasSize.height
+                )
+            )
+
+            KropCorner.LEFT_CENTRE -> rect.copy(
+                left = (rect.left + amount.x).coerceIn(0F..rect.right - minSize)
+            )
+
+            KropCorner.RIGHT_CENTRE -> rect.copy(
+                right = (rect.right + amount.x).coerceIn(
+                    rect.left + minSize..canvasSize.width
+                )
+            )
+
+            else -> rect
+        }
+
+        aspectRatio?.let { ratio ->
+
+            result = resizeEdgeWithAspect(
+                rect = result,
+                edge = edge,
+                aspectRatio = ratio,
+                minSize = minSize,
+                canvasSize = canvasSize
+            )
+        }
+
+        result = clampRectToCanvas(rect = result, canvasSize = canvasSize, minSize = minSize)
+
+        return result.topLeft to result.size
+    }
+
+    /**
+     * Adjusts an edge-resized crop rectangle to maintain a specific aspect ratio.
+     *
+     * For vertical edge operations, the height is derived from the user's drag and the width is
+     * calculated from the aspect ratio. For horizontal edge operations, the width is derived from
+     * the user's drag and the height is calculated from the aspect ratio.
+     *
+     * The resulting rectangle is positioned so that the resized edge remains anchored while the
+     * opposite dimension is adjusted around the rectangle's center.
+     *
+     * @param rect The crop rectangle after the initial edge resize.
+     * @param edge The edge center being dragged.
+     * @param aspectRatio The target aspect ratio.
+     * @param minSize The minimum allowed crop dimension.
+     * @param canvasSize The size of the canvas containing the crop rectangle.
+     * @return A crop rectangle adjusted to the requested aspect ratio.
+     */
+    private fun resizeEdgeWithAspect(
+        rect: Rect,
+        edge: KropCorner,
+        aspectRatio: Float,
+        minSize: Float,
+        canvasSize: Size
+    ): Rect {
+
+        return when (edge) {
+
+            KropCorner.TOP_CENTRE, KropCorner.BOTTOM_CENTRE -> {
+
+                val height = rect.height.coerceAtLeast(minimumValue = minSize)
+                val maxHeightByWidth = canvasSize.width / aspectRatio
+                val finalHeight = height.coerceAtMost(maximumValue = maxHeightByWidth)
+                val width = (finalHeight * aspectRatio).coerceIn(minSize..canvasSize.width)
+                val centerX = rect.center.x
+                val left = (centerX - width / 2F).coerceIn(0F..canvasSize.width - width)
+                val right = left + width
+
+                when (edge) {
+
+                    KropCorner.TOP_CENTRE -> Rect(
+                        left = left,
+                        top = rect.bottom - finalHeight,
+                        right = right,
+                        bottom = rect.bottom
+                    )
+
+                    KropCorner.BOTTOM_CENTRE -> Rect(
+                        left = left,
+                        top = rect.top,
+                        right = right,
+                        bottom = rect.top + finalHeight
+                    )
+                }
+            }
+
+            KropCorner.LEFT_CENTRE, KropCorner.RIGHT_CENTRE -> {
+
+                val width = rect.width.coerceAtLeast(minimumValue = minSize)
+                val maxWidthByHeight = canvasSize.height * aspectRatio
+                val finalWidth = width.coerceAtMost(maximumValue = maxWidthByHeight)
+                val height = (finalWidth / aspectRatio).coerceIn(minSize..canvasSize.height)
+                val centerY = rect.center.y
+                val top = (centerY - height / 2F).coerceIn(0F..canvasSize.height - height)
+                val bottom = top + height
+
+                when (edge) {
+
+                    KropCorner.LEFT_CENTRE -> Rect(
+                        left = rect.right - finalWidth,
+                        top = top,
+                        right = rect.right,
+                        bottom = bottom
+                    )
+
+                    KropCorner.RIGHT_CENTRE -> Rect(
+                        left = rect.left,
+                        top = top,
+                        right = rect.left + finalWidth,
+                        bottom = bottom
+                    )
+                }
+            }
+
+            else -> rect
+        }
+    }
+
+    /**
+     * Calculates a crop size that satisfies the requested aspect ratio.
+     *
+     * The returned size respects the minimum crop size and the maximum width and height available
+     * on the canvas. If the requested dimensions exceed the available canvas area, the size is
+     * reduced while preserving the aspect ratio.
+     *
+     * @param width The preferred crop width.
+     * @param height The preferred crop height.
+     * @param aspectRatio The desired width-to-height aspect ratio.
+     * @param minSize The minimum allowed width and height.
+     * @param maxWidth The maximum allowed width.
+     * @param maxHeight The maximum allowed height.
+     * @return A [Size] that satisfies the aspect ratio and available bounds as closely as possible.
+     */
+    private fun fitSizeToAspect(
+        width: Float,
+        height: Float,
+        aspectRatio: Float,
+        minSize: Float,
+        maxWidth: Float,
+        maxHeight: Float
+    ): Size {
+
+        var finalWidth = width.coerceAtLeast(minimumValue = minSize)
+        var finalHeight = finalWidth / aspectRatio
+
+        if (finalHeight < minSize) {
+            finalHeight = minSize
+            finalWidth = finalHeight * aspectRatio
+        }
+
+        if (finalWidth > maxWidth) {
+            finalWidth = maxWidth
+            finalHeight = finalWidth / aspectRatio
+        }
+
+        if (finalHeight > maxHeight) {
+            finalHeight = maxHeight
+            finalWidth = finalHeight * aspectRatio
+        }
+
+        return Size(width = finalWidth, height = finalHeight).coerceIn(
+            minimum = Size(width = minSize, height = minSize),
+            maximum = Size(width = maxWidth, height = maxHeight)
+        )
+    }
+
+    /**
+     * Calculates the initial crop rectangle size for an aspect-ratio-constrained crop.
+     *
+     * The crop size is based on approximately 80% of the available canvas area while preserving the
+     * requested aspect ratio. The resulting size is also constrained by the minimum crop size and
+     * canvas dimensions.
+     *
+     * @param canvasSize The size of the canvas.
+     * @param aspectRatio The desired width-to-height aspect ratio.
+     * @param minSize The minimum allowed crop dimension.
+     * @return The initial crop rectangle size.
+     */
+    private fun fitInitialSize(canvasSize: Size, aspectRatio: Float, minSize: Float): Size {
+
+        val maxWidth = canvasSize.width * 0.8F
+        val maxHeight = canvasSize.height * 0.8F
+
+        val initialSize = if (maxWidth / maxHeight > aspectRatio) Size(
+            width = maxHeight * aspectRatio,
+            height = maxHeight
+        ) else Size(width = maxWidth, height = maxWidth / aspectRatio)
+
+        return initialSize.coerceIn(
+            minimum = Size(width = minSize, height = minSize),
+            maximum = canvasSize
+        )
+    }
+
+    /**
+     * Constrains a crop rectangle to the canvas boundaries and minimum crop size.
+     *
+     * The rectangle's width and height are first adjusted to satisfy the minimum size and canvas
+     * dimensions. Its position is then clamped so the complete rectangle remains inside the canvas.
+     *
+     * @param rect The crop rectangle to constrain.
+     * @param canvasSize The size of the canvas.
+     * @param minSize The minimum allowed width and height.
+     * @return A rectangle that fits within the canvas and satisfies the minimum size constraints.
+     */
+    private fun clampRectToCanvas(rect: Rect, canvasSize: Size, minSize: Float): Rect {
+
+        val size = rect.size.coerceIn(
+            minimum = Size(width = minSize, height = minSize),
+            maximum = canvasSize
         )
 
-        currentWidth = (finalBottomRight.x - finalTopLeft.x).coerceAtLeast(minSize)
-        currentHeight = (finalBottomRight.y - finalTopLeft.y).coerceAtLeast(minSize)
-
-        finalBottomRight = finalBottomRight.copy(
-            x = (finalTopLeft.x + currentWidth).coerceIn(finalTopLeft.x + minSize, canvasWidth),
-            y = (finalTopLeft.y + currentHeight).coerceIn(finalTopLeft.y + minSize, canvasHeight)
-        )
-        finalTopLeft = finalTopLeft.copy(
-            x = (finalBottomRight.x - currentWidth).coerceIn(0f, canvasWidth - minSize),
-            y = (finalBottomRight.y - currentHeight).coerceIn(0f, canvasHeight - minSize)
+        val position = rect.topLeft.coerceIn(
+            minimum = Offset.Zero,
+            maximum = Offset(
+                x = canvasSize.width - size.width,
+                y = canvasSize.height - size.height
+            ).coerceAtLeast(minimum = Offset.Zero)
         )
 
-        val finalWidth = (finalBottomRight.x - finalTopLeft.x)
-        val finalHeight = (finalBottomRight.y - finalTopLeft.y)
+        return Rect(offset = position, size = size)
+    }
 
-        if (finalWidth < minSize || finalHeight < minSize) return null
+    /**
+     * Returns the point represented by the specified corner of a rectangle.
+     *
+     * @param rect The rectangle whose corner should be returned.
+     * @param corner The corner to retrieve.
+     * @return The [Offset] corresponding to the requested corner.
+     */
+    private fun cornerPoint(rect: Rect, corner: KropCorner): Offset {
 
-        val resultTopLeft = finalTopLeft
-        val resultBottomRight = finalBottomRight
+        return when (corner) {
 
-        if (((resultBottomRight.x - resultTopLeft.x) < minSize) ||
-            ((resultBottomRight.y - resultTopLeft.y) < minSize)
-        ) return null
+            KropCorner.TOP_LEFT -> rect.topLeft
+            KropCorner.TOP_RIGHT -> rect.topRight
+            KropCorner.BOTTOM_LEFT -> rect.bottomLeft
+            KropCorner.BOTTOM_RIGHT -> rect.bottomRight
+            else -> rect.topLeft
+        }
+    }
 
-        return Pair(resultTopLeft, resultBottomRight)
+    /**
+     * Returns the corner opposite to the specified corner of a rectangle.
+     *
+     * This is used during crop resizing to keep the opposite corner fixed while the selected corner
+     * follows the pointer.
+     *
+     * @param rect The rectangle whose opposite corner should be returned.
+     * @param corner The corner being resized.
+     * @return The [Offset] corresponding to the opposite corner.
+     */
+    private fun oppositeCorner(rect: Rect, corner: KropCorner): Offset {
+
+        return when (corner) {
+
+            KropCorner.TOP_LEFT -> rect.bottomRight
+            KropCorner.TOP_RIGHT -> rect.bottomLeft
+            KropCorner.BOTTOM_LEFT -> rect.topRight
+            KropCorner.BOTTOM_RIGHT -> rect.topLeft
+            else -> rect.topLeft
+        }
     }
 
     internal fun clearState() {

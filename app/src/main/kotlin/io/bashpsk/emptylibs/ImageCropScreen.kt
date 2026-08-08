@@ -43,7 +43,7 @@ fun ImageCropScreen() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper02)
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
 
     var isImageEdit by rememberSaveable { mutableStateOf(false) }
 
