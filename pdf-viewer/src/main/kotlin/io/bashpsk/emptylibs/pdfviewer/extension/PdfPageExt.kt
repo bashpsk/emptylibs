@@ -12,31 +12,6 @@ import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnProperties
 import kotlinx.collections.immutable.ImmutableList
 
 /**
- * Draws the list of search result rectangles on the current [DrawScope].
- *
- * This function scales the search result coordinates from the original PDF page size
- * to the current canvas dimensions and renders them using the search box color
- * defined in [PdfLazyColumnProperties].
- *
- * @param pageData The data of the PDF page, containing the dimensions and the list of search result
- * rectangles.
- * @param properties The configuration properties for the PDF viewer, including the color used for
- * search highlights.
- */
-internal fun DrawScope.drawSearchRectList(
-    pageData: PdfPageData,
-    properties: PdfLazyColumnProperties
-) {
-
-    drawRectList(
-        pageWidth = pageData.width,
-        pageHeight = pageData.height,
-        color = properties.searchBoxColor,
-        rectList = pageData.searchRectList
-    )
-}
-
-/**
  * Draws the list of selection rectangles onto the [DrawScope].
  *
  * This function scales the selection rectangles from the PDF page's coordinate system

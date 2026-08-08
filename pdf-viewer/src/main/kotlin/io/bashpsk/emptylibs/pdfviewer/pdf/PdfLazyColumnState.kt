@@ -29,9 +29,7 @@ import io.bashpsk.emptylibs.imageutils.extension.toSize
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
 import io.bashpsk.emptylibs.pdfviewer.page.PdfPageData
 import io.bashpsk.emptylibs.pdfviewer.page.PdfScaledPageData
-import io.bashpsk.emptylibs.pdfviewer.search.getSearchRectList
 import io.bashpsk.emptylibs.pdfviewer.utils.LOG_TAG
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
@@ -162,18 +160,6 @@ class PdfLazyColumnState(
      * The height of the container in pixels.
      */
     internal var containerHeight by mutableIntStateOf(0)
-
-    /**
-     * Whether the search interface is currently expanded and visible.
-     */
-    internal var isSearchExpanded by mutableStateOf(false)
-        private set
-
-    /**
-     * The current text query string used for searching within the PDF document.
-     */
-    internal var searchQuery by mutableStateOf("")
-        private set
 
     /**
      * Sets the PDF source to be loaded.
@@ -308,70 +294,6 @@ class PdfLazyColumnState(
         }
 
         getScaledPageData(pageIndex = pageIndex)?.bitmap
-    }
-
-    /**
-     * Updates the expansion state of the search interface.
-     *
-     * @param isExpanded Whether the search bar should be expanded or collapsed.
-     */
-    internal fun onSearchExpandedChange(isExpanded: Boolean) {
-        isSearchExpanded = isExpanded
-    }
-
-    /**
-     * Updates the current search query string.
-     *
-     * @param query The new search string to be stored in [searchQuery].
-     */
-    internal fun onSearchQueryChange(query: String) {
-        searchQuery = query
-    }
-
-    /**
-     * Performs a text search across all pages of the PDF.
-     *
-     * This function updates the current [searchQuery], cancels any ongoing search job, and
-     * launches a new coroutine to find matches. It first clears existing search results from
-     * [pageDataList]. If the query is not empty, it iterates through all pages using the
-     * [pdfRenderer] to identify bounding rectangles of the matching text.
-     *
-     * @param query The text string to search for within the PDF document.
-     */
-    internal fun onTextSearch(query: String) {
-
-        searchQuery = query
-        textSearchJob?.cancel()
-
-        textSearchJob = coroutineScope.launch(context = Dispatchers.IO) {
-
-            mutex.withLock {
-
-                pageDataList = pageDataList.mapValues { (page, pageData) ->
-                    pageData.copy(searchRectList = persistentListOf())
-                }.toPersistentMap()
-
-                try {
-
-                    if (searchQuery.isNotEmpty()) pdfRenderer?.let { renderer ->
-
-                        pageDataList = pageDataList.mapValues { (pageIndex, pageData) ->
-
-                            renderer.openPage(pageData.page).use { page ->
-
-                                val newRectList = page.getSearchRectList(query = searchQuery)
-
-                                pageData.copy(searchRectList = newRectList)
-                            }
-                        }.toPersistentMap()
-                    } else return@withLock
-                } catch (exception: Exception) {
-
-                    currentCoroutineContext().ensureActive()
-                    Log.e(LOG_TAG, exception.message, exception)
-                }
-            }
-        }
     }
 
     /**
