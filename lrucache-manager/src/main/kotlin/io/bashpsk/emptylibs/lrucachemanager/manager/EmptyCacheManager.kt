@@ -11,14 +11,29 @@ import androidx.collection.LruCache
  * @param K The type of keys used to identify objects in the cache.
  * @param V The type of objects to be stored in the cache.
  * @param maxSize The maximum number of entries in the cache. Defaults to 10.
+ * @param onEntryRemoved A callback function that is invoked when an entry is removed from the cache.
  */
-class EmptyCacheManager<K : Any, V : Any>(private val maxSize: Int = 10) {
+class EmptyCacheManager<K : Any, V : Any>(
+    private val maxSize: Int = 10,
+    private val onEntryRemoved: (
+        cache: EmptyCacheManager<K, V>,
+        evicted: Boolean,
+        key: K,
+        value: V
+    ) -> Unit = { _, _, _, _ -> }
+) {
 
     /**
      * The LruCache instance used to store objects of type T.
      * The maximum number of entries in the cache. Defaults to 10.
      */
-    val lruCache = LruCache<K, V>(maxSize = maxSize)
+    val lruCache = object : LruCache<K, V>(maxSize = maxSize) {
+
+        override fun entryRemoved(evicted: Boolean, key: K, oldValue: V, newValue: V?) {
+
+            onEntryRemoved(this@EmptyCacheManager, evicted, key, oldValue)
+        }
+    }
 
     /**
      * Adds an object to the cache.
