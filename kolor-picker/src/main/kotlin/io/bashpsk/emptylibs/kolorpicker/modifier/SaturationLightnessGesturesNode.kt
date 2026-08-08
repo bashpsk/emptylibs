@@ -2,21 +2,13 @@ package io.bashpsk.emptylibs.kolorpicker.modifier
 
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
-import androidx.compose.ui.node.DelegatingNode
-import androidx.compose.ui.node.LayoutAwareModifierNode
-import androidx.compose.ui.node.PointerInputModifierNode
-import androidx.compose.ui.unit.IntSize
 
 internal class SaturationLightnessGesturesNode(
     private var onSelectionChanged: (saturation: Float, lightness: Float) -> Unit
-) : DelegatingNode(), LayoutAwareModifierNode, PointerInputModifierNode {
+) : BaseKolorPickerGesturesNode() {
 
-    private var panelSize = IntSize.Zero
-
-    private val tapNode = delegate(
+    override val tapNode = delegate(
         SuspendingPointerInputModifierNode {
 
             detectTapGestures(
@@ -37,7 +29,7 @@ internal class SaturationLightnessGesturesNode(
         }
     )
 
-    private val dragNode = delegate(
+    override val dragNode = delegate(
         SuspendingPointerInputModifierNode {
 
             detectDragGestures { change, _ ->
@@ -62,28 +54,5 @@ internal class SaturationLightnessGesturesNode(
     fun update(onSelectionChanged: (saturation: Float, lightness: Float) -> Unit) {
 
         this.onSelectionChanged = onSelectionChanged
-        tapNode.resetPointerInputHandler()
-        dragNode.resetPointerInputHandler()
-    }
-
-    override fun onRemeasured(size: IntSize) {
-
-        panelSize = size
-    }
-
-    override fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize
-    ) {
-
-        tapNode.onPointerEvent(pointerEvent = pointerEvent, pass = pass, bounds = bounds)
-        dragNode.onPointerEvent(pointerEvent = pointerEvent, pass = pass, bounds = bounds)
-    }
-
-    override fun onCancelPointerInput() {
-
-        tapNode.onCancelPointerInput()
-        dragNode.onCancelPointerInput()
     }
 }

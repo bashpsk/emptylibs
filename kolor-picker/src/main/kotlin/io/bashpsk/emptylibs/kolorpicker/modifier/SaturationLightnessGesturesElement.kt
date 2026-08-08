@@ -3,7 +3,7 @@ package io.bashpsk.emptylibs.kolorpicker.modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 
-internal class SaturationLightnessGesturesElement(
+internal data class SaturationLightnessGesturesElement(
     private val onSelectionChanged: (saturation: Float, lightness: Float) -> Unit
 ) : ModifierNodeElement<SaturationLightnessGesturesNode>() {
 
@@ -21,19 +21,5 @@ internal class SaturationLightnessGesturesElement(
 
         name = "saturationLightnessGestures"
         properties["onSelectionChanged"] = onSelectionChanged
-    }
-
-    override fun equals(other: Any?): Boolean {
-
-        if (this === other) return true
-        if (other !is SaturationLightnessGesturesElement) return false
-        if (onSelectionChanged != other.onSelectionChanged) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-
-        return onSelectionChanged.hashCode()
     }
 }

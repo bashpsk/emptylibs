@@ -15,7 +15,11 @@ internal fun Modifier.hueGestures(
     onHueChanged: (hue: Float) -> Unit
 ): Modifier {
 
-    return this then HueGesturesElement(thumbRadiusPx = thumbRadiusPx, onHueChanged = onHueChanged)
+    return this then SliderGesturesElement(
+        thumbRadiusPx = thumbRadiusPx,
+        range = 0F..360F,
+        onValueChanged = onHueChanged
+    )
 }
 
 internal fun Modifier.alphaGestures(
@@ -23,9 +27,10 @@ internal fun Modifier.alphaGestures(
     onAlphaChanged: (alpha: Float) -> Unit
 ): Modifier {
 
-    return this then AlphaGesturesElement(
+    return this then SliderGesturesElement(
         thumbRadiusPx = thumbRadiusPx,
-        onAlphaChanged = onAlphaChanged
+        range = 0F..1F,
+        onValueChanged = onAlphaChanged
     )
 }
 

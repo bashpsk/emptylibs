@@ -4,7 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 
-internal class ImageKolorPickerGesturesElement(
+internal data class ImageKolorPickerGesturesElement(
     private val onColorSelection: (position: Offset) -> Unit
 ) : ModifierNodeElement<ImageKolorPickerGesturesNode>() {
 
@@ -22,19 +22,5 @@ internal class ImageKolorPickerGesturesElement(
 
         name = "imageKolorPickerGestures"
         properties["onColorSelection"] = onColorSelection
-    }
-
-    override fun equals(other: Any?): Boolean {
-
-        if (this === other) return true
-        if (other !is ImageKolorPickerGesturesElement) return false
-        if (onColorSelection != other.onColorSelection) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-
-        return onColorSelection.hashCode()
     }
 }
