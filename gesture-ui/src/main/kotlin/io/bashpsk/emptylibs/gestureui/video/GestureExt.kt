@@ -16,6 +16,79 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.abs
 import kotlin.math.sign
 
+internal sealed interface PointerSlopResult {
+
+    data class Tap(val change: PointerInputChange) : PointerSlopResult
+
+    data class SlopReached(val change: PointerInputChange, val slop: Offset) : PointerSlopResult
+
+    data object Cancelled : PointerSlopResult
+}
+
+internal suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrTap(
+    pointerId: PointerId,
+    pointerType: PointerType,
+    pointerDirectionConfig: PointerDirectionConfig,
+    onPointerSlopReached: (PointerInputChange, Offset) -> Unit = { _, _ -> },
+): PointerSlopResult {
+    if (currentEvent.isPointerUp(pointerId)) {
+        return PointerSlopResult.Cancelled
+    }
+    val touchSlop = viewConfiguration.pointerSlop(pointerType)
+    var pointer: PointerId = pointerId
+    var totalPositionChange = Offset.Zero
+
+    while (true) {
+        val event = awaitPointerEvent()
+        val dragEvent = event.changes.fastFirstOrNull { it.id == pointer } ?: return PointerSlopResult.Cancelled
+        if (dragEvent.isConsumed) {
+            return PointerSlopResult.Cancelled
+        } else if (dragEvent.changedToUpIgnoreConsumed()) {
+            val otherDown = event.changes.fastFirstOrNull { it.pressed }
+            if (otherDown == null) {
+                // This is the last "up" - it's a tap!
+                return PointerSlopResult.Tap(dragEvent)
+            } else {
+                pointer = otherDown.id
+            }
+        } else {
+            val currentPosition = dragEvent.position
+            val previousPosition = dragEvent.previousPosition
+
+            val positionChange = currentPosition - previousPosition
+
+            totalPositionChange += positionChange
+
+            val inDirection = pointerDirectionConfig.calculateDeltaChange(
+                totalPositionChange
+            )
+
+            if (inDirection < touchSlop) {
+                // verify that nothing else consumed the drag event
+                awaitPointerEvent(PointerEventPass.Final)
+                if (dragEvent.isConsumed) {
+                    return PointerSlopResult.Cancelled
+                }
+            } else {
+                val postSlopOffset = pointerDirectionConfig.calculatePostSlopOffset(
+                    totalPositionChange,
+                    touchSlop
+                )
+
+                onPointerSlopReached(
+                    dragEvent,
+                    postSlopOffset
+                )
+                if (dragEvent.isConsumed) {
+                    return PointerSlopResult.SlopReached(dragEvent, postSlopOffset)
+                } else {
+                    totalPositionChange = Offset.Zero
+                }
+            }
+        }
+    }
+}
+
 internal suspend fun AwaitPointerEventScope.drag(
     pointerId: PointerId,
     onDrag: (PointerInputChange) -> Unit

@@ -55,6 +55,7 @@ private const val DEAD_ZONE_PERCENTAGE = 0.05F // 5%
 internal suspend fun PointerInputScope.detectVideoGestures(
     screenSize: IntSize = IntSize.Zero,
     deadZone: Float? = DEAD_ZONE_PERCENTAGE,
+    onTap: (position: Offset) -> Unit = {},
     onDragStart: (position: Offset) -> Unit = {},
     onDragEnd: () -> Unit = {},
     onDragCancel: () -> Unit = {},
@@ -73,7 +74,6 @@ internal suspend fun PointerInputScope.detectVideoGestures(
 
         val downEvent = awaitFirstDown(requireUnconsumed = false)
         val pointerId = downEvent.id
-        var currentSlop = Offset.Zero
 
         val viewWidth = screenSize.width
         val viewHeight = screenSize.height
@@ -92,123 +92,134 @@ internal suspend fun PointerInputScope.detectVideoGestures(
         val centerVerticalStart = (viewWidth - centerVerticalMargin) / 2F
         val centerVerticalEnd = centerVerticalStart + centerVerticalMargin
 
-        val initialPointerChange = awaitPointerSlopOrCancellation(
+        val slopResult = awaitPointerSlopOrTap(
             pointerId = pointerId,
             pointerType = downEvent.type,
             pointerDirectionConfig = BidirectionalPointerDirectionConfig
-        ) { change, slopAmount ->
-
+        ) { change, _ ->
             change.consume()
-            currentSlop = slopAmount
         }
 
-        initialPointerChange?.let { inputChange ->
+        when (slopResult) {
+            is PointerSlopResult.Tap -> {
+                onTap(slopResult.change.position)
+            }
 
-            val touchX = inputChange.position.x
-            val touchY = inputChange.position.y
+            is PointerSlopResult.SlopReached -> {
+                val inputChange = slopResult.change
+                val currentSlop = slopResult.slop
 
-            val isInTopDeadZone = touchY < deadZoneHeight
-            val isInBottomDeadZone = touchY >= bottomDeadZoneStart
-            val isInLeftDeadZone = touchX < deadZoneWidth
-            val isInRightDeadZone = touchX >= rightDeadZoneStart
+                val touchX = inputChange.position.x
+                val touchY = inputChange.position.y
 
-            val isInCenterHorizontalDeadZone = touchY in centerHorizontalStart..<centerHorizontalEnd
+                val isInTopDeadZone = touchY < deadZoneHeight
+                val isInBottomDeadZone = touchY >= bottomDeadZoneStart
+                val isInLeftDeadZone = touchX < deadZoneWidth
+                val isInRightDeadZone = touchX >= rightDeadZoneStart
 
-            val isInCenterVerticalDeadZone = touchX in centerVerticalStart..<centerVerticalEnd
+                val isInCenterHorizontalDeadZone =
+                    touchY in centerHorizontalStart..<centerHorizontalEnd
 
-            val isStartedInDeadZone = isInTopDeadZone || isInBottomDeadZone || isInLeftDeadZone
-                    || isInRightDeadZone || isInCenterHorizontalDeadZone
-                    || isInCenterVerticalDeadZone
+                val isInCenterVerticalDeadZone = touchX in centerVerticalStart..<centerVerticalEnd
 
-            val initialDirection = when (isStartedInDeadZone) {
+                val isStartedInDeadZone = isInTopDeadZone || isInBottomDeadZone || isInLeftDeadZone
+                        || isInRightDeadZone || isInCenterHorizontalDeadZone
+                        || isInCenterVerticalDeadZone
 
-                true -> PointerDirection.Unknown
+                val initialDirection = when (isStartedInDeadZone) {
 
-                else -> {
+                    true -> PointerDirection.Unknown
 
-                    val isTopHalf = touchY < viewHeight / 2F
-                    val isLeftHalf = touchX < viewWidth / 2F
-                    val deltaXFromCenter = touchX - (viewWidth / 2F)
-                    val deltaYFromCenter = touchY - (viewHeight / 2F)
-                    val isHorizontalDominant = abs(deltaXFromCenter) > abs(deltaYFromCenter)
+                    else -> {
 
-                    when {
+                        val isTopHalf = touchY < viewHeight / 2F
+                        val isLeftHalf = touchX < viewWidth / 2F
+                        val deltaXFromCenter = touchX - (viewWidth / 2F)
+                        val deltaYFromCenter = touchY - (viewHeight / 2F)
+                        val isHorizontalDominant = abs(deltaXFromCenter) > abs(deltaYFromCenter)
 
-                        isHorizontalDominant && isTopHalf -> PointerDirection.HorizontalTop
-                        isHorizontalDominant -> PointerDirection.HorizontalBottom
-                        isLeftHalf -> PointerDirection.VerticalLeft
-                        else -> PointerDirection.VerticalRight
+                        when {
+
+                            isHorizontalDominant && isTopHalf -> PointerDirection.HorizontalTop
+                            isHorizontalDominant -> PointerDirection.HorizontalBottom
+                            isLeftHalf -> PointerDirection.VerticalLeft
+                            else -> PointerDirection.VerticalRight
+                        }
+                    }
+                }
+
+                onDragStart(inputChange.position)
+                onDragAmount(inputChange, currentSlop, initialDirection)
+
+                when (initialDirection) {
+
+                    PointerDirection.Unknown -> {
+
+                        val wasDragSuccessful = drag(pointerId) { change ->
+
+                            onDragAmount(change, change.positionChange(), PointerDirection.Unknown)
+                            change.consume()
+                        }
+
+                        if (wasDragSuccessful) onDragEnd() else onDragCancel()
+                    }
+
+                    else -> {
+
+                        var currentDirection = initialDirection
+
+                        val wasDragSuccessful = drag(pointerId) { change ->
+
+                            val dragPosition = change.positionChange()
+                            val isDragValid = dragPosition.x != 0F || dragPosition.y != 0F
+
+                            if (isDragValid) {
+
+                                val isDragHorizontal = abs(dragPosition.x) > abs(dragPosition.y)
+                                val isDragVertical = abs(dragPosition.y) > abs(dragPosition.x)
+
+                                val isHorizontal = currentDirection.hasHorizontal()
+                                val isVertical = currentDirection.hasVertical()
+
+                                val isLockVerticalDrag = isHorizontal && isDragVertical
+                                val isLockHorizontalDrag = isVertical && isDragHorizontal
+                                val isDragLocked = isLockVerticalDrag || isLockHorizontalDrag
+
+                                if (isDragLocked) {
+
+                                    val initialTouchIsInLeftHalf = touchX < viewWidth / 2F
+                                    val initialTouchIsInTopHalf = touchY < viewHeight / 2F
+
+                                    currentDirection = when {
+
+                                        isDragVertical -> when {
+
+                                            initialTouchIsInLeftHalf -> PointerDirection.VerticalLeft
+                                            else -> PointerDirection.VerticalRight
+                                        }
+
+                                        isDragHorizontal -> when {
+
+                                            initialTouchIsInTopHalf -> PointerDirection.HorizontalTop
+                                            else -> PointerDirection.HorizontalBottom
+                                        }
+
+                                        else -> currentDirection
+                                    }
+                                }
+                            }
+
+                            onDragAmount(change, change.positionChange(), currentDirection)
+                            change.consume()
+                        }
+
+                        if (wasDragSuccessful) onDragEnd() else onDragCancel()
                     }
                 }
             }
 
-            onDragStart(inputChange.position)
-            onDragAmount(inputChange, currentSlop, initialDirection)
-
-            when (initialDirection) {
-
-                PointerDirection.Unknown -> {
-
-                    val wasDragSuccessful = drag(pointerId) { change ->
-
-                        onDragAmount(change, change.positionChange(), PointerDirection.Unknown)
-                        change.consume()
-                    }
-
-                    if (wasDragSuccessful) onDragEnd() else onDragCancel()
-                }
-
-                else -> {
-
-                    var currentDirection = initialDirection
-
-                    val wasDragSuccessful = drag(pointerId) { change ->
-
-                        val dragPosition = change.positionChange()
-                        val isDragValid = dragPosition.x != 0F || dragPosition.y != 0F
-
-                        if (isDragValid) {
-
-                            val isDragHorizontal = abs(dragPosition.x) > abs(dragPosition.y)
-                            val isDragVertical = abs(dragPosition.y) > abs(dragPosition.x)
-
-                            val isHorizontal = currentDirection.hasHorizontal()
-                            val isVertical = currentDirection.hasVertical()
-
-                            val isLockVerticalDrag = isHorizontal && isDragVertical
-                            val isLockHorizontalDrag = isVertical && isDragHorizontal
-                            val isDragLocked = isLockVerticalDrag || isLockHorizontalDrag
-
-                            if (isDragLocked) {
-
-                                val initialTouchIsInLeftHalf = touchX < viewWidth / 2F
-                                val initialTouchIsInTopHalf = touchY < viewHeight / 2F
-
-                                currentDirection = when {
-
-                                    isDragVertical -> when {
-
-                                        initialTouchIsInLeftHalf -> PointerDirection.VerticalLeft
-                                        else -> PointerDirection.VerticalRight
-                                    }
-
-                                    isDragHorizontal -> when {
-
-                                        initialTouchIsInTopHalf -> PointerDirection.HorizontalTop
-                                        else -> PointerDirection.HorizontalBottom
-                                    }
-
-                                    else -> currentDirection
-                                }
-                            }
-                        }
-
-                        onDragAmount(change, change.positionChange(), currentDirection)
-                        change.consume()
-                    }
-
-                    if (wasDragSuccessful) onDragEnd() else onDragCancel()
-                }
+            PointerSlopResult.Cancelled -> {
+                // Do nothing
             }
         }
     }

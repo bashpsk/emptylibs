@@ -11,6 +11,8 @@ import kotlinx.serialization.Serializable
  * This class defines the behavior of various gestures that can be performed on a video player.
  *
  * @property isDoubleTapEnable Whether double-tap gestures are enabled. Defaults to `true`.
+ * @property doubleTapTimeoutMillis The timeout (in milliseconds) for detecting double-tap
+ * gestures. Defaults to `300`.
  * @property isHorizontalTopEnable Whether horizontal swipe gestures in the top area are enabled.
  * Defaults to `true`.
  * @property isHorizontalBottomEnable Whether horizontal swipe gestures in the bottom area are
@@ -33,6 +35,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class VideoGestureConfig(
     val isDoubleTapEnable: Boolean = true,
+    val doubleTapTimeoutMillis: Int = 300,
     val isHorizontalTopEnable: Boolean = true,
     val isHorizontalBottomEnable: Boolean = true,
     val isVerticalLeftEnable: Boolean = true,

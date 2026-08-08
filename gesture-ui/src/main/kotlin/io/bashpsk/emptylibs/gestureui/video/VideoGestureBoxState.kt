@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
@@ -63,7 +64,7 @@ fun rememberVideoGestureBoxState(
 @Stable
 class VideoGestureBoxState(
     private val coroutineScope: CoroutineScope,
-    internal val config: VideoGestureConfig,
+    internal val config: VideoGestureConfig
 ) {
 
     /**
@@ -80,6 +81,13 @@ class VideoGestureBoxState(
     internal var resetDragActionJob by mutableStateOf<Job?>(null)
 
     /**
+     * A [Job] that handles the delayed emission of a single tap gesture.
+     * This allows the system to wait and see if a second tap occurs (forming a double tap)
+     * before confirming the single tap.
+     */
+    private var tapJob by mutableStateOf<Job?>(null)
+
+    /**
      * The currently active [DragGestureAction], if any.
      * This indicates the type of drag gesture being performed (e.g., horizontal top).
      */
@@ -90,6 +98,17 @@ class VideoGestureBoxState(
      * Used to differentiate between single-finger and multi-finger (e.g., pinch-to-zoom) gestures.
      */
     internal var touchCount by mutableIntStateOf(0)
+
+    /**
+     * The timestamp of the last detected tap gesture.
+     * Used to detect multi-tap gestures (e.g., double tap for seeking).
+     */
+    private var lastTapTime by mutableLongStateOf(0L)
+
+    /**
+     * The number of consecutive taps detected within the configured multi-tap timeout.
+     */
+    private var tapCount by mutableIntStateOf(0)
 
     /**
      * The accumulated swipe amount during a drag gesture.
@@ -165,6 +184,44 @@ class VideoGestureBoxState(
     internal fun onResetDragAction() {
 
         dragGestureAction = null
+    }
+
+    /**
+     * Handles a tap gesture and determines if it's a single tap or part of a multi-tap sequence
+     * for seeking.
+     *
+     * @param position The [Offset] where the tap occurred.
+     * @param onTapChanges Callback to notify about the detected tap type.
+     */
+    internal fun onTap(position: Offset, onTapChanges: (TapChanges) -> Unit) {
+
+        val currentTime = System.currentTimeMillis()
+        val tapInterval = currentTime - lastTapTime
+
+        if (tapInterval <= config.doubleTapTimeoutMillis) {
+
+            tapCount++
+            tapJob?.cancel()
+        } else tapCount = 1
+
+        lastTapTime = currentTime
+
+        if (tapCount == 1) tapJob = coroutineScope.launch {
+
+            delay(duration = config.doubleTapTimeoutMillis.milliseconds)
+            onTapChanges(TapChanges.SingleTap(position = position))
+            tapCount = 0
+        } else {
+
+            when {
+
+                hasBackwardTap(position) -> onTapChanges(TapChanges.BackwardTap(position))
+                hasForwardTap(position) -> onTapChanges(TapChanges.ForwardTap(position))
+                else -> onTapChanges(TapChanges.SingleTap(position))
+            }
+
+            tapCount = 0
+        }
     }
 
     /**
@@ -274,6 +331,8 @@ class VideoGestureBoxState(
      */
     internal fun onDragStart() {
 
+        tapJob?.cancel()
+        tapCount = 0
         onResetSwipeAmount()
     }
 
@@ -283,6 +342,8 @@ class VideoGestureBoxState(
      */
     internal fun onDragEnd() {
 
+        tapJob?.cancel()
+        tapCount = 0
         onResetSwipeAmount()
         onResetDragGestureAction()
     }

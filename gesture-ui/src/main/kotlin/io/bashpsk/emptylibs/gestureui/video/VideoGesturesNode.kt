@@ -1,7 +1,6 @@
 package io.bashpsk.emptylibs.gestureui.video
 
 import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
@@ -37,41 +36,16 @@ internal class VideoGesturesNode(
         }
     )
 
-    private val tapNode = delegate(
-        SuspendingPointerInputModifierNode {
-
-            detectTapGestures(
-                onTap = { position ->
-
-                    onTapChanges(TapChanges.SingleTap(position))
-                },
-                onDoubleTap = { position ->
-
-                    when {
-
-                        state.hasBackwardTap(position = position) -> {
-
-                            onTapChanges(TapChanges.BackwardTap(position))
-                        }
-
-                        state.hasForwardTap(position = position) -> {
-
-                            onTapChanges(TapChanges.ForwardTap(position))
-                        }
-
-                        else -> onTapChanges(TapChanges.Unknown)
-                    }
-                }
-            )
-        }
-    )
-
-    private val dragNode = delegate(
+    private val gestureNode = delegate(
         SuspendingPointerInputModifierNode {
 
             detectVideoGestures(
                 screenSize = state.screenSize,
                 deadZone = state.config.gestureMargin / 100.0F,
+                onTap = { position ->
+
+                    state.onTap(position = position, onTapChanges = onTapChanges)
+                },
                 onDragStart = { offset ->
 
                     state.onDragStart()
@@ -252,11 +226,7 @@ internal class VideoGesturesNode(
         state.onDragChanges = onDragChanges
 
         if (oldState.screenSize != state.screenSize || oldState.config != state.config) {
-            dragNode.resetPointerInputHandler()
-        }
-
-        if (oldState.config.isDoubleTapEnable != state.config.isDoubleTapEnable) {
-            tapNode.resetPointerInputHandler()
+            gestureNode.resetPointerInputHandler()
         }
     }
 
@@ -265,7 +235,7 @@ internal class VideoGesturesNode(
         val oldSize = state.screenSize
 
         state.screenSize = size
-        if (oldSize != size) dragNode.resetPointerInputHandler()
+        if (oldSize != size) gestureNode.resetPointerInputHandler()
     }
 
     override fun onPointerEvent(
@@ -275,14 +245,12 @@ internal class VideoGesturesNode(
     ) {
 
         touchNode.onPointerEvent(pointerEvent = pointerEvent, pass = pass, bounds = bounds)
-        tapNode.onPointerEvent(pointerEvent = pointerEvent, pass = pass, bounds = bounds)
-        dragNode.onPointerEvent(pointerEvent = pointerEvent, pass = pass, bounds = bounds)
+        gestureNode.onPointerEvent(pointerEvent = pointerEvent, pass = pass, bounds = bounds)
     }
 
     override fun onCancelPointerInput() {
 
         touchNode.onCancelPointerInput()
-        tapNode.onCancelPointerInput()
-        dragNode.onCancelPointerInput()
+        gestureNode.onCancelPointerInput()
     }
 }
