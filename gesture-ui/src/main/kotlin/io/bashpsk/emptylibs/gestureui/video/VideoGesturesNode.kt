@@ -245,21 +245,19 @@ internal class VideoGesturesNode(
     ) {
 
         val oldState = this.state
-        val oldOnTapChanges = this.onTapChanges
-        val oldOnDragChanges = this.onDragChanges
 
         this.state = state
         this.onTapChanges = onTapChanges
         this.onDragChanges = onDragChanges
         state.onDragChanges = onDragChanges
 
-        if (oldState.screenSize != state.screenSize || oldState.config != state.config
-            || oldOnDragChanges != onDragChanges
-        ) dragNode.resetPointerInputHandler()
+        if (oldState.screenSize != state.screenSize || oldState.config != state.config) {
+            dragNode.resetPointerInputHandler()
+        }
 
-        if (oldOnTapChanges != onTapChanges || oldState.config.isDoubleTapEnable
-            != state.config.isDoubleTapEnable
-        ) tapNode.resetPointerInputHandler()
+        if (oldState.config.isDoubleTapEnable != state.config.isDoubleTapEnable) {
+            tapNode.resetPointerInputHandler()
+        }
     }
 
     override fun onRemeasured(size: IntSize) {

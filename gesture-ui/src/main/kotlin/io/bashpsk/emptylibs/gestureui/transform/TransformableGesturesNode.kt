@@ -57,9 +57,7 @@ internal class TransformableGesturesNode(
         this.onLongClick = onLongClick
 
         if (oldState.enableDoubleTapZoom != state.enableDoubleTapZoom ||
-            oldState.boundSize != state.boundSize ||
-            this.onClick != onClick ||
-            this.onLongClick != onLongClick
+            oldState.boundSize != state.boundSize
         ) tapPointerInputNode.resetPointerInputHandler()
     }
 
