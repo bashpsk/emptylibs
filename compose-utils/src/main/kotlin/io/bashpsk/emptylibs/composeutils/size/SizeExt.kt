@@ -3,42 +3,8 @@ package io.bashpsk.emptylibs.composeutils.size
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
-
-/**
- * A data class that represents a size in density-independent pixels (dp).
- * This class is designed to be immutable, parcelable, and serializable, making it suitable
- * for use in Compose UI and for passing data between components or across processes.
- *
- * @property width The width of the size in dp.
- * @property height The height of the size in dp.
- */
-@Immutable
-@Parcelize
-@Serializable
-data class DpSizeData(val width: Float, val height: Float) : Parcelable {
-
-    /**
-     * Converts this DpSizeData to a DpSize.
-     *
-     * @return The DpSize equivalent of this DpSizeData.
-     */
-    fun toDpSize(): DpSize = DpSize(width.dp, height.dp)
-}
-
-/**
- * Converts a [DpSize] to a [DpSizeData].
- *
- * @return The [DpSizeData] representation of this [DpSize].
- */
-fun DpSize.toDpSizeData(): DpSizeData {
-
-    return DpSizeData(width.value, height.value)
-}
 
 /**
  * A data class representing size with width and height as Float values.
@@ -57,7 +23,7 @@ data class SizeData(val width: Float, val height: Float) : Parcelable {
      *
      * @return A [Size] object with the same width and height as this [SizeData].
      */
-    fun toSize(): Size = Size(width, height)
+    fun toSize(): Size = Size(width = width, height = height)
 }
 
 /**
@@ -70,43 +36,51 @@ data class SizeData(val width: Float, val height: Float) : Parcelable {
  */
 fun Size.toSizeData(): SizeData {
 
-    return SizeData(width, height)
+    return SizeData(width = width, height = height)
 }
 
 /**
- * A data class representing a size with integer dimensions (width and height).
+ * Constrains the width and height components of this [Size] to be at least the corresponding
+ * components of [minimum].
  *
- * This class serves as a plain data holder, facilitating the serialization and parcelization of
- * size information.
- * It provides a convenient way to convert between [IntSize] and this serializable/parcelable
- * representation.
- *
- * @property width The width component of the size, as an [Int].
- * @property height The height component of the size, as an [Int].
+ * @param minimum The [Size] representing the lower bounds for the width and height components.
+ * @return A new [Size] where each component is at least the value specified in [minimum].
  */
-@Immutable
-@Parcelize
-@Serializable
-data class IntSizeData(val width: Int, val height: Int) : Parcelable {
+fun Size.coerceAtLeast(minimum: Size): Size {
 
-    /**
-     * Converts this [IntSizeData] to an [IntSize].
-     *
-     * @return The corresponding [IntSize] with the same width and height.
-     */
-    fun toIntSize(): IntSize = IntSize(width, height)
+    return Size(
+        width = width.coerceAtLeast(minimum.width),
+        height = height.coerceAtLeast(minimum.height)
+    )
 }
 
 /**
- * Converts an [IntSize] to an [IntSizeData].
+ * Constrains the width and height components of this [Size] to be at most the corresponding
+ * components of [maximum].
  *
- * This function facilitates the serialization or transmission of [IntSize] objects
- * by converting them to [IntSizeData], which is both [Parcelable] and [Serializable].
- *
- * @receiver The [IntSize] to be converted.
- * @return The [IntSizeData] representation of this [IntSize].
+ * @param maximum The [Size] representing the upper bounds for the width and height components.
+ * @return A new [Size] where each component is at most the value specified in [maximum].
  */
-fun IntSize.toIntSizeData(): IntSizeData {
+fun Size.coerceAtMost(maximum: Size): Size {
 
-    return IntSizeData(width, height)
+    return Size(
+        width = width.coerceAtMost(maximum.width),
+        height = height.coerceAtMost(maximum.height)
+    )
+}
+
+/**
+ * Constrains the width and height components of this [Size] to be within the range defined by the
+ * corresponding components of [minimum] and [maximum].
+ *
+ * @param minimum The [Size] representing the lower bounds for the width and height components.
+ * @param maximum The [Size] representing the upper bounds for the width and height components.
+ * @return A new [Size] with its components coerced to the specified range.
+ */
+fun Size.coerceIn(minimum: Size, maximum: Size): Size {
+
+    return Size(
+        width = width.coerceIn(minimum.width..maximum.width),
+        height = height.coerceIn(minimum.height..maximum.height)
+    )
 }

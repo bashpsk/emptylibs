@@ -3,41 +3,8 @@ package io.bashpsk.emptylibs.composeutils.offset
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
-
-/**
- * A data class representing a 2D offset with x and y components, intended for use with Jetpack
- * Compose's `DpOffset`.
- * This class is designed to be immutable, parcelable, and serializable, making it suitable for
- * storing and transferring offset data.
- *
- * @property x The horizontal component of the offset, represented as a Float.
- * @property y The vertical component of the offset, represented as a Float.
- */
-@Immutable
-@Parcelize
-@Serializable
-data class DpOffsetData(val x: Float, val y: Float) : Parcelable {
-
-    fun toDpOffset(): DpOffset = DpOffset(x.dp, y.dp)
-}
-
-/**
- * Converts a [DpOffset] to a [DpOffsetData] object.
- *
- * This function takes a [DpOffset] as input and returns a [DpOffsetData] object
- * with the same x and y values.
- *
- * @return A [DpOffsetData] object with the same x and y values as the input [DpOffset].
- */
-fun DpOffset.toDpOffsetData(): DpOffsetData {
-
-    return DpOffsetData(x.value, y.value)
-}
 
 /**
  * A data class that represents an offset with x and y coordinates.
@@ -57,7 +24,7 @@ data class OffsetData(val x: Float, val y: Float) : Parcelable {
      *
      * @return The [Offset] representation of this [OffsetData].
      */
-    fun toOffset(): Offset = Offset(x, y)
+    fun toOffset(): Offset = Offset(x = x, y = y)
 }
 
 /**
@@ -70,46 +37,31 @@ data class OffsetData(val x: Float, val y: Float) : Parcelable {
  */
 fun Offset.toOffsetData(): OffsetData {
 
-    return OffsetData(x, y)
+    return OffsetData(x = x, y = y)
 }
 
 /**
- * A data class representing a 2D offset using integer coordinates.
+ * Constrains the x and y components of this [Offset] to be at least the corresponding components
+ * of [minimum].
  *
- * This class is designed to be immutable, parcelable, and serializable, making it suitable
- * for various use cases, including state management and data persistence.
- *
- * @property x The horizontal component of the offset.
- * @property y The vertical component of the offset.
+ * @param minimum The [Offset] representing the lower bounds for the x and y components.
+ * @return A new [Offset] where each component is at least the value specified in [minimum].
  */
-@Immutable
-@Parcelize
-@Serializable
-data class IntOffsetData(val x: Int, val y: Int) : Parcelable {
+fun Offset.coerceAtLeast(minimum: Offset): Offset {
 
-    /**
-     * Converts this [IntOffsetData] to an [IntOffset].
-     *
-     * This function creates a new [IntOffset] instance using the `x` and `y` values
-     * from this [IntOffsetData].
-     *
-     * @return An [IntOffset] with the same x and y coordinates as this [IntOffsetData].
-     */
-    fun toIntOffset(): IntOffset = IntOffset(x, y)
+    return Offset(x = x.coerceAtLeast(minimum.x), y = y.coerceAtLeast(minimum.y))
 }
 
 /**
- * Converts an [IntOffset] to an [IntOffsetData] object.
+ * Constrains the x and y components of this [Offset] to be at most the corresponding components
+ * of [maximum].
  *
- * This function takes an [IntOffset] and creates a new [IntOffsetData]
- * instance with the same x and y coordinates. [IntOffsetData] is often
- * used for serialization or when a parcelable representation of an offset is needed.
- *
- * @return An [IntOffsetData] object with the x and y values from this [IntOffset].
+ * @param maximum The [Offset] representing the upper bounds for the x and y components.
+ * @return A new [Offset] where each component is at most the value specified in [maximum].
  */
-fun IntOffset.toIntOffsetData(): IntOffsetData {
+fun Offset.coerceAtMost(maximum: Offset): Offset {
 
-    return IntOffsetData(x, y)
+    return Offset(x = x.coerceAtMost(maximum.x), y = y.coerceAtMost(maximum.y))
 }
 
 /**
@@ -125,7 +77,10 @@ fun IntOffset.toIntOffsetData(): IntOffsetData {
  */
 fun Offset.coerceIn(minimum: Offset, maximum: Offset): Offset {
 
-    return this.copy(x = x.coerceIn(minimum.x, maximum.x), y = y.coerceIn(minimum.y, maximum.y))
+    return Offset(
+        x = x.coerceIn(minimum.x..maximum.x),
+        y = y.coerceIn(minimum.y..maximum.y)
+    )
 }
 
 /**

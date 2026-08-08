@@ -157,18 +157,6 @@ internal fun Size.itemRect(position: Offset): Rect {
 }
 
 /**
- * Coerces the width and height of this Size to be at least the specified minimum width and height.
- *
- * @param width The minimum width.
- * @param height The minimum height.
- * @return A new Size with width and height coerced to be at least the specified minimums.
- */
-fun Size.coerceAtLeast(width: Float, height: Float): Size {
-
-    return Size(this.width.coerceAtLeast(width), this.height.coerceAtLeast(height))
-}
-
-/**
  * Determines which KropCorner is tapped based on the click position and the `Rect`'s bounds.
  *
  * This function checks if the `clickPosition` is within a certain `threshold` of any of the
