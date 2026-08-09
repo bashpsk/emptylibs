@@ -27,6 +27,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +46,7 @@ fun ScrollBarLazyListScreen() {
 
     val barLazyListState = rememberLazyListState()
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.empty_layer)
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
     val imageBitmap2 = ImageBitmap.imageResource(R.drawable.wallpaper01)
     val imageList by remember {
         derivedStateOf {
@@ -55,7 +56,7 @@ fun ScrollBarLazyListScreen() {
             }.toImmutableList()
         }
     }
-    var isLazyColumn by remember { mutableStateOf<Boolean?>(null) }
+    var isLazyColumn by rememberSaveable { mutableStateOf<Boolean?>(null) }
 
     val scrollBarContent: @Composable BoxWithConstraintsScope.() -> Unit = {
 
