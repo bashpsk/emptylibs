@@ -21,14 +21,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import io.bashpsk.emptylibs.formatter.format.toRoundedDecimal
-import io.bashpsk.emptylibs.formatter.resolution.ResolutionType
 import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import io.bashpsk.emptylibs.lrucachemanager.manager.EmptyCacheManager
+import io.bashpsk.emptylibs.pdfviewer.page.PdfBitmapData
 import io.bashpsk.emptylibs.pdfviewer.page.PdfPageData
-import io.bashpsk.emptylibs.pdfviewer.page.PdfScaledPageData
+import io.bashpsk.emptylibs.pdfviewer.page.PdfPageRequest
 import io.bashpsk.emptylibs.pdfviewer.utils.LOG_TAG
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
@@ -36,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -43,6 +43,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.math.roundToInt
 
 /**
  * Creates and remembers a [PdfLazyColumnState] instance.
@@ -131,14 +132,37 @@ class PdfLazyColumnState(
     private var pdfRenderer by mutableStateOf<PdfRenderer?>(null)
 
     /**
+     * A channel used to queue and process requests for rendering normal-quality (base) bitmaps
+     * of PDF pages.
+     */
+    private val normalRenderChannel = Channel<PdfPageRequest>(capacity = Channel.BUFFERED)
+
+    /**
+     * A channel used to queue and process requests for rendering high-quality (scale) bitmaps
+     * of PDF pages.
+     */
+    private val scaledRenderChannel = Channel<PdfPageRequest>(capacity = Channel.BUFFERED)
+
+    /**
+     * A map that tracks pending low-quality (normal) rendering requests.
+     *
+     * This queue ensures that each page is only requested for rendering once at a time
+     * and allows for the cancellation of pending tasks when a page is no longer visible.
+     */
+    private var normalRenderQueue by mutableStateOf(persistentMapOf<Int, PdfPageRequest>())
+
+    /**
+     * A map that tracks pending or active high-quality (scaled) rendering requests.
+     *
+     * This queue prevents duplicate rendering tasks for the same page at the same zoom level
+     * and is used to manage the lifecycle of background rendering jobs.
+     */
+    private var scaledRenderQueue by mutableStateOf(persistentMapOf<Int, PdfPageRequest>())
+
+    /**
      * The job that loads the PDF file.
      */
     private var fileLoadJob by mutableStateOf<Job?>(null)
-
-    /**
-     * The job that performs text search.
-     */
-    private var textSearchJob by mutableStateOf<Job?>(null)
 
     /**
      * A map of page data for each page in the PDF.
@@ -149,7 +173,18 @@ class PdfLazyColumnState(
     /**
      * A cache for high-quality page bitmaps.
      */
-    internal val scaledBitmapManager = EmptyCacheManager<Int, PdfScaledPageData>()
+    internal val scaledBitmapManager = EmptyCacheManager<Int, PdfBitmapData>(
+        onEntryRemoved = { cache, _, page, _ ->
+
+            coroutineScope.launch(context = Dispatchers.IO) {
+
+                updatePageData(index = page) { data ->
+
+                    if (!cache.contains(page)) data.copy(scaledImage = null) else data
+                }
+            }
+        }
+    )
 
     /**
      * The width of the container in pixels.
@@ -160,6 +195,12 @@ class PdfLazyColumnState(
      * The height of the container in pixels.
      */
     internal var containerHeight by mutableIntStateOf(0)
+
+    init {
+
+        setNormalRenderWorker()
+        setScaledRenderWorker()
+    }
 
     /**
      * Sets the PDF source to be loaded.
@@ -174,7 +215,6 @@ class PdfLazyColumnState(
      */
     internal fun setLoadPdfSource(context: Context, source: PdfSource) {
 
-        fileLoadJob?.cancel()
         close()
 
         fileLoadJob = coroutineScope.launch(context = Dispatchers.IO) {
@@ -227,73 +267,112 @@ class PdfLazyColumnState(
     }
 
     /**
-     * Renders a low-quality version of a page.
+     * Starts a background worker coroutine that listens for and processes normal-quality
+     * bitmap rendering requests.
      *
-     * @param pageIndex The index of the page to render.
+     * This worker runs indefinitely in the [coroutineScope], consuming [PdfPageRequest]
+     * objects from the [normalRenderChannel] and invoking [renderNormalBitmap] for each.
      */
-    internal suspend fun setRenderNormalBitmap(
-        pageIndex: Int
-    ) = withContext(context = Dispatchers.IO) {
+    private fun setNormalRenderWorker() = coroutineScope.launch(context = Dispatchers.IO) {
 
-        val renderer = pdfRenderer ?: return@withContext
-        val pageData = pageDataList[pageIndex] ?: return@withContext
+        for (request in normalRenderChannel) {
 
-        val targetWidth = containerWidth * transformable.initialZoom.toInt()
-        val targetHeight = ((targetWidth.toFloat() / pageData.width) * pageData.height).toInt()
-
-        if ((targetWidth > 0 || targetHeight > 0) && pageData.bitmap == null) getRenderBitmap(
-            renderer = renderer,
-            pageIndex = pageIndex,
-            targetWidth = targetWidth,
-            targetHeight = targetHeight
-        )?.let { bitmap ->
-
-            pageDataList = pageDataList.putting(pageIndex, pageData.copy(bitmap = bitmap))
+            renderNormalBitmap(request = request)
         }
     }
 
     /**
-     * Gets a high-quality bitmap for a page.
+     * Starts a background worker that listens to the [scaledRenderChannel] for rendering
+     * high-quality, scaled versions of PDF pages.
      *
-     * If a high-quality bitmap is not available or the quality is not sufficient for the current
-     * zoom level, a new one is rendered.
-     *
-     * @param pageIndex The index of the page.
-     * @return The high-quality bitmap, or null if it's not available.
+     * The worker runs within the [coroutineScope] using [Dispatchers.IO] and continuously
+     * processes [PdfPageRequest] elements as they are received.
      */
-    internal suspend fun getScaledImageBitmap(
-        pageIndex: Int
-    ): ImageBitmap? = withContext(context = Dispatchers.IO) {
+    private fun setScaledRenderWorker() = coroutineScope.launch(context = Dispatchers.IO) {
 
-        if (hasNeedScaledBitmap(pageData = getScaledPageData(pageIndex = pageIndex))) {
+        for (request in scaledRenderChannel) {
 
-            val renderer = pdfRenderer ?: return@withContext null
-            val pageData = pageDataList[pageIndex] ?: return@withContext null
+            renderScaledBitmap(request = request)
+        }
+    }
 
-            val quality = findContentQuality()
-            val targetWidth = (containerWidth * quality).toInt().coerceAtMost(
-                ResolutionType._4K_UHD.width
-            )
-            val targetHeight = ((targetWidth.toFloat() / pageData.width) * pageData.height).toInt()
+    /**
+     * Enqueues a request to render a normal-quality bitmap for the specified page.
+     *
+     * This function initiates a background task to render the base version of a PDF page.
+     * It ensures that a render request is only sent to the worker if the bitmap is not
+     * already present in [pageData] and there isn't an existing request for the same
+     * page in the queue.
+     *
+     * @param pageData The data object representing the page to be rendered.
+     */
+    internal fun enqueueNormalRender(
+        pageData: PdfPageData
+    ) = coroutineScope.launch(context = Dispatchers.Default) {
 
-            getRenderBitmap(
-                renderer = renderer,
-                pageIndex = pageIndex,
-                targetWidth = targetWidth,
-                targetHeight = targetHeight
-            )?.let { bitmap ->
+        if (pageData.normalImage != null) return@launch
+        if (normalRenderQueue.containsKey(key = pageData.page)) return@launch
 
-                val newPageData = PdfScaledPageData(
-                    page = pageIndex,
-                    quality = quality,
-                    bitmap = bitmap
-                )
+        val newRequest = PdfPageRequest(page = pageData.page, quality = 1.0F)
+        normalRenderQueue = normalRenderQueue.putting(key = pageData.page, value = newRequest)
+        normalRenderChannel.send(element = newRequest)
+    }
 
-                scaledBitmapManager[newPageData.page] = newPageData
-            }
+    /**
+     * Enqueues a high-quality version of a page for rendering based on the current zoom level.
+     *
+     * This function calculates a target quality based on the [zoomLevel], rounding to the nearest
+     * 0.5 increment.
+     * If the quality is at the base level (1.0 or less), any existing scaled image is cleared.
+     * It checks the [scaledBitmapManager] cache and the current [scaledRenderQueue] to avoid
+     * redundant rendering of the same quality level.
+     *
+     * @param pageData The data of the page to be rendered.
+     * @param zoomLevel The current zoom level used to determine the rendering quality.
+     */
+    internal fun enqueueScaledRender(
+        pageData: PdfPageData,
+        zoomLevel: Float
+    ) = coroutineScope.launch(context = Dispatchers.IO) {
+
+        val targetQuality = (((zoomLevel - 1.0F) * 2F).roundToInt() / 2.0F + 1.0F)
+            .coerceAtLeast(1.0F)
+
+        if (targetQuality <= 1.0F) {
+
+            updatePageData(index = pageData.page) { it.copy(scaledImage = null) }
+            return@launch
         }
 
-        getScaledPageData(pageIndex = pageIndex)?.bitmap
+        val cachedData = scaledBitmapManager[pageData.page]
+
+        if (cachedData?.quality == targetQuality) {
+
+            updatePageData(index = pageData.page) { it.copy(scaledImage = cachedData) }
+            return@launch
+        }
+
+        if (scaledRenderQueue[pageData.page]?.quality == targetQuality) return@launch
+
+        val newRequest = PdfPageRequest(page = pageData.page, quality = targetQuality)
+        scaledRenderQueue = scaledRenderQueue.putting(key = pageData.page, value = newRequest)
+        scaledRenderChannel.send(element = newRequest)
+    }
+
+    /**
+     * Removes a specific page from the pending rendering queues.
+     *
+     * This function prevents future rendering tasks for the given [pageIndex] from starting by
+     * removing them from both the normal and scaled render queues. Note that this does not
+     * interrupt rendering operations that are already in progress.
+     *
+     * @param pageIndex The index of the PDF page for which to cancel pending render requests.
+     */
+    internal fun cancelEnqueueRender(
+        pageIndex: Int
+    ) = coroutineScope.launch(context = Dispatchers.Default) {
+
+        scaledRenderQueue = scaledRenderQueue.removing(key = pageIndex)
     }
 
     /**
@@ -303,43 +382,69 @@ class PdfLazyColumnState(
      */
     internal fun hasImageZoomed(): Boolean {
 
-        return transformable.zoom in (transformable.initialZoom + 0.25F)..
-                transformable.zoomRange.endInclusive
+        return transformable.zoom >= 1.25F
     }
 
     /**
-     * Checks if a new high-quality bitmap is needed for a page.
+     * Renders a standard-resolution bitmap for a specific PDF page.
      *
-     * @param pageData The quality page data to check.
-     * @return True if a new high-quality bitmap is needed, false otherwise.
+     * This function checks if the request is still valid in the [normalRenderQueue],
+     * performs the rendering using the [PdfRenderer] at the page's original dimensions,
+     * updates the [pageDataList] with the resulting [ImageBitmap], and finally
+     * removes the request from the queue.
+     *
+     * @param request The [PdfPageRequest] containing the index of the page to render.
      */
-    private fun hasNeedScaledBitmap(pageData: PdfScaledPageData?): Boolean {
+    private suspend fun renderNormalBitmap(request: PdfPageRequest) {
 
-        return pageData == null
-                || scaledBitmapManager.contains(pageData.page).not()
-                || pageData.quality !in
-                (transformable.zoom - 0.25F)..(transformable.zoom + 0.25F)
+        if (!normalRenderQueue.containsKey(key = request.page)) return
+
+        val renderer = pdfRenderer ?: return
+        val pageData = pageDataList[request.page] ?: return
+
+        val bitmap = getRenderBitmap(
+            renderer = renderer,
+            pageIndex = request.page,
+            targetWidth = pageData.width,
+            targetHeight = pageData.height
+        )
+
+        updatePageData(index = request.page) { it.copy(normalImage = bitmap) }
+        normalRenderQueue = normalRenderQueue.removing(key = request.page)
     }
 
     /**
-     * Determines the quality for rendering the content based on the current zoom level.
+     * Renders a high-quality scaled bitmap for a specific page based on the requested quality.
      *
-     * @return The rendering quality as a float.
-     */
-    private fun findContentQuality(): Float {
-
-        return transformable.zoom.toRoundedDecimal(fraction = 1)
-    }
-
-    /**
-     * Retrieves the quality page data for a specific page from the cache.
+     * This function performs the rendering if the request matches the current queue, calculates the
+     * target dimensions, generates the bitmap via the PDF renderer, and then caches the result
+     * in [scaledBitmapManager] before updating the [pageDataList].
      *
-     * @param pageIndex The index of the page.
-     * @return The quality page data, or null if it's not in the cache.
+     * @param request The [PdfPageRequest] containing the page index and the target quality/zoom
+     * level.
      */
-    private fun getScaledPageData(pageIndex: Int): PdfScaledPageData? {
+    private suspend fun renderScaledBitmap(request: PdfPageRequest) {
 
-        return scaledBitmapManager[pageIndex]
+        if (scaledRenderQueue[request.page]?.quality != request.quality) return
+
+        val renderer = pdfRenderer ?: return
+
+        val pageData = pageDataList[request.page] ?: return
+
+        val bitmap = getRenderBitmap(
+            renderer = renderer,
+            pageIndex = request.page,
+            targetWidth = (pageData.width * request.quality).roundToInt(),
+            targetHeight = (pageData.height * request.quality).roundToInt()
+        )
+
+        val scaledData = PdfBitmapData(bitmap = bitmap, quality = request.quality)
+
+        scaledBitmapManager.set(key = request.page, value = scaledData)
+
+        updatePageData(index = request.page) { it.copy(scaledImage = scaledData) }
+
+        scaledRenderQueue = scaledRenderQueue.removing(key = request.page)
     }
 
     /**
@@ -388,16 +493,35 @@ class PdfLazyColumnState(
     }
 
     /**
+     * Updates the [PdfPageData] for a specific page index within the [pageDataList].
+     *
+     * This function applies the provided [transform] to the current data of the page at [index]
+     * and updates the state map. If no data exists for the given index, no action is taken.
+     *
+     * @param index The index of the page whose data is to be updated.
+     * @param transform A lambda function that receives the current [PdfPageData] and returns
+     * the updated [PdfPageData].
+     */
+    private fun updatePageData(index: Int, transform: (page: PdfPageData) -> PdfPageData) {
+
+        pageDataList[index]?.let { data ->
+
+            pageDataList = pageDataList.putting(key = index, value = transform(data))
+        }
+    }
+
+    /**
      * Closes the PDF renderer and releases all resources.
      */
     internal fun close() {
 
         fileLoadJob?.cancel()
-        textSearchJob?.cancel()
         pdfRenderer?.close()
         fileDescriptor?.close()
         pdfRenderer = null
         fileDescriptor = null
         scaledBitmapManager.evictAll()
+        normalRenderQueue = persistentMapOf()
+        scaledRenderQueue = persistentMapOf()
     }
 }

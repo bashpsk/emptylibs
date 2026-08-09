@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.pdfviewer.page
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -9,23 +8,20 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain.retain
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.round
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
+import io.bashpsk.emptylibs.imageview.tile.TileImageView
 import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnDefaults
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnProperties
@@ -61,14 +57,16 @@ internal fun PdfPageView(
     properties: PdfLazyColumnProperties = PdfLazyColumnDefaults.properties()
 ) {
 
-    var scaledBitmap by retain { mutableStateOf<ImageBitmap?>(null) }
-
     val isImageZoomed by remember(state.transformable) {
         derivedStateOf { state.hasImageZoomed() }
     }
 
-    val imageBitmap by remember(pageData, isImageZoomed, scaledBitmap) {
-        derivedStateOf { if (isImageZoomed) scaledBitmap else pageData.bitmap }
+    val imageBitmap by remember(pageData, isImageZoomed) {
+        derivedStateOf {
+            if (isImageZoomed) {
+                pageData.scaledImage?.bitmap ?: pageData.normalImage
+            } else pageData.normalImage
+        }
     }
 
     val aspectRatio by remember(pageData) {
@@ -76,7 +74,7 @@ internal fun PdfPageView(
             when (pageData.width > 0 && pageData.height > 0) {
 
                 true -> findAspectRatio(width = pageData.width, height = pageData.height)
-                false -> 1F / 1.41F
+                false -> findAspectRatio(width = 1F, height = 1.41F)
             }
         }
     }
@@ -90,23 +88,27 @@ internal fun PdfPageView(
         minFractionVisible = 0.05F
     ) { visible ->
 
-        if (visible) state.coroutineScope.launch(context = Dispatchers.IO) {
-
-            state.setRenderNormalBitmap(pageIndex = pageData.page)
-        }
+        if (visible) state.enqueueNormalRender(pageData = pageData)
     }
 
-    LaunchedEffect(state.transformable, isScrolling, isImageZoomed) {
+    RetainedEffect(state.transformable, isScrolling, isImageZoomed) {
 
-        snapshotFlow {
+        state.coroutineScope.launch(context = Dispatchers.IO) {
 
-            state.transformable.zoom
-        }.distinctUntilChanged().debounce(200.milliseconds).collectLatest {
+            snapshotFlow {
 
-            if (isScrolling.not() && isImageZoomed) state.coroutineScope.launch(Dispatchers.IO) {
+                state.transformable.zoom to (!isScrolling && isImageZoomed)
+            }.distinctUntilChanged().debounce(
+                timeout = 100.milliseconds
+            ).collectLatest { (zoom, isFinished) ->
 
-                scaledBitmap = state.getScaledImageBitmap(pageIndex = pageData.page)
+                if (isFinished) state.enqueueScaledRender(pageData = pageData, zoomLevel = zoom)
             }
+        }
+
+        onRetire {
+
+            state.cancelEnqueueRender(pageIndex = pageData.page)
         }
     }
 
@@ -119,28 +121,25 @@ internal fun PdfPageView(
             zoomScale = state.transformable.zoom
         ) {
 
-            Image(
+            TileImageView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(ratio = aspectRatio),
-                bitmap = bitmap,
+                imageBitmap = bitmap,
                 contentScale = ContentScale.Fit,
                 colorFilter = colorFilter,
-                contentDescription = "Page ${pageData.page + 1}"
+                tileSize = 1024
             )
         }
-    } ?: run {
+    } ?: Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .aspectRatio(ratio = aspectRatio)
+            .background(color = placeholder)
+            .then(firstVisibleModifier),
+        contentAlignment = Alignment.Center
+    ) {
 
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .aspectRatio(ratio = aspectRatio)
-                .background(color = placeholder)
-                .then(firstVisibleModifier),
-            contentAlignment = Alignment.Center
-        ) {
-
-            CircularProgressIndicator()
-        }
+        CircularProgressIndicator()
     }
 }
