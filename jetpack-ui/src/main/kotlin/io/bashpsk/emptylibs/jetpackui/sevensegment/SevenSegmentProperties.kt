@@ -16,10 +16,10 @@ import androidx.compose.ui.unit.dp
  */
 @Immutable
 data class SevenSegmentProperties(
-    val width: Dp = 60.dp,
-    val aspectRatio: Float = 0.60F,
+    val width: Dp = 48.dp,
+    val aspectRatio: Float = 1.0F,
     val thickness: Dp = 4.dp,
-    val space: Dp = 1.2.dp,
-    val itemSpace:Dp = 0.dp,
+    val space: Dp = 1.dp,
+    val itemSpace:Dp = 6.dp,
     val isRoundedDot: Boolean = false
 )

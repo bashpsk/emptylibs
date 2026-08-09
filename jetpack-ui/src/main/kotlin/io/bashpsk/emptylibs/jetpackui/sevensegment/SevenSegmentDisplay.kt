@@ -68,7 +68,8 @@ fun SevenSegmentDisplay(
 
     val aspectRatio by remember(properties, segmentData) {
         derivedStateOf {
-            if (segmentData.hasDotOrColon()) properties.aspectRatio / 2F else properties.aspectRatio
+            val ratio = properties.aspectRatio / 2F
+            if (segmentData.hasDotOrColon()) ratio / 3.5F else ratio
         }
     }
 
@@ -114,13 +115,13 @@ private fun SevenSegmentDisplay(
 
     val itemSize = properties.width
     val itemSpace = properties.itemSpace
-    val itemWidth = itemSize * properties.aspectRatio
+    val itemWidth = itemSize * (properties.aspectRatio / 2F)
 
     val totalContentWidth by remember(data, properties) {
         derivedStateOf {
             data.fold(0.dp) { acc, segment ->
 
-                acc + if (segment.hasDotOrColon()) itemWidth / 2 else itemWidth
+                acc + if (segment.hasDotOrColon()) itemWidth / 3.5F else itemWidth
             } + (itemSpace * (data.size - 1).coerceAtLeast(0))
         }
     }
@@ -137,7 +138,7 @@ private fun SevenSegmentDisplay(
 
         data.forEach { segment ->
 
-            val segmentWidth = (if (segment.hasDotOrColon()) itemWidth / 2 else itemWidth).toPx()
+            val segmentWidth = (if (segment.hasDotOrColon()) itemWidth / 3.5F else itemWidth).toPx()
 
             inset(
                 left = horizontalOffset,

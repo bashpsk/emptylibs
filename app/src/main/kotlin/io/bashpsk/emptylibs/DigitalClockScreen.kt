@@ -124,7 +124,10 @@ fun DigitalClockScreen() {
                 DigitalClock(
                     modifier = Modifier,
                     dateTimeMillis = currentDateTime,
-                    properties = SevenSegmentDefault.properties()
+                    properties = SevenSegmentDefault.properties(
+                        width = 48.dp,
+                        aspectRatio = 1.1F
+                    )
                 )
             }
 

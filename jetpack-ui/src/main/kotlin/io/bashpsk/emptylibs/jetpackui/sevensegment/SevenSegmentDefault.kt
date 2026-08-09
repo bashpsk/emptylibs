@@ -36,20 +36,20 @@ object SevenSegmentDefault {
      * Returns the default properties for the 7-segment display.
      *
      * @param width The width of the segments.
-     * @property aspectRatio The aspect ratio of the segments.
+     * @param aspectRatio The aspect ratio of the segments.
      * @param thickness The thickness of the segments.
      * @param space The space between the segments.
+     * @param itemSpace The space between the items.
+     * @param isRoundedDot Whether the dot should be rounded.
      * @return The default properties for the 7-segment display.
-     * @property itemSpace The space between the items.
-     * @property isRoundedDot Whether the dot should be rounded.
      */
     @Composable
     fun properties(
         width: Dp = 60.dp,
-        aspectRatio: Float = 0.60F,
+        aspectRatio: Float = 1.0F,
         thickness: Dp = 4.dp,
-        space: Dp = 1.2.dp,
-        itemSpace: Dp = 0.dp,
+        space: Dp = 1.dp,
+        itemSpace: Dp = 6.dp,
         isRoundedDot: Boolean = false
     ): SevenSegmentProperties {
 

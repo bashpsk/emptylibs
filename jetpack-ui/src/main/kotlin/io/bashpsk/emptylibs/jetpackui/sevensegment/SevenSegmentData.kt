@@ -1,10 +1,10 @@
 package io.bashpsk.emptylibs.jetpackui.sevensegment
 
 import androidx.compose.runtime.Immutable
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentMapOf
-import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableSet
 
 /**
  * Represents the data for a 7-segment display, including the active and inactive elements.
@@ -14,8 +14,8 @@ import kotlinx.collections.immutable.toImmutableList
  */
 @Immutable
 data class SevenSegmentData(
-    val activeElements: ImmutableList<SevenSegmentElement> = persistentListOf(),
-    val inactiveElements: ImmutableList<SevenSegmentElement> = persistentListOf()
+    val activeElements: ImmutableSet<SevenSegmentElement> = persistentSetOf(),
+    val inactiveElements: ImmutableSet<SevenSegmentElement> = persistentSetOf()
 ) {
 
     companion object {
@@ -120,8 +120,8 @@ data class SevenSegmentData(
          * Empty 7-segment data.
          */
         val Empty = SevenSegmentData(
-            activeElements = persistentListOf(),
-            inactiveElements = SevenSegmentElement.entries.toImmutableList()
+            activeElements = persistentSetOf(),
+            inactiveElements = SevenSegmentElement.entries.toImmutableSet()
         )
 
         /**

@@ -81,66 +81,66 @@ private fun DrawScope.drawElement(
 
             SevenSegmentElement._1 -> {
 
-                moveTo(strokeWidth + space, strokeWidth)
+                moveTo(space, 0F)
+                lineTo(segmentWidth - space, 0F)
                 lineTo(segmentWidth - strokeWidth - space, strokeWidth)
-                lineTo(segmentWidth - strokeWidth * 2 - space, strokeWidth * 2)
-                lineTo(strokeWidth * 2 + space, strokeWidth * 2)
+                lineTo(strokeWidth + space, strokeWidth)
                 close()
             }
 
             SevenSegmentElement._2 -> {
 
-                moveTo(segmentWidth - strokeWidth, strokeWidth + space)
-                lineTo(segmentWidth - strokeWidth, segmentHeight - halfSpace)
-                lineTo(segmentWidth - strokeWidth * 2, segmentHeight - strokeWidth - halfSpace)
-                lineTo(segmentWidth - strokeWidth * 2, strokeWidth * 2 + space)
+                moveTo(segmentWidth, space)
+                lineTo(segmentWidth, segmentHeight - halfSpace)
+                lineTo(segmentWidth - strokeWidth, segmentHeight - halfStroke - halfSpace)
+                lineTo(segmentWidth - strokeWidth, strokeWidth + space)
                 close()
             }
 
             SevenSegmentElement._3 -> {
 
-                moveTo(segmentWidth - strokeWidth, segmentHeight + halfSpace)
+                moveTo(segmentWidth, segmentHeight + halfSpace)
+                lineTo(segmentWidth, size.height - space)
                 lineTo(segmentWidth - strokeWidth, size.height - strokeWidth - space)
-                lineTo(segmentWidth - strokeWidth * 2, size.height - strokeWidth * 2 - space)
-                lineTo(segmentWidth - strokeWidth * 2, segmentHeight + strokeWidth + halfSpace)
+                lineTo(segmentWidth - strokeWidth, segmentHeight + halfStroke + halfSpace)
                 close()
             }
 
             SevenSegmentElement._4 -> {
 
-                moveTo(strokeWidth + space, size.height - strokeWidth)
+                moveTo(space, size.height)
+                lineTo(segmentWidth - space, size.height)
                 lineTo(segmentWidth - strokeWidth - space, size.height - strokeWidth)
-                lineTo(segmentWidth - strokeWidth * 2 - space, size.height - strokeWidth * 2)
-                lineTo(strokeWidth * 2 + space, size.height - strokeWidth * 2)
+                lineTo(strokeWidth + space, size.height - strokeWidth)
                 close()
             }
 
             SevenSegmentElement._5 -> {
 
-                moveTo(strokeWidth, segmentHeight + halfSpace)
+                moveTo(0F, segmentHeight + halfSpace)
+                lineTo(0F, size.height - space)
                 lineTo(strokeWidth, size.height - strokeWidth - space)
-                lineTo(strokeWidth * 2, size.height - strokeWidth * 2 - space)
-                lineTo(strokeWidth * 2, segmentHeight + strokeWidth + halfSpace)
+                lineTo(strokeWidth, segmentHeight + halfStroke + halfSpace)
                 close()
             }
 
             SevenSegmentElement._6 -> {
 
-                moveTo(strokeWidth, strokeWidth + space)
-                lineTo(strokeWidth, segmentHeight - halfSpace)
-                lineTo(strokeWidth * 2, segmentHeight - strokeWidth - halfSpace)
-                lineTo(strokeWidth * 2, strokeWidth * 2 + space)
+                moveTo(0F, space)
+                lineTo(0F, segmentHeight - halfSpace)
+                lineTo(strokeWidth, segmentHeight - halfStroke - halfSpace)
+                lineTo(strokeWidth, strokeWidth + space)
                 close()
             }
 
             SevenSegmentElement._7 -> {
 
-                moveTo(strokeWidth + space, segmentHeight)
-                lineTo(strokeWidth + space + halfStroke, segmentHeight - halfStroke)
-                lineTo(segmentWidth - strokeWidth - space - halfStroke, segmentHeight - halfStroke)
-                lineTo(segmentWidth - strokeWidth - space, segmentHeight)
-                lineTo(segmentWidth - strokeWidth - space - halfStroke, segmentHeight + halfStroke)
-                lineTo(strokeWidth + space + halfStroke, segmentHeight + halfStroke)
+                moveTo(space, segmentHeight)
+                lineTo(strokeWidth + space, segmentHeight - halfStroke)
+                lineTo(segmentWidth - strokeWidth - space, segmentHeight - halfStroke)
+                lineTo(segmentWidth - space, segmentHeight)
+                lineTo(segmentWidth - strokeWidth - space, segmentHeight + halfStroke)
+                lineTo(strokeWidth + space, segmentHeight + halfStroke)
                 close()
             }
         }
@@ -164,9 +164,9 @@ private fun DrawScope.drawDot(
 
     val segmentWidth = size.width
     val segmentHeight = size.height / 2F
-    val strokeWidth = properties.thickness.toPx()
-    val dotSizeOffset = strokeWidth / 2F
-    val radius = if (properties.isRoundedDot) dotSizeOffset else 0F
+    val dotSize = properties.thickness.toPx()
+    val halfDotSize = dotSize / 2F
+    val radius = if (properties.isRoundedDot) halfDotSize else 0F
 
     when (element) {
 
@@ -174,10 +174,10 @@ private fun DrawScope.drawDot(
 
             drawRoundRect(
                 topLeft = Offset(
-                    x = (segmentWidth / 2F) - dotSizeOffset,
-                    y = (segmentHeight / 2F) - dotSizeOffset
+                    x = (segmentWidth / 2F) - halfDotSize,
+                    y = (segmentHeight / 2F) - halfDotSize
                 ),
-                size = Size(width = strokeWidth, height = strokeWidth),
+                size = Size(width = dotSize, height = dotSize),
                 cornerRadius = CornerRadius(x = radius, y = radius),
                 color = color
             )
@@ -187,10 +187,10 @@ private fun DrawScope.drawDot(
 
             drawRoundRect(
                 topLeft = Offset(
-                    x = (segmentWidth / 2F) - dotSizeOffset,
-                    y = (segmentHeight + (segmentHeight / 2F)) - dotSizeOffset
+                    x = (segmentWidth / 2F) - halfDotSize,
+                    y = (segmentHeight + (segmentHeight / 2F)) - halfDotSize
                 ),
-                size = Size(width = strokeWidth, height = strokeWidth),
+                size = Size(width = dotSize, height = dotSize),
                 cornerRadius = CornerRadius(x = radius, y = radius),
                 color = color
             )
