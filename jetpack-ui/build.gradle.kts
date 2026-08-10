@@ -88,11 +88,15 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.datetime)
 
+    //  LAYOUT          :
+    implementation(libs.androidx.constraintlayout.compose)
+
     //  MODULE          :
     implementation(project(":compose-utils"))
     implementation(project(":formatter"))
-    implementation(project(":lrucache-manager"))
     implementation(project(":gesture-ui"))
+    implementation(project(":layouts"))
+    implementation(project(":lrucache-manager"))
     implementation(project(":storage"))
 }
 

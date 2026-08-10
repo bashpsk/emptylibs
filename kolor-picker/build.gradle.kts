@@ -98,6 +98,7 @@ dependencies {
     implementation(project(":image-utils"))
     implementation(project(":image-view"))
     implementation(project(":jetpack-ui"))
+    implementation(project(":layouts"))
     implementation(project(":lrucache-manager"))
 }
 

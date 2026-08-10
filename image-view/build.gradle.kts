@@ -98,6 +98,7 @@ dependencies {
     implementation(project(":gesture-ui"))
     implementation(project(":image-utils"))
     implementation(project(":jetpack-ui"))
+    implementation(project(":layouts"))
     implementation(project(":lrucache-manager"))
 }
 
