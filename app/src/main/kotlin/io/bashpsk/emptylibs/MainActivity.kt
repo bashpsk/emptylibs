@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
 //                    StorageScreen()
 //                    StorageSearchScreen()
 //                    SvgKolorScreen()
+//                    SwipeCollapsibleLayoutScreen()
 //                    TileImageViewScreen()
 //                    TransformImageScreen()
 //                    ZoomableLayoutScreen()
