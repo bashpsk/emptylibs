@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.imagekolor.filter.ImageFilterType
 import io.bashpsk.emptylibs.imageview.tile.TileImageView
-import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
+import io.bashpsk.emptylibs.layouts.zoomable.ZoomableLayout
 
 @Composable
 fun TileImageViewScreen() {

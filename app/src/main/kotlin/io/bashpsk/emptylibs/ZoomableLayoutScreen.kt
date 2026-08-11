@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.round
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
-import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
+import io.bashpsk.emptylibs.layouts.zoomable.ZoomableLayout
 
 @Composable
 fun ZoomableLayoutScreen() {

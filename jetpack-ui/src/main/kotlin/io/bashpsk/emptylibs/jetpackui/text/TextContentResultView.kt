@@ -18,7 +18,7 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import io.bashpsk.emptylibs.jetpackui.layout.StickyRowLayout
+import io.bashpsk.emptylibs.layouts.sticky.StickyRowLayout
 import kotlinx.coroutines.launch
 
 /**

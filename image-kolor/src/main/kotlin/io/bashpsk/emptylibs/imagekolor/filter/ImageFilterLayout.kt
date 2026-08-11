@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
-import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
+import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 
 /**
  * A composable function that lays out an image and a filter selection UI.

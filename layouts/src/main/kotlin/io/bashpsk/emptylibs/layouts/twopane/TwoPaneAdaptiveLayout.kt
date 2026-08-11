@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.layout
+package io.bashpsk.emptylibs.layouts.twopane
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi

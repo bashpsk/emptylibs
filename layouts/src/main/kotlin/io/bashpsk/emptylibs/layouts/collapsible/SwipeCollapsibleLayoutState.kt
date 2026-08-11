@@ -39,9 +39,10 @@ fun rememberSwipeCollapsibleLayoutState(
 @OptIn(ExperimentalFoundationApi::class)
 class SwipeCollapsibleLayoutState(
     private val initialValue: CollapsibleLayoutProgress,
-    internal val animationSpec: AnimationSpec<Float>
+    @PublishedApi internal val animationSpec: AnimationSpec<Float>
 ) : CollapsibleLayoutState {
 
+    @PublishedApi
     internal val anchoredDraggableState = AnchoredDraggableState(initialValue = initialValue)
 
     override val currentValue: CollapsibleLayoutProgress
@@ -59,6 +60,7 @@ class SwipeCollapsibleLayoutState(
     override val isVisible: Boolean
         get() = currentValue != CollapsibleLayoutProgress.Dismissed
 
+    @PublishedApi
     internal var layoutSize by mutableStateOf(IntSize.Zero)
 
     override suspend fun expand() {

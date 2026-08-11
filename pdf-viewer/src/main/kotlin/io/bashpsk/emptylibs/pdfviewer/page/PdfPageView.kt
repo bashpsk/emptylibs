@@ -22,7 +22,7 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.round
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.imageview.tile.TileImageView
-import io.bashpsk.emptylibs.jetpackui.layout.ZoomableLayout
+import io.bashpsk.emptylibs.layouts.zoomable.ZoomableLayout
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnDefaults
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnProperties
 import io.bashpsk.emptylibs.pdfviewer.pdf.PdfLazyColumnState

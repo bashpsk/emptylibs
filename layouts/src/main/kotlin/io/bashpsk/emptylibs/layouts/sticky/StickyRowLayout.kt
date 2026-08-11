@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.layout
+package io.bashpsk.emptylibs.layouts.sticky
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable

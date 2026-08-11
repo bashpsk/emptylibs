@@ -40,7 +40,7 @@ import androidx.compose.ui.util.lerp
  * @param content The main content over which the collapsible sheet will be displayed.
  */
 @Composable
-fun SwipeCollapsibleLayout(
+inline fun SwipeCollapsibleLayout(
     modifier: Modifier = Modifier,
     state: SwipeCollapsibleLayoutState = rememberSwipeCollapsibleLayoutState(),
     @FloatRange(0.0, 1.0)

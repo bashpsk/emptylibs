@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.formatter.format.parseHexToColor
-import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
+import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
 

@@ -66,7 +66,7 @@ import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.formatter.format.parseHexToColor
 import io.bashpsk.emptylibs.formatter.format.toHexString
-import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
+import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 import io.bashpsk.emptylibs.kolorpicker.modifier.alphaGestures
 import io.bashpsk.emptylibs.kolorpicker.modifier.hueGestures
 import io.bashpsk.emptylibs.kolorpicker.modifier.imageKolorPickerGestures

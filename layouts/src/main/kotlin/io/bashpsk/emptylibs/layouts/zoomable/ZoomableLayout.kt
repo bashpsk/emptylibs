@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.layout
+package io.bashpsk.emptylibs.layouts.zoomable
 
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable

@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
-import io.bashpsk.emptylibs.jetpackui.layout.TwoPaneAdaptiveLayout
+import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 
 /**
  * A layout composable that arranges an image and color adjustment controls.
