@@ -118,4 +118,8 @@ Box(
 |---------------------------------------------------------------|-------------------------------------------------------------|
 | ![Screenshot 01](../screenshots/animations_music_playing.jpg) | ![Screenshot 01](../screenshots/animations_wave_effect.jpg) |
 
+https://github.com/user-attachments/assets/ff534241-78df-47ef-9a6e-763aa799abfc
+
+https://github.com/user-attachments/assets/6c10b5c4-ab2b-4627-894c-7d7e6f1e2b7a
+
 ---
