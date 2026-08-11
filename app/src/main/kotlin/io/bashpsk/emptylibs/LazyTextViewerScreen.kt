@@ -52,7 +52,7 @@ fun LazyTextViewerScreen() {
             File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
 //                "Empty Libs.txt"
-                "EmptyLayer.kt"
+                "EmptyLayer.txt"
             )
         }
     }
@@ -71,8 +71,8 @@ fun LazyTextViewerScreen() {
 
     val textViewerState = rememberLazyTextViewerState(
 //        source = TextSource.RawString(content = largeText)
-        source = TextSource.Path(content = textFile.path)
-//        source = TextSource.URI(content = textUri)
+//        source = TextSource.Path(content = textFile.path)
+        source = TextSource.URI(content = textUri)
 //        source = TextSource.RawString(content = oomText) /*Simulate Error*/
     )
 
@@ -100,7 +100,10 @@ fun LazyTextViewerScreen() {
         topBar = {
 
             TopAppBar(
-                title = {},
+                title = {
+
+                    Text("Lines: ${textViewerState.totalLines}")
+                },
                 actions = {
 
                     Button(onClick = { filePicker.launch("text/plain") }) {
