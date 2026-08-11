@@ -1,60 +1,46 @@
-# Jetpack UI - A Collection of Modern UI Components for Jetpack Compose
+# 💎 Jetpack UI
 
-A versatile and modern UI component library for Jetpack Compose, offering a collection of adaptive
-layouts, animated navigation bars, custom pickers, and more.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/jetpack-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/jetpack-ui)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`jetpack-ui` is a curated suite of powerful and reusable composables designed to accelerate UI
-development. It includes solutions for common patterns like adaptive two-pane layouts, animated
-navigation, overflow menus, and unique text pickers. Each component is self-contained, easy to
-integrate, and built with customization in mind.
+A versatile collection of modern UI components for Jetpack Compose, animated navigation bars, and
+custom pickers.
 
 ---
 
-## Features
+## ✨ Features
 
-- **TwoPaneAdaptiveLayout**: A layout that automatically adapts to screen size, showing a two
-  pane in Column for smaller screens otherwise show in Row.
-
-- **AnimatedBottomNavBar**: A visually engaging bottom navigation bar with smooth animations for
-  item selection, including icon scaling and label transitions.
-
-- **BottomOptionBar**: An adaptive bottom bar that displays as many primary actions as can fit on
-  one line and elegantly tucks the rest into a "More" overflow menu.
-
-- **DialTextPicker**: A unique, circular text picker that allows users to select an item by rotating
-  a dial, perfect for time or numerical input.
-
-- **WheelTextPicker**: A classic "slot-machine" style wheel picker for selecting an item from a
-  vertical list, with haptic feedback and snapping behavior.
-
-- **BasicTextEditor**: A simple, ready-to-use text field composable styled with `OutlinedTextField`
-  and designed for easy integration.
+- **AnimatedBottomNavBar**: Engaging navigation bar with smooth icon scaling and label transitions.
+- **BottomOptionBar**: Adaptive bar with an overflow "More" menu for extra actions.
+- **DialTextPicker**: Circular picker for intuitive numerical or time selection.
+- **WheelTextPicker**: Classic slot-machine style vertical picker with haptic feedback.
+- **BasicTextEditor**: Line-numbered text field wrapper for code or plain text.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:jetpack-ui:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:jetpack-ui:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:jetpack-ui:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:jetpack-ui:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs:**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
 
 [libraries]
 emptylibs-jetpack-ui = { group = "com.github.bashpsk.emptylibs", name = "jetpack-ui", version.ref = "empty-libs" }
@@ -68,24 +54,9 @@ dependencies {
 
 ---
 
-## Usage
+## 🛠️ Usage
 
-### 1. TwoPaneAdaptiveLayout
-
-An adaptive layout for list-detail views. It takes two composable slots: `firstPane` and
-`secondPane`.
-
-```kotlin
-TwoPaneAdaptiveLayout(
-    firstPane = { Image() },
-    secondPane = { ImageInfo() },
-    aspectRatio = imageRatio
-)
-```
-
-### 2. AnimatedBottomNavBar
-
-A bottom navigation bar with smooth animations.
+### 1. Animated Bottom Nav Bar
 
 ```kotlin
 Scaffold(
@@ -106,10 +77,7 @@ Scaffold(
 }
 ```
 
-### 3. BottomOptionBar
-
-An adaptive bottom bar that displays as many primary actions as can fit on one line and elegantly
-tucks the rest into a "More" overflow menu.
+### 2. Bottom Option Bar
 
 ```kotlin
 val options = listOf(
@@ -131,9 +99,7 @@ BottomOptionBar(
 )
 ```
 
-### 4. DialTextPicker
-
-A circular picker for selecting from a list of strings.
+### 3. Dial Text Picker
 
 ```kotlin
 val hours = (0..23).map { it.toString().padStart(2, '0') }.toImmutableList()
@@ -144,7 +110,7 @@ DialTextPicker(state = dialState)
 Text("Selected Hour: ${dialState.selectedText}")
 ```
 
-### 5. WheelTextPicker
+### 4. Wheel Text Picker
 
 A vertical wheel-style picker.
 
@@ -165,7 +131,7 @@ WheelTextPicker(
 Text("Selected Minute: ${wheelState.selectedText}")
 ```
 
-### 6. BasicTextEditor
+### 5. Basic Text Editor
 
 A simple, line-numbered BasicTextField wrapper.
 
@@ -183,21 +149,21 @@ BasicTextEditor(
 
 ---
 
-## Screenshots & Demo
+## 📸 Screenshots
 
 ### Bottom Option Bar:
 
-| Adaptive Bottom Bar                                      | Adaptive Bottom Bar - Overflow Menu                      | Adaptive Bottom Bar - Landscape                          |
-|----------------------------------------------------------|----------------------------------------------------------|----------------------------------------------------------|
-| ![Screenshot 01](../screenshots/bottom_option_bar_1.jpg) | ![Screenshot 02](../screenshots/bottom_option_bar_2.jpg) | ![Screenshot 03](../screenshots/bottom_option_bar_3.jpg) |
+| Adaptive Bottom Bar                                               | Adaptive Bottom Bar - Overflow Menu                                        | Adaptive Bottom Bar - Landscape                                             |
+|-------------------------------------------------------------------|----------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/jetpack_ui_bottom_option_bar.jpg) | ![Screenshot 02](../screenshots/jetpack_ui_bottom_option_bar_overflow.jpg) | ![Screenshot 03](../screenshots/jetpack_ui_bottom_option_bar_landscape.jpg) |
 
 https://github.com/user-attachments/assets/ef8c7860-e472-438f-99ce-5d9490a39e04
 
 ### Text Picker:
 
-| Dial Text Picker                                      | Wheel Text Picker                                      |
-|-------------------------------------------------------|--------------------------------------------------------|
-| ![Screenshot 01](../screenshots/dial_text_picker.jpg) | ![Screenshot 02](../screenshots/wheel_text_picker.jpg) |
+| Dial Text Picker                                                 | Wheel Text Picker                                                 |
+|------------------------------------------------------------------|-------------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/jetpack_ui_dial_text_picker.jpg) | ![Screenshot 02](../screenshots/jetpack_ui_wheel_text_picker.jpg) |
 
 https://github.com/user-attachments/assets/0cb6bdc0-6b7a-4ce7-85dc-939bacbc5541
 
@@ -205,9 +171,9 @@ https://github.com/user-attachments/assets/250bbce5-b6c3-47cc-af90-63bf8898c0f3
 
 ### Text Editor:
 
-| Basic Text Editor                                      |
-|--------------------------------------------------------|
-| ![Screenshot 01](../screenshots/basic_text_editor.jpg) |
+| Basic Text Editor                                                 |
+|-------------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/jetpack_ui_basic_text_editor.jpg) |
 
 https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729
 

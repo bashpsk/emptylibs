@@ -1,66 +1,48 @@
-# Image Wallpaper - An Android Wallpaper Library for Jetpack Compose
+# 📱 Image Wallpaper
 
-A seamless, all-in-one Jetpack Compose library for cropping an image to the device's screen
-dimensions and setting it as the Android wallpaper.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-wallpaper.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-wallpaper)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`image-wallpaper` provides a single `ImageWallpaper` composable that integrates a powerful cropping
-UI (`image-krop`) with the native Android `WallpaperManager`. The library automatically detects the
-device's screen aspect ratio, locks the cropper to that ratio, and then presents a simple dialog for
-the user to choose whether to set the image on the home screen, lock screen, or both. It is built on
-top of `image-krop` to provide a familiar and robust cropping experience.
+A seamless, all-in-one Jetpack Compose library for cropping images to device dimensions and setting
+them as Android wallpapers.
 
 ---
 
-## Features
+## ✨ Features
 
-- **All-in-One Wallpaper Workflow**: A single `ImageWallpaper` composable manages the entire process
-  from cropping to setting the wallpaper.
-
-- **Automatic Aspect Ratio Detection**: Intelligently determines the device's screen aspect ratio
-  and automatically locks the cropper to match it, ensuring a perfect fit.
-
-- **Integrated Cropping UI**: Leverages the powerful `image-krop` library to provide an intuitive
-  and interactive cropping experience.
-
-- **Wallpaper Type Selection**: After cropping, a clean dialog prompts the user to select the
-  wallpaper destination:
-    - Home Screen
-    - Lock Screen
-    - Both Home & Lock Screen
-
-- **Asynchronous Wallpaper Setting**: The wallpaper is set on a background thread to keep the UI
-  responsive, with a loading indicator displayed during the process.
-
-- **Simple Integration**: Requires only an `ImageBitmap` to start the process, with minimal
-  boilerplate.
-
-- **Customizable**: The crop UI's appearance can be customized using `KropConfig`.
+- **Integrated Workflow**: Manage the entire process from cropping to setting the wallpaper in one
+  composable.
+- **Auto Aspect Ratio**: Automatically detects device screen dimensions and locks the cropper for a
+  perfect fit.
+- **Multi-Destination Support**: Set wallpapers for Home Screen, Lock Screen, or both.
+- **Async Processing**: Wallpapers are set on background threads to keep the UI responsive.
+- **Customizable UI**: Leverages `image-krop` configurations for a consistent look.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:image-wallpaper:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:image-wallpaper:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:image-wallpaper:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:image-wallpaper:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs:**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
 
 [libraries]
 emptylibs-image-wallpaper = { group = "com.github.bashpsk.emptylibs", name = "image-wallpaper", version.ref = "empty-libs" }
@@ -74,10 +56,7 @@ dependencies {
 
 ---
 
-## Usage
-
-Integrating `image-wallpaper` is straightforward. You only need to provide the `ImageWallpaper`
-composable with an `ImageBitmap`.
+## 🛠️ Usage
 
 ```kotlin
 ImageWallpaper(
@@ -86,32 +65,17 @@ ImageWallpaper(
     onWallpaperResult = { type, result ->
         // Handle the result, e.g., show a toast and navigate away
     },
-    onNavigateBack = navController::navigateUp
-)
-```
-
-```kotlin
-val customConfig = KropConfig.surfaceBased().copy(
-    handleColor = MaterialTheme.colorScheme.primary,
-    borderColor = MaterialTheme.colorScheme.secondary
-)
-
-ImageWallpaper(
-    modifier = Modifier.fillMaxSize(),
-    imageBitmap = baseImage,
-    config = customConfig,
-    dialogContainerColor = AlertDialogDefaults.containerColor,
-    onNavigateBack = navController::navigateUp
+    onNavigateBack = { /* Handle back navigation */ }
 )
 ```
 
 ---
 
-## Screenshots & Demo
+## 📸 Screenshots
 
-| Image Wallpaper - UI                                   | Wallpaper Type Selection                               |
-|--------------------------------------------------------|--------------------------------------------------------|
-| ![Screenshot 01](../screenshots/image_wallpaper_1.jpg) | ![Screenshot 02](../screenshots/image_wallpaper_2.jpg) |
+| Wallpaper Cropping                                        | Destination Selection                                            |
+|-----------------------------------------------------------|------------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_wallpaper_crop.jpg) | ![Screenshot 02](../screenshots/image_wallpaper_destination.jpg) |
 
 https://github.com/user-attachments/assets/5f5a510b-4e7a-41d2-aa43-1d456199b609
 

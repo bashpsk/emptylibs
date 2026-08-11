@@ -1,161 +1,133 @@
-# 👜 Empty Libs - A Collection of Modern Android Libraries
+# 👜 Empty Libs
 
-Welcome to **Empty Libs**, a curated suite of modern, lightweight, and easy-to-integrate libraries
-for native Android development with Jetpack Compose. Each library is designed to solve a specific
-problem with a clean API, robust state management, and a focus on simplicity.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com)
+[![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4.svg)](https://developer.android.com/jetpack/compose)
 
----
-
-## Libraries
-
-This repository contains the following libraries. Each is independently versioned and can be used on
-its own.
-
-| Library                                                                             | Version                                                                                                                                                 | Description                                                                     |
-|:------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------|
-| **[✍️ Canvas Slate](#-canvas-slate---a-drawing-pad-for-jetpack-compose)**           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/canvas-slate.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/canvas-slate)         | A complete drawing pad with path editing, brush controls, and export.           |
-| **[🛠️ Compose Utils](#-compose-utils---a-utility-library-for-jetpack-compose)**    | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/compose-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/compose-utils)       | Serializable/Parcelable data classes for core Compose types (`Offset`, `Size`). |
-| **[⚙️ Datastore UI](#-datastore-ui---a-settings-ui-library-for-jetpack-datastore)** | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/datastore-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/datastore-ui)         | Pre-built preference components (switches, sliders) for DataStore.              |
-| **[📝 Formatter](#-formatter---a-kotlin--java-utility-library)**                    | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/formatter.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/formatter)               | A simple utility for rounding decimals and using common date/time patterns.     |
-| **[👆 Gesture UI](#-gesture-ui---custom-gestures-for-jetpack-compose)**             | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/gesture-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/gesture-ui)             | Custom gestures for Compose, starting with video player controls.               |
-| **[🎨 Image Edit](#-image-edit---a-comprehensive-image-editing-library)**           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-edit.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-edit)             | A full-screen image editor with tools for drawing, text, shapes, and more.      |
-| **[🌈 Image Kolor](#-image-kolor---image-filtering--color-adjustment)**             | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-kolor.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-kolor)           | Apply pre-built template filters and fine-tune colors with sliders.             |
-| **[✂️ Image Krop](#-image-krop---an-advanced-image-cropping-library)**              | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-krop.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-krop)             | An advanced image cropper with aspect ratio, shape, and preview support.        |
-| **[✨ Image Utils](#-image-utils---a-shape-and-bitmap-utility-library)**             | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-utils)           | Apply shape masks to bitmaps and perform common bitmap calculations.            |
-| **[🖼️ Image View](#-image-view---a-transformable--swipeable-image-viewer)**        | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-view.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-view)             | A zoomable, pannable, and swipeable image viewer built on Coil 3.               |
-| **[📱 Image Wallpaper](#-image-wallpaper---an-android-wallpaper-cropper--setter)**  | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-wallpaper.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-wallpaper)   | A complete workflow for cropping an image and setting it as a wallpaper.        |
-| **[💎 Jetpack UI](#-jetpack-ui---a-collection-of-modern-ui-components)**            | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/jetpack-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/jetpack-ui)             | A collection of adaptive layouts, animated nav bars, pickers, and more.         |
-| **[🎨 Kolor Picker](#-kolor-picker---an-advanced-color-picker)**                    | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/kolor-picker.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/kolor-picker)         | An advanced color picker with HSL panels, an image dropper, and dialogs.        |
-| **[📦 LRUCache Manager](#-lrucache-manager---a-generic-lru-cache-for-kotlin)**      | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/lrucache-manager.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/lrucache-manager) | A simple, generic in-memory LRU cache wrapper.                                  |
-| **[📁 Storage](#-storage---a-comprehensive-file--storage-utility)**                 | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/storage.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/storage)                   | A coroutine-based utility for browsing files and managing storage.              |
+**Empty Libs** is a modular collection of modern, lightweight, and purpose-built Jetpack Compose
+libraries for Android. Designed to simplify common UI patterns, state management, and media
+processing with a clean and intuitive API.
 
 ---
 
-### ✍️ Canvas Slate - A Drawing Pad for Jetpack Compose
+## 🚀 Key Features
 
-A feature-rich drawing solution that allows free-form drawing, path editing, customizable brushes
-and canvas colors, and exporting the final drawing as an `ImageBitmap`.
+- **Modular Architecture**: Each library is independent. Import only what you need.
+- **Pure Compose**: Built from the ground up with Jetpack Compose for seamless integration.
+- **Robust State Management**: Predictable and easy-to-use states for complex components.
+- **Developer Friendly**: Comprehensive documentation and usage examples.
 
-- **Key Features**: Free-form drawing, path selection & editing, undo/redo, export.
-- **[View README](./canvas-slate/README.md)**
+---
 
-### 🛠️ Compose Utils - A Utility Library for Jetpack Compose
+## 📚 Libraries
 
-Provides serializable and parcelable data classes for core Jetpack Compose types like `Offset`,
-`Size`, `IntOffset`, `IntSize`, and their `Dp` variants, simplifying state restoration and data
-transfer.
+| Module                                          | Status                                                                                                                                                    | Description                                               |
+|:------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------------|
+| [**✨ Animations**](./animations)                | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/animations.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/animations)               | Music visualizers and fluid wave effects.                 |
+| [**✍️ Canvas Slate**](./canvas-slate)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/canvas-slate.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/canvas-slate)           | Powerful drawing pad with path editing and export.        |
+| [**🛠️ Compose Utils**](./compose-utils)        | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/compose-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/compose-utils)         | Serializable/Parcelable data classes for core types.      |
+| [**🧩 Compose Widgets**](./compose-widgets)     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/compose-widgets.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/compose-widgets)     | Functional analog and digital clocks for Compose.         |
+| [**⚙️ Datastore UI**](./datastore-ui)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/datastore-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/datastore-ui)           | Pre-built settings components for Jetpack DataStore.      |
+| [**📝 Formatter**](./formatter)                 | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/formatter.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/formatter)                 | Decimal rounding and date/time formatting utilities.      |
+| [**👆 Gesture UI**](./gesture-ui)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/gesture-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/gesture-ui)               | Advanced gesture detection (e.g., video player controls). |
+| [**🎨 Image Edit**](./image-edit)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-edit.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-edit)               | Full-screen image editor with drawing, text, and shapes.  |
+| [**🌈 Image Kolor**](./image-kolor)             | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-kolor.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-kolor)             | Image filtering and manual color adjustment sliders.      |
+| [**✂️ Image Krop**](./image-krop)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-krop.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-krop)               | Advanced cropping with aspect ratios and custom shapes.   |
+| [**✨ Image Utils**](./image-utils)              | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-utils)             | Shape and bitmap utility library.                         |
+| [**🖼️ Image View**](./image-view)              | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-view.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-view)               | Zoomable, pannable, and swipeable image gallery (Coil 3). |
+| [**📱 Image Wallpaper**](./image-wallpaper)     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-wallpaper.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-wallpaper)     | Android wallpaper cropper and setter.                     |
+| [**💎 Jetpack UI**](./jetpack-ui)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/jetpack-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/jetpack-ui)               | Adaptive layouts, nav bars, and custom pickers.           |
+| [**🎨 Kolor Picker**](./kolor-picker)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/kolor-picker.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/kolor-picker)           | HSL panel, image dropper, and color dialogs.              |
+| [**📐 Layouts**](./layouts)                     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/layouts.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/layouts)                     | Adaptive two-pane, collapsible, and zoomable layouts.     |
+| [**📦 LRU-Cache Manager**](./lrucache-manager)  | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/lrucache-manager.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/lrucache-manager)   | Type-safe in-memory caching wrapper.                      |
+| [**📝 PDF Template**](./pdf-template)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/pdf-template.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/pdf-template)           | State-driven PDF generation with pagination.              |
+| [**📜 PDF Viewer**](./pdf-viewer)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/pdf-viewer.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/pdf-viewer)               | Lightweight PDF rendering and viewing components.         |
+| [**📜 Serialization XML**](./serialization-xml) | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/serialization-xml.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/serialization-xml) | Lightweight XML serialization for Kotlin.                 |
+| [**📂 Storage**](./storage)                     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/storage.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/storage)                     | Coroutine-based file browsing and storage management.     |
 
-- **Key Features**: Serializable & Parcelable data classes, seamless conversion, state management
-  helpers.
-- **[View README](./compose-utils/README.md)**
+---
 
-### ⚙️ Datastore UI - A Settings UI Library for Jetpack Datastore
+## 📦 Installation
 
-A collection of pre-built preference components (`SwitchPreference`, `SliderPreference`, etc.) that
-automatically read from and write to Jetpack DataStore, making settings screens a breeze to create.
+Add the JitPack repository to your root `settings.gradle.kts`:
 
-- **Key Features**: DataStore-powered components, minimal boilerplate, variety of preference types.
-- **[View README](./datastore-ui/README.md)**
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        maven("https://jitpack.io")
+    }
+}
+```
 
-### 📝 Formatter - A Kotlin & Java Utility Library
+Then define the desired libraries to your `libs.versions.toml`:
+```toml
+[versions]
+empty-libs = "VERSION"
 
-A dependency-free library to simplify common formatting tasks, including rounding `Double` or
-`Float` values and providing predefined `SimpleDateFormat` patterns.
+[libraries]
+emptylibs-animations = { group = "com.github.bashpsk.emptylibs", name = "animations", version.ref = "empty-libs" }
+emptylibs-canvas-slate = { group = "com.github.bashpsk.emptylibs", name = "canvas-slate", version.ref = "empty-libs" }
+emptylibs-compose-utils = { group = "com.github.bashpsk.emptylibs", name = "compose-utils", version.ref = "empty-libs" }
+emptylibs-compose-widgets = { group = "com.github.bashpsk.emptylibs", name = "compose-widgets", version.ref = "empty-libs" }
+emptylibs-datastore-ui = { group = "com.github.bashpsk.emptylibs", name = "datastore-ui", version.ref = "empty-libs" }
+emptylibs-formatter = { group = "com.github.bashpsk.emptylibs", name = "formatter", version.ref = "empty-libs" }
+emptylibs-gesture-ui = { group = "com.github.bashpsk.emptylibs", name = "gesture-ui", version.ref = "empty-libs" }
+emptylibs-image-edit = { group = "com.github.bashpsk.emptylibs", name = "image-edit", version.ref = "empty-libs" }
+emptylibs-image-kolor = { group = "com.github.bashpsk.emptylibs", name = "image-kolor", version.ref = "empty-libs" }
+emptylibs-image-krop = { group = "com.github.bashpsk.emptylibs", name = "image-krop", version.ref = "empty-libs" }
+emptylibs-image-utils = { group = "com.github.bashpsk.emptylibs", name = "image-utils", version.ref = "empty-libs" }
+emptylibs-image-view = { group = "com.github.bashpsk.emptylibs", name = "image-view", version.ref = "empty-libs" }
+emptylibs-image-wallpaper = { group = "com.github.bashpsk.emptylibs", name = "image-wallpaper", version.ref = "empty-libs" }
+emptylibs-jetpack-ui = { group = "com.github.bashpsk.emptylibs", name = "jetpack-ui", version.ref = "empty-libs" }
+emptylibs-kolor-picker = { group = "com.github.bashpsk.emptylibs", name = "kolor-picker", version.ref = "empty-libs" }
+emptylibs-layouts = { group = "com.github.bashpsk.emptylibs", name = "layouts", version.ref = "empty-libs" }
+emptylibs-lrucache-manager = { group = "com.github.bashpsk.emptylibs", name = "lrucache-manager", version.ref = "empty-libs" }
+emptylibs-pdf-template = { group = "com.github.bashpsk.emptylibs", name = "pdf-template", version.ref = "empty-libs" }
+emptylibs-pdf-viewer = { group = "com.github.bashpsk.emptylibs", name = "pdf-viewer", version.ref = "empty-libs" }
+emptylibs-serialization-xml = { group = "com.github.bashpsk.emptylibs", name = "serialization-xml", version.ref = "empty-libs" }
+emptylibs-storage = { group = "com.github.bashpsk.emptylibs", name = "storage", version.ref = "empty-libs" }
+```
 
-- **Key Features**: Decimal rounding, predefined format patterns, lightweight and static.
-- **[View README](./formatter/README.md)**
+Then add the desired library to your module-level `build.gradle.kts`:
 
-### 👆 Gesture UI - Custom Gestures for Jetpack Compose
+```kotlin
+dependencies {
+    implementation(libs.emptylibs.animations)
+    implementation(libs.emptylibs.canvas.slate)
+    implementation(libs.emptylibs.compose.utils)
+    implementation(libs.emptylibs.compose.widgets)
+    implementation(libs.emptylibs.datastore.ui)
+    implementation(libs.emptylibs.formatter)
+    implementation(libs.emptylibs.gesture.ui)
+    implementation(libs.emptylibs.image.edit)
+    implementation(libs.emptylibs.image.kolor)
+    implementation(libs.emptylibs.image.krop)
+    implementation(libs.emptylibs.image.utils)
+    implementation(libs.emptylibs.image.view)
+    implementation(libs.emptylibs.image.wallpaper)
+    implementation(libs.emptylibs.jetpack.ui)
+    implementation(libs.emptylibs.kolor.picker)
+    implementation(libs.emptylibs.layouts)
+    implementation(libs.emptylibs.lrucache.manager)
+    implementation(libs.emptylibs.pdf.template)
+    implementation(libs.emptylibs.pdf.viewer)
+    implementation(libs.emptylibs.serialization.xml)
+    implementation(libs.emptylibs.storage)
+}
+```
 
-A gesture detection library to add complex interactions to your UI. Currently specializes in
-providing a rich set of gestures for video players (double-tap to seek, swipe for volume/brightness,
-pinch-to-zoom).
+---
 
-- **Key Features**: Video player gestures, robust state management, highly configurable.
-- **[View README](./gesture-ui/README.md)**
+## 🤝 Contributing
 
-### 🎨 Image Edit - A Comprehensive Image Editing Library
+Contributions are welcome! If you have a library idea or a bug fix, feel free to open an issue or
+submit a pull request.
 
-A complete `ImageEdit` composable with top and bottom toolbars for a seamless editing experience.
-Supports drawing, text, shapes, and image overlays with object-based selection, manipulation, and
-undo/redo.
+---
 
-- **Key Features**: Free-form drawing, text & shape tools, object manipulation, state management,
-  export.
-- **[View README](./image-edit/README.md)**
+## 📜 License
 
-### 🌈 Image Kolor - Image Filtering & Color Adjustment
-
-Provides two main features: fine-tuning image properties (brightness, contrast, saturation) with
-sliders, and applying a wide variety of one-tap artistic and corrective filters.
-
-- **Key Features**: Manual color adjustment, pre-built template filters, live previews, export.
-- **[View README](./image-kolor/README.md)**
-
-### ✂️ Image Krop - An Advanced Image Cropping Library
-
-A full-featured cropping UI with support for predefined aspect ratios, custom crop shapes (circles,
-stars), image flipping, and a live preview.
-
-- **Key Features**: Aspect ratio control, shape masking, interactive crop selection, live preview.
-- **[View README](./image-krop/README.md)**
-
-### ✨ Image Utils - A Shape and Bitmap Utility Library
-
-A utility to apply shape masks (Circle, Star, Polygon, etc.) to any `ImageBitmap` and perform common
-bitmap calculations, like fitting an image to a canvas.
-
-- **Key Features**: Advanced shape masking, extensible shape system, bitmap extensions.
-- **[View README](./image-utils/README.md)**
-
-### 🖼️ Image View - A Transformable & Swipeable Image Viewer
-
-A powerful image viewer built on Coil 3. Supports pinch-to-zoom, pan, rotation, and double-tap
-gestures. It automatically becomes a swipeable gallery when given a list of images.
-
-- **Key Features**: Zoom/Pan/Rotate, swipeable gallery, Coil 3 integration, configurable controls.
-- **[View README](./image-view/README.md)**
-
-### 📱 Image Wallpaper - An Android Wallpaper Cropper & Setter
-
-A seamless, all-in-one workflow to crop an image to the device's screen dimensions and set it as the
-home screen, lock screen, or both.
-
-- **Key Features**: Automatic aspect ratio detection, integrated crop UI, wallpaper type selection.
-- **[View README](./image-wallpaper/README.md)**
-
-### 💎 Jetpack UI - A Collection of Modern UI Components
-
-A suite of powerful and reusable composables, including an adaptive `TwoPaneLayout`, an
-`AnimatedBottomNavBar`, an adaptive `BottomOptionBar` with an overflow menu, and unique
-`DialTextPicker` and `WheelTextPicker` components.
-
-- **Key Features**: Adaptive layouts, animated navigation, custom pickers, overflow menus.
-- **[View README](./jetpack-ui/README.md)**
-
-### 🎨 Kolor Picker - An Advanced Color Picker
-
-A versatile color picker with an HSL panel, an image-based dropper tool, and a pre-built dialog.
-Features robust state management and optional copy/paste functionality.
-
-- **Key Features**: Classic HSL picker, image dropper, ready-to-use dialog.
-- **[View README](./kolor-picker/README.md)**
-
-### 📦 LRUCache Manager - A Generic LRU Cache for Kotlin
-
-A lightweight and efficient wrapper around Android's `LruCache` for easy, type-safe, in-memory
-caching of any object type.
-
-- **Key Features**: Generic & type-safe, simple API, dynamic resizing, full cache control.
-- **[View README](./lrucache-manager/README.md)**
-
-### 📁 Storage - A Comprehensive File & Storage Utility
-
-A modern, coroutine-based utility for Android that simplifies browsing the file system, querying
-storage volumes, reading metadata, and creating files or folders.
-
-- **Key Features**: Storage volume management, file/directory browsing, rich metadata, Flow-based
-  API.
-- **[View README](./storage/README.md)**
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---

@@ -1,80 +1,47 @@
-# Storage - A Comprehensive File & Storage Utility for Android
+# 📂 Storage
 
-A powerful and modern utility library for Android that simplifies common file system and storage
-management tasks. It provides a clean, coroutine-based API for querying storage volumes, listing
-files, reading metadata, and creating new files or folders.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/storage.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/storage)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`storage` offers a static `StorageExt` object that acts as a single entry point for all file
-operations. It is designed to run expensive I/O operations on background threads, returning data as
-either suspend functions or Flows. With a rich set of data classes
-(`StorageVolumeData`, `DirectoryData`, `FileData`), it provides detailed, structured information
-about the device's storage and its contents.
+A modern, coroutine-based file and storage utility library for Android. Simplifies browsing,
+metadata retrieval, and file management with a clean Flow-based API.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Storage Volume Management**:
-
-    - List all available storage volumes (Internal, SD Card, OTG) with `getStorageVolumeList()` or
-      `getStorageVolumeFlow()`.
-    - Get detailed information for each volume, including total, free, and used space
-      (`StorageVolumeData`).
-
-- **File & Directory Browsing**:
-
-    - List the contents of any directory with `getDirectoryFileData()`, which returns a
-      `DirectoryFileData` object containing separate lists of files and folders.
-    - Recursively find all files with specific extensions using `getFileListByExtensions()`.
-
-- **Rich Metadata**:
-
-    - Get detailed metadata for any file (`FileData`) or directory (`DirectoryData`), including
-      path,
-      `URI`, size, last modified date, and visibility.
-    - Automatically categorize files into types like Image, Video, Audio, Document, etc., using the
-      `FileType` enum.
-
-- **File & Folder Creation**:
-
-    - Easily create new files or folders with `makeFolderOrFile()`, which returns a `MakeFileResult`
-      indicating success, failure, or if the item already exists.
-
-- **Coroutine & Flow-Based**:
-
-    - All I/O operations are provided as `suspend` functions or `Flows` to ensure they run off the
-      main thread, keeping your UI responsive.
-
-- **Comprehensive Data Models**:
-
-    - Uses immutable, parcelable, and serializable data classes for easy use with Jetpack Compose,
-      state management, and data persistence.
+- **Volume Management**: List internal storage, SD cards, and OTG drives with capacity info.
+- **Directory Browsing**: Easily list files and folders with dedicated data models.
+- **Rich Metadata**: Access detailed `FileData` including MIME types, sizes, and modification dates.
+- **Extension Filtering**: Search for files by specific extensions (e.g., `.jpg`, `.pdf`).
+- **File Management**: Create folders and files with simple `suspend` functions.
+- **Thread Safe**: All operations are optimized for background execution.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:storage:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:storage:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:storage:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:storage:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs:**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
 
 [libraries]
 emptylibs-storage = { group = "com.github.bashpsk.emptylibs", name = "storage", version.ref = "empty-libs" }
@@ -88,9 +55,7 @@ dependencies {
 
 ---
 
-## Usage
-
-All functions are accessed via the static `StorageExt` object.
+## 🛠️ Usage
 
 ### 1. Listing Storage Volumes
 

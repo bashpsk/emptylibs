@@ -47,7 +47,10 @@ fun MusicPlayingAnimationScreen() {
                 .padding(paddingValues)
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+            verticalArrangement = Arrangement.spacedBy(
+                space = 12.dp,
+                alignment = Alignment.CenterVertically
+            )
         ) {
 
             MusicPlayingAnimation(
@@ -68,6 +71,7 @@ fun MusicPlayingAnimationScreen() {
                 isPlaying = true,
                 barCount = 5,
                 boxCount = 5,
+                boxColor = Color.Magenta,
                 easing = EaseInOutBounce
             )
         }

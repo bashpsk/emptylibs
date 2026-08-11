@@ -51,7 +51,7 @@ fun DigitalClockScreen() {
     val shape = MaterialTheme.shapes.extraSmall
 
     val colors = CardDefaults.elevatedCardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceBright,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
     )
 
@@ -99,7 +99,7 @@ fun DigitalClockScreen() {
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
-                space = 8.dp,
+                space = 16.dp,
                 alignment = Alignment.CenterVertically
             )
         ) {
@@ -110,7 +110,7 @@ fun DigitalClockScreen() {
             ) {
 
                 DigitalClock(
-                    modifier = Modifier,
+                    modifier = Modifier.padding(12.dp),
                     dateTimeMillis = currentDateTime,
                     textStyles = DigitalClockDefault.textStyles()
                 )
@@ -122,7 +122,7 @@ fun DigitalClockScreen() {
             ) {
 
                 DigitalClock(
-                    modifier = Modifier,
+                    modifier = Modifier.padding(12.dp),
                     dateTimeMillis = currentDateTime,
                     properties = SevenSegmentDefault.properties(
                         width = 48.dp,
@@ -137,7 +137,7 @@ fun DigitalClockScreen() {
             ) {
 
                 DigitalClockWithWeekDays(
-                    modifier = Modifier,
+                    modifier = Modifier.padding(12.dp),
                     localDateTime = currentDateTime,
                     textStyles = DigitalClockDefault.textStyles()
                 )

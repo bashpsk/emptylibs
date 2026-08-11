@@ -1,56 +1,52 @@
-# Canvas Slate - A Drawing Pad for Jetpack Compose
+# ✍️ Canvas Slate
 
-A powerful and customizable canvas library for Jetpack Compose, designed for an intuitive drawing
-and path editing experience.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/canvas-slate.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/canvas-slate)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`canvas-slate` is a feature-rich composable that provides a complete drawing solution out of the
-box.
-It allows users to draw free-form paths, customize canvas and brush colors, adjust stroke
-properties, and even select and edit individual paths after they have been drawn. The library is
-built with a robust state management system (`CanvasSlateState`) and is easy to integrate into any
-Jetpack Compose project.
+A powerful and customizable drawing pad for Jetpack Compose, designed for an intuitive drawing and
+path editing experience. `canvas-slate` provides a complete drawing solution out of the box,
+allowing users to draw free-form paths, customize colors, adjust stroke properties, and even edit
+individual paths after they have been drawn.
 
 ---
 
-## Features
+## ✨ Features
 
 - **Free-form Drawing**: Smooth and responsive drawing on the canvas.
 - **Advanced Color Customization**: Separate color pickers for both the canvas background and the
   drawing brush.
-- **Comprehensive Brush Controls**: Adjust brush thickness, stroke cap (e.g., Round, Square), and
-  stroke join (e.g., Bevel, Miter) through built-in dialogs.
-- **Path Editing**: An integrated `ModalBottomSheet` allows users to select and modify the
-  properties (color, thickness, etc.) of individual paths after they are drawn.
-- **State Management**: A robust `CanvasSlateState` that can be remembered across recompositions
-  (`rememberCanvasSlateState`) to manage the canvas, tools, and all drawn paths.
-- **Undo/Redo & Clear**: Easily undo or redo the last action, or clear the entire canvas.
+- **Comprehensive Brush Controls**: Adjust brush thickness, stroke cap (Round, Square), and stroke
+  join (Bevel, Miter).
+- **Path Editing**: Select and modify the properties (color, thickness, etc.) of individual paths
+  after they are drawn.
+- **State Management**: Robust `CanvasSlateState` that manages tools, paths, and undo/redo history.
 - **Export**: Capture the final drawing as an `ImageBitmap` to save or share.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:canvas-slate:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:canvas-slate:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:canvas-slate:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:canvas-slate:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs:**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
 
 [libraries]
 emptylibs-canvas-slate = { group = "com.github.bashpsk.emptylibs", name = "canvas-slate", version.ref = "empty-libs" }
@@ -64,13 +60,10 @@ dependencies {
 
 ---
 
-## Usage
+## 🛠️ Usage
 
-Integrating `CanvasSlate` into your app is straightforward. Use `rememberCanvasSlateState()` to
-create and manage the state of the canvas, and then pass it to the `CanvasSlate` composable.
-
-Here is a complete example demonstrating how to set up the canvas and handle the export
-functionality:
+Integrating `CanvasSlate` is straightforward. Use `rememberCanvasSlateState()` to manage the canvas
+state and pass it to the composable.
 
 ```kotlin
 val canvasSlateState = rememberCanvasSlateState()
@@ -84,13 +77,13 @@ CanvasSlate(
             canvasSlateState.getImageBitmap()?.let { imageBitmap -> }
         }
     },
-    onNavigateBack = navController::navigateUp
+    onNavigateBack = { /* Handle back navigation */ }
 )
 ```
 
 ---
 
-## Screenshots & Demo
+## 📸 Screenshots
 
 | Canvas Slate                                      |
 |---------------------------------------------------|

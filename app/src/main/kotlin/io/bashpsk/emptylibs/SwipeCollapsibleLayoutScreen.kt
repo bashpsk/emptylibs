@@ -2,44 +2,49 @@ package io.bashpsk.emptylibs
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.layouts.collapsible.SwipeCollapsibleLayout
 import io.bashpsk.emptylibs.layouts.collapsible.rememberSwipeCollapsibleLayoutState
+import io.bashpsk.emptylibs.screen.layouts.VideoData
+import io.bashpsk.emptylibs.screen.layouts.dummyVideoList
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,67 +53,128 @@ fun SwipeCollapsibleLayoutScreen() {
     val coroutineScope = rememberCoroutineScope()
     val state = rememberSwipeCollapsibleLayoutState()
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
-    val imageBitmap2 = ImageBitmap.imageResource(R.drawable.wallpaper02)
-    val imageBitmap3 = ImageBitmap.imageResource(R.drawable.empty_layer)
+    var selectedEntry by retain { mutableStateOf<VideoData?>(null) }
 
-    val imageFeedList by remember {
-        derivedStateOf {
-            (1..33).associate { index ->
+    val imageItemView = @Composable { imageItem: VideoData ->
 
-                "Video feed $index" to when (index % 3) {
-                    1 -> imageBitmap
-                    2 -> imageBitmap2
-                    else -> imageBitmap3
-                }
-            }.toList()
-        }
-    }
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraSmall,
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ),
+            onClick = {
+                coroutineScope.launch { state.expand() }
+                selectedEntry = imageItem
+            }
+        ) {
 
-    val imageRecommendationList by remember {
-        derivedStateOf {
-            (1..10).associate { index ->
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
 
-                "Video recommendation $index" to when (index % 3) {
-                    1 -> imageBitmap
-                    2 -> imageBitmap2
-                    else -> imageBitmap3
-                }
-            }.toList()
-        }
-    }
-
-    var selectedEntry by retain { mutableStateOf<Pair<String, ImageBitmap>?>(null) }
-
-    val imageItemView = @Composable { imageItem: Pair<String, ImageBitmap> ->
-
-        ListItem(
-            modifier = Modifier
-                .padding(8.dp)
-                .clickable(
-                    onClick = {
-                        coroutineScope.launch { state.expand() }
-                        selectedEntry = imageItem
-                    }
-                ),
-            headlineContent = { Text(imageItem.first) },
-            leadingContent = {
-
-                Box(
+                Image(
                     modifier = Modifier
-                        .size(120.dp, 72.dp)
-                        .background(Color.Gray)
+                        .fillMaxWidth()
+                        .aspectRatio(16F / 9F),
+                    painter = painterResource(imageItem.thumbnail),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(
+                        space = 4.dp,
+                        alignment = Alignment.CenterVertically
+                    )
                 ) {
 
-                    Image(
-                        modifier = Modifier.fillMaxSize(),
-                        bitmap = imageItem.second,
-                        contentScale = ContentScale.Crop,
-                        contentDescription = null
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = imageItem.title,
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(0.75F),
+                        text = "3.33K views  •  333 likes  •  3 years ago",
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
             }
-        )
+        }
+    }
+
+    val recommendationItemView = @Composable { imageItem: VideoData ->
+
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraSmall,
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ),
+            onClick = {
+                coroutineScope.launch { state.expand() }
+                selectedEntry = imageItem
+            }
+        ) {
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Image(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5F)
+                        .aspectRatio(16F / 9F),
+                    painter = painterResource(imageItem.thumbnail),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+
+                Column(
+                    modifier = Modifier
+                        .weight(1.0F)
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(
+                        space = 4.dp,
+                        alignment = Alignment.CenterVertically
+                    )
+                ) {
+
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = imageItem.title,
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(0.75F),
+                        text = "3.33K views  •  333 likes  •  3 years ago",
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
@@ -126,13 +192,13 @@ fun SwipeCollapsibleLayoutScreen() {
                         .background(Color.Blue)
                 ) {
 
-                    selectedEntry?.second?.let {
+                    selectedEntry?.let { imageItem ->
 
                         Image(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(16F / 9F),
-                            bitmap = it,
+                            painter = painterResource(imageItem.thumbnail),
                             contentScale = ContentScale.Crop,
                             contentDescription = null
                         )
@@ -150,12 +216,14 @@ fun SwipeCollapsibleLayoutScreen() {
 
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = selectedEntry?.first ?: "Not selected!"
+                        text = selectedEntry?.title ?: "Not selected!"
                     )
 
                     IconButton(
                         onClick = {
-                            selectedEntry = imageFeedList[imageFeedList.indexOf(selectedEntry) - 1]
+                            selectedEntry = dummyVideoList[
+                                dummyVideoList.indexOf(selectedEntry) - 1
+                            ]
                         }
                     ) {
                         Icon(Icons.Default.SkipPrevious, contentDescription = null)
@@ -163,7 +231,9 @@ fun SwipeCollapsibleLayoutScreen() {
 
                     IconButton(
                         onClick = {
-                            selectedEntry = imageFeedList[imageFeedList.indexOf(selectedEntry) + 1]
+                            selectedEntry = dummyVideoList[
+                                dummyVideoList.indexOf(selectedEntry) + 1
+                            ]
                         }
                     ) {
                         Icon(Icons.Default.SkipNext, contentDescription = null)
@@ -178,17 +248,32 @@ fun SwipeCollapsibleLayoutScreen() {
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(4.dp),
+                    contentPadding = PaddingValues(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(
-                        space = 4.dp,
+                        space = 8.dp,
                         alignment = Alignment.CenterVertically
                     )
                 ) {
 
-                    items(imageRecommendationList) { imageItem ->
+                    item { HorizontalDivider(thickness = 1.6.dp) }
 
-                        imageItemView(imageItem)
+                    item { Spacer(modifier = Modifier.height(8.dp)) }
+
+                    item {
+                        Text(
+                            text = "Description: ${selectedEntry?.description ?: ""}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    item { Spacer(modifier = Modifier.height(8.dp)) }
+
+                    item { HorizontalDivider(thickness = 1.6.dp) }
+
+                    items(dummyVideoList) { imageItem ->
+
+                        recommendationItemView(imageItem)
                     }
                 }
             }
@@ -204,12 +289,12 @@ fun SwipeCollapsibleLayoutScreen() {
                 ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(
-                    space = 4.dp,
+                    space = 8.dp,
                     alignment = Alignment.CenterVertically
                 )
             ) {
 
-                items(imageFeedList) { imageItem ->
+                items(dummyVideoList) { imageItem ->
 
                     imageItemView(imageItem)
                 }

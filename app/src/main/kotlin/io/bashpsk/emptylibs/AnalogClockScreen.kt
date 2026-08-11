@@ -70,7 +70,7 @@ fun AnalogClockScreen() {
         borderWidth = 8.dp,
         numberTextStyle = MaterialTheme.typography.titleMedium.copy(
             fontSize = 20.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = Color(175, 19, 0, 255)
         ),
         minorDivisionWidth = 4.dp,
         minorDivisionThickness = 4.dp,
@@ -79,12 +79,13 @@ fun AnalogClockScreen() {
     )
 
     val colors = AnalogClockDefault.colors(
-        majorTickColor = MaterialTheme.colorScheme.surfaceTint,
-        minorTickColor = MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.35F),
-        hourHandColor = Color(99, 128, 255, 255),
+        containerColor = Color(77, 199, 255, 255),
+        majorTickColor = Color(175, 19, 0, 255),
+        minorTickColor = Color(255, 0, 0, 255),
+        hourHandColor = Color(77, 61, 16, 255),
         minuteHandColor = Color(255, 34, 119, 255),
-        secondHandColor = Color(103, 255, 237, 255),
-        borderColor = MaterialTheme.colorScheme.outlineVariant
+        secondHandColor = Color(190, 186, 0, 255),
+        borderColor = Color(1, 87, 176, 255)
     )
 
     RetainedEffect(lifecycleOwner.lifecycle) {
@@ -149,7 +150,7 @@ fun AnalogClockScreen() {
             ) {
 
                 AnalogClock(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(0.75F),
                     shape = clockShape,
                     properties = properties,
                     colors = colors,

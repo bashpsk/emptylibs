@@ -1,76 +1,46 @@
-# Image Kolor - Image Filtering & Color Adjustment for Jetpack Compose
+# 🌈 Image Kolor
 
-An advanced, easy-to-use Jetpack Compose library for applying powerful color adjustments and a wide
-variety of pre-built filters to images.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-kolor.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-kolor)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`image-kolor` provides two main features in a simple, configurable package. The Image Color offers a
-set of sliders to fine-tune properties like brightness, contrast, saturation, and more. The Image
-Filter gives you a collection of one-tap artistic and corrective filters, similar to those found in
-popular photo editing apps.
-
-Both features are designed for seamless integration, offering real-time previews and a
-straightforward API to generate the final edited `ImageBitmap`.
+Advanced image filtering and color adjustment for Jetpack Compose. Fine-tune image properties with
+sliders or apply artistic filters with a single tap.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Image Color Adjustment (`ImageKolor`)**: Manually adjust image colors using sliders for
-    - Brightness
-    - Contrast
-    - Saturation
-    - Gamma
-    - Hue
-    - Sharpness
-    - Vibrance
-
-- **Image Filtering (`ImageFilter`)**: Apply a variety of pre-built template filters, including:
-    - Grayscale
-    - Sepia
-    - Invert
-    - Black & White
-    - Vintage
-    - Cool & Warm
-    - Night Vision
-    - Saturate
-
-- **Live Previews**: See the effects of adjustments and filters applied to the image in real-time.
-
-- **Robust State Management**: Uses `rememberImageKolorState()` and `rememberImageFilterState()` to
-  manage all adjustments and selected filters, ensuring state is preserved across recompositions.
-
-- **Easy Integration**: Simply provide an `ImageBitmap` and add the composable to your UI.
-
-- **High Performance**: Optimized for smooth slider interactions and quick filter application.
-
-- **Export Final Image**: Easily generate an `ImageBitmap` with all the applied color adjustments or
-  filters.
+- **Color Adjustments**: Sliders for Brightness, Contrast, Saturation, Gamma, Hue, and Sharpness.
+- **Pre-built Filters**: Grayscale, Sepia, Invert, Vintage, Night Vision, and more.
+- **Live Previews**: Real-time feedback as you adjust properties or select filters.
+- **High Performance**: Optimized for smooth interactions and quick rendering.
+- **Modular Components**: Separate layouts for color adjustment and filtering.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:image-kolor:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:image-kolor:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:image-kolor:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:image-kolor:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs:**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
 
 [libraries]
 emptylibs-image-kolor = { group = "com.github.bashpsk.emptylibs", name = "image-kolor", version.ref = "empty-libs" }
@@ -84,14 +54,9 @@ dependencies {
 
 ---
 
-## Usage
+## 🛠️ Usage
 
-### Image Color Adjustment
-
-The `ImageKolor` composable provides a UI with a live preview and sliders for adjusting various
-color properties.
-
-Create an `ImageKolorState`, pass your source `ImageBitmap`, and use the `ImageKolor` composable.
+### Color Adjustment
 
 ```kotlin
 val kolorState = rememberImageKolorState(imageBitmap = baseImage)
@@ -100,22 +65,9 @@ ImageKolorLayout(
     modifier = Modifier.fillMaxSize(),
     state = kolorState
 )
-
-Button(
-    onClick = {
-        val finalImage = kolorState.getColorImage()
-    }
-) {
-    Text("Get Image")
-}
 ```
 
 ### Image Filtering
-
-The `ImageFilter` composable provides a UI with a live preview and a list of selectable filter
-templates.
-
-Create an `ImageFilterState`, pass your source `ImageBitmap`, and use the `ImageFilter` composable.
 
 ```kotlin
 val filterState = rememberImageFilterState(previewImage = previewImage) // previewImage is Optional
@@ -137,21 +89,21 @@ Button(
 
 ---
 
-## Screenshots & Demo
+## 📸 Screenshots
 
-### Image Kolor:
+### Color Adjust:
 
-| Color Adjust - Before                              | Color Adjust - After                               | Color Adjust - Landscape                           |
-|----------------------------------------------------|----------------------------------------------------|----------------------------------------------------|
-| ![Screenshot 01](../screenshots/image_kolor_1.jpg) | ![Screenshot 02](../screenshots/image_kolor_2.jpg) | ![Screenshot 03](../screenshots/image_kolor_3.jpg) |
+| Before                                                         | After                                                         | Landscape                                                         |
+|----------------------------------------------------------------|---------------------------------------------------------------|-------------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_kolor_adjust_before.jpg) | ![Screenshot 02](../screenshots/image_kolor_adjust_after.jpg) | ![Screenshot 03](../screenshots/image_kolor_adjust_landscape.jpg) |
 
 https://github.com/user-attachments/assets/9e9baaa1-4a2a-4817-88a2-e94da71fa71e
 
 ### Image Filter:
 
-| Color Filter - Before                               | Color Filter - After                                | Color Filter - Landscape                            |
-|-----------------------------------------------------|-----------------------------------------------------|-----------------------------------------------------|
-| ![Screenshot 01](../screenshots/image_filter_1.jpg) | ![Screenshot 02](../screenshots/image_filter_2.jpg) | ![Screenshot 03](../screenshots/image_filter_3.jpg) |
+| Before                                                         | After                                                         | Landscape                                                         |
+|----------------------------------------------------------------|---------------------------------------------------------------|-------------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_kolor_filter_before.jpg) | ![Screenshot 02](../screenshots/image_kolor_filter_after.jpg) | ![Screenshot 03](../screenshots/image_kolor_filter_landscape.jpg) |
 
 https://github.com/user-attachments/assets/a60003cd-a616-4a4c-a86e-e8fa180d123f
 

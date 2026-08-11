@@ -1,68 +1,50 @@
-# Image Utils - A Image Shape & Bitmap Utility Library for Jetpack Compose
+# ✨ Image Utils
 
-A powerful and versatile utility library for Jetpack Compose, designed to simplify common image
-manipulation tasks, including applying shape masks and handling bitmap conversions.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-utils)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`image-utils` provides two core sets of functionalities. The Shape Masking feature allows you to
-clip an `ImageBitmap` into various geometric forms like circles, stars, polygons, and more, using a
-simple and extensible ImageShape system. The `Bitmap` Extensions feature offers a collection of
-convenient helper functions for converting bitmaps, calculating fitted sizes, and comparing
-`ImageBitmap`instances.
+A powerful utility library for Jetpack Compose, designed to simplify image manipulation tasks such
+as applying shape masks and performing common bitmap calculations.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Advanced Shape Masking**:
-    - Apply a variety of predefined shapes to any `ImageBitmap` using the `.bitmapMask()` extension.
-    - Includes a rich set of built-in `ImageShapes`:
-        - Circle
-        - Rectangle (with rounded corners)
-        - Triangle
-        - Polygon
-        - CutCorner
-        - Star
-    - Shapes are fully configurable (e.g., number of polygon sides, star points, corner radius).
-
-- **Extensible Shape System**:
-    - `ImageShape` is a sealed class, making it easy to define your own custom shapes.
-    - The `toPath()` extension function provides a clear blueprint for converting any `ImageShape`
-      into a drawable `Path`.
-
-- **Convenient Bitmap Extensions**:
-    - `ImageBitmap?.toSize()`: Safely convert an `ImageBitmap` to a `Size` object.
-    - `Size.fittedImageSize()`: Calculate the correct size for an image to fit within a canvas while
-      preserving its aspect ratio.
-    - `ImageBitmap.sameAs()`: Efficiently compare two `ImageBitmap` instances for equality.
-
-- **Predefined Shape List**: Includes `BasicImageShapes`, a ready-to-use list of common shapes for
-  quick integration into your UI.
+- **Advanced Shape Masking**: Apply predefined shapes (Circle, Star, Polygon, etc.) to any
+  `ImageBitmap` via the `.bitmapMask()` extension.
+- **Extensible Shape System**: Easily define custom shapes using the `ImageShape` sealed class.
+- **Bitmap Extensions**:
+    - `toSize()`: Safely convert `ImageBitmap` to `Size`.
+    - `fittedImageSize()`: Calculate optimal dimensions to fit a canvas while preserving aspect
+      ratio.
+    - `sameAs()`: Efficiently compare two `ImageBitmap` instances.
+- **Predefined Presets**: Quick access to common shapes via `BasicImageShapes`.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:image-utils:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:image-utils:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:image-utils:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:image-utils:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs:**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
 
 [libraries]
 emptylibs-image-utils = { group = "com.github.bashpsk.emptylibs", name = "image-utils", version.ref = "empty-libs" }
@@ -76,19 +58,13 @@ dependencies {
 
 ---
 
-## Usage
+## 🛠️ Usage
 
-Using the `image-utils` library is straightforward. The core functionalities are provided as
-extension functions on `ImageShape` and `ImageBitmap`.
-
-### 1. Applying a Shape Mask to an Image
-
-The primary feature is applying a shape mask. This is done by calling the `.bitmapMask()` extension
-function on an `ImageShape` instance and passing the source image.
+### Applying a Shape Mask
 
 ```kotlin
 // 1. Define the shape
-val starShape = ImageShape.Star(edges = 5, distance = 2.5f)
+val starShape = PathShape.Star(edges = 5, distance = 2.5f)
 
 // 2. Apply the mask
 val shapedBitmap: ImageBitmap = starShape.bitmapMask(imageBitmap = originalBitmap)
@@ -98,9 +74,7 @@ val shapedBitmap: ImageBitmap = starShape.bitmapMask(imageBitmap = originalBitma
 Image(bitmap = shapedBitmap, contentDescription = "Star-shaped image")
 ```
 
-### 2. Calculating Fitted Image Size
-
-This is useful for fitting an image inside a designated area (like a canvas) without distorting it.
+### Fitting Image to Canvas
 
 ```kotlin
 val canvasSize = Size(width = 1080f, height = 1080f) // A square canvas
@@ -110,5 +84,13 @@ val imageSize = Size(width = 1920f, height = 1080f)  // A 16:9 image
 val newImageSize = canvasSize.fittedImageSize(imageSize = imageSize, reduction = 10)
 // newImageSize will be Size(width=972.0, height=546.75), which fits and is 90% of the max size
 ```
+
+---
+
+## 📸 Screenshots
+
+| ![Screenshot 01](../screenshots/image_utils_circle_shape.jpg)  | ![Screenshot 02](../screenshots/image_utils_triangle_shape.jpg)  | ![Screenshot 03](../screenshots/image_utils_pentagon_shape.jpg) |
+|----------------------------------------------------------------|------------------------------------------------------------------|-----------------------------------------------------------------|
+| ![Screenshot 04](../screenshots/image_utils_hexagon_shape.jpg) | ![Screenshot 05](../screenshots/image_utils_cutcorner_shape.jpg) | ![Screenshot 06](../screenshots/image_utils_star_shape.jpg)     |
 
 ---

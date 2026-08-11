@@ -1,5 +1,6 @@
 package io.bashpsk.emptylibs
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -50,6 +51,16 @@ fun WaveAnimationScreen() {
         label = "Wave Offset"
     )
 
+    val waveOffset2 by infiniteTransition.animateFloat(
+        initialValue = 0F,
+        targetValue = 1F,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "Wave Offset"
+    )
+
     LaunchedEffect(Unit) {
 
         while (isActive && progressLevel < 1.0F) {
@@ -67,7 +78,10 @@ fun WaveAnimationScreen() {
                 .padding(paddingValues)
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = 12.dp)
+            verticalArrangement = Arrangement.spacedBy(
+                space = 12.dp,
+                alignment = Alignment.CenterVertically
+            )
         ) {
 
             Column(
@@ -105,7 +119,7 @@ fun WaveAnimationScreen() {
                     .border(width = 2.dp, color = Color.Red)
                     .waveAnimation(
                         progress = progressLevel,
-                        waveOffset = waveOffset,
+                        waveOffset = waveOffset2,
                         waveColor = Color.Green
                     )
             )

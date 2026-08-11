@@ -1,72 +1,51 @@
-# Image Edit - A Image Editing Library for Jetpack Compose
+# 🎨 Image Edit
 
-A powerful and feature-rich image editing library for Jetpack Compose that provides a complete,
-all-in-one solution for drawing, adding text, shapes, and other images on top of a base image.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-edit.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-edit)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`image-edit` offers a `ImageEdit` composable that acts as a full-screen editor, equipped with a rich
-set of tools for creative modifications. Users can draw with customizable brushes, add and style
-text, insert shapes and other images, and manipulate each element independently. The library is
-built with a robust state management system (`ImageEditState`) and a highly configurable UI, making
-it easy to integrate into any project that requires advanced image annotation or decoration
-features.
+A comprehensive image editing library for Jetpack Compose. It provides a full-screen editor equipped
+with a rich set of tools for creative modifications, including drawing, text annotation, shapes, and
+image overlays.
 
 ---
 
-## Features
+## ✨ Features
 
-- **All-in-One Editing UI**: A complete `ImageEdit` composable with top and bottom toolbars for a
-  seamless editing experience.
-
-- **Multi-Modal Editing**: Supports a variety of editing tools:
-    - **Brush & Erase**: Draw or erase with highly customizable strokes (color, thickness, style,
-      smoothness).
-    - **Text**: Add text with full control over style, color, and size.
-    - **Shapes**: Insert various shapes (e.g., rectangles, ovals) with configurable colors and draw
-      styles (fill/stroke).
-    - **Images**: Overlay other images onto the canvas.
-
-- **Object-Based Manipulation**: Every element added (text, shape, drawing) is an independent object
-  that can be selected, moved, resized, and deleted.
-
-- **Advanced State Management**: A comprehensive `rememberImageEditState()` manages the entire
-  editing session, including the base image, all drawn items, and tool configurations. The state is
-  saveable across configuration changes.
-
-- **Undo/Redo & Clear**: Easily undo the last action or clear the entire canvas.
-
-- **Configurable Appearance**: Use `ImageEditConfig` to customize the look of selection handles,
-  borders, and other UI elements.
-
-- **Tool Input Sheets**: A built-in `ModalBottomSheet` provides a clean interface for editing the
-  properties of the selected tool or object.
-
-- **Export Functionality**: Generate an `ImageBitmap` of the final composed image.
+- **All-in-One Editor**: Complete UI with top and bottom toolbars for a seamless experience.
+- **Multi-Modal Editing**:
+    - **Brush & Erase**: Highly customizable strokes (color, thickness, style).
+    - **Text**: Add and style text with full control over size and color.
+    - **Shapes**: Insert rectangles, ovals, and more with configurable fill/stroke.
+    - **Image Overlays**: Overlay and manipulate multiple images on the canvas.
+- **Object-Based Selection**: Move, resize, and rotate every element independently.
+- **State Management**: Robust `ImageEditState` with full undo/redo support.
+- **Export**: Generate high-quality `ImageBitmap` of the edited project.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:image-edit:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:image-edit:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:image-edit:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:image-edit:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs:**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
 
 [libraries]
 emptylibs-image-edit = { group = "com.github.bashpsk.emptylibs", name = "image-edit", version.ref = "empty-libs" }
@@ -80,12 +59,9 @@ dependencies {
 
 ---
 
-## Usage
+## 🛠️ Usage
 
-Integrating the `image-edit` library is straightforward. You need to create and remember an
-`ImageEditState`, then pass it to the `ImageEdit` composable.
-
-### 1. Basic Integration
+Create an `ImageEditState` with your base image and pass it to the `ImageEdit` composable.
 
 ```kotlin
 val imageEditState = rememberImageEditState(imageBitmap = baseImage)
@@ -101,7 +77,7 @@ ImageEdit(
             // Do something with the finalImage (e.g., save or display it)
         }
     },
-    onNavigateBack = onNavigateBack
+    onNavigateBack = { /* Handle back navigation */ }
 )
 ```
 
@@ -121,5 +97,15 @@ val imageEditState = rememberImageEditState(
     config = customConfig
 )
 ```
+
+---
+
+## 📸 Screenshots
+
+| Image Edit                                      |
+|-------------------------------------------------|
+| ![Screenshot 01](../screenshots/image_edit.jpg) |
+
+[//]: # (https://github.com/user-attachments/assets/07ffb810-a1bb-4db2-b50b-dea5fdc1a626)
 
 ---

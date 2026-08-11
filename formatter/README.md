@@ -1,53 +1,46 @@
-# Formatter - A Kotlin & Java Utility Library
+# 📝 Formatter
 
-A lightweight and efficient utility library for Kotlin and Java, designed to simplify common
-formatting tasks, including rounding decimals and working with predefined format patterns.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/formatter.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/formatter)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`formatter` provides a collection of static methods to handle everyday formatting needs. Whether you
-need to round a `Double` or `Float` to a specific number of decimal places or apply a standard
-date/time pattern, this library offers a simple and consistent API to get the job done with minimal
-code.
+A lightweight utility library for Kotlin and Java to simplify common formatting tasks, including
+decimal rounding and date/time patterns.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Decimal Rounding**: Easily round `Double` and `Float` values to a specified number of decimal
-  places.
-- **Predefined Format Patterns**: Includes a set of common date, time, and date-time patterns
-  compliant with Kotlin's `LocalDateTime` API.
-- **Easy Integration**: A simple, dependency-free library that is easy to add to any Kotlin or Java
-  project.
-- **Static and Accessible**: All utilities are available through a static `EmptyFormat` object,
-  making them easy to call from anywhere in your code.
-- **Resolution Presets**: Comes with predefined `ResolutionType` enums for common aspect ratios,
-  simplifying calculations.
+- **Decimal Rounding**: Round `Double` and `Float` values to a fixed number of decimal places.
+- **DateTime Patterns**: Predefined patterns for `LocalDateTime` compliant with modern standards.
+- **Static Utilities**: All functions are available via the `EmptyFormat` object.
+- **Dependency Free**: A pure Kotlin/Java library with no external overhead.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:formatter:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:formatter:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle.kts`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:formatter:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:formatter:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs (`libs.versions.toml`):**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
+
 [libraries]
 emptylibs-formatter = { group = "com.github.bashpsk.emptylibs", name = "formatter", version.ref = "empty-libs" }
 ```
@@ -60,35 +53,25 @@ dependencies {
 
 ---
 
-## Usage
-
-Using the `formatter` library is straightforward. All functions are accessible via the `EmptyFormat`
-object.
+## 🛠️ Usage
 
 ### Decimal Rounding
-
-Use `toRoundedDecimal()` to format `Double` or `Float` numbers to a fixed number of decimal places.
-This is useful for displaying prices, measurements, or ratings.
 
 ```kotlin
 // Round a Double to 2 decimal places
 val price = 19.99123
-val formattedPrice = EmptyFormat.toRoundedDecimal(price, 2) // Result: 19.99
+val formattedPrice = price.toRoundedDecimal(2) // Result: 19.99
 // Round a Float to 1 decimal place
 val rating = 4.85f
-val formattedRating = EmptyFormat.toRoundedDecimal(rating, 1) // Result: 4.9
+val formattedRating = rating.toRoundedDecimal(1) // Result: 4.9
 ```
 
-### DateTime
-
-The `DateTimePattern` object contains predefined `String` patterns that can be used with `Kotlin`'s
-datetime formatting APIs.
+### DateTime Formatting
 
 ```kotlin
-val dateString = EmptyFormat.dateTime(
-    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-    DateTimePattern.LONG_DATE_TIME
-) // Result: "Sun, Dec 09, 2000 07:30 PM"
+val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+val formattedDate = currentDateTime.toFormattedDateTime(pattern = DateTimePattern.LONG_DATE_TIME)
+// Result: "Sun, Dec 09, 2000 07:30 PM"
 ```
 
 ---

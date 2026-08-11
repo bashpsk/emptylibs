@@ -1,64 +1,50 @@
-# Gesture UI - Custom Gestures for Jetpack Compose
+# 👆 Gesture UI
 
-A powerful and intuitive gesture detection library for Jetpack Compose, designed to add complex,
-customizable gestures to your UI components. Currently, it specializes in providing a rich set of
-gestures for video player controls.
+[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/gesture-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/gesture-ui)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-`gesture-ui` wraps your composables in a gesture-detecting container, `VideoGestureBox`, which
-recognizes common video player interactions like double-tapping to seek, swiping to control volume
-and brightness, and pinch-to-zoom. It is built with a flexible configuration and a robust state
-management system, making it easy to integrate and customize for any media playback scenario.
+A powerful gesture detection library for Jetpack Compose, specializing in advanced media player
+interactions like seeking, volume control, and brightness adjustment.
 
 ---
 
-## Features
+## ✨ Features
 
-- **Video Player Gestures**: A comprehensive set of gestures optimized for video playback:
-    - **Double-Tap to Seek**: Double-tap on the left or right side of the screen to seek backward or
-      forward.
-    - **Vertical Swipes for Control**: Swipe vertically on the left side to control brightness and
-      on the right side to control volume.
-    - **Horizontal Swipes for Seeking**: Swipe horizontally at the top or bottom of the screen to
-      scrub through the video timeline.
-    - **Pinch-to-Zoom & Pan**: Use two-finger gestures to zoom into and pan across the video.
-
-- **Robust State Management**: Comes with `rememberVideoGestureBoxState()` to manage gesture states
-  and configurations across recompositions.
-
-- **Highly Configurable**: Use `VideoGestureConfig` to enable or disable specific gestures (e.g.,
-  zoom, pan, specific swipes) and fine-tune sensitivity thresholds.
-
-- **Simple Integration**: Wrap any composable (like a video player) with `VideoGestureBox` to
-  instantly add gesture controls.
-
-- **Clear Gesture Callbacks**: Receive clear, sealed-class-based events for taps (`TapChanges`) and
-  drags (`DragChanges`) to easily handle gesture outcomes.
+- **Video Player Gestures**:
+    - **Double-Tap**: Seek backward/forward.
+    - **Vertical Swipe**: Adjust brightness (left side) or volume (right side).
+    - **Horizontal Swipe**: Timeline scrubbing.
+    - **Pinch & Pan**: Interactive zoom for video content.
+- **Hoistable State**: Manage gestures via `VideoGestureBoxState`.
+- **Highly Configurable**: Enable/disable specific gestures and adjust sensitivity via
+  `VideoGestureConfig`.
+- **Event Driven**: Clean, sealed-class callbacks for taps and drags.
 
 ---
 
-## Installation
+## 📦 Installation
 
-**Groovy (`build.gradle`):**
+### Groovy (`build.gradle`)
 
 ```groovy
 dependencies {
-    implementation 'com.github.bashpsk.emptylibs:gesture-ui:<latest-version>'
+    implementation 'com.github.bashpsk.emptylibs:gesture-ui:VERSION'
 }
 ```
 
-**Kotlin DSL (`build.gradle`):**
+### Kotlin DSL (`build.gradle.kts`)
 
 ```kotlin
 dependencies {
-    implementation("com.github.bashpsk.emptylibs:gesture-ui:<latest-version>")
+    implementation("com.github.bashpsk.emptylibs:gesture-ui:VERSION")
 }
 ```
 
-**Kotlin DSL with Version Catalogs:**
+### Kotlin DSL (`build.gradle.kts`) + Version Catalog (`libs.versions.toml`)
 
 ```toml
 [versions]
-empty-libs = "<latest-version>"
+empty-libs = "VERSION"
 
 [libraries]
 emptylibs-gesture-ui = { group = "com.github.bashpsk.emptylibs", name = "gesture-ui", version.ref = "empty-libs" }
@@ -72,17 +58,14 @@ dependencies {
 
 ---
 
-## Usage
-
-Integrating `gesture-ui` is simple. Wrap your video player or any other composable with
-`VideoGestureBox` and listen for gesture events via the `onTapChanges` and `onDragChanges`callbacks.
-
-Here is a basic example of how to use `VideoGestureBox` to wrap a player view.
+## 🛠️ Usage
 
 ```kotlin
+val state = rememberVideoGestureBoxState()
+
 VideoGestureBox(
     modifier = Modifier.fillMaxSize(),
-    state = gestureState,
+    state = state,
     onTapChanges = { change ->
         when (change) {
             is TapChanges.SingleTap -> { /* Toggle controls visibility */
@@ -110,29 +93,7 @@ VideoGestureBox(
         }
     }
 ) {
-    // Your Video Player Composable goes here
-    PlayerView(modifier = Modifier.fillMaxSize())
-}
-```
-
-```kotlin
-val customConfig = VideoGestureConfig(
-    isZoomEnable = false,
-    isHorizontalTopEnable = false,
-    horizontalMinimumSwipe = 40,
-    verticalMinimumSwipe = 40,
-    gestureMargin = 5   // 5% of Each Sides
-)
-
-val gestureState = rememberVideoGestureBoxState(config = customConfig)
-
-VideoGestureBox(
-    modifier = Modifier.fillMaxSize(),
-    state = gestureState,
-    onTapChanges = { /* ... */ },
-    onDragChanges = { /* ... */ }
-) {
-    // Your Player
+    // Your Player Composable
 }
 ```
 
