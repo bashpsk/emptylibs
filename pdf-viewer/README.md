@@ -116,6 +116,6 @@ PdfLazyColumn(
 |--------------------------------------------------------|--------------------------------------------------------|
 | ![Screenshot 01](../screenshots/pdf_viewer_normal.jpg) | ![Screenshot 01](../screenshots/pdf_viewer_filter.jpg) |
 
-[//]: # (https://github.com/user-attachments/assets/07ffb810-a1bb-4db2-b50b-dea5fdc1a626)
+https://github.com/user-attachments/assets/0c0c211d-e0a3-45ca-89e4-69125ec4ea13
 
 ---
