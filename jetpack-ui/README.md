@@ -169,12 +169,14 @@ https://github.com/user-attachments/assets/0cb6bdc0-6b7a-4ce7-85dc-939bacbc5541
 
 https://github.com/user-attachments/assets/250bbce5-b6c3-47cc-af90-63bf8898c0f3
 
-### Text Editor:
+### Text Editor & Viewer:
 
-| Basic Text Editor                                                 |
-|-------------------------------------------------------------------|
-| ![Screenshot 01](../screenshots/jetpack_ui_basic_text_editor.jpg) |
+| Basic Text Editor                                                 | Lazy Text Viewer                                                       |
+|-------------------------------------------------------------------|------------------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/jetpack_ui_basic_text_editor.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_basic_lazy_text_viewer.jpg) |
 
 https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729
+
+[//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
 
 ---
