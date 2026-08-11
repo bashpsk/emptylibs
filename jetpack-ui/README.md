@@ -56,7 +56,11 @@ dependencies {
 
 ## 🛠️ Usage
 
-### 1. Animated Bottom Nav Bar
+### 🗺️ Navigation
+
+#### Animated Bottom Nav Bar
+
+Modern navigation bar with fluid scaling and label transitions.
 
 ```kotlin
 Scaffold(
@@ -72,79 +76,144 @@ Scaffold(
             }
         }
     }
-) { paddingValues ->
-    // Screen content
-}
+) { /* Content */ }
 ```
 
-### 2. Bottom Option Bar
+#### Bottom Option Bar
+
+Adaptive toolbar with automatic overflow handling for extra actions.
 
 ```kotlin
-val options = listOf(
-    OptionBarData(label = "Edit", icon = Icons.Default.Edit),
-    OptionBarData(label = "Favorite", icon = Icons.Default.Favorite),
-    OptionBarData(label = "Share", icon = Icons.Default.Share),
-    OptionBarData(label = "Delete", icon = Icons.Default.Delete),
-    OptionBarData(label = "Info", icon = Icons.Default.Info)
-).toImmutableList()
+val options = persistentListOf(
+    OptionBarData("Edit", Icons.Default.Edit),
+    OptionBarData("Share", Icons.Default.Share),
+    OptionBarData("Delete", Icons.Default.Delete),
+    OptionBarData("Info", Icons.Default.Info)
+)
 
-// This will show as many items as can fit on one line,
-// and the rest will be in a "More" menu.
 BottomOptionBar(
     optionList = options,
-    onOptionClick = { option ->
-        // Handle option click
-    },
-    maxLines = 1
+    onOptionClick = { option -> /* Handle click */ },
+    maxLines = 1 // Rest goes to "More" menu
 )
 ```
 
-### 3. Dial Text Picker
+### 🔢 Pickers
+
+#### Dial & Wheel Text Pickers
+
+Circular and slot-machine style selection components.
 
 ```kotlin
+// Dial Picker
 val hours = (0..23).map { it.toString().padStart(2, '0') }.toImmutableList()
-val dialState = rememberDialTextPickerState(textList = hours, initial = "08")
-
+val dialState = rememberDialTextPickerState(textList = hours, initial = "12")
 DialTextPicker(state = dialState)
-// Observe selected item
-Text("Selected Hour: ${dialState.selectedText}")
+
+// Wheel Picker
+val minutes = (0..59).map { it.toString().padStart(2, '0') }.toImmutableList()
+val wheelState = rememberWheelTextPickerState(textList = minutes)
+WheelTextPicker(state = wheelState, visibleCount = 5)
 ```
 
-### 4. Wheel Text Picker
+### 📝 Text Tools
 
-A vertical wheel-style picker.
+#### Lazy Text Viewer
+
+High-performance viewer capable of rendering millions of lines efficiently.
 
 ```kotlin
-val minutes = (0..59).map { it.toString() }.toImmutableList()
-val wheelState = rememberWheelTextPickerState(textList = minutes)
-
-WheelTextPicker(
-    state = wheelState,
-    visibleCount = 5, // Show 5 items at a time
-    textStyle = MaterialTheme.typography.bodyMedium,
-    dividerFraction = 0.5F, //  50% of width from 'WheelTextPicker' width
-    dividerColor = MaterialTheme.colorScheme.primary,
-    dividerThickness = 4.dp
+val state = rememberLazyTextViewerState(
+    source = TextSource.Path("/sdcard/large_log.txt")
 )
 
-// Observe selected item
-Text("Selected Minute: ${wheelState.selectedText}")
+LazyTextViewer(
+    modifier = Modifier.fillMaxSize(),
+    state = state
+)
 ```
 
-### 5. Basic Text Editor
+#### Basic Text Editor
 
-A simple, line-numbered BasicTextField wrapper.
+Simple editor with line numbers and standard text field features.
 
 ```kotlin
-var code by remember { mutableStateOf("fun main() {\n    println(\"Hello, World!\")\n}") }
-
 BasicTextEditor(
     modifier = Modifier.fillMaxSize(),
-    inputContent = code,
-    onContentChange = { newContent ->
-        code = newContent
-    }
+    inputContent = myCodeString,
+    onContentChange = { myCodeString = it }
 )
+```
+
+### 🕹️ Controls
+
+#### JoyStick
+
+Touch-based joystick for games or interactive controls.
+
+```kotlin
+val joyStickState = rememberJoyStickState(
+    properties = JoyStickDefaults.properties(speed = 5.dp)
+)
+
+JoyStick(
+    modifier = Modifier.size(150.dp),
+    state = joyStickState
+)
+
+// Observe movement
+val movement = joyStickState.changes.input // Offset(-1.0..1.0, -1.0..1.0)
+```
+
+### 📊 Data Visualization
+
+#### Seven-Segment Display
+
+Retro-style 7-segment character and string display.
+
+```kotlin
+SevenSegmentDisplay(
+    data = "12:34:56",
+    colors = SevenSegmentDefault.colors(activeColor = Color.Red),
+    properties = SevenSegmentDefault.properties(thickness = 4.dp)
+)
+```
+
+### 📜 Scrolling
+
+#### Lazy List & Grid ScrollBars
+
+Custom scrollbars that fade in during scroll and support index labels.
+
+```kotlin
+// For LazyColumn
+BoxWithConstraints {
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState) { /* Items */ }
+
+    LazyListScrollBar(
+        state = listState,
+        thumbColor = MaterialTheme.colorScheme.primary,
+        thumbNotchWidth = 12.dp,
+        label = { index, _, _ ->
+            Text("Item #$index", style = MaterialTheme.typography.labelSmall)
+        }
+    )
+}
+
+// For LazyVerticalGrid
+BoxWithConstraints {
+    val gridState = rememberLazyGridState()
+    LazyVerticalGrid(state = gridState, columns = GridCells.Fixed(3)) { /* Items */ }
+
+    LazyGridScrollBar(
+        state = gridState,
+        thumbColor = MaterialTheme.colorScheme.secondary,
+        label = { index, _, _ ->
+            Text("Row ${index / 3}", style = MaterialTheme.typography.labelSmall)
+        }
+    )
+}
 ```
 
 ---
@@ -176,6 +245,24 @@ https://github.com/user-attachments/assets/250bbce5-b6c3-47cc-af90-63bf8898c0f3
 | ![Screenshot 01](../screenshots/jetpack_ui_basic_text_editor.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_basic_lazy_text_viewer.jpg) |
 
 https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729
+
+[//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
+
+### JoyStick:
+
+| Type 01                                                         | Type 02                                                         | Type 03                                                         |
+|-----------------------------------------------------------------|-----------------------------------------------------------------|-----------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/jetpack_ui_joystick_type01.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_joystick_type02.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_joystick_type03.jpg) |
+
+[//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
+
+### Lazy List & Grid Scrollbars:
+
+| Lazy Column                                                          | Lazy Row                                                          |
+|----------------------------------------------------------------------|-------------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/jetpack_ui_scrollbar_lazycolumn.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_scrollbar_lazyrow.jpg) |
+
+[//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
 
 [//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
 

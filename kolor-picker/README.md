@@ -56,65 +56,72 @@ dependencies {
 
 ## 🛠️ Usage
 
-### 1. Standard Color Picker
+### 🎨 Standard Color Picker
+
+The `KolorPicker` provides an HSL-based selection UI with optional transparency and clipboard
+controls.
 
 ```kotlin
-val colorPickerState = rememberKolorPickerState(initialColor = MaterialTheme.colorScheme.primary)
+val state = rememberKolorPickerState(initialColor = Color.Blue)
 
 KolorPicker(
-    state = colorState,
-    enableAlphaPanel = true, // Enable transparency slider
-    enableCopyButtons = true // Show copy/paste buttons
+    modifier = Modifier.fillMaxWidth(),
+    state = state,
+    enableAlphaPanel = true,  // Show transparency slider
+    enableCopyButton = true,  // Show Copy to HEX button
+    enablePasteButton = true  // Show Paste from HEX button
 )
 
-Box(
-    modifier = Modifier
-        .size(64.dp)
-        .background(colorPickerState.selectedColor)
-)
+// Observe selected color
+val color = state.selectedColor
 ```
 
-### 2. Image Color Picker
+### 🖼️ Image Color Picker (Dropper)
+
+Extract colors directly from an `ImageBitmap` by tapping or dragging.
 
 ```kotlin
-val colorPickerState = rememberKolorPickerState()
+val state = rememberKolorPickerState()
 
 ImageKolorPicker(
-    imageBitmap = sourceBitmap,
-    state = colorPickerState
-)
-
-Box(
-    modifier = Modifier
-        .size(64.dp)
-        .background(colorPickerState.selectedColor)
+    modifier = Modifier.size(300.dp),
+    imageBitmap = mySourceBitmap,
+    state = state,
+    enableCopyButton = true
 )
 ```
 
-### 3. Color Picker Dialog
+### 💬 Color Picker Dialogs
+
+Ready-to-use, animated dialogs for quick color selection.
+
+#### Standard Dialog
 
 ```kotlin
-val colorPickerState = rememberKolorPickerState()
+val state = rememberKolorPickerState()
 
-// Button to open the dialog
-Button(onClick = { kolorPickerState.dialogVisible.targetState = true }) {
-    Text("Choose Color")
+// Trigger dialog visibility
+Button(onClick = { state.dialogVisible.targetState = true }) {
+    Text("Select Color")
 }
 
-// The dialog itself
 KolorPickerDialog(
-    state = colorPickerState,
-    onSelectedColor = { newColor ->
-        // Handle the final selected color
+    state = state,
+    enableAlphaPanel = true,
+    onSelectedColor = { color ->
+        // Final color selection
     }
 )
+```
 
-// Image Color Picker Dialog
+#### Image Picker Dialog
+
+```kotlin
 KolorPickerDialog(
-    state = colorPickerState,
-    imageBitmap = baseImage,
-    onSelectedColor = { newColor ->
-        // Handle the final selected color
+    state = state,
+    imageBitmap = myBitmap,
+    onSelectedColor = { color ->
+        // Color picked from image
     }
 )
 ```

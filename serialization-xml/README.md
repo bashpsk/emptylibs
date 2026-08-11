@@ -56,31 +56,51 @@ dependencies {
 
 ## 🛠️ Usage
 
+### 1. Define your Models
+
+Use standard `kotlinx.serialization` annotations along with the library's XML-specific annotations.
+
 ```kotlin
 @Serializable
 data class Text(
-    @XmlIndex
+    @XmlIndex // Captures the line number from the XML parser
     val index: Int = 0,
-    @XmlAttribute("fill")
-    val hex: String = "",
+    @XmlAttribute("fill") // Maps to 'fill' attribute of the <text> element
+    val color: String = "#000000",
     @XmlAttribute("x")
-    val x: String = "0",
+    val x: Float = 0f,
     @XmlAttribute("y")
-    val y: String = "0",
+    val y: Float = 0f,
     @XmlAttribute("font-size")
     val fontSize: String = "12"
 )
 
 @Serializable
-@XmlElement("svg")
+@XmlElement("svg") // Maps to the <svg> root element
 data class SvgRoot(
     @XmlAttribute("viewBox")
     val viewBox: String = "0 0 24 24",
-    @XmlElement("text")
+    @XmlElement("text") // Maps child <text> elements to this list
     val texts: List<Text> = emptyList()
 )
+```
 
-val svgRoot = Xml.decodeFromString<SvgRoot>(content = svgContent)
+### 2. Decode from XML String
+
+Simply call `Xml.decodeFromString<T>(content)` to parse your XML.
+
+```kotlin
+val xmlContent = """
+    <svg viewBox="0 0 100 100">
+        <text x="10" y="20" fill="#FF0000" font-size="16" />
+        <text x="50" y="50" fill="#00FF00" />
+    </svg>
+""".trimIndent()
+
+val svgRoot = Xml.decodeFromString<SvgRoot>(content = xmlContent)
+
+println(svgRoot.viewBox) // "0 0 100 100"
+println(svgRoot.texts.size) // 2
 ```
 
 ---

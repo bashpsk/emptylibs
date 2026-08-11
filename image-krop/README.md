@@ -58,21 +58,78 @@ dependencies {
 
 ## 🛠️ Usage
 
+### ✂️ Basic Integration
+
+The `ImageKrop` component provides a full-screen cropping experience.
+
 ```kotlin
-val imageKropState = rememberImageKropState(imageBitmap = baseImage)
-val coroutineScope = rememberCoroutineScope()
+val state = rememberImageKropState(imageBitmap = myImage)
 
 ImageKrop(
     modifier = Modifier.fillMaxSize(),
-    state = imageKropState,
+    state = state,
     onKropFinished = {
-        coroutineScope.launch {
-            // Generate the final cropped image
-            val finalImage = imageKropState.modifiedImage
-        }
+        // The final cropped ImageBitmap is stored in state.modifiedImage
+        val croppedBitmap = state.modifiedImage
     },
-    onNavigateBack = { /* Handle back navigation */ }
+    onNavigateBack = { /* Handle navigation */ }
 )
+```
+
+---
+
+### ⚙️ Custom Configuration
+
+Customize the look and feel of the crop UI using `KropConfig`.
+
+```kotlin
+val customConfig = KropConfig(
+    handleColor = Color.Magenta,
+    borderColor = Color.White,
+    overlayColor = Color.Black.copy(alpha = 0.7f),
+    minimumCropSize = 60.dp,
+    borderThickness = 3.dp
+)
+
+val state = rememberImageKropState(
+    imageBitmap = myImage,
+    config = customConfig
+)
+```
+
+---
+
+### 📐 Aspect Ratios & Shapes
+
+`ImageKrop` supports a variety of aspect ratios and masking shapes.
+
+```kotlin
+// Lock to a specific aspect ratio
+state.updateAspectRatio(KropAspectRatio.Ratio16to9)
+state.updateAspectLocked(true)
+
+// Apply a circular crop mask
+state.updateKropShape(PathShape.Circle)
+```
+
+**Predefined Ratios:** `1:1`, `16:9`, `4:3`, `9:16`, `21:9`, etc.
+**Predefined Shapes:** `Circle`, `Star`, `Polygon`, `Triangle`, `CutCorner`.
+
+---
+
+### 🔄 Handling Results & Undo
+
+Manage multiple crop steps and easily revert changes.
+
+```kotlin
+// Undo the last crop operation
+state.removeLastImage()
+
+// Clear all modifications and start over
+state.clearImages()
+
+// Access the full history of crop steps
+val history: List<ImageBitmap> = state.imageList
 ```
 
 ---

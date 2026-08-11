@@ -58,14 +58,49 @@ dependencies {
 
 ## 🛠️ Usage
 
+### ✂️ Basic Usage
+
+The `ImageWallpaper` component handles the full workflow: auto-detecting screen aspect ratio,
+cropping, and providing a destination selection dialog.
+
 ```kotlin
 ImageWallpaper(
     modifier = Modifier.fillMaxSize(),
-    imageBitmap = baseImage,
-    onWallpaperResult = { type, result ->
-        // Handle the result, e.g., show a toast and navigate away
-    },
+    imageBitmap = myImageBitmap,
     onNavigateBack = { /* Handle back navigation */ }
+)
+```
+
+### ✅ Handling Results
+
+Listen for success or failure events when a wallpaper is set.
+
+```kotlin
+ImageWallpaper(
+    imageBitmap = myImageBitmap,
+    onWallpaperResult = { type, isSuccess ->
+        when (type) {
+            WallpaperType.Home -> println("Home Screen Result: $isSuccess")
+            WallpaperType.Lock -> println("Lock Screen Result: $isSuccess")
+            WallpaperType.HomeAndLock -> println("Both Result: $isSuccess")
+        }
+    }
+)
+```
+
+### ⚙️ Custom Configuration
+
+Customize the internal `image-krop` UI and the destination selection dialog.
+
+```kotlin
+ImageWallpaper(
+    imageBitmap = myImageBitmap,
+    config = KropConfig(
+        handleColor = Color.Cyan,
+        borderColor = Color.White,
+        overlayColor = Color.Black.copy(alpha = 0.6f)
+    ),
+    dialogContainerColor = MaterialTheme.colorScheme.surfaceVariant
 )
 ```
 

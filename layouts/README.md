@@ -57,60 +57,75 @@ dependencies {
 
 ## 🛠️ Usage
 
-### Swipe Collapsible Layout
+### 🌓 Adaptive & Master-Detail (`TwoPaneAdaptiveLayout`)
 
-```kotlin
-val state = rememberSwipeCollapsibleLayoutState(initialValue = CollapsibleLayoutProgress.Dismissed)
-
-SwipeCollapsibleLayout(
-    modifier = Modifier.fillMaxSize(),
-    state = state,
-    primaryContent = { /* Player */ },
-    secondaryContent = { /* Controls for minimized state */ },
-    tertiaryContent = { /* Details & Recommendation section */ }
-) { layoutPaddingValues ->
-    /* Feed/Videos List Screen */
-}
-```
-
-### TwoPane Adaptive Layout
+Automatically switches between side-by-side (Tablet/Landscape) and top-bottom (Phone/Portrait)
+layouts.
 
 ```kotlin
 TwoPaneAdaptiveLayout(
-    aspectRatio = 1.0F,
-    firstPane = { /* List */ },
-    secondPane = { /* Details */ }
+    aspectRatio = 16f / 9f, // Maintain ratio for the first pane
+    firstPane = {
+        // Video Player or List
+    },
+    secondPane = {
+        // Details or Chat
+    }
 )
 ```
 
-### Zoomable Layout
+### ↕️ Collapsible Panels (`SwipeCollapsibleLayout`)
+
+Implement interactive swipe-to-expand headers or player panels.
 
 ```kotlin
-val transformableState = rememberTransformableGesturesState(
-    initialZoom = 1.0F,
-    enableZoom = true,
-    enablePan = true,
-    enableDoubleTapZoom = true
-)
+val state = rememberSwipeCollapsibleLayoutState(initialValue = CollapsibleLayoutProgress.Collapsed)
 
-val layoutPosition by remember(transformableState) {
-    derivedStateOf { transformableState.position.round().copy(y = 0) }
+SwipeCollapsibleLayout(
+    state = state,
+    primaryContent = { /* Mini Player / Main Player */ },
+    secondaryContent = { /* Mini Player Controls */ },
+    tertiaryContent = { /* Player Details/Queue */ }
+) { paddingValues ->
+    // Main background content (e.g., Video List)
 }
+```
+
+### 📌 Sticky Components (`StickyRowLayout`)
+
+Keep the first child fixed while the rest of the row scrolls horizontally. Perfect for line numbers.
+
+```kotlin
+val scrollState = rememberScrollState()
+
+StickyRowLayout(
+    horizontalScroll = scrollState.value,
+    verticalAlignment = Alignment.CenterVertically
+) {
+    // This child stays sticky on the left
+    Text("Line 1", modifier = Modifier.padding(8.dp))
+
+    // These children scroll under the sticky element
+    Text("Very long content that scrolls...", modifier = Modifier.horizontalScroll(scrollState))
+}
+```
+
+### 🔍 Interactive Zoom (`ZoomableLayout`)
+
+Add native pinch-to-zoom and panning capabilities to any Composable.
+
+```kotlin
+val state = rememberTransformableGesturesState()
 
 ZoomableLayout(
-    modifier = Modifier
-        .fillMaxWidth()
-        .offset { layoutPosition },
-    zoomScale = transformableState.zoom
+    state = state,
+    modifier = Modifier.fillMaxSize()
 ) {
-
+    // Any content: Images, Canvas, etc.
     Image(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(aspectRatio),
-        bitmap = sampleImage,
-        contentScale = ContentScale.Fit,
-        contentDescription = null
+        bitmap = myBitmap,
+        contentDescription = null,
+        modifier = Modifier.fillMaxSize()
     )
 }
 ```

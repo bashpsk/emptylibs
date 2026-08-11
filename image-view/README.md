@@ -3,7 +3,8 @@
 [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-view.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-view)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A powerful transformable image viewer and gallery for Jetpack Compose, built on top of Coil 3. Supports pinch-to-zoom, panning, and seamless swiping between multiple images.
+A powerful transformable image viewer and gallery for Jetpack Compose, built on top of Coil 3.
+Supports pinch-to-zoom, panning, and seamless swiping between multiple images.
 
 ---
 
@@ -56,31 +57,68 @@ dependencies {
 
 ## 🛠️ Usage
 
-### Single Image
+### 🖼️ Single Image (Coil)
+
+Display a single image with pinch-to-zoom, pan, and rotation support. Integrates natively with Coil.
 
 ```kotlin
-val state = rememberImageTransformState()
-
 TransformImageView(
     modifier = Modifier.fillMaxSize(),
-    state = state,
-    imageModel = imagePath,
-    onClick = { /* Handle single tap */ },
-    onLongClick = { /* Handle long press */ }
+    imageModel = "https://example.com/image.jpg",
+    onClick = { offset -> /* Handle single tap */ },
+    onLongClick = { offset -> /* Handle long press */ }
 )
 ```
 
-### Image Gallery
+### 🎞️ Image Gallery
+
+Display a swipeable list of images. Paging is disabled while zooming to prevent accidental swipes.
 
 ```kotlin
-val state = rememberImageTransformState()
-val imageList: ImmutableList<Any?> = imagePaths.toImmutableList()
+val imageList = persistentListOf(
+    "https://example.com/1.jpg",
+    "https://example.com/2.jpg",
+    "https://example.com/3.jpg"
+)
+
+TransformImageView(
+    modifier = Modifier.fillMaxSize(),
+    imageModelList = imageList,
+    initialImage = imageList.first(),
+    onImageChanges = { currentImage ->
+        // Handle image change
+    }
+)
+```
+
+### 🧩 High-Resolution Tiled Image
+
+For very large local `ImageBitmap` objects, use the tiled renderer to optimize memory usage.
+
+```kotlin
+TransformImageView(
+    modifier = Modifier.fillMaxSize(),
+    imageModel = largeImageBitmap,
+    tileSize = 512 // Pixels
+)
+```
+
+### ⚙️ Custom Configuration
+
+Fine-tune gesture behavior and zoom constraints.
+
+```kotlin
+val state = rememberTransformableGesturesState(
+    initialZoom = 1.0f,
+    zoomRange = 0.5f..10.0f,
+    enableRotation = true,
+    enablePan = true
+)
 
 TransformImageView(
     modifier = Modifier.fillMaxSize(),
     state = state,
-    imageModelList = imageList,
-    initialImage = imageList.firstOrNull()
+    imageModel = imagePath
 )
 ```
 

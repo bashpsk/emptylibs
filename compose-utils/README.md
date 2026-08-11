@@ -58,21 +58,71 @@ dependencies {
 
 ## 🛠️ Usage
 
+### 🔄 Serialization & State Restoration
+
+Save and restore Compose core types across process death or configuration changes using
+`rememberSaveable`.
+
 ```kotlin
-// Create an Offset
+// Offset serialization
 val originalOffset = Offset(100f, 200f)
-// Convert Offset to OffsetData for serialization or state saving
-val offsetData by rememberSaveable { mutableStateOf(originalOffset.toOffsetData()) }
-// ... (pass offsetData through bundles or save it)
-// Convert back to an Offset to use in your Composables
-val restoredOffset = offsetData.toOffset()
+var savedOffset by rememberSaveable { mutableStateOf(originalOffset.toOffsetData()) }
+
+// Convert back to Compose Offset when needed
+val currentOffset = savedOffset.toOffset()
 ```
 
-### Supported Extensions:
+**Supported Data Classes:**
 
-- `Offset.toOffsetData()` / `OffsetData.toOffset()`
-- `Size.toSizeData()` / `SizeData.toSize()`
-- `IntOffset.toIntOffsetData()` / `IntOffsetData.toIntOffset()`
-- `DpSize.toDpSizeData()` / `DpSizeData.toDpSize()`
+- `OffsetData`, `IntOffsetData`, `DpOffsetData`
+- `SizeData`, `IntSizeData`, `DpSizeData`
+
+### 📏 Clamping & Coercing
+
+Easily constrain offsets and sizes within specific bounds.
+
+```kotlin
+val position = Offset(500f, 500f)
+val bounds = Offset(300f, 300f)
+
+// Ensure position is at least/at most/within bounds
+val constrained = position.coerceIn(minimum = Offset.Zero, maximum = bounds)
+```
+
+**Available for:** `Offset`, `IntOffset`, `DpOffset`, `Size`, `IntSize`, `DpSize`.
+
+### 📐 Geometric Shapes (`PathShape`)
+
+Define complex geometric paths as serializable data classes. Perfect for custom drawing or shape
+selection UIs.
+
+```kotlin
+val starShape = PathShape.Star(edges = 5, distance = 2.5f)
+val polygonShape = PathShape.Polygon(sides = 6)
+
+// Convert to a Compose Path for drawing
+val path = starShape.toPath(canvasSize = Size(200f, 200f))
+
+Canvas(modifier = Modifier.size(200.dp)) {
+    drawPath(path = path, color = Color.Blue)
+}
+```
+
+**Supported Shapes:**
+
+- `Circle`, `Triangle`, `Star`, `Polygon`, `Rectangle` (Rounded), `CutCorner`.
+
+### 📍 Proximity Utilities
+
+Check if a point is within a certain distance of another.
+
+```kotlin
+val userTouch = Offset(105f, 205f)
+val targetPoint = Offset(100f, 200f)
+
+if (userTouch.hasNeared(targetPoint, threshold = 10f)) {
+    // Action triggered!
+}
+```
 
 ---

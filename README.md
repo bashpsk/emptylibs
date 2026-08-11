@@ -61,6 +61,7 @@ dependencyResolutionManagement {
 ```
 
 Then define the desired libraries to your `libs.versions.toml`:
+
 ```toml
 [versions]
 empty-libs = "VERSION"

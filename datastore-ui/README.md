@@ -60,7 +60,9 @@ dependencies {
 
 ## 🛠️ Usage
 
-### 1. Provide DataStore
+### 1. Setup DataStore Provider
+
+Inject your `DataStore` instance once at the top level of your UI using `LocalDatastore`.
 
 ```kotlin
 val Context.datastore by preferencesDataStore(name = "settings")
@@ -70,58 +72,99 @@ CompositionLocalProvider(LocalDatastore provides datastore) {
 }
 ```
 
-### 2. Use Preferences
+### 2. Basic Preferences
 
-#### SwitchPreference
+Simple toggles for boolean settings.
 
 ```kotlin
 SwitchPreference(
-    modifier = Modifier.fillMaxWidth(),
-    datastore = datastore,
-    key = booleanPreferencesKey("SWITCH-PREFERENCE"),
-    initialValue = false,
-    title = { PreferenceTitle(title = "Switch Preference") },
-    summary = {
-        PreferenceSummary(
-            summary = "${
-                if (it) "Enable" else "Disable"
-            } the switch preference."
-        )
+    datastore = null, // Uses LocalDatastore automatically
+    key = booleanPreferencesKey("enable_notifications"),
+    initialValue = true,
+    title = { Text("Enable Notifications") },
+    summary = { isEnabled ->
+        Text(if (isEnabled) "Receive daily updates" else "Notifications are muted")
     }
 )
-```
 
-#### CheckBoxPreference
-
-```kotlin
 CheckBoxPreference(
-    modifier = Modifier.fillMaxWidth(),
-    datastore = datastore,
-    key = booleanPreferencesKey("CHECK-BOX-PREFERENCE"),
+    datastore = null,
+    key = booleanPreferencesKey("sync_data"),
     initialValue = false,
-    title = { PreferenceTitle(title = "Check Box Preference") },
-    summary = { checked ->
-
-        PreferenceSummary(
-            summary = "${
-                if (checked) "Enable" else "Disable"
-            } the check box preference."
-        )
-    }
+    title = { Text("Background Sync") }
 )
 ```
 
-#### SliderPreference
+### 3. Numeric & Option Selection
+
+Adjust values or select from a list of predefined options.
+
+#### Slider & DropDown
 
 ```kotlin
 SliderPreference(
-    modifier = Modifier.fillMaxWidth(),
-    datastore = datastore,
-    key = floatPreferencesKey("SLIDER-PREFERENCE"),
-    initialValue = 0.0F,
-    title = { PreferenceTitle(title = "Slider Preference") },
-    summary = { PreferenceSummary(summary = "Adjust slider value.") },
-    valueRange = 0.0F..1.0F
+    datastore = null,
+    key = floatPreferencesKey("volume_level"),
+    initialValue = 0.5f,
+    title = { Text("Volume") },
+    valueRange = 0f..1f
+)
+
+DropDownPreference(
+    datastore = null,
+    key = stringPreferencesKey("theme_mode"),
+    initialValue = "System",
+    entities = persistentMapOf(
+        "Light" to "Light",
+        "Dark" to "Dark",
+        "System" to "System"
+    ),
+    title = { Text("App Theme") }
+)
+```
+
+#### List Option (Dialog-based)
+
+```kotlin
+ListOptionPreference(
+    datastore = null,
+    key = intPreferencesKey("refresh_interval"),
+    initialValue = 15,
+    entities = persistentMapOf(
+        "15 Minutes" to 15,
+        "30 Minutes" to 30,
+        "1 Hour" to 60
+    ),
+    title = { Text("Refresh Interval") },
+    dialogTitle = "Select Interval"
+)
+```
+
+### 4. Advanced Preferences
+
+Color picking and text input.
+
+```kotlin
+ColorPickPreference(
+    datastore = null,
+    key = intPreferencesKey("accent_color"),
+    initialValue = Color.Blue.toArgb(),
+    title = { Text("Accent Color") }
+)
+
+TextFieldPreference(
+    datastore = null,
+    key = stringPreferencesKey("user_nickname"),
+    initialValue = "User",
+    title = { Text("Nickname") },
+    textFieldValue = myTextFieldState,
+    textFieldContent = {
+        OutlinedTextField(
+            value = myTextFieldState,
+            onValueChange = { myTextFieldState = it },
+            label = { Text("Enter Nickname") }
+        )
+    }
 )
 ```
 

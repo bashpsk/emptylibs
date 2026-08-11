@@ -56,21 +56,68 @@ dependencies {
 
 ## 🛠️ Usage
 
-### Analog Clock
+### 🕰️ Analog Clock
+
+A highly customizable analog clock with support for custom shapes, colors, and hand properties.
 
 ```kotlin
+// Basic Usage
 AnalogClock(
     modifier = Modifier.size(200.dp),
     dateTimeMillis = System.currentTimeMillis()
 )
+
+// Customized Usage
+AnalogClock(
+    modifier = Modifier.size(250.dp),
+    dateTimeMillis = System.currentTimeMillis(),
+    properties = AnalogClockProperties(
+        borderWidth = 4.dp,
+        hourHandThickness = 6.dp,
+        majorDivisionThickness = 2.dp
+    ),
+    colors = AnalogClockColors(
+        hourHandColor = Color.Red,
+        minuteHandColor = Color.Black,
+        borderColor = Color.Gray
+    )
+)
 ```
 
-### Digital Clock
+### 🔢 Digital Clock
+
+Modern digital clocks with support for various formatting patterns and styles.
 
 ```kotlin
+// Standard Text Style
 DigitalClock(
     modifier = Modifier.fillMaxWidth(),
-    dateTimeMillis = System.currentTimeMillis()
+    dateTimeMillis = System.currentTimeMillis(),
+    clockPattern = DateTimePattern.TIME_HH_MM_SS
+)
+
+// Seven-Segment Display Style
+DigitalClock(
+    modifier = Modifier.wrapContentSize(),
+    dateTimeMillis = System.currentTimeMillis(),
+    colors = SevenSegmentDefault.colors(
+        activeColor = Color.Green,
+        inactiveColor = Color.DarkGray
+    )
+)
+```
+
+### 📅 Clock with Weekdays
+
+A layout that highlights the current day of the week alongside the digital time.
+
+```kotlin
+DigitalClockWithWeekDays(
+    modifier = Modifier.padding(16.dp),
+    localDateTime = System.currentTimeMillis(),
+    clockIcon = {
+        Icon(Icons.Default.Schedule, contentDescription = null)
+    }
 )
 ```
 

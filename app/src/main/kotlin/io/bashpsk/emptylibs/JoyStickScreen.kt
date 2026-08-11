@@ -34,8 +34,8 @@ fun JoyStickScreen() {
     )
 
     val colors = JoyStickDefaults.colors(
-        thumbColor = Color.Cyan.copy(alpha = 0.85F),
-        borderColor = Color.Cyan.copy(alpha = 0.35F)
+        thumbColor = Color.Gray.copy(alpha = 0.85F),
+        borderColor = Color.Gray.copy(alpha = 0.35F)
     )
 
     val joyStickState = rememberJoyStickState(properties = properties)

@@ -57,92 +57,97 @@ dependencies {
 
 ## 🛠️ Usage
 
-### 1. Listing Storage Volumes
+### 💾 Volumes & Capacity
 
-Retrieve a list of all storage volumes on the device.
+Retrieve all available storage volumes (Internal, SD, OTG) and their memory stats.
 
 ```kotlin
-// Using the Flow-based approach
-launch {
-    StorageExt.getStorageVolumeFlow(context).collectLatest { volumes ->
+// List all volumes with capacity details
+val volumes = StorageExt.getStorageVolumeList(context)
 
-    }
+volumes.forEach { volume ->
+    println("Name: ${volume.title}")
+    println("Path: ${volume.path}")
+    println("Total: ${volume.totalSize} bytes")
+    println("Free: ${volume.availableSize} bytes")
 }
 
-// Or using the suspend function for a one-shot result
-launch {
-    val volumes = StorageExt.getStorageVolumeList(context)
+// Quick capacity checks for any path
+val freeSpace = StorageExt.getFreeMemory("/sdcard")
+val totalSpace = StorageExt.getTotalMemory("/sdcard")
+```
+
+### 📂 Directory Browsing
+
+List files and subfolders within a directory using `suspend` functions or `Flow`.
+
+```kotlin
+// Get contents of a specific folder
+val content = StorageExt.getDirectoryFileData(context, "/sdcard/Pictures")
+
+content.folders.forEach { println("Folder: ${it.title}") }
+content.files.forEach { println("File: ${it.title}, Type: ${it.fileType}") }
+
+// Reactive stream for directory contents
+StorageExt.getDirectoryFileFlow(context, "/sdcard/Documents").collectLatest { content ->
+    // Update UI
 }
 ```
 
-### 2. Listing Files and Folders in a Directory
+### 📊 File Metadata
 
-Get the contents of a specific directory, such as the primary external storage.
+Retrieve detailed information about specific files or total size of directories.
 
 ```kotlin
-val downloadsPath = Environment.getExternalStoragePublicDirectory(
-    Environment.DIRECTORY_DOWNLOADS
-).path
+val fileData = StorageExt.getFileData("/sdcard/image.jpg")
 
-// Get files and folders in the Downloads directory
-launch {
-    val directoryContent = StorageExt.getDirectoryFileData(context, downloadsPath)
-
-    println("Directory: ${directoryContent.directory.title}")
-    directoryContent.files.forEach { file ->
-        println("File: ${file.title} (${file.fileType})")
-    }
-    directoryContent.folders.forEach { folder ->
-        println("Folder: ${folder.title}")
-    }
+fileData?.let {
+    println("MIME: ${it.fileType.label}")
+    println("Size: ${it.size} bytes")
+    println("Modified: ${it.modifiedDate}")
 }
+
+// Calculate recursive size of multiple paths
+val totalBytes = StorageExt.getFileSize(listOf("/sdcard/Folder1", "/sdcard/log.txt"))
 ```
 
-### 3. Getting Metadata for a Single File
+### 🔍 Searching & Filtering
 
-Retrieve detailed information about a specific file.
+Perform powerful recursive searches by name or extension across one or all volumes.
 
 ```kotlin
-launch {
-    val filePath = "/path/to/your/image.jpg"
-    val fileData = StorageExt.getFileData(filePath)
+// Search for PDFs across ALL storage volumes
+val searchResult = StorageExt.getSearchDirectoryFileData(
+    context = context,
+    query = "Invoice",
+    extensions = listOf("pdf")
+)
 
-    fileData?.let {
-        println("File Name: ${it.title}")
-        println("Size: ${it.size} bytes")
-        println("Type: ${it.fileType.label}")
-        println("Last Modified: ${it.modifiedDate}")
-    }
-}
+// List specific file types in a directory
+val images = StorageExt.getFileListByExtensions(
+    context = context,
+    path = "/sdcard/DCIM",
+    extensions = listOf("jpg", "png", "webp")
+)
 ```
 
-### 4. Searching for Files by Extension
+### 🛠️ File Management
 
-Find all `.jpg` and `.png` files on the entire device.
-
-```kotlin
-val rootPath = Environment.getExternalStorageDirectory().path
-val extensionsToFind = persistentListOf("jpg", "png")
-
-launch {
-    val imageFiles = StorageExt.getFileListByExtensions(context, rootPath, extensionsToFind)
-    println("Found ${imageFiles.size} images.")
-}
-```
-
-### 5. Creating a New Folder
-
-Create a new directory and handle the result.
+Create folders and files with simple success/failure handling.
 
 ```kotlin
-val newFolderPath = "/path/to/your/New-Folder"
+// Create a hidden folder
+val result = StorageExt.makeFolderOrFile(
+    parentPath = "/sdcard",
+    name = "SecretVault",
+    isFolder = true,
+    visibleType = FileVisibleType.Hidden
+)
 
-launch {
-    when (val result = StorageExt.makeFolderOrFile(newFolderPath, isFolder = true)) {
-        is MakeFileResult.Success -> println("Folder created at: ${result.path}")
-        is MakeFileResult.Exist -> println("Folder already exists at: ${result.path}")
-        is MakeFileResult.Failed -> println("Failed to create folder: ${result.message}")
-    }
+when (result) {
+    is MakeFileResult.Success -> println("Created at: ${result.path}")
+    is MakeFileResult.Exist -> println("Already exists")
+    is MakeFileResult.Failed -> println("Error: ${result.message}")
 }
 ```
 

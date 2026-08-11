@@ -56,13 +56,55 @@ dependencies {
 
 ## 🛠️ Usage
 
+### 📄 Basic Setup
+
+The `PdfLazyColumn` component efficiently renders PDF pages as you scroll.
+
 ```kotlin
-val state = rememberPdfLazyColumnState(source = PdfSource.Uri(pdfUri))
+val state = rememberPdfLazyColumnState(source = PdfSource.URI(pdfUri))
 
 PdfLazyColumn(
     modifier = Modifier.fillMaxSize(),
     state = state,
-    pageSpace = 8.dp
+    pageSpace = 12.dp // Space between pages
+)
+```
+
+### 📂 PDF Sources
+
+Load documents from various sources using the `PdfSource` sealed class.
+
+```kotlin
+// From a content URI (e.g., from a File Picker)
+val sourceUri = PdfSource.URI(uri = myPdfUri)
+
+// From a local file path
+val sourcePath = PdfSource.Path(path = "/sdcard/Documents/guide.pdf")
+
+// Initialize state
+val state = rememberPdfLazyColumnState(source = sourceUri)
+```
+
+### ⚙️ Advanced Customization
+
+Fine-tune the viewer's appearance and interactive behavior.
+
+```kotlin
+val state = rememberPdfLazyColumnState(
+    source = mySource,
+    cacheSize = 15,       // Max pages to keep in memory
+    initialZoom = 1.0f,
+    zoomRange = 1.0f..5.0f
+)
+
+PdfLazyColumn(
+    modifier = Modifier.fillMaxSize(),
+    state = state,
+    placeholder = MaterialTheme.colorScheme.surfaceVariant, // Color while rendering
+    colorFilter = ColorFilter.tint(Color.Gray, BlendMode.Darken), // Night mode or accessibility
+    onClick = { offset ->
+        // Handle click on PDF page
+    }
 )
 ```
 

@@ -3,7 +3,8 @@
 [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/lrucache-manager.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/lrucache-manager)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A lightweight and efficient wrapper around Android's `LruCache` for easy, type-safe, in-memory caching of any object type in Kotlin and Android.
+A lightweight and efficient wrapper around Android's `LruCache` for easy, type-safe, in-memory
+caching of any object type in Kotlin and Android.
 
 ---
 
@@ -13,7 +14,8 @@ A lightweight and efficient wrapper around Android's `LruCache` for easy, type-s
 - **Simple API**: Intuitive `add`, `get`, `remove`, and `exist` operations.
 - **Dynamic Resizing**: Update the maximum cache size at runtime.
 - **Full Control**: Evict individual items or clear the entire cache instantly.
-- **Minimal Overhead**: A clean wrapper that preserves the efficiency of the underlying Android implementation.
+- **Minimal Overhead**: A clean wrapper that preserves the efficiency of the underlying Android
+  implementation.
 
 ---
 

@@ -60,29 +60,57 @@ dependencies {
 
 ## 🛠️ Usage
 
-### Applying a Shape Mask
+### ✂️ Shape Masking
+
+Apply unique geometric masks to any `ImageBitmap` using the `bitmapMask` extension.
 
 ```kotlin
-// 1. Define the shape
+// 1. Define a shape (Circle, Star, Polygon, etc.)
 val starShape = PathShape.Star(edges = 5, distance = 2.5f)
 
-// 2. Apply the mask
+// 2. Apply the mask to your bitmap
 val shapedBitmap: ImageBitmap = starShape.bitmapMask(imageBitmap = originalBitmap)
 
-// Now 'shapedBitmap' contains the original image clipped into a 5-pointed star.
-// You can display it in an Image composable.
-Image(bitmap = shapedBitmap, contentDescription = "Star-shaped image")
+// 3. Use in your Composable
+Image(bitmap = shapedBitmap, contentDescription = "Star shaped image")
 ```
 
-### Fitting Image to Canvas
+### 📊 Bitmap Info & Conversions
+
+Safely retrieve dimensions and aspect ratios from nullable or non-nullable `ImageBitmap` instances.
 
 ```kotlin
-val canvasSize = Size(width = 1080f, height = 1080f) // A square canvas
-val imageSize = Size(width = 1920f, height = 1080f)  // A 16:9 image
+val bitmap: ImageBitmap?
 
-// Calculate the size of the image to fit inside the canvas with a 10% reduction
-val newImageSize = canvasSize.fittedImageSize(imageSize = imageSize, reduction = 10)
-// newImageSize will be Size(width=972.0, height=546.75), which fits and is 90% of the max size
+val size: Size = bitmap.toSize()           // Size(width, height) or Size.Zero
+val intSize: IntSize = bitmap.toIntSize()  // IntSize(width, height) or IntSize.Zero
+val ratio: Float? = bitmap.findAspectRatio() // width / height
+```
+
+### 📐 Canvas Fitting
+
+Calculate the optimal size for an image to fit within a specific canvas while maintaining aspect
+ratio.
+
+```kotlin
+val canvasSize = Size(1080f, 1080f)
+val imageSize = Size(1920f, 1080f)
+
+// Fit image to canvas with a 10% safety margin (reduction)
+val fittedSize = canvasSize.fittedImageSize(
+    imageSize = imageSize,
+    reduction = 10
+)
+```
+
+### 🔍 Bitmap Comparison
+
+Efficiently check if two `ImageBitmap` instances are identical.
+
+```kotlin
+if (bitmap1.sameAs(bitmap2)) {
+    // Bitmaps are pixel-identical
+}
 ```
 
 ---

@@ -60,6 +60,12 @@ dependencies {
 
 ## 🛠️ Usage
 
+### 📺 Video Player Gestures
+
+The `VideoGestureBox` provides a complete suite of gestures typical for video players.
+
+#### Basic Setup
+
 ```kotlin
 val state = rememberVideoGestureBoxState()
 
@@ -68,33 +74,77 @@ VideoGestureBox(
     state = state,
     onTapChanges = { change ->
         when (change) {
-            is TapChanges.SingleTap -> { /* Toggle controls visibility */
+            is TapChanges.SingleTap -> { /* Toggle controls */
             }
-            is TapChanges.BackwardTap -> { /* Seek backward */
+            is TapChanges.BackwardTap -> { /* Seek -10s */
             }
-            is TapChanges.ForwardTap -> { /* Seek forward */
+            is TapChanges.ForwardTap -> { /* Seek +10s */
             }
             else -> {}
         }
     },
     onDragChanges = { change ->
         when (change) {
-            is DragChanges.VerticalLeftChanges -> { /* Adjust brightness */
+            is DragChanges.VerticalLeftChanges -> { /* Brightness: change.changes.value */
             }
-            is DragChanges.VerticalRightChanges -> { /* Adjust volume */
+            is DragChanges.VerticalRightChanges -> { /* Volume: change.changes.value */
             }
-            is DragChanges.HorizontalTopChanges -> { /* Scrubbing video */
+            is DragChanges.HorizontalBottomChanges -> { /* Scrubbing: change.changes */
             }
-            is DragChanges.HorizontalBottomChanges -> { /* Scrubbing video */
-            }
-            is DragChanges.TransformChanges -> { /* Handle zoom and pan */
+            is DragChanges.TransformChanges -> { /* Zoom/Pan change.zoom, change.pan */
             }
             else -> {}
         }
     }
 ) {
-    // Your Player Composable
+    // Your Video Player Composable
 }
+```
+
+#### Custom Configuration
+
+Tune sensitivities and toggle specific gestures using `VideoGestureConfig`.
+
+```kotlin
+val config = VideoGestureConfig(
+    isDoubleTapEnable = true,
+    doubleTapTimeoutMillis = 400,
+    isZoomEnable = true,
+    horizontalMinimumSwipe = 30,
+    gestureMargin = 10 // 10% margin from edges
+)
+
+val state = rememberVideoGestureBoxState(config = config)
+```
+
+### 🔄 General Transformable Gestures
+
+Use the `transformableGestures` modifier for any component that needs standalone zoom, pan, and
+rotation support.
+
+```kotlin
+val transformState = rememberTransformableGesturesState(
+    initialZoom = 1.0f,
+    zoomRange = 0.5f..5.0f,
+    enableRotation = true
+)
+
+Box(
+    modifier = Modifier
+        .size(300.dp)
+        .transformableGestures(
+            state = transformState,
+            onClick = { offset -> /* Handle Click */ },
+            onLongClick = { offset -> /* Handle Long Click */ }
+        )
+        .graphicsLayer(
+            scaleX = transformState.zoom,
+            scaleY = transformState.zoom,
+            rotationZ = transformState.rotation,
+            translationX = transformState.position.x,
+            translationY = transformState.position.y
+        )
+)
 ```
 
 ---

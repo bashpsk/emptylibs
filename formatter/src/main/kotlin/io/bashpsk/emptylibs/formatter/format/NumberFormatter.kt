@@ -214,6 +214,20 @@ fun IntSize.findAspectRatio(): Float {
 }
 
 /**
+ * Generates a simplified aspect ratio label for the given [IntSize].
+ *
+ * Uses the greatest common divisor to reduce the width and height to their
+ * simplest integer ratio form (e.g., "16:9").
+ *
+ * @return A string representing the simplified aspect ratio.
+ */
+@Stable
+fun IntSize.aspectRatioLabel(): String {
+
+    return aspectRatioLabel(width = width, height = height)
+}
+
+/**
  * Calculates the simplified aspect ratio of a given width and height.
  *
  * Uses the greatest common divisor (GCD) to reduce dimensions to their simplest integer ratio form.

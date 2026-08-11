@@ -3,13 +3,15 @@
 [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/pdf-template.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/pdf-template)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A powerful state-driven PDF generation library for Android. Generate complex, paginated PDFs from Compose-friendly templates with support for titles, content, and indices.
+A powerful state-driven PDF generation library for Android. Generate complex, paginated PDFs from
+Compose-friendly templates with support for titles, content, and indices.
 
 ---
 
 ## ✨ Features
 
-- **Template Driven**: Define PDFs using structured templates (`ContentOnly`, `TitleAndContent`, etc.).
+- **Template Driven**: Define PDFs using structured templates (`ContentOnly`, `TitleAndContent`,
+  etc.).
 - **Automatic Pagination**: Handles text wrapping and page breaks automatically.
 - **Table of Contents**: Generate indices with clickable page references.
 - **Previews**: Real-time `ImageBitmap` preview generation for UI integration.
