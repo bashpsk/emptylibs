@@ -246,7 +246,7 @@ https://github.com/user-attachments/assets/250bbce5-b6c3-47cc-af90-63bf8898c0f3
 
 https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729
 
-[//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
+https://github.com/user-attachments/assets/4eebdcd5-ea75-4cba-b72e-9829d569da5e
 
 ### JoyStick:
 
@@ -254,7 +254,7 @@ https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729
 |-----------------------------------------------------------------|-----------------------------------------------------------------|-----------------------------------------------------------------|
 | ![Screenshot 01](../screenshots/jetpack_ui_joystick_type01.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_joystick_type02.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_joystick_type03.jpg) |
 
-[//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
+https://github.com/user-attachments/assets/1b4e0eb2-42f7-4269-8685-426795d599e1
 
 ### Lazy List & Grid Scrollbars:
 
@@ -262,8 +262,8 @@ https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729
 |----------------------------------------------------------------------|-------------------------------------------------------------------|
 | ![Screenshot 01](../screenshots/jetpack_ui_scrollbar_lazycolumn.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_scrollbar_lazyrow.jpg) |
 
-[//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
+https://github.com/user-attachments/assets/7dbe08c1-323d-4042-a4f3-2f02aa19c89b
 
-[//]: # (https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729)
+https://github.com/user-attachments/assets/c36684fa-50b7-493d-a258-1354ff3bed52
 
 ---
