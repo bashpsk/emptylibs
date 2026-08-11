@@ -129,6 +129,9 @@ DigitalClockWithWeekDays(
 |-------------------------------------------------------------------|--------------------------------------------------------------------|
 | ![Screenshot 01](../screenshots/compose_widgets_analog_clock.jpg) | ![Screenshot 01](../screenshots/compose_widgets_digital_clock.jpg) |
 
-[//]: # (https://github.com/user-attachments/assets/07ffb810-a1bb-4db2-b50b-dea5fdc1a626)
+
+https://github.com/user-attachments/assets/b1764c82-6f89-407b-870a-eb4a76a6bb18
+
+https://github.com/user-attachments/assets/8c5a52d3-1709-463c-8a90-5b71fc88e5b0
 
 ---
