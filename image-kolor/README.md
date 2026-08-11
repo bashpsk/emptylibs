@@ -156,6 +156,6 @@ https://github.com/user-attachments/assets/a60003cd-a616-4a4c-a86e-e8fa180d123f
 | ![Screenshot 01](../screenshots/image_kolor_svg_kolor.jpg) |
 |------------------------------------------------------------|
 
-[//]: # (https://github.com/user-attachments/assets/a60003cd-a616-4a4c-a86e-e8fa180d123f)
+https://github.com/user-attachments/assets/5cb301da-bf93-464d-aadb-fb16d673a14e
 
 ---
