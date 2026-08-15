@@ -97,9 +97,9 @@ dependencies {
     //  NAVIGATION      :
     implementation(libs.androidx.navigation.compose)
 
-    implementation("androidx.pdf:pdf-viewer:1.0.0-alpha18")
-    implementation("androidx.pdf:pdf-compose:1.0.0-alpha18")
-    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha18")
+    implementation("androidx.pdf:pdf-viewer:1.0.0-alpha19")
+    implementation("androidx.pdf:pdf-compose:1.0.0-alpha19")
+    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha19")
 
     implementation("androidx.ink:ink-authoring-compose:1.0.0")
     implementation("androidx.ink:ink-brush-compose:1.0.0")
