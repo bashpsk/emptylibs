@@ -1,6 +1,6 @@
 package io.bashpsk.emptylibs.layouts.collapsible
 
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 
@@ -24,5 +24,5 @@ object SwipeCollapsibleLayoutDefault {
     /**
      * The default animation specification for state transitions in [SwipeCollapsibleLayout].
      */
-    val AnimationSpec = tween<Float>(durationMillis = 500, easing = LinearOutSlowInEasing)
+    val AnimationSpec = tween<Float>(durationMillis = 300, easing = LinearEasing)
 }
