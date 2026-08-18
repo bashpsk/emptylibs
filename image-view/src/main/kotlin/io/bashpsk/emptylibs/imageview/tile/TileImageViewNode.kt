@@ -16,8 +16,6 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.invalidateDraw
@@ -26,6 +24,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
+import io.bashpsk.emptylibs.composeutils.layout.calculateViewport
 import io.bashpsk.emptylibs.imageutils.extension.toSize
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
@@ -82,26 +81,7 @@ internal class TileImageViewNode(
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
 
-        val rootCoordinates = coordinates.findRootCoordinates()
-        val rootRect = Rect(offset = Offset.Zero, size = rootCoordinates.size.toSize())
-        val visibleInRoot = coordinates.boundsInRoot().intersect(other = rootRect)
-
-        viewportRect = when {
-
-            visibleInRoot.isEmpty -> Rect.Zero
-
-            else -> Rect(
-                topLeft = coordinates.localPositionOf(
-                    sourceCoordinates = rootCoordinates,
-                    relativeToSource = visibleInRoot.topLeft
-                ),
-                bottomRight = coordinates.localPositionOf(
-                    sourceCoordinates = rootCoordinates,
-                    relativeToSource = visibleInRoot.bottomRight
-                )
-            )
-        }
-
+        viewportRect = coordinates.calculateViewport()
         invalidateDraw()
     }
 

@@ -66,13 +66,13 @@ internal class LazyImagePainter(
         imageFragment?.let { fragment ->
 
             translate(
-                left = fragment.offset.x.toFloat(),
-                top = fragment.offset.y.toFloat()
+                left = fragment.topLeft.x,
+                top = fragment.topLeft.y
             ) {
 
                 drawImage(
                     image = fragment.bitmap,
-                    dstSize = fragment.size,
+                    dstSize = fragment.dstSize,
                     blendMode = BlendMode.Src
                 )
             }

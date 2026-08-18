@@ -7,14 +7,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.round
-import androidx.compose.ui.unit.toSize
+import io.bashpsk.emptylibs.composeutils.layout.calculateViewport
 import io.bashpsk.emptylibs.gestureui.transform.TransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.rememberTransformableGesturesState
 import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
@@ -57,25 +54,7 @@ inline fun ZoomableLayout(
     Layout(
         modifier = modifier.onGloballyPositioned { coordinates ->
 
-            val rootCoordinates = coordinates.findRootCoordinates()
-            val rootRect = Rect(offset = Offset.Zero, size = rootCoordinates.size.toSize())
-            val visibleInRoot = coordinates.boundsInRoot().intersect(rootRect)
-
-            val localViewport = when (visibleInRoot.isEmpty) {
-
-                true -> Rect.Zero
-
-                false -> Rect(
-                    topLeft = coordinates.localPositionOf(
-                        sourceCoordinates = rootCoordinates,
-                        relativeToSource = visibleInRoot.topLeft
-                    ),
-                    bottomRight = coordinates.localPositionOf(
-                        sourceCoordinates = rootCoordinates,
-                        relativeToSource = visibleInRoot.bottomRight
-                    )
-                )
-            }
+            val localViewport = coordinates.calculateViewport()
 
             scope.viewport = Rect(
                 left = localViewport.left / zoomScale,
