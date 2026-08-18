@@ -61,12 +61,26 @@ dependencies {
 The `PdfLazyColumn` component efficiently renders PDF pages as you scroll.
 
 ```kotlin
-val state = rememberPdfLazyColumnState(source = PdfSource.URI(pdfUri))
+val state = rememberPdfViewerState(source = PdfSource.URI(pdfUri))
 
 PdfLazyColumn(
     modifier = Modifier.fillMaxSize(),
     state = state,
-    pageSpace = 12.dp // Space between pages
+    verticalArrangement = Arrangement.spacedBy(12.dp) // Space between pages
+)
+```
+
+### ↔️ Horizontal Viewing
+
+Use `PdfLazyRow` for a horizontal PDF viewing experience.
+
+```kotlin
+val state = rememberPdfViewerState(source = PdfSource.URI(pdfUri))
+
+PdfLazyRow(
+    modifier = Modifier.fillMaxSize(),
+    state = state,
+    horizontalArrangement = Arrangement.spacedBy(8.dp)
 )
 ```
 
@@ -82,7 +96,7 @@ val sourceUri = PdfSource.URI(uri = myPdfUri)
 val sourcePath = PdfSource.Path(path = "/sdcard/Documents/guide.pdf")
 
 // Initialize state
-val state = rememberPdfLazyColumnState(source = sourceUri)
+val state = rememberPdfViewerState(source = sourceUri)
 ```
 
 ### ⚙️ Advanced Customization
@@ -90,20 +104,21 @@ val state = rememberPdfLazyColumnState(source = sourceUri)
 Fine-tune the viewer's appearance and interactive behavior.
 
 ```kotlin
-val state = rememberPdfLazyColumnState(
+val state = rememberPdfViewerState(
     source = mySource,
-    cacheSize = 15,       // Max pages to keep in memory
-    initialZoom = 1.0f,
-    zoomRange = 1.0f..5.0f
+    cacheSize = 25 // Max pages to keep in memory
 )
 
 PdfLazyColumn(
     modifier = Modifier.fillMaxSize(),
     state = state,
-    placeholder = MaterialTheme.colorScheme.surfaceVariant, // Color while rendering
     colorFilter = ColorFilter.tint(Color.Gray, BlendMode.Darken), // Night mode or accessibility
     onClick = { offset ->
         // Handle click on PDF page
+    },
+    loadingContent = { loadingState ->
+        // Custom loading UI
+        Text("Loading ${loadingState.loadedPage}/${loadingState.totalPage}")
     }
 )
 ```
