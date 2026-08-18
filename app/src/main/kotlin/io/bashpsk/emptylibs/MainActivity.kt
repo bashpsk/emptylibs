@@ -8,10 +8,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.bashpsk.emptylibs.component.datastoreui.AppTheme
+import io.bashpsk.emptylibs.component.datastoreui.datastore
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
-import io.bashpsk.emptylibs.screen.datastoreui.AppTheme
-import io.bashpsk.emptylibs.screen.datastoreui.datastore
+import io.bashpsk.emptylibs.screen.ActivityContent
 import io.bashpsk.emptylibs.ui.theme.EmptyLibsTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,50 +33,7 @@ class MainActivity : ComponentActivity() {
 
                 EmptyLibsTheme(darkTheme = AppTheme.getTheme(theme = getAppTheme)) {
 
-//                    AnalogClockScreen()
-//                    BasicTextEditorScreen()
-//                    BottomOptionBarScreen()
-//                    CanvasSlateScreen()
-//                    ColorPickerDialogScreen()
-//                    ColorPickerScreen()
-//                    DatastoreUIScreen()
-//                    DialClockScreen()
-//                    DialTextPickerScreen()
-//                    DigitalClockScreen()
-//                    FileCopySpeedScreen()
-//                    FileWriteSpeedScreen()
-//                    FormatterScreen()
-//                    ImageColorPickerScreen()
-//                    ImageColorPickerDialogScreen()
-//                    ImageCropScreen()
-//                    ImageEditScreen()
-//                    ImageFilterScreen()
-//                    ImageKolorScreen()
-//                    ImageUtilsShapeScreen()
-//                    ImageWallpaperScreen()
-//                    InkSlateScreen()
-//                    JoyStickScreen()
-//                    LazyTextViewerScreen()
-//                    LruCacheScreen()
-//                    MusicPlayingAnimationScreen()
-//                    PathShapeScreen()
-//                    PdfTemplateScreen()
-//                    PdfViewerScreen()
-//                    ScrollBarLazyGridScreen()
-//                    ScrollBarLazyListScreen()
-//                    SevenSegmentDisplayScreen()
-//                    StickyRowLayoutScreen()
-//                    StorageScreen()
-//                    StorageSearchScreen()
-//                    SvgKolorScreen()
-//                    SwipeCollapsibleLayoutScreen()
-//                    TileImageViewScreen()
-//                    TransformImageScreen()
-//                    TwoPaneAdaptiveLayoutScreen()
-//                    ZoomableLayoutScreen()
-//                    VideoGestureScreen()
-//                    WaveAnimationScreen()
-//                    WheelTextPickerScreen()
+                    ActivityContent()
                 }
             }
         }

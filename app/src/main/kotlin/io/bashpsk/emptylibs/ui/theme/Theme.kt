@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.datastore.preferences.core.stringPreferencesKey
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
-import io.bashpsk.emptylibs.screen.datastoreui.AppFont
+import io.bashpsk.emptylibs.component.datastoreui.AppFont
 
 @Composable
 fun EmptyLibsTheme(
