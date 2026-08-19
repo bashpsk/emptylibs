@@ -16,6 +16,7 @@ content, and interactive UI patterns.
 - **StickyRowLayout**: Rows with sticky headers that stay visible during scrolling.
 - **ZoomableLayout**: A container that provides native zoom and pan capabilities to any child
   content.
+- **SwipeRevealItem**: Interactive swipe-to-reveal actions behind a main content area.
 
 ---
 
@@ -130,6 +131,44 @@ ZoomableLayout(
 }
 ```
 
+### 👈👉 Swipe to Reveal (`SwipeRevealItem`)
+
+Reveal actions behind a content area by swiping left or right.
+
+```kotlin
+val state = rememberSwipeRevealState()
+
+SwipeRevealItem(
+    state = state,
+    leftContent = {
+        // Left actions (revealed when swiping right)
+        Box(modifier = Modifier.fillMaxHeight().width(80.dp).background(Color.Red)) {
+            Icon(
+                Icons.Default.Delete,
+                contentDescription = "Delete",
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    },
+    rightContent = {
+        // Right actions (revealed when swiping left)
+        Box(modifier = Modifier.fillMaxHeight().width(80.dp).background(Color.Blue)) {
+            Icon(
+                Icons.Default.Archive,
+                contentDescription = "Archive",
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
+) {
+    // Main content
+    ListItem(
+        headlineContent = { Text("Swipe me!") },
+        supportingContent = { Text("Secondary text") }
+    )
+}
+```
+
 ---
 
 ## 📸 Screenshots
@@ -139,7 +178,7 @@ ZoomableLayout(
 | ![Screenshot 01](../screenshots/layouts_swipe_collapsible_ui.jpg) | ![Screenshot 01](../screenshots/layouts_swipe_collapsible_transform.jpg) |
 | ![Screenshot 02](../screenshots/layouts_sticky_row_ui.jpg)        | ![Screenshot 02](../screenshots/layouts_sticky_row_transform.jpg)        |
 | ![Screenshot 03](../screenshots/layouts_two_pane_ui.jpg)          | ![Screenshot 03](../screenshots/layouts_two_pane_transform.jpg)          |
-| ![Screenshot 04](../screenshots/layouts_zoomable_ui.jpg)          | ![Screenshot 04](../screenshots/layouts_zoomable_transform.jpg)          |
+| ![Screenshot 04](../screenshots/layouts_swipe_reveal_ui.jpg)      | ![Screenshot 04](../screenshots/layouts_swipe_reveal_transform.jpg)      |
 
 https://github.com/user-attachments/assets/fbaa14f8-f780-424b-bdea-af6cf2fb2359
 
