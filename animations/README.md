@@ -13,6 +13,9 @@ dynamic wave effects.
 - **Music Playing Animation**: Customizable music visualizer with vertical bars and adjustable
   easing.
 - **Wave Animation**: Fluid, animated wave modifier that can be applied to any Composable.
+- **Shimmer Effect**: Flexible shimmer animation with adjustable angle, width, and colors.
+- **Diagonal Label**: Stylish diagonal ribbon labels (badges) for corners with built-in shimmer
+  support.
 - **Visibility Aware**: Automatically manages animation states based on component visibility.
 - **High Performance**: Optimized using low-level Compose animation APIs.
 
@@ -110,13 +113,65 @@ Box(
 )
 ```
 
+### ✨ Shimmer Effect Modifier
+
+Apply a highly customizable shimmer effect to any Composable.
+
+```kotlin
+// Basic Usage
+Box(
+    modifier = Modifier
+        .size(200.dp)
+        .shimmerEffect()
+)
+
+// Customized Usage
+val shimmerProperties = ShimmerEffectDefault.properties(
+    angle = 45f,
+    widthRatio = 0.4f,
+    colors = listOf(Color.Gray, Color.White, Color.Gray)
+)
+
+Box(
+    modifier = Modifier
+        .fillMaxWidth()
+        .height(200.dp)
+        .shimmerEffect(properties = shimmerProperties)
+)
+```
+
+### 🏷️ Diagonal Label Modifier
+
+Draw a diagonal ribbon label at the corner of your content. Supports an optional shimmer effect.
+
+```kotlin
+val textMeasurer = rememberTextMeasurer()
+
+Image(
+    modifier = Modifier
+        .size(300.dp)
+        .diagonalLabel(
+            text = "69% OFF",
+            textMeasurer = textMeasurer,
+            alignment = Alignment.TopEnd,
+            properties = DiagonalLabelProperties(
+                containerColor = Color.Red,
+                labelColor = Color.White,
+                shimmerProperties = ShimmerEffectDefault.properties() // Optional shimmer
+            )
+        ),
+    painter = painterResource(id = R.drawable.product_image),
+    contentDescription = null
+)
+```
+
 ---
 
 ## 📸 Screenshots
 
-| Music Playing                                                 | Wave Effect                                                 |
-|---------------------------------------------------------------|-------------------------------------------------------------|
-| ![Screenshot 01](../screenshots/animations_music_playing.jpg) | ![Screenshot 01](../screenshots/animations_wave_effect.jpg) |
+| Music Playing                                                 | Wave Effect                                                 | Shimmer Effect                                                 | Diagonal Label                                                 |
+|---------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------|----------------------------------------------------------------|
+| ![Screenshot 01](../screenshots/animations_music_playing.jpg) | ![Screenshot 01](../screenshots/animations_wave_effect.jpg) | ![Screenshot 01](../screenshots/animations_shimmer_effect.jpg) | ![Screenshot 01](../screenshots/animations_diagonal_label.jpg) |
 
 https://github.com/user-attachments/assets/ff534241-78df-47ef-9a6e-763aa799abfc
 
