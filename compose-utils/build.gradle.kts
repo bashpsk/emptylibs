@@ -33,7 +33,7 @@ android {
 
     publishing {
 
-        singleVariant("release")
+        singleVariant("release") { withSourcesJar() }
     }
 }
 
@@ -90,6 +90,22 @@ publishing {
             afterEvaluate {
 
                 from(components["release"])
+            }
+
+            pom {
+
+                name.set("EmptyLibs Compose Utils")
+                description.set("Compose utilities for Jetpack Compose")
+                url.set("https://github.com/bashpsk/emptylibs")
+
+                licenses {
+
+                    license {
+
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
             }
         }
     }
