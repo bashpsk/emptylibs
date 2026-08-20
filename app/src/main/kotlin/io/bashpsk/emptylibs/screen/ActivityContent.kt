@@ -38,6 +38,7 @@ fun ActivityContent() {
 //    PdfViewerScreen()
 //    ScrollBarLazyGridScreen()
 //    ScrollBarLazyListScreen()
+//    SegmentTextFieldScreen()
 //    SevenSegmentDisplayScreen()
 //    ShimmerEffectScreen()
 //    StickyRowLayoutScreen()
