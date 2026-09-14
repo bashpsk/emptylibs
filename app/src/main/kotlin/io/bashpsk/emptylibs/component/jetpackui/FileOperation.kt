@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.vector.ImageVector
-import io.bashpsk.emptylibs.jetpackui.optionbar.OptionBarData
 
 @Stable
 sealed interface FileOperation : OptionBarData {

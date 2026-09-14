@@ -2,9 +2,9 @@ package io.bashpsk.emptylibs.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.bashpsk.emptylibs.jetpackui.optionbar.OptionBarData.Companion.copy
 import io.bashpsk.emptylibs.component.jetpackui.FileOperation
 import io.bashpsk.emptylibs.component.jetpackui.ListData
+import io.bashpsk.emptylibs.component.jetpackui.OptionBarData.Companion.copy
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
