@@ -1,6 +1,5 @@
 package io.bashpsk.emptylibs.datastoreui.preference
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,24 +7,22 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -57,10 +54,8 @@ import kotlinx.coroutines.launch
  * which can depend on the current slider position.
  * @param colors [ListItemColors] to be used for this preference item. Defaults to
  * [ListItemDefaults.colors].
- * @param tonalElevation The tonal elevation of this preference item. Defaults to
- * [ListItemDefaults.Elevation].
- * @param shadowElevation The shadow elevation of this preference item. Defaults to
- * [ListItemDefaults.Elevation].
+ * @param elevation The tonal elevation of this preference item. Defaults to
+ * [ListItemDefaults.elevation].
  * @param valueRange The [ClosedFloatingPointRange] representing the valid range of values for the
  * slider.
  * @param steps The number of discrete steps the slider can take. If `0`, the slider is continuous.
@@ -78,7 +73,7 @@ inline fun SliderPreference(
     noinline title: @Composable () -> Unit,
     crossinline summary: @Composable (position: Float) -> Unit = {},
     noinline leadingContent: @Composable () -> Unit = {},
-    noinline trailingContent: @Composable ((position: Float) -> Unit)? = { sliderPosition->
+    noinline trailingContent: @Composable ((position: Float) -> Unit)? = { sliderPosition ->
 
         val sliderValueLabel by remember(sliderPosition) {
             derivedStateOf { sliderPosition.toRoundedDecimalString(fraction = 1) }
@@ -93,8 +88,7 @@ inline fun SliderPreference(
         )
     },
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
+    elevation: ListItemElevation = ListItemDefaults.elevation(),
     valueRange: ClosedFloatingPointRange<Float>,
     steps: Int = 0,
     sliderColors: SliderColors = SliderDefaults.colors()
@@ -102,23 +96,25 @@ inline fun SliderPreference(
 
     val preferenceDatastore = datastore ?: LocalDatastore.current
     val coroutineScope = rememberCoroutineScope()
-    val sliderInteractionSource = remember { MutableInteractionSource() }
 
     val getPosition by preferenceDatastore.getPreference(
         key = key,
         initial = initialValue
     ).collectAsStateWithLifecycle(initialValue = initialValue)
 
-    var sliderPosition by rememberSaveable { mutableFloatStateOf(getPosition) }
+    val sliderState = rememberSliderState(
+        value = getPosition,
+        trackRange = valueRange,
+        steps = steps
+    )
 
     ListItem(
         modifier = modifier,
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
+        content = title,
         leadingContent = leadingContent,
-        trailingContent = { trailingContent?.invoke(sliderPosition) },
-        headlineContent = title,
+        trailingContent = { trailingContent?.invoke(sliderState.value) },
         supportingContent = {
 
             Column(
@@ -127,42 +123,19 @@ inline fun SliderPreference(
                 verticalArrangement = Arrangement.spacedBy(space = 0.dp)
             ) {
 
-                summary(sliderPosition)
+                summary(sliderState.value)
 
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
-                    value = sliderPosition,
-                    valueRange = valueRange,
-                    steps = steps,
-                    onValueChange = { position ->
-
-                        sliderPosition = position
-                    },
+                    state = sliderState,
                     onValueChangeFinished = {
 
                         coroutineScope.launch(context = Dispatchers.IO) {
 
-                            preferenceDatastore.setPreference(key = key, value = sliderPosition)
+                            preferenceDatastore.setPreference(key = key, value = sliderState.value)
                         }
                     },
-                    colors = sliderColors,
-                    interactionSource = sliderInteractionSource,
-                    thumb = { _ ->
-
-                        SliderDefaults.Thumb(
-                            interactionSource = sliderInteractionSource,
-                            colors = sliderColors
-                        )
-                    },
-                    track = { sliderState ->
-
-                        SliderDefaults.Track(
-                            modifier = Modifier.fillMaxWidth(),
-                            sliderState = sliderState,
-                            thumbTrackGapSize = 0.dp,
-                            colors = sliderColors
-                        )
-                    }
+                    colors = sliderColors
                 )
             }
         }

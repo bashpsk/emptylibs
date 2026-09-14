@@ -3,6 +3,7 @@ package io.bashpsk.emptylibs.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
@@ -12,9 +13,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.bashpsk.emptylibs.component.datastoreui.AppFont
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
-import io.bashpsk.emptylibs.component.datastoreui.AppFont
 
 @Composable
 fun EmptyLibsTheme(
@@ -51,5 +52,10 @@ fun EmptyLibsTheme(
         )
     } ?: Typography
 
-    MaterialTheme(colorScheme = colorScheme, typography = typography, content = content)
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = typography,
+        motionScheme = MotionScheme.expressive(),
+        content = content
+    )
 }
