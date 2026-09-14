@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -36,6 +37,7 @@ import io.bashpsk.emptylibs.layouts.zoomable.ZoomableLayout
  * @param layoutOffset The offset of the page within the viewer.
  * @param colorFilter Optional [ColorFilter] to apply to the page image (e.g., for night mode).
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PdfPageView(
     modifier: Modifier = Modifier,
@@ -100,7 +102,7 @@ fun PdfPageView(
                     contentAlignment = Alignment.Center
                 ) {
 
-                    CircularProgressIndicator(modifier = Modifier.size(35.dp))
+                    ContainedLoadingIndicator(modifier = Modifier.size(35.dp))
                 }
             },
             measurePolicy = { measurables, constraints ->

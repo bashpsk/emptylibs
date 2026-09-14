@@ -12,13 +12,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -102,17 +103,24 @@ inline fun SliderPreference(
         initial = initialValue
     ).collectAsStateWithLifecycle(initialValue = initialValue)
 
-    val sliderState = rememberSliderState(
+    /*val sliderState = rememberSliderState(
         value = getPosition,
         trackRange = valueRange,
         steps = steps
-    )
+    )*/
+
+    val sliderState = retain(getPosition) {
+        SliderState(
+            value = getPosition,
+            trackRange = valueRange,
+            steps = steps
+        )/*.also { "SliderState created".setDebug() }*/
+    }
 
     ListItem(
         modifier = modifier,
         colors = colors,
         elevation = elevation,
-        content = title,
         leadingContent = leadingContent,
         trailingContent = { trailingContent?.invoke(sliderState.value) },
         supportingContent = {
@@ -138,6 +146,7 @@ inline fun SliderPreference(
                     colors = sliderColors
                 )
             }
-        }
+        },
+        content = title
     )
 }

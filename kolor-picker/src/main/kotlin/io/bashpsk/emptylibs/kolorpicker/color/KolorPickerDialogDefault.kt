@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -82,11 +83,12 @@ object KolorPickerDialogDefault {
         ) {
 
             Icon(
+                modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
                 imageVector = Icons.Filled.Done,
                 contentDescription = "Done"
             )
 
-            Spacer(modifier = Modifier.width(width = 2.dp))
+            Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
             Text(
                 text = "Done",
@@ -108,11 +110,12 @@ object KolorPickerDialogDefault {
         ) {
 
             Icon(
+                modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
                 imageVector = Icons.Filled.Close,
                 contentDescription = "Dismiss"
             )
 
-            Spacer(modifier = Modifier.width(width = 2.dp))
+            Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
             Text(
                 text = "Dismiss",
@@ -139,11 +142,12 @@ object KolorPickerDialogDefault {
         ) {
 
             Icon(
+                modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
                 imageVector = Icons.Filled.Restore,
                 contentDescription = "Reset"
             )
 
-            Spacer(modifier = Modifier.width(width = 2.dp))
+            Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
             Text(
                 text = "Reset",

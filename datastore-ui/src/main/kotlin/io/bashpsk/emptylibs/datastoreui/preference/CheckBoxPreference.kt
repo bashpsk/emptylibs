@@ -5,13 +5,13 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.Dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,11 +40,8 @@ import kotlinx.coroutines.launch
  * @param trailingContent A Composable lambda function to display content at the end of the
  * ListItem, which can depend on the current checked state. Defaults to a [Checkbox].
  * @param colors [ListItemColors] to be used for this ListItem. Defaults to
- * `ListItemDefaults.colors()`.
- * @param tonalElevation The tonal elevation of this ListItem. Defaults to
- * `ListItemDefaults.Elevation`.
- * @param shadowElevation The shadow elevation of this ListItem. Defaults to
- * `ListItemDefaults.Elevation`.
+ * [ListItemDefaults.colors].
+ * @param elevation The elevation of this ListItem. Defaults to [ListItemDefaults.elevation].
  */
 @Composable
 inline fun CheckBoxPreference(
@@ -63,8 +60,7 @@ inline fun CheckBoxPreference(
         Checkbox(checked = checked, onCheckedChange = null)
     },
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation
+    elevation: ListItemElevation = ListItemDefaults.elevation()
 ) {
 
     val preferenceDatastore = datastore ?: LocalDatastore.current
@@ -86,11 +82,10 @@ inline fun CheckBoxPreference(
     ListItem(
         modifier = modifier.clickable(role = Role.Checkbox, onClick = { onClick() }),
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
         leadingContent = leadingContent,
         trailingContent = { trailingContent(currentValue) },
-        headlineContent = title,
-        supportingContent = { summary(currentValue) }
+        supportingContent = { summary(currentValue) },
+        content = title
     )
 }

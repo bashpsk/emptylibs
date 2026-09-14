@@ -3,35 +3,33 @@ package io.bashpsk.emptylibs.datastoreui.component
 import androidx.annotation.ColorInt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -156,6 +154,8 @@ fun PreferenceColorPreviewBox(modifier: Modifier = Modifier, @ColorInt color: In
  * @param entryItem A [Pair] containing the display label ([Pair.first]) and the actual value
  * ([Pair.second]).
  * @param isSelected A boolean flag indicating whether this specific item is currently selected.
+ * @param itemShapes The [ListItemShapes] to be used for the item's shape.
+ * @param itemColors The [ListItemColors] to be used for the item's colors.
  */
 @PublishedApi
 @Composable
@@ -165,27 +165,27 @@ internal fun <K, V> CoroutineScope.PreferenceListEntryItem(
     key: Preferences.Key<V>,
     entryItem: Pair<K, V>,
     isSelected: Boolean,
+    itemShapes: ListItemShapes = ListItemDefaults.shapes(),
+    itemColors: ListItemColors = ListItemDefaults.segmentedColors()
 ) {
 
-    Row(
-        modifier = modifier
-            .selectable(
-                selected = isSelected,
-                role = Role.RadioButton,
-                onClick = {
+    SegmentedListItem(
+        modifier = modifier,
+        shapes = itemShapes,
+        colors = itemColors,
+        selected = isSelected,
+        onClick = {
 
-                    launch(context = Dispatchers.IO) {
+            launch(context = Dispatchers.IO) {
 
-                        preferenceDatastore.setPreference(key = key, value = entryItem.second)
-                    }
-                }
-            )
-            .padding(all = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+                preferenceDatastore.setPreference(key = key, value = entryItem.second)
+            }
+        },
+        leadingContent = {
+
+            RadioButton(selected = isSelected, onClick = null)
+        }
     ) {
-
-        RadioButton(selected = isSelected, onClick = null)
 
         Text(
             text = "${entryItem.first}",
@@ -207,6 +207,8 @@ internal fun <K, V> CoroutineScope.PreferenceListEntryItem(
  * @param entryItem A [Pair] containing the display label ([Pair.first]) and the actual value
  * ([Pair.second]).
  * @param isSelected A boolean flag indicating whether this specific item is currently selected.
+ * @param itemShapes The [ListItemShapes] to be used for the item's shape.
+ * @param itemColors The [ListItemColors] to be used for the item's colors.
  */
 @PublishedApi
 @Composable
@@ -217,33 +219,33 @@ internal fun <K> CoroutineScope.PreferenceListEntryItem(
     selectedItems: Set<String>,
     entryItem: Pair<K, String>,
     isSelected: Boolean,
+    itemShapes: ListItemShapes = ListItemDefaults.shapes(),
+    itemColors: ListItemColors = ListItemDefaults.segmentedColors()
 ) {
 
-    Row(
-        modifier = modifier
-            .selectable(
-                selected = isSelected,
-                role = Role.Checkbox,
-                onClick = {
+    SegmentedListItem(
+        modifier = modifier,
+        shapes = itemShapes,
+        colors = itemColors,
+        checked = isSelected,
+        onCheckedChange = { isChecked ->
 
-                    launch(context = Dispatchers.IO) {
+            launch(context = Dispatchers.IO) {
 
-                        val newEntities = when (isSelected) {
+                val newEntities = when (isChecked) {
 
-                            true -> selectedItems - entryItem.second
-                            false -> selectedItems + entryItem.second
-                        }
-
-                        preferenceDatastore.setPreference(key = key, value = newEntities)
-                    }
+                    true -> selectedItems + entryItem.second
+                    false -> selectedItems - entryItem.second
                 }
-            )
-            .padding(all = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(space = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
 
-        Checkbox(checked = isSelected, onCheckedChange = null)
+                preferenceDatastore.setPreference(key = key, value = newEntities)
+            }
+        },
+        leadingContent = {
+
+            Checkbox(checked = isSelected, onCheckedChange = null)
+        }
+    ) {
 
         Text(
             text = "${entryItem.first}",
@@ -277,9 +279,12 @@ internal fun DialogConfirmButton(onClick: () -> Unit) {
 
     Button(onClick = onClick) {
 
-        Icon(imageVector = Icons.Filled.Done, contentDescription = "Done")
+        Icon(
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
+            imageVector = Icons.Filled.Done, contentDescription = "Done"
+        )
 
-        Spacer(modifier = Modifier.width(width = 2.dp))
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
         Text(
             text = "Done",
@@ -296,9 +301,13 @@ internal fun DialogResetButton(onClick: () -> Unit) {
 
     OutlinedButton(onClick = onClick) {
 
-        Icon(imageVector = Icons.Filled.Restore, contentDescription = "Reset")
+        Icon(
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
+            imageVector = Icons.Filled.Restore,
+            contentDescription = "Reset"
+        )
 
-        Spacer(modifier = Modifier.width(width = 2.dp))
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
         Text(
             text = "Reset",

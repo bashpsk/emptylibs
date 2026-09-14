@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 /**
@@ -28,7 +27,6 @@ import kotlin.uuid.Uuid
  * epoch.
  * @property storage Information about the storage volume where the file is located.
  */
-@OptIn(ExperimentalUuidApi::class)
 @Immutable
 @Parcelize
 @Serializable

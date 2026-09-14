@@ -20,11 +20,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -112,7 +114,7 @@ fun KolorAdjustmentSliders(modifier: Modifier = Modifier, state: ImageKolorState
             AdjustmentSlider(
                 modifier = Modifier.fillMaxWidth(),
                 kolorInput = state.kolorInput,
-                onValueChange =  state::updateValues
+                onValueChange = state::updateValues
             )
         }
     }
@@ -144,6 +146,10 @@ private fun AdjustmentSlider(
     val kolorLabel by remember(kolorInput) { derivedStateOf { kolorInput.label } }
     val kolorValueRange by remember(kolorInput) { derivedStateOf { kolorInput.range } }
     val kolorValue by remember(kolorInput) { derivedStateOf { kolorInput.getValue() } }
+
+    val sliderState = retain(kolorInput.label) {
+        SliderState(value = kolorValue, trackRange = kolorValueRange)
+    }
 
     val valuePercentage by remember(kolorValue, kolorValueRange) {
         derivedStateOf {
@@ -178,9 +184,8 @@ private fun AdjustmentSlider(
 
         Slider(
             modifier = Modifier.fillMaxWidth(),
-            value = kolorValue,
-            onValueChange = onValueChange,
-            valueRange = kolorValueRange
+            state = sliderState,
+            onValueChangeFinished = { onValueChange(sliderState.value) }
         )
     }
 }

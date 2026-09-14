@@ -15,6 +15,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
@@ -58,6 +61,8 @@ import kotlinx.coroutines.launch
  * @param title A Composable lambda function that defines the title to be displayed for the
  * preference.
  * @param dialogTitle The title displayed in the selection dialog.
+ * @param itemShapes The [ListItemShapes] to be used for the item's shape.
+ * @param itemColors The [ListItemColors] to be used for the item's colors.
  * @param leadingContent A Composable lambda function to display content at the beginning of the
  * menu item.
  * @param trailingContent A Composable lambda function to display content at the end of the menu
@@ -79,6 +84,8 @@ inline fun <K, V> ListOptionMenuPreference(
     entities: ImmutableMap<K, V>,
     noinline title: @Composable () -> Unit,
     dialogTitle: String = "Select Option",
+    itemShapes: ListItemShapes = ListItemDefaults.shapes(),
+    itemColors: ListItemColors = ListItemDefaults.segmentedColors(),
     noinline leadingContent: @Composable () -> Unit = {},
     noinline trailingContent: @Composable () -> Unit = {},
     crossinline itemContent: @Composable CoroutineScope.(
@@ -92,7 +99,9 @@ inline fun <K, V> ListOptionMenuPreference(
             preferenceDatastore = preferenceDatastore,
             key = key,
             entryItem = entryItem,
-            isSelected = isSelected
+            isSelected = isSelected,
+            itemShapes = itemShapes,
+            itemColors = itemColors
         )
     },
     colors: MenuItemColors = MenuDefaults.itemColors(),

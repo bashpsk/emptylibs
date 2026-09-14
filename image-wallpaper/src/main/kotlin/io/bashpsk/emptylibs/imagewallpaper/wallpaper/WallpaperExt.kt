@@ -6,8 +6,9 @@ import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import io.bashpsk.emptylibs.imagewallpaper.utils.LOG_TAG
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Sets the device wallpaper from an [ImageBitmap].
@@ -28,7 +29,7 @@ import kotlin.coroutines.suspendCoroutine
 @SuppressLint("MissingPermission")
 suspend fun WallpaperManager.setImageWallpaper(image: ImageBitmap?, type: WallpaperType): Boolean {
 
-    return suspendCoroutine { continuation ->
+    return suspendCancellableCoroutine { continuation ->
 
         try {
 
@@ -49,6 +50,7 @@ suspend fun WallpaperManager.setImageWallpaper(image: ImageBitmap?, type: Wallpa
             continuation.resume(value = result != 0)
         } catch (exception: Exception) {
 
+            if (exception is CancellationException) throw exception
             Log.e(LOG_TAG, exception.message, exception)
             continuation.resume(value = false)
         }

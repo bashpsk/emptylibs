@@ -4,10 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.Dp
 import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
 
 /**
@@ -24,9 +24,9 @@ import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
  * the beginning of the preference item (e.g., an icon). Defaults to an empty Composable.
  * @param trailingContent A Composable lambda function that defines the content to be displayed at
  * the end of the preference item (e.g., a switch or a chevron). Defaults to an empty Composable.
- * @param colors [ListItemColors] to be used for this list item.
- * @param tonalElevation The tonal elevation of this list item.
- * @param shadowElevation The shadow elevation of this list item.
+ * @param colors [ListItemColors] to be used for this list item. Defaults to
+ * [ListItemDefaults.colors].
+ * @param elevation The elevation of this list item. Defaults to [ListItemDefaults.elevation].
  * @param onClick A lambda function to be executed when the preference item is clicked. Defaults to
  * an empty lambda.
  */
@@ -38,19 +38,17 @@ fun CardPreference(
     leadingContent: @Composable () -> Unit = {},
     trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
+    elevation: ListItemElevation = ListItemDefaults.elevation(),
     onClick: () -> Unit = {}
 ) {
 
     ListItem(
         modifier = modifier.clickable(role = Role.Button, onClick = onClick),
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        headlineContent = title,
-        supportingContent = summary
+        supportingContent = summary,
+        content = title
     )
 }

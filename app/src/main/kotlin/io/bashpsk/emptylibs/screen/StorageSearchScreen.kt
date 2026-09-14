@@ -14,7 +14,8 @@ import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,6 +40,7 @@ import io.bashpsk.emptylibs.storage.storage.FileType.Companion.extension
 import io.bashpsk.emptylibs.storage.storage.StorageExt
 import kotlinx.collections.immutable.ImmutableList
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun StorageSearchScreen() {
 
@@ -81,7 +83,7 @@ fun StorageSearchScreen() {
 
             item {
 
-                if (isSearching) CircularProgressIndicator()
+                if (isSearching) ContainedLoadingIndicator()
             }
 
             item {

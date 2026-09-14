@@ -47,6 +47,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -1433,6 +1434,12 @@ private fun SliderSelectionView(
     onValueChange: (value: Float) -> Unit
 ) {
 
+    val sliderState = rememberSliderState(
+        value = value,
+        trackRange = valueRange,
+        steps = steps
+    )
+
     val selectedValue by remember(value) {
         derivedStateOf { "$label - ${value.toRoundedDecimalString(fraction = 1)}" }
     }
@@ -1453,10 +1460,8 @@ private fun SliderSelectionView(
 
         Slider(
             modifier = Modifier.fillMaxWidth(),
-            value = value,
-            valueRange = valueRange,
-            steps = steps,
-            onValueChange = onValueChange
+            state = sliderState,
+            onValueChangeFinished = { onValueChange(sliderState.value) }
         )
     }
 }
@@ -1558,6 +1563,21 @@ private fun DashPathSelectionView(
     onIntervalPhaseChange: (newInterval: Float) -> Unit
 ) {
 
+    val intervalOffSliderState = rememberSliderState(
+        value = intervalOff,
+        trackRange = 0.0F..100.0F
+    )
+
+    val intervalOnSliderState = rememberSliderState(
+        value = intervalOn,
+        trackRange = 0.0F..100.0F
+    )
+
+    val intervalPhaseSliderState = rememberSliderState(
+        value = intervalPhase,
+        trackRange = 0.0F..100.0F
+    )
+
     val intervalOffLabel by remember(intervalOff) {
         derivedStateOf {
             "Interval OFF Size - ${intervalOff.toRoundedDecimalString(fraction = 1)} Px"
@@ -1598,9 +1618,8 @@ private fun DashPathSelectionView(
         )
 
         Slider(
-            value = intervalOff,
-            valueRange = 0.0F..100.0F,
-            onValueChange = onIntervalOffChange
+            state = intervalOffSliderState,
+            onValueChangeFinished = { onIntervalOffChange(intervalOffSliderState.value) }
         )
 
         Text(
@@ -1611,9 +1630,8 @@ private fun DashPathSelectionView(
         )
 
         Slider(
-            value = intervalOn,
-            valueRange = 0.0F..100.0F,
-            onValueChange = onIntervalOnChange
+            state = intervalOnSliderState,
+            onValueChangeFinished = { onIntervalOnChange(intervalOnSliderState.value) }
         )
 
         Text(
@@ -1624,9 +1642,8 @@ private fun DashPathSelectionView(
         )
 
         Slider(
-            value = intervalPhase,
-            valueRange = 0.0F..100.0F,
-            onValueChange = onIntervalPhaseChange
+            state = intervalPhaseSliderState,
+            onValueChangeFinished = { onIntervalPhaseChange(intervalPhaseSliderState.value) }
         )
     }
 }

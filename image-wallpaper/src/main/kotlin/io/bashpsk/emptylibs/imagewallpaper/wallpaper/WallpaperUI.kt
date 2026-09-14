@@ -19,7 +19,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -64,6 +65,7 @@ import kotlinx.coroutines.launch
  * completed. It takes a [Boolean] parameter indicating whether the setting was successful.
  * Defaults to `AlertDialogDefaults.containerColor`.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun WallpaperTypeDialog(
     dialogVisibleState: MutableTransitionState<Boolean>,
@@ -255,7 +257,7 @@ internal fun WallpaperTypeDialog(
                         exit = fadeOut() + scaleOut()
                     ) {
 
-                        CircularProgressIndicator()
+                        ContainedLoadingIndicator()
                     }
                 }
             },

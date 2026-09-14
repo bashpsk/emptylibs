@@ -14,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +27,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -58,9 +58,8 @@ import kotlinx.coroutines.launch
  * item.
  * @param trailingContent Composable content to be displayed at the trailing edge of the preference
  * item.
- * @param colors Colors for the list item.
- * @param tonalElevation Tonal elevation for the list item.
- * @param shadowElevation Shadow elevation for the list item.
+ * @param colors Colors for the list item. Defaults to [ListItemDefaults.colors].
+ * @param elevation The elevation for the list item. Defaults to [ListItemDefaults.elevation].
  * @param properties The [DialogProperties] to be applied to the text field dialog.
  * @param textFieldValue The current value of the text field.
  * @param textFieldContent Composable content for the text field.
@@ -80,8 +79,7 @@ inline fun <reified V> TextFieldPreference(
     noinline leadingContent: @Composable () -> Unit = {},
     noinline trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
+    elevation: ListItemElevation = ListItemDefaults.elevation(),
     properties: DialogProperties = DialogProperties(
         usePlatformDefaultWidth = false,
         dismissOnBackPress = true,
@@ -188,11 +186,10 @@ inline fun <reified V> TextFieldPreference(
     ListItem(
         modifier = modifier.clickable(role = Role.Button, onClick = onClick),
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        headlineContent = title,
-        supportingContent = { summary(currentValue) }
+        supportingContent = { summary(currentValue) },
+        content = title
     )
 }

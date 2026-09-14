@@ -20,10 +20,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -66,11 +66,11 @@ import io.bashpsk.emptylibs.composeutils.offset.toOffsetData
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.formatter.format.parseHexToColor
 import io.bashpsk.emptylibs.formatter.format.toHexString
-import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 import io.bashpsk.emptylibs.kolorpicker.modifier.alphaGestures
 import io.bashpsk.emptylibs.kolorpicker.modifier.hueGestures
 import io.bashpsk.emptylibs.kolorpicker.modifier.imageKolorPickerGestures
 import io.bashpsk.emptylibs.kolorpicker.modifier.saturationLightnessGestures
+import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 
 /**
  * A composable function that provides a color picker interface.
@@ -835,12 +835,12 @@ private fun ColorCopyPasteButtons(
         ) {
 
             Icon(
-                modifier = Modifier.size(size = 18.dp),
+                modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
                 imageVector = Icons.Filled.ContentPaste,
                 contentDescription = "Paste Color"
             )
 
-            Spacer(modifier = Modifier.width(width = 2.dp))
+            Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
             Text(
                 text = "Paste",
@@ -860,12 +860,12 @@ private fun ColorCopyPasteButtons(
         ) {
 
             Icon(
-                modifier = Modifier.size(size = 18.dp),
+                modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
                 imageVector = Icons.Filled.ContentCopy,
                 contentDescription = "Copy Color"
             )
 
-            Spacer(modifier = Modifier.width(width = 2.dp))
+            Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
             Text(
                 text = "Copy",

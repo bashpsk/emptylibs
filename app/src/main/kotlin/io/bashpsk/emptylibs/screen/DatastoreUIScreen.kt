@@ -33,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -59,6 +60,9 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.bashpsk.emptylibs.component.datastoreui.AppFont
+import io.bashpsk.emptylibs.component.datastoreui.AppTheme
+import io.bashpsk.emptylibs.component.datastoreui.datastore2
 import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
 import io.bashpsk.emptylibs.datastoreui.component.PreferenceTitle
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
@@ -75,9 +79,6 @@ import io.bashpsk.emptylibs.datastoreui.preference.SliderPreference
 import io.bashpsk.emptylibs.datastoreui.preference.SwitchMenuPreference
 import io.bashpsk.emptylibs.datastoreui.preference.SwitchPreference
 import io.bashpsk.emptylibs.datastoreui.preference.TextFieldPreference
-import io.bashpsk.emptylibs.component.datastoreui.AppFont
-import io.bashpsk.emptylibs.component.datastoreui.AppTheme
-import io.bashpsk.emptylibs.component.datastoreui.datastore2
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableMap
 
@@ -410,6 +411,13 @@ fun DatastoreUIScreen() {
                     summary = {
                         PreferenceSummary(summary = "Select one entity from the list. $it")
                     },
+                    itemShapes = ListItemDefaults.shapes(
+                        selectedShape = MaterialTheme.shapes.small,
+                        pressedShape = MaterialTheme.shapes.small
+                    ),
+                    itemColors = ListItemDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    ),
                     leadingContent = {
 
                         Icon(

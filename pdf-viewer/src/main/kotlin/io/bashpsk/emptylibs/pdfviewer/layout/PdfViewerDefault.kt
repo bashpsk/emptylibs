@@ -2,7 +2,7 @@ package io.bashpsk.emptylibs.pdfviewer.layout
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +45,7 @@ internal fun PdfStateLoading(
         )
     ) {
 
-        LinearProgressIndicator(progress =  progress )
+        LinearWavyProgressIndicator(progress =  progress)
 
         Text(
             text = "Loading pages: ${progressPercentage}%",

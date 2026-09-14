@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.RetainedEffect
@@ -40,7 +41,7 @@ fun CanvasSlate(
     onNavigateBack: () -> Unit = {}
 ) {
 
-    val pathEditSheetState = rememberModalBottomSheetState()
+    val pathEditSheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
     val backgroundColorPickerState = rememberKolorPickerState()
     val foregroundColorPickerState = rememberKolorPickerState()
     val penStrokeDialogVisibleState = remember { MutableTransitionState(false) }

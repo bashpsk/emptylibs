@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -61,8 +61,7 @@ import kotlinx.coroutines.launch
  * @param trailingContent An optional Composable lambda for content to be displayed at the ending
  * of the preference item, which can depend on whether the menu isMenuExpanded.
  * @param colors [ListItemColors] to be used for this list item.
- * @param tonalElevation The tonal elevation of this list item.
- * @param shadowElevation The shadow elevation of this list item.
+ * @param elevation The elevation of this list item. Defaults to [ListItemDefaults.elevation].
  */
 @Composable
 inline fun <K, V> DropDownPreference(
@@ -86,8 +85,7 @@ inline fun <K, V> DropDownPreference(
         )
     },
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation
+    elevation: ListItemElevation = ListItemDefaults.elevation()
 ) {
 
     val preferenceDatastore = datastore ?: LocalDatastore.current
@@ -115,8 +113,7 @@ inline fun <K, V> DropDownPreference(
     ListItem(
         modifier = modifier.clickable(role = Role.Button, onClick = { isMenuExpanded = true }),
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
         leadingContent = leadingContent,
         trailingContent = {
 
@@ -164,7 +161,7 @@ inline fun <K, V> DropDownPreference(
                 }
             }
         },
-        headlineContent = title,
-        supportingContent = { summary(currentValue) }
+        supportingContent = { summary(currentValue) },
+        content = title
     )
 }

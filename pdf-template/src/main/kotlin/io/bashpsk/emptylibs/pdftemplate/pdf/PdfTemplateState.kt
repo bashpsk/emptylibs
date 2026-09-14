@@ -63,7 +63,7 @@ fun rememberPdfTemplateState(): PdfTemplateState {
  *
  * This class provides the logic for converting [PdfTemplateType] configurations into physical
  * PDF files or [ImageBitmap] previews. it handles complex layout tasks such as text measurement,
- * multi-page pagination, table of contents generation, and coordinate mapping between
+ * multipage pagination, table of contents generation, and coordinate mapping between
  * Compose [DrawScope] and the Android [PdfDocument] canvas.
  *
  * @property density The [Density] used to resolve pixel-dependent measurements for the PDF canvas.

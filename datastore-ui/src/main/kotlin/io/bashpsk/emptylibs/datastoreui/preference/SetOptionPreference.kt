@@ -16,6 +16,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
@@ -63,13 +64,14 @@ import kotlinx.coroutines.launch
  * @param summary A Composable lambda function that defines the summary text displayed below the
  * title, which can depend on the currently selected [items]. Defaults to an empty Composable.
  * @param dialogTitle A title for option selection dialog.
+ * @param itemShapes The [ListItemShapes] to be used for the item's shape.
+ * @param itemColors The [ListItemColors] to be used for the item's colors.
  * @param leadingContent A Composable lambda for content to be displayed at the beginning of the
  * preference item.
  * @param trailingContent A Composable lambda for content to be displayed at the end of the
  * preference item.
  * @param colors [ListItemColors] to be used for the preference item.
- * @param tonalElevation The tonal elevation of the preference item.
- * @param shadowElevation The shadow elevation of the preference item.
+ * @param elevation The elevation of the preference item. Defaults to [ListItemDefaults.elevation].
  * @param properties The [DialogProperties] to be applied to the option selection dialog.
  * @param confirmButton A Composable lambda function for the confirmation button in the dialog.
  * @param resetButton A Composable lambda function for the reset button in the dialog,
@@ -85,6 +87,8 @@ inline fun <K> SetOptionPreference(
     noinline title: @Composable () -> Unit,
     crossinline summary: @Composable (items: Set<String>) -> Unit = {},
     dialogTitle: String = "Select Options",
+    itemShapes: ListItemShapes = ListItemDefaults.shapes(),
+    itemColors: ListItemColors = ListItemDefaults.segmentedColors(),
     noinline leadingContent: @Composable () -> Unit = {},
     noinline trailingContent: @Composable () -> Unit = {},
     crossinline itemContent: @Composable CoroutineScope.(
@@ -100,12 +104,13 @@ inline fun <K> SetOptionPreference(
             key = key,
             selectedItems = selectedItems,
             entryItem = entryItem,
-            isSelected = isSelected
+            isSelected = isSelected,
+            itemShapes = itemShapes,
+            itemColors = itemColors
         )
     },
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
+    elevation: ListItemElevation = ListItemDefaults.elevation(),
     properties: DialogProperties = DialogProperties(
         usePlatformDefaultWidth = false,
         dismissOnBackPress = true,
@@ -215,11 +220,10 @@ inline fun <K> SetOptionPreference(
     ListItem(
         modifier = modifier.clickable(role = Role.Button, onClick = onClick),
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        headlineContent = title,
-        supportingContent = { summary(currentValue) }
+        supportingContent = { summary(currentValue) },
+        content = title
     )
 }

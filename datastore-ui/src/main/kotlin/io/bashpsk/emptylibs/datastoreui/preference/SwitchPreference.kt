@@ -4,12 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.Dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,8 +39,7 @@ import kotlinx.coroutines.launch
  * @param trailingContent A Composable lambda for displaying content at the end of the list item,
  * which can depend on the current checked state. Defaults to a [SwitchButton].
  * @param colors [ListItemColors] to be used for this list item.
- * @param tonalElevation The tonal elevation of this list item.
- * @param shadowElevation The shadow elevation of this list item.
+ * @param elevation The elevation of this list item. Defaults to [ListItemDefaults.elevation].
  */
 @Composable
 inline fun SwitchPreference(
@@ -56,8 +55,7 @@ inline fun SwitchPreference(
         SwitchButton(checked = checked)
     },
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation
+    elevation: ListItemElevation = ListItemDefaults.elevation()
 ) {
 
     val preferenceDatastore = datastore ?: LocalDatastore.current
@@ -80,11 +78,10 @@ inline fun SwitchPreference(
             }
         ),
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
         leadingContent = leadingContent,
         trailingContent = { trailingContent(currentValue) },
-        headlineContent = title,
-        supportingContent = { summary(currentValue) }
+        supportingContent = { summary(currentValue) },
+        content = title
     )
 }

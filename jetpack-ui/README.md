@@ -11,7 +11,6 @@ custom pickers.
 ## ✨ Features
 
 - **AnimatedBottomNavBar**: Engaging navigation bar with smooth icon scaling and label transitions.
-- **BottomOptionBar**: Adaptive bar with an overflow "More" menu for extra actions.
 - **DialTextPicker**: Circular picker for intuitive numerical or time selection.
 - **WheelTextPicker**: Classic slot-machine style vertical picker with haptic feedback.
 - **BasicTextEditor**: Line-numbered text field wrapper for code or plain text.
@@ -77,25 +76,6 @@ Scaffold(
         }
     }
 ) { /* Content */ }
-```
-
-#### Bottom Option Bar
-
-Adaptive toolbar with automatic overflow handling for extra actions.
-
-```kotlin
-val options = persistentListOf(
-    OptionBarData("Edit", Icons.Default.Edit),
-    OptionBarData("Share", Icons.Default.Share),
-    OptionBarData("Delete", Icons.Default.Delete),
-    OptionBarData("Info", Icons.Default.Info)
-)
-
-BottomOptionBar(
-    optionList = options,
-    onOptionClick = { option -> /* Handle click */ },
-    maxLines = 1 // Rest goes to "More" menu
-)
 ```
 
 ### 🔢 Pickers
@@ -219,14 +199,6 @@ BoxWithConstraints {
 ---
 
 ## 📸 Screenshots
-
-### Bottom Option Bar:
-
-| Adaptive Bottom Bar                                               | Adaptive Bottom Bar - Overflow Menu                                        | Adaptive Bottom Bar - Landscape                                             |
-|-------------------------------------------------------------------|----------------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| ![Screenshot 01](../screenshots/jetpack_ui_bottom_option_bar.jpg) | ![Screenshot 02](../screenshots/jetpack_ui_bottom_option_bar_overflow.jpg) | ![Screenshot 03](../screenshots/jetpack_ui_bottom_option_bar_landscape.jpg) |
-
-https://github.com/user-attachments/assets/ef8c7860-e472-438f-99ce-5d9490a39e04
 
 ### Text Picker:
 

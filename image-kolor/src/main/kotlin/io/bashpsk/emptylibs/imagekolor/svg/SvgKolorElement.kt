@@ -6,12 +6,11 @@ import io.bashpsk.emptylibs.serializationxml.annotation.XmlElement
 import io.bashpsk.emptylibs.serializationxml.annotation.XmlIndex
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlin.uuid.ExperimentalUuidApi
 
 /**
  * Interface representing an SVG element that can be recolored.
  */
-@OptIn(ExperimentalSerializationApi::class, ExperimentalUuidApi::class)
+@OptIn(ExperimentalSerializationApi::class)
 @Immutable
 @Serializable
 sealed interface SvgKolorElement {

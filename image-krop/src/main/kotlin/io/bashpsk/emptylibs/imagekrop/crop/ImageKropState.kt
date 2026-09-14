@@ -432,8 +432,8 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
      * the available canvas area while maintaining the requested aspect ratio. When no aspect ratio
      * is configured, a square crop rectangle is created using 80% of the smaller canvas dimension.
      *
-     * The resulting rectangle is constrained by [config.minimumCropSize] and the canvas boundaries,
-     * and is positioned at the center of the canvas.
+     * The resulting rectangle is constrained by [KropConfig.minimumCropSize] and the canvas
+     * boundaries and is positioned at the center of the canvas.
      */
     internal fun onKropRectInitialized() {
 

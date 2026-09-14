@@ -14,12 +14,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compare
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -178,17 +178,17 @@ private fun ImageCompareButton(
     Button(
         onClick = {
 
-            onShowImageBitmap(isOriginalImage.not())
+            onShowImageBitmap(!isOriginalImage)
         }
     ) {
 
         Icon(
-            modifier = Modifier.size(size = 18.dp),
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
             imageVector = Icons.Filled.Compare,
             contentDescription = "Compare Image"
         )
 
-        Spacer(modifier = Modifier.width(width = 2.dp))
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
         Text(
             text = if (isOriginalImage) "Show Cropped Image" else "Show Original Image",

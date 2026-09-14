@@ -72,7 +72,6 @@ internal class PdfPageRenderer(
                 } catch (exception: Exception) {
 
                     currentCoroutineContext().ensureActive()
-                    bitmap.asAndroidBitmap().recycle()
                     Log.w(LOG_TAG, exception.message, exception)
                     null
                 }
@@ -132,7 +131,6 @@ internal class PdfPageRenderer(
                 } catch (exception: Exception) {
 
                     currentCoroutineContext().ensureActive()
-                    imageBitmap.asAndroidBitmap().recycle()
                     Log.w(LOG_TAG, exception.message, exception)
                     null
                 } finally {

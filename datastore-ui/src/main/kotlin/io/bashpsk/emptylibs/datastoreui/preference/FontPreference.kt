@@ -19,6 +19,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -34,7 +35,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
@@ -71,7 +71,7 @@ import kotlinx.coroutines.launch
  * @param leadingContent An optional Composable to be displayed at the start of the item.
  * @param trailingContent An optional Composable to be displayed at the end of the item.
  * @param colors [ListItemColors] to be used for the preference item.
- * @param tonalElevation The tonal elevation of the preference item.
+ * @param elevation The tonal elevation of the preference item.
  * @param shadowElevation The shadow elevation of the preference item.
  * @param properties The [DialogProperties] to be applied to the font selection dialog.
  * @param confirmButton A Composable lambda function for the confirmation button in the dialog.
@@ -94,8 +94,7 @@ inline fun FontPreference(
     noinline leadingContent: @Composable () -> Unit = {},
     noinline trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
+    elevation: ListItemElevation = ListItemDefaults.elevation(),
     properties: DialogProperties = DialogProperties(
         usePlatformDefaultWidth = false,
         dismissOnBackPress = true,
@@ -247,11 +246,10 @@ inline fun FontPreference(
     ListItem(
         modifier = modifier.clickable(role = Role.Button, onClick = onClick),
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
         leadingContent = leadingContent,
         trailingContent = trailingContent,
-        headlineContent = title,
-        supportingContent = { summary(currentFontFamily) }
+        supportingContent = { summary(currentFontFamily) },
+        content = title
     )
 }

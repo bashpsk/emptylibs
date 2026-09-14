@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -15,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.Dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,10 +52,7 @@ import kotlinx.coroutines.launch
  * preference item, which can depend on the current argb color value. Defaults to
  * [PreferenceColorPreviewBox].
  * @param colors The colors to be used for the list item. Defaults to [ListItemDefaults.colors].
- * @param tonalElevation The tonal elevation of the list item. Defaults to
- * [ListItemDefaults.Elevation].
- * @param shadowElevation The shadow elevation of the list item. Defaults to
- * [ListItemDefaults.Elevation].
+ * @param elevation The elevation of the list item. Defaults to [ListItemDefaults.Elevation].
  * @param enableAlphaPanel Whether to enable the alpha panel in the color picker.
  * Defaults to `true`.
  * @param enableCopyPasteButton Whether to enable the copy & paste buttons in the color picker.
@@ -81,8 +78,7 @@ inline fun ColorPickPreference(
         PreferenceColorPreviewBox(color = color)
     },
     colors: ListItemColors = ListItemDefaults.colors(),
-    tonalElevation: Dp = ListItemDefaults.Elevation,
-    shadowElevation: Dp = ListItemDefaults.Elevation,
+    elevation: ListItemElevation = ListItemDefaults.elevation(),
     enableAlphaPanel: Boolean = true,
     enableCopyPasteButton: Boolean = true,
     crossinline resetButton: @Composable CoroutineScope.(
@@ -138,11 +134,10 @@ inline fun ColorPickPreference(
     ListItem(
         modifier = modifier.clickable(role = Role.Button, onClick = onClick),
         colors = colors,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
+        elevation = elevation,
         leadingContent = leadingContent,
         trailingContent = { trailingContent(currentValue) },
-        headlineContent = title,
-        supportingContent = { summary(currentValue) }
+        supportingContent = { summary(currentValue) },
+        content = title
     )
 }

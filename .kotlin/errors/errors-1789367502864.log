@@ -7,11 +7,11 @@ FUN LOCAL_FUNCTION_FOR_LAMBDA name:lambda__1288314228$lambda$0 visibility:privat
   annotations:
     Composable
     ComposableTarget(applier = "androidx.compose.ui.UiComposable")
-    FunctionKeyMeta(key = -1288314228, startOffset = 17080, endOffset = 17793)
+    FunctionKeyMeta(key = -1288314228, startOffset = 17511, endOffset = 18224)
   BLOCK_BODY
     CALL 'public final fun sourceInformation (composer: androidx.compose.runtime.Composer, sourceInformation: kotlin.String): kotlin.Unit [companion] declared in androidx.compose.runtime.ComposerKt' type=kotlin.Unit origin=null
       ARG composer: GET_VAR '$composer: androidx.compose.runtime.Composer? [assignable] declared in io.bashpsk.emptylibs.screen.ComposableSingletons$DatastoreUIScreenKt.lambda__1288314228$lambda$0' type=androidx.compose.runtime.Composer? origin=null
-      ARG sourceInformation: CONST String type=kotlin.String value="C433@17099L680:DatastoreUIScreen.kt#65e99d"
+      ARG sourceInformation: CONST String type=kotlin.String value="C441@17530L680:DatastoreUIScreen.kt#65e99d"
     WHEN type=kotlin.Unit origin=IF
       BRANCH
         if: CALL 'public abstract fun shouldExecute (parametersChanged: kotlin.Boolean, flags: kotlin.Int): kotlin.Boolean declared in androidx.compose.runtime.Composer' type=kotlin.Boolean origin=null
@@ -33,7 +33,7 @@ FUN LOCAL_FUNCTION_FOR_LAMBDA name:lambda__1288314228$lambda$0 visibility:privat
                 ARG key: CONST Int type=kotlin.Int value=-1288314228
                 ARG dirty1: GET_VAR '$changed: kotlin.Int declared in io.bashpsk.emptylibs.screen.ComposableSingletons$DatastoreUIScreenKt.lambda__1288314228$lambda$0' type=kotlin.Int origin=null
                 ARG dirty2: CONST Int type=kotlin.Int value=-1
-                ARG info: CONST String type=kotlin.String value="io.bashpsk.emptylibs.screen.ComposableSingletons$DatastoreUIScreenKt.lambda$-1288314228.<anonymous> (DatastoreUIScreen.kt:433)"
+                ARG info: CONST String type=kotlin.String value="io.bashpsk.emptylibs.screen.ComposableSingletons$DatastoreUIScreenKt.lambda$-1288314228.<anonymous> (DatastoreUIScreen.kt:441)"
           CALL 'public final fun SliderPreference (modifier: androidx.compose.ui.Modifier?, datastore: androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>?, key: androidx.datastore.preferences.core.Preferences.Key<kotlin.Float>, initialValue: kotlin.Float, title: kotlin.Function2<androidx.compose.runtime.Composer, kotlin.Int, kotlin.Unit>, summary: kotlin.Function3<@[ParameterName(name = "position")] kotlin.Float, androidx.compose.runtime.Composer, kotlin.Int, kotlin.Unit>?, leadingContent: kotlin.Function2<androidx.compose.runtime.Composer, kotlin.Int, kotlin.Unit>?, trailingContent: kotlin.Function3<@[ParameterName(name = "position")] kotlin.Float, androidx.compose.runtime.Composer, kotlin.Int, kotlin.Unit>?, colors: androidx.compose.material3.ListItemColors?, elevation: androidx.compose.material3.ListItemElevation?, valueRange: kotlin.ranges.ClosedFloatingPointRange<kotlin.Float>, steps: kotlin.Int, sliderColors: androidx.compose.material3.SliderColors?, $composer: androidx.compose.runtime.Composer?, $changed: kotlin.Int, $changed1: kotlin.Int, $default: kotlin.Int): kotlin.Unit [inline,companion] declared in io.bashpsk.emptylibs.datastoreui.preference.SliderPreferenceKt' type=kotlin.Unit origin=null
             ARG modifier: CALL 'public final fun fillMaxWidth$default (<this>: androidx.compose.ui.Modifier, fraction: kotlin.Float, $mask0: kotlin.Int, $handler: kotlin.Any?): androidx.compose.ui.Modifier [companion] declared in androidx.compose.foundation.layout.SizeKt' type=androidx.compose.ui.Modifier origin=DEFAULT_DISPATCH_CALL
               ARG <this>: GET_FIELD 'FIELD FIELD_FOR_OBJECT_INSTANCE name:Companion type:androidx.compose.ui.Modifier.Companion visibility:public [final,static] declared in androidx.compose.ui.Modifier' type=androidx.compose.ui.Modifier.Companion origin=null
@@ -122,8 +122,9 @@ FUN LOCAL_FUNCTION_FOR_LAMBDA name:lambda__1288314228$lambda$0 visibility:privat
 	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunnerBase.runCompiler(IncrementalJvmCompilerRunnerBase.kt:53)
 	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.doCompile(IncrementalCompilerRunner.kt:610)
 	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileImpl(IncrementalCompilerRunner.kt:521)
-	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileNonIncrementally(IncrementalCompilerRunner.kt:366)
-	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:169)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally$lambda$0$compile(IncrementalCompilerRunner.kt:301)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:319)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:160)
 	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:792)
 	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:101)
 	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:2077)
@@ -182,6 +183,6 @@ Caused by: java.lang.AssertionError: Trying to inline an anonymous object which 
 	at org.jetbrains.kotlin.backend.jvm.codegen.ExpressionCodegen.generate(ExpressionCodegen.kt:231)
 	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.doGenerate(FunctionCodegen.kt:135)
 	at org.jetbrains.kotlin.backend.jvm.codegen.FunctionCodegen.generate(FunctionCodegen.kt:55)
-	... 40 more
+	... 41 more
 
 

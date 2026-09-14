@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
@@ -46,7 +45,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -164,11 +165,16 @@ internal fun PenThicknessDialog(
             },
             text = {
 
-                BrushThicknessSelectionView(
-                    penThickness = state.brushThickness,
-                    onThicknessChange = { newThickness ->
+                val sliderState = rememberSliderState(
+                    value = state.brushThickness,
+                    trackRange = 0.3.dp.value..40.dp.value
+                )
 
-                        state.brushThickness = newThickness
+                BrushThicknessSelectionView(
+                    sliderState = sliderState,
+                    onThicknessChange = { thickness ->
+
+                        state.brushThickness = thickness
                     }
                 )
             },
@@ -322,12 +328,14 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
                 ) {
 
                     Icon(
-                        modifier = Modifier.size(size = 18.dp),
+                        modifier = Modifier.size(
+                            ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)
+                        ),
                         imageVector = Icons.Filled.DoneAll,
                         contentDescription = "Apply Changes"
                     )
 
-                    Spacer(modifier = Modifier.width(width = 2.dp))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
                     Text(text = "Apply Changes")
                 }
@@ -338,8 +346,13 @@ private fun PathEditView(state: CanvasSlateState, onDismiss: () -> Unit) {
 
             state.editCanvasSlatePath?.let { pathData ->
 
+                val sliderState = rememberSliderState(
+                    value = state.brushThickness,
+                    trackRange = 0.3.dp.value..40.dp.value
+                )
+
                 BrushThicknessSelectionView(
-                    penThickness = pathData.thickness,
+                    sliderState = sliderState,
                     onThicknessChange = { thickness ->
 
                         state.apply {
@@ -500,19 +513,19 @@ private fun PenColorSelectionView(
  * Composable function for displaying a view to select brush thickness.
  * It includes a text indicating the current thickness and a slider to adjust it.
  *
- * @param penThickness The current thickness of the pen.
+ * @param sliderState The state of the slider to control the thickness.
  * @param onThicknessChange Callback function invoked when the thickness is changed via the slider.
  * It provides the new thickness value.
  */
 @Composable
 private fun BrushThicknessSelectionView(
-    penThickness: Float,
-    onThicknessChange: (thickness: Float) -> Unit,
+    sliderState: SliderState,
+    onThicknessChange: (thickness: Float) -> Unit
 ) {
 
-    val selectedThickness by remember(penThickness) {
+    val selectedThickness by remember(sliderState.value) {
         derivedStateOf {
-            "Brush Thickness - ${penThickness.toRoundedDecimalString(fraction = 1)} Px"
+            "Brush Thickness - ${sliderState.value.toRoundedDecimalString(fraction = 1)} Px"
         }
     }
 
@@ -530,12 +543,8 @@ private fun BrushThicknessSelectionView(
         )
 
         Slider(
-            value = penThickness,
-            valueRange = 0.3.dp.value..40.dp.value,
-            onValueChange = { newValue ->
-
-                onThicknessChange(newValue)
-            }
+            state = sliderState,
+            onValueChangeFinished = { onThicknessChange(sliderState.value) }
         )
     }
 }
@@ -788,12 +797,12 @@ private fun DialogConfirmButton(dialogVisibleState: MutableTransitionState<Boole
     ) {
 
         Icon(
-            modifier = Modifier.size(size = 18.dp),
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
             imageVector = Icons.Filled.Done,
             contentDescription = "Done"
         )
 
-        Spacer(modifier = Modifier.width(width = 2.dp))
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
         Text(text = "Done")
     }

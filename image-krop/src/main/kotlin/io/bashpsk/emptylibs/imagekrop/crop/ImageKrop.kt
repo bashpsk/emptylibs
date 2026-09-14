@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.ui.Alignment
@@ -51,7 +52,7 @@ fun ImageKrop(
     onNavigateBack: () -> Unit = {}
 ) {
 
-    val imagePreviewSheetState = rememberModalBottomSheetState()
+    val imagePreviewSheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
 
     RetainedEffect(
         state.canvasSize,

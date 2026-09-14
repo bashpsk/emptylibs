@@ -10,7 +10,6 @@ import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -90,13 +89,7 @@ class PdfViewerState internal constructor(
     /**
      * Cache manager for PDF page bitmaps.
      */
-    internal val cacheManager = EmptyCacheManager<String, ImageBitmap>(
-        maxSize = 20,
-        onEntryRemoved = { _, _, _, bitmap ->
-
-            bitmap.asAndroidBitmap().recycle()
-        }
-    )
+    internal val cacheManager = EmptyCacheManager<String, ImageBitmap>(maxSize = 20)
 
     /**
      * The list of [PdfPage]s in the document.

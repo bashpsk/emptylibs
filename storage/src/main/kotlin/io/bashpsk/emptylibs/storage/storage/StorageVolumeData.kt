@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 /**
@@ -24,7 +23,6 @@ import kotlin.uuid.Uuid
  * @property usedSize The amount of space currently used on the storage volume in bytes.
  * @property volumeType The type of the storage volume (e.g., INTERNAL, SD_CARD, OTG).
  */
-@OptIn(ExperimentalUuidApi::class)
 @Immutable
 @Parcelize
 @Serializable

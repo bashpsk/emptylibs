@@ -4,7 +4,8 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.retain.RetainedEffect
@@ -34,7 +35,10 @@ fun ImageEdit(
     onNavigateBack: () -> Unit = {}
 ) {
 
-    val editToolInputSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val editToolInputSheetState = rememberBottomSheetState(
+        initialValue = SheetValue.Hidden,
+        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
+    )
 
     LaunchedEffect(editToolInputSheetState.isVisible) {
 
