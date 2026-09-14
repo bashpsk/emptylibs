@@ -130,4 +130,5 @@ dependencies {
     implementation(project(":pdf-template"))
     implementation(project(":pdf-viewer"))
     implementation(project(":storage"))
+    implementation(project(":text-editor"))
 }

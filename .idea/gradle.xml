@@ -6,6 +6,7 @@
       <GradleProjectSettings>
         <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="jbr-25" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
@@ -31,6 +32,7 @@
             <option value="$PROJECT_DIR$/pdf-viewer" />
             <option value="$PROJECT_DIR$/serialization-xml" />
             <option value="$PROJECT_DIR$/storage" />
+            <option value="$PROJECT_DIR$/text-editor" />
           </set>
         </option>
       </GradleProjectSettings>
