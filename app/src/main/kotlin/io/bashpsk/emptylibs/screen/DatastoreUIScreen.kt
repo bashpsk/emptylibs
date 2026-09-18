@@ -33,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -136,6 +137,7 @@ fun DatastoreUIScreen() {
                 actions = {
 
                     IconButton(
+                        shapes = IconButtonDefaults.shapes(),
                         onClick = {
 
                             optionMenuVisibleState.targetState = true
@@ -557,6 +559,7 @@ fun DatastoreUIScreen() {
                             trailingIcon = {
 
                                 IconButton(
+                                    shapes = IconButtonDefaults.shapes(),
                                     onClick = {
 
                                         textFieldValue = textFieldValue.copy(text = "")

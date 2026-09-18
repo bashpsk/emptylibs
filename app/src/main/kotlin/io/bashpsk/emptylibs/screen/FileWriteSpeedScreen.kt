@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -90,6 +91,7 @@ fun FileWriteSpeedScreen() {
             Text(text = etaFormatted)
 
             Button(
+                shapes = ButtonDefaults.shapes(),
                 onClick = {
 
                     coroutineScope.coroutineContext.cancelChildren()

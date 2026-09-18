@@ -31,6 +31,15 @@ internal fun SvgImageView(
     model: String
 ) {
 
+    val context = LocalContext.current
+
+    val imageRequest = remember(model) {
+        ImageRequest.Builder(context = context)
+            .data(data = model.encodeToByteArray())
+            .decoderFactory(factory = SvgDecoder.Factory())
+            .build()
+    }
+
     AsyncImage(
         modifier = modifier
             .aspectRatio(ratio = 1.0F)
@@ -39,10 +48,7 @@ internal fun SvgImageView(
                 shape = MaterialTheme.shapes.extraSmall
             )
             .padding(horizontal = 4.dp, vertical = 4.dp),
-        model = ImageRequest.Builder(context = LocalContext.current)
-            .data(data = model.encodeToByteArray())
-            .decoderFactory(factory = SvgDecoder.Factory())
-            .build(),
+        model = imageRequest,
         contentScale = ContentScale.Fit,
         contentDescription = "Svg"
     )

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.SdCard
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Usb
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -136,6 +137,7 @@ fun StorageScreen() {
                 FlowRow {
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -154,6 +156,7 @@ fun StorageScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             selectedVolumeData?.let { volume ->
@@ -178,6 +181,7 @@ fun StorageScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             selectedVolumeData?.let { volume ->
@@ -202,6 +206,7 @@ fun StorageScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             selectedVolumeData?.let { volume ->
@@ -226,6 +231,7 @@ fun StorageScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             selectedVolumeData?.let { volume ->

@@ -44,6 +44,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
@@ -210,7 +211,10 @@ internal fun ImageEditTopBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                IconButton(onClick = onNavigateBack) {
+                IconButton(
+                    shapes = IconButtonDefaults.shapes(),
+                    onClick = onNavigateBack
+                ) {
 
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -220,6 +224,7 @@ internal fun ImageEditTopBar(
 
                 IconButton(
                     enabled = isUndoButtonEnable,
+                    shapes = IconButtonDefaults.shapes(),
                     onClick = onDoneClick
                 ) {
 
@@ -247,6 +252,7 @@ internal fun ImageEditTopBar(
                     ) {
 
                         IconButton(
+                            shapes = IconButtonDefaults.shapes(),
                             onClick = {
 
                                 sheetCoroutineScope.launch { editToolInputSheetState.expand() }
@@ -266,6 +272,7 @@ internal fun ImageEditTopBar(
 
             IconButton(
                 enabled = isUndoButtonEnable,
+                shapes = IconButtonDefaults.shapes(),
                 onClick = state::onUndoCanvas
             ) {
 
@@ -276,6 +283,7 @@ internal fun ImageEditTopBar(
             }
 
             IconButton(
+                shapes = IconButtonDefaults.shapes(),
                 onClick = {
 
                     state.isToolBarMenuExpanded = true

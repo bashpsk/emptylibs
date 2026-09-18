@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -53,6 +54,7 @@ object KolorPickerDialogDefault {
             )
 
             IconButton(
+                shapes = IconButtonDefaults.shapes(),
                 onClick = {
 
                     dialogVisibleState.targetState = false
@@ -75,6 +77,7 @@ object KolorPickerDialogDefault {
     ) {
 
         Button(
+            shapes = ButtonDefaults.shapes(),
             onClick = {
 
                 onSelectedColor(state.selectedColor)
@@ -103,6 +106,7 @@ object KolorPickerDialogDefault {
     fun DismissButton(dialogVisibleState: MutableTransitionState<Boolean>) {
 
         OutlinedButton(
+            shapes = ButtonDefaults.shapes(),
             onClick = {
 
                 dialogVisibleState.targetState = false
@@ -133,6 +137,7 @@ object KolorPickerDialogDefault {
     ) {
 
         OutlinedButton(
+            shapes = ButtonDefaults.shapes(),
             onClick = {
 
                 state.updateColor(color = Color.Unspecified)

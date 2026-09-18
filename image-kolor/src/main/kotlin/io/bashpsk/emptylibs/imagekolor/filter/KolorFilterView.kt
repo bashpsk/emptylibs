@@ -45,6 +45,7 @@ import io.bashpsk.emptylibs.imagekolor.R
  * @param shape The shape of the image and border. Defaults to [MaterialTheme.shapes.extraSmall].
  * @param onFilterClick A lambda function that is invoked when the filter view is clicked, passing
  * the selected [ImageFilterType].
+ * @param label The label of the [ImageFilterType] to be displayed.
  */
 @Composable
 inline fun KolorFilterView(
@@ -56,7 +57,23 @@ inline fun KolorFilterView(
     borderWidth: Dp = if (isSelected) 2.dp else 0.2.dp,
     borderColor: Color = MaterialTheme.colorScheme.error,
     shape: Shape = MaterialTheme.shapes.extraSmall,
-    crossinline onFilterClick: (filter: ImageFilterType) -> Unit
+    crossinline onFilterClick: (filter: ImageFilterType) -> Unit,
+    crossinline label: @Composable () -> Unit = {
+
+        Text(
+            modifier = Modifier
+                .padding(horizontal = 4.dp, vertical = 4.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.65F),
+                    shape = MaterialTheme.shapes.extraSmall
+                )
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            text = kolorFilter.label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.inverseSurface,
+            fontWeight = FontWeight.Medium
+        )
+    }
 ) {
 
     val imageBitmap = ImageBitmap.imageResource(R.drawable.flower_01)
@@ -100,22 +117,10 @@ inline fun KolorFilterView(
                 bitmap = previewBitmap,
                 contentScale = contentScale,
                 colorFilter = kolorFilter.colorFilter,
-                contentDescription = kolorFilter.label
+                contentDescription = kolorFilter.name
             )
 
-            Text(
-                modifier = Modifier
-                    .padding(horizontal = 4.dp, vertical = 4.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.65F),
-                        shape = MaterialTheme.shapes.extraSmall
-                    )
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                text = kolorFilter.label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.inverseSurface,
-                fontWeight = FontWeight.Medium
-            )
+            label()
         }
     }
 }

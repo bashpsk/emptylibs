@@ -2,6 +2,7 @@ package io.bashpsk.emptylibs.imagekrop.crop
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.retain
@@ -9,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -20,7 +22,6 @@ import io.bashpsk.emptylibs.composeutils.size.coerceIn
 import io.bashpsk.emptylibs.imagekrop.offset.getKropCorner
 import io.bashpsk.emptylibs.imagekrop.offset.itemRect
 import io.bashpsk.emptylibs.imageutils.extension.sameAs
-import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 
 /**
@@ -63,7 +64,11 @@ fun rememberImageKropState(
  * @param config The [KropConfig] to be used for the cropping operations.
  */
 @Stable
-class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val config: KropConfig) {
+class ImageKropState(
+    private val density: Density,
+    private val imageBitmap: ImageBitmap,
+    internal val config: KropConfig
+) {
 
     /**
      * A persistent list of [PathShape] objects available for cropping.
@@ -71,30 +76,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
      * It is initialized with [PathShape.BasicPathShapes].
      * The list can be updated using the [updateShapeList] function.
      */
-    var shapeList: PersistentList<PathShape> = PathShape.BasicPathShapes
-
-    /**
-     * The original image bitmap that is being cropped.
-     * This is the image that was initially provided to the `ImageKropState`.
-     * It can be updated using the [updateOriginalImage] function.
-     */
-    var originalImage by mutableStateOf(imageBitmap)
-        private set
-
-    /**
-     * The image after applying modifications (e.g., cropping).
-     * This is null if no modifications have been made yet.
-     */
-    var modifiedImage by mutableStateOf<ImageBitmap?>(null)
-        private set
-
-    /**
-     * The current preview image, which is a temporarily cropped version of the image.
-     * This is updated when the user interacts with the cropping UI but hasn't finalized the crop.
-     * It can be null if no preview has been generated yet.
-     */
-    var previewImage by mutableStateOf<ImageBitmap?>(null)
-        private set
+    var shapeList by mutableStateOf(PathShape.BasicPathShapes)
 
     /**
      * A list of images that have been processed by the cropper.
@@ -179,37 +161,12 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
     internal var isShapeCustomizeDialog by mutableStateOf(false)
 
     /**
-     * Updates the original image.
-     *
-     * This function is used to update the original image that will be used for cropping.
-     *
-     * @param bitmap The new original image.
+     * The original image bitmap that is being cropped.
+     * This is the image that was initially provided to the `ImageKropState`.
      */
-    fun updateOriginalImage(bitmap: ImageBitmap) {
+    val originalImage by derivedStateOf { imageList.lastOrNull() ?: imageBitmap }
 
-        originalImage = bitmap
-    }
-
-    /**
-     * Updates the modified image with the provided [bitmap] and adds it to the [imageList].
-     *
-     * @param bitmap The [ImageBitmap] to set as the modified image.
-     */
-    fun updateModifiedImage(bitmap: ImageBitmap) {
-
-        modifiedImage = bitmap
-        addImage(bitmap = bitmap)
-    }
-
-    /**
-     * Updates the preview image with the given bitmap.
-     *
-     * @param bitmap The [ImageBitmap] to set as the preview image.
-     */
-    fun updatePreviewImage(bitmap: ImageBitmap) {
-
-        previewImage = bitmap
-    }
+    val undoButtonEnabled by derivedStateOf { imageList.size > 1 }
 
     /**
      * Adds an image to the list of images.
@@ -219,7 +176,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
      *
      * @param bitmap The [ImageBitmap] to add to the list.
      */
-    fun addImage(bitmap: ImageBitmap) {
+    private fun addImage(bitmap: ImageBitmap) {
 
         val safeImageList = existImageIndex(bitmap = bitmap)?.let { index ->
 
@@ -241,18 +198,13 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
 
             imageList = imageList.removingAt(index = index)
         }
-
-        imageList.lastOrNull()?.let { bitmap ->
-
-            updateOriginalImage(bitmap)
-        }
     }
 
     /**
      * Clears all modified images and resets the image list to the original image.
      * This function is useful for undoing all changes and starting over with the original image.
      */
-    fun clearImages() {
+    fun clearImageHistory() {
 
         imageList = persistentListOf(imageBitmap)
     }
@@ -357,7 +309,7 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
      * @return A [KropResult] object which can be either [KropResult.Success] containing the
      * cropped [ImageBitmap] or [KropResult.Failed] if an error occurred during cropping.
      */
-    internal suspend fun getCroppedImageBitmap(
+    suspend fun onCroppedImage(
         imageRect: Rect? = null,
         imageCanvasSize: Size? = null,
         imageFlip: KropImageFlip? = null,
@@ -370,6 +322,69 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
             imageFlip = imageFlip,
             kropShape = imageShape ?: kropShape
         )
+    }
+
+    suspend fun onCroppedImageOrNull(): ImageBitmap? {
+
+        return when (val kropResult = onCroppedImage()) {
+
+            is KropResult.Success -> {
+
+                addImage(bitmap = kropResult.bitmap)
+                kropResult.bitmap
+            }
+
+            else -> null
+        }
+    }
+
+    suspend fun onCroppedPreviewImageOrNull(): ImageBitmap? {
+
+        return when (val kropResult = onCroppedImage()) {
+
+            is KropResult.Success -> kropResult.bitmap
+            else -> null
+        }
+    }
+
+    suspend fun onImageFlipHorizontal() {
+
+        val kropResult = onCroppedImage(
+            imageRect = canvasSize.toRect(),
+            imageFlip = KropImageFlip.Horizontal,
+            imageShape = PathShape.None
+        )
+
+        when (kropResult) {
+
+            is KropResult.Success -> {
+
+                addImage(bitmap = kropResult.bitmap)
+                kropResult.bitmap
+            }
+
+            else -> {}
+        }
+    }
+
+    suspend fun onImageFlipVertical() {
+
+        val kropResult = onCroppedImage(
+            imageRect = canvasSize.toRect(),
+            imageFlip = KropImageFlip.Vertical,
+            imageShape = PathShape.None
+        )
+
+        when (kropResult) {
+
+            is KropResult.Success -> {
+
+                addImage(bitmap = kropResult.bitmap)
+                kropResult.bitmap
+            }
+
+            else -> {}
+        }
     }
 
     /**
@@ -933,9 +948,6 @@ class ImageKropState(val density: Density, val imageBitmap: ImageBitmap, val con
     internal fun clearState() {
 
         shapeList = PathShape.BasicPathShapes
-        originalImage = imageBitmap
-        modifiedImage = null
-        previewImage = null
         imageList = persistentListOf(imageBitmap)
         kropAspectRatio = KropAspectRatio.Ratio1to1
         isAspectLocked = false

@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AppBarRow
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -161,6 +162,7 @@ fun BottomOptionBarScreen() {
 
                 Button(
                     enabled = isSelected,
+                    shapes = ButtonDefaults.shapes(),
                     onClick = { mainViewModel.addPathSelection("Path 1") }
                 ) {
 
@@ -176,6 +178,7 @@ fun BottomOptionBarScreen() {
 
                 Button(
                     enabled = isSelected,
+                    shapes = ButtonDefaults.shapes(),
                     onClick = { mainViewModel.addPathSelection("Path 2") }
                 ) {
 
@@ -191,6 +194,7 @@ fun BottomOptionBarScreen() {
 
                 Button(
                     enabled = isSelected,
+                    shapes = ButtonDefaults.shapes(),
                     onClick = { mainViewModel.addPathSelection("Path 3") }
                 ) {
 
@@ -206,6 +210,7 @@ fun BottomOptionBarScreen() {
 
                 Button(
                     enabled = isSelected,
+                    shapes = ButtonDefaults.shapes(),
                     onClick = mainViewModel::clearPathSelection
                 ) {
 

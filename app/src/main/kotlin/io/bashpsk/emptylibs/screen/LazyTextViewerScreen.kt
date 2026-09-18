@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -106,12 +107,16 @@ fun LazyTextViewerScreen() {
                 },
                 actions = {
 
-                    Button(onClick = { filePicker.launch("text/plain") }) {
+                    Button(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { filePicker.launch("text/plain") }
+                    ) {
 
                         Text(text = "Pick Uri")
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             coroutineScope.launch(Dispatchers.IO) {

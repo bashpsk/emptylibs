@@ -25,7 +25,6 @@ processing with a clean and intuitive API.
 | Module                                          | Status                                                                                                                                                    | Description                                               |
 |:------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------------|
 | [**✨ Animations**](./animations)                | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/animations.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/animations)               | Music visualizers and fluid wave effects.                 |
-| [**✍️ Canvas Slate**](./canvas-slate)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/canvas-slate.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/canvas-slate)           | Powerful drawing pad with path editing and export.        |
 | [**🛠️ Compose Utils**](./compose-utils)        | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/compose-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/compose-utils)         | Serializable/Parcelable data classes for core types.      |
 | [**🧩 Compose Widgets**](./compose-widgets)     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/compose-widgets.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/compose-widgets)     | Functional analog and digital clocks for Compose.         |
 | [**⚙️ Datastore UI**](./datastore-ui)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/datastore-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/datastore-ui)           | Pre-built settings components for Jetpack DataStore.      |
@@ -36,7 +35,6 @@ processing with a clean and intuitive API.
 | [**✂️ Image Krop**](./image-krop)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-krop.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-krop)               | Advanced cropping with aspect ratios and custom shapes.   |
 | [**✨ Image Utils**](./image-utils)              | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-utils)             | Shape and bitmap utility library.                         |
 | [**🖼️ Image View**](./image-view)              | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-view.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-view)               | Zoomable, pannable, and swipeable image gallery (Coil 3). |
-| [**📱 Image Wallpaper**](./image-wallpaper)     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-wallpaper.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-wallpaper)     | Android wallpaper cropper and setter.                     |
 | [**💎 Jetpack UI**](./jetpack-ui)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/jetpack-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/jetpack-ui)               | Adaptive layouts, nav bars, and custom pickers.           |
 | [**🎨 Kolor Picker**](./kolor-picker)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/kolor-picker.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/kolor-picker)           | HSL panel, image dropper, and color dialogs.              |
 | [**📐 Layouts**](./layouts)                     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/layouts.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/layouts)                     | Adaptive two-pane, collapsible, and zoomable layouts.     |
@@ -68,7 +66,6 @@ empty-libs = "VERSION"
 
 [libraries]
 emptylibs-animations = { group = "com.github.bashpsk.emptylibs", name = "animations", version.ref = "empty-libs" }
-emptylibs-canvas-slate = { group = "com.github.bashpsk.emptylibs", name = "canvas-slate", version.ref = "empty-libs" }
 emptylibs-compose-utils = { group = "com.github.bashpsk.emptylibs", name = "compose-utils", version.ref = "empty-libs" }
 emptylibs-compose-widgets = { group = "com.github.bashpsk.emptylibs", name = "compose-widgets", version.ref = "empty-libs" }
 emptylibs-datastore-ui = { group = "com.github.bashpsk.emptylibs", name = "datastore-ui", version.ref = "empty-libs" }
@@ -79,7 +76,6 @@ emptylibs-image-kolor = { group = "com.github.bashpsk.emptylibs", name = "image-
 emptylibs-image-krop = { group = "com.github.bashpsk.emptylibs", name = "image-krop", version.ref = "empty-libs" }
 emptylibs-image-utils = { group = "com.github.bashpsk.emptylibs", name = "image-utils", version.ref = "empty-libs" }
 emptylibs-image-view = { group = "com.github.bashpsk.emptylibs", name = "image-view", version.ref = "empty-libs" }
-emptylibs-image-wallpaper = { group = "com.github.bashpsk.emptylibs", name = "image-wallpaper", version.ref = "empty-libs" }
 emptylibs-jetpack-ui = { group = "com.github.bashpsk.emptylibs", name = "jetpack-ui", version.ref = "empty-libs" }
 emptylibs-kolor-picker = { group = "com.github.bashpsk.emptylibs", name = "kolor-picker", version.ref = "empty-libs" }
 emptylibs-layouts = { group = "com.github.bashpsk.emptylibs", name = "layouts", version.ref = "empty-libs" }
@@ -95,7 +91,6 @@ Then add the desired library to your module-level `build.gradle.kts`:
 ```kotlin
 dependencies {
     implementation(libs.emptylibs.animations)
-    implementation(libs.emptylibs.canvas.slate)
     implementation(libs.emptylibs.compose.utils)
     implementation(libs.emptylibs.compose.widgets)
     implementation(libs.emptylibs.datastore.ui)
@@ -106,7 +101,6 @@ dependencies {
     implementation(libs.emptylibs.image.krop)
     implementation(libs.emptylibs.image.utils)
     implementation(libs.emptylibs.image.view)
-    implementation(libs.emptylibs.image.wallpaper)
     implementation(libs.emptylibs.jetpack.ui)
     implementation(libs.emptylibs.kolor.picker)
     implementation(libs.emptylibs.layouts)

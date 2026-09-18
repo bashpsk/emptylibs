@@ -4,22 +4,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemElevation
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -28,8 +22,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
@@ -37,6 +29,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.bashpsk.emptylibs.datastoreui.component.DialogConfirmButton
 import io.bashpsk.emptylibs.datastoreui.component.DialogResetButton
+import io.bashpsk.emptylibs.datastoreui.component.DialogTitleView
 import io.bashpsk.emptylibs.datastoreui.component.PreferenceListEntryItem
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
@@ -86,7 +79,15 @@ inline fun <K> SetOptionPreference(
     entities: ImmutableMap<K, String>,
     noinline title: @Composable () -> Unit,
     crossinline summary: @Composable (items: Set<String>) -> Unit = {},
-    dialogTitle: String = "Select Options",
+    crossinline dialogTitle: @Composable (
+        dialogState: MutableTransitionState<Boolean>
+    ) -> Unit = { dialogState ->
+
+        DialogTitleView(
+            dialogTitle = "Select Options",
+            onClick = { dialogState.targetState = false }
+        )
+    },
     itemShapes: ListItemShapes = ListItemDefaults.shapes(),
     itemColors: ListItemColors = ListItemDefaults.segmentedColors(),
     noinline leadingContent: @Composable () -> Unit = {},
@@ -158,37 +159,7 @@ inline fun <K> SetOptionPreference(
             },
             properties = properties,
             shape = MaterialTheme.shapes.small,
-            title = {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        modifier = Modifier.weight(weight = 1.0F),
-                        text = dialogTitle,
-                        textAlign = TextAlign.Start,
-                        maxLines = 1,
-                        style = MaterialTheme.typography.titleMedium,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    IconButton(
-                        onClick = {
-
-                            dialogVisibleState.targetState = false
-                        }
-                    ) {
-
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Close"
-                        )
-                    }
-                }
-            },
+            title = {dialogTitle(dialogVisibleState)},
             text = {
 
                 LazyColumn(

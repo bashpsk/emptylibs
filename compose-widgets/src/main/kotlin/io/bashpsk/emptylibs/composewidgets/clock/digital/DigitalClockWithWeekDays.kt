@@ -35,6 +35,7 @@ import kotlin.time.Instant
  * @param clockPattern The pattern for formatting the time.
  * @param disableTextAlpha The alpha value for disabled text.
  * @param clockIcon An optional icon to display next to the time.
+ * @param weekDaysList A list of the names of weekdays in order from Monday to Sunday.
  */
 @Composable
 fun DigitalClockWithWeekDays(
@@ -44,7 +45,8 @@ fun DigitalClockWithWeekDays(
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     textStyles: DigitalClockTextStyles = DigitalClockDefault.textStyles(),
     disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA,
-    clockIcon: @Composable (() -> Unit)? = {}
+    clockIcon: @Composable (() -> Unit)? = {},
+    weekDaysList: List<String> = DayOfWeekNames.ENGLISH_ABBREVIATED.names
 ) {
 
     val currentDateTime by remember(localDateTime, timeZone) {
@@ -72,6 +74,7 @@ fun DigitalClockWithWeekDays(
  * @param clockPattern The pattern for formatting the time.
  * @param disableTextAlpha The alpha value for disabled text.
  * @param clockIcon An optional icon to display next to the time.
+ * @param weekDaysList A list of the names of weekdays in order from Monday to Sunday.
  */
 @Composable
 fun DigitalClockWithWeekDays(
@@ -80,10 +83,9 @@ fun DigitalClockWithWeekDays(
     clockPattern: DateTimePattern = DateTimePattern.TIME_HH_MM_SS,
     textStyles: DigitalClockTextStyles = DigitalClockDefault.textStyles(),
     disableTextAlpha: Float = DigitalClockDefault.DISABLE_TEXT_ALPHA,
-    clockIcon: @Composable (() -> Unit)? = {}
+    clockIcon: @Composable (() -> Unit)? = {},
+    weekDaysList: List<String> = DayOfWeekNames.ENGLISH_ABBREVIATED.names
 ) {
-
-    val weekDaysList by remember { derivedStateOf { DayOfWeekNames.ENGLISH_ABBREVIATED.names } }
 
     val currentTimeFormatted by remember(localDateTime, clockPattern) {
         derivedStateOf {

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -19,9 +20,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import io.bashpsk.emptylibs.R
+import io.bashpsk.emptylibs.component.imageedit.saveAsFile
 import io.bashpsk.emptylibs.imagekolor.color.ImageKolorLayout
 import io.bashpsk.emptylibs.imagekolor.color.rememberImageKolorState
-import io.bashpsk.emptylibs.component.imageedit.saveAsFile
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,6 +47,7 @@ fun ImageKolorScreen() {
                 actions = {
 
                     IconButton(
+                        shapes = IconButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCoroutineScope.launch {
@@ -72,6 +74,7 @@ fun ImageKolorScreen() {
                     }
 
                     IconButton(
+                        shapes = IconButtonDefaults.shapes(),
                         onClick = {
 
                             kolorState.resetAllValues()

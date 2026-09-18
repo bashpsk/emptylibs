@@ -15,9 +15,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -95,7 +97,10 @@ fun ScrollBarLazyListScreen() {
                 title = { Text(text = "Scroll Bar") },
                 navigationIcon = {
 
-                    IconButton(onClick = { isLazyColumn = null }) {
+                    IconButton(
+                        shapes = IconButtonDefaults.shapes(),
+                        onClick = { isLazyColumn = null }
+                    ) {
 
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -168,12 +173,18 @@ fun ScrollBarLazyListScreen() {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
 
-                    Button(onClick = { isLazyColumn = true }) {
+                    Button(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { isLazyColumn = true }
+                    ) {
 
                         Text("Lazy Column")
                     }
 
-                    Button(onClick = { isLazyColumn = false }) {
+                    Button(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { isLazyColumn = false }
+                    ) {
 
                         Text("Lazy Row")
                     }

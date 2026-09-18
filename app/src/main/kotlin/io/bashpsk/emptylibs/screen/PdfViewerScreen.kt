@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Text
@@ -68,11 +69,20 @@ fun PdfViewerScreen() {
                 selectedTabIndex = pdfLayoutType
             ) {
 
-                Button(onClick = { pdfLayoutType = 0 }) { Text("LazyColumn") }
+                Button(
+                    shapes = ButtonDefaults.shapes(),
+                    onClick = { pdfLayoutType = 0 }
+                ) { Text("LazyColumn") }
 
-                Button(onClick = { pdfLayoutType = 1 }) { Text("LazyRow") }
+                Button(
+                    shapes = ButtonDefaults.shapes(),
+                    onClick = { pdfLayoutType = 1 }
+                ) { Text("LazyRow") }
 
-                Button(onClick = { pdfLayoutType = 2 }) { Text("LazyVerticalGrid") }
+                Button(
+                    shapes = ButtonDefaults.shapes(),
+                    onClick = { pdfLayoutType = 2 }
+                ) { Text("LazyVerticalGrid") }
             }
         }
     ) { paddingValues ->
@@ -87,12 +97,16 @@ fun PdfViewerScreen() {
                 verticalArrangement = Arrangement.Center
             ) {
 
-                Button(onClick = { pdfPicker.launch("application/pdf") }) {
+                Button(
+                    shapes = ButtonDefaults.shapes(),
+                    onClick = { pdfPicker.launch("application/pdf") }
+                ) {
 
                     Text(text = "Pick PDF Uri")
                 }
 
                 Button(
+                    shapes = ButtonDefaults.shapes(),
                     onClick = {
 
                         fileCoroutineScope.launch(context = Dispatchers.IO) {

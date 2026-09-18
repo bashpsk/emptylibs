@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,6 +71,7 @@ fun LruCacheScreen() {
                 ) {
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCacheManager["image1"] = bitmap1.asAndroidBitmap()
@@ -81,6 +83,7 @@ fun LruCacheScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCacheManager["image2"] = bitmap2.asAndroidBitmap()
@@ -92,6 +95,7 @@ fun LruCacheScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCacheManager["image3"] = bitmap3.asAndroidBitmap()
@@ -103,6 +107,7 @@ fun LruCacheScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCacheManager.evictAll()
@@ -114,6 +119,7 @@ fun LruCacheScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCacheManager.remove("image1")
@@ -125,6 +131,7 @@ fun LruCacheScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCacheManager.remove("image2")
@@ -136,6 +143,7 @@ fun LruCacheScreen() {
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCacheManager.remove("image3")

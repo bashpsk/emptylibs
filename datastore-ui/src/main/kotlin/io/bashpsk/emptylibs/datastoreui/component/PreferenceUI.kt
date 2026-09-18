@@ -3,7 +3,9 @@ package io.bashpsk.emptylibs.datastoreui.component
 import androidx.annotation.ColorInt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
@@ -14,18 +16,21 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -275,19 +280,60 @@ internal fun SwitchButton(checked: Boolean) {
 
 @PublishedApi
 @Composable
+internal fun DialogTitleView(
+    dialogTitle: String,
+    onClick: () -> Unit,
+) {
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = 4.dp,
+            Alignment.CenterHorizontally
+        ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        Text(
+            modifier = Modifier.weight(weight = 1.0F),
+            text = dialogTitle,
+            textAlign = TextAlign.Start,
+            maxLines = 1,
+            style = MaterialTheme.typography.titleMedium,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        IconButton(
+            shapes = IconButtonDefaults.shapes(),
+            onClick = onClick
+        ) {
+
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = "Dismiss"
+            )
+        }
+    }
+}
+
+@PublishedApi
+@Composable
 internal fun DialogConfirmButton(onClick: () -> Unit) {
 
-    Button(onClick = onClick) {
+    Button(
+        shapes = ButtonDefaults.shapes(),
+        onClick = onClick
+    ) {
 
         Icon(
             modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
-            imageVector = Icons.Filled.Done, contentDescription = "Done"
+            imageVector = Icons.Filled.Done, contentDescription = "Confirm"
         )
 
         Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
 
         Text(
-            text = "Done",
+            text = "Confirm",
             textAlign = TextAlign.Center,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -299,7 +345,10 @@ internal fun DialogConfirmButton(onClick: () -> Unit) {
 @Composable
 internal fun DialogResetButton(onClick: () -> Unit) {
 
-    OutlinedButton(onClick = onClick) {
+    ElevatedButton(
+        shapes = ButtonDefaults.shapes(),
+        onClick = onClick
+    ) {
 
         Icon(
             modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),

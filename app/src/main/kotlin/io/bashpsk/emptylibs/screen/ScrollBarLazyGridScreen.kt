@@ -16,9 +16,11 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -96,7 +98,10 @@ fun ScrollBarLazyGridScreen() {
                 title = { Text(text = "Scroll Bar") },
                 navigationIcon = {
 
-                    IconButton(onClick = { isVerticalGrid = null }) {
+                    IconButton(
+                        shapes = IconButtonDefaults.shapes(),
+                        onClick = { isVerticalGrid = null }
+                    ) {
 
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -171,12 +176,18 @@ fun ScrollBarLazyGridScreen() {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
 
-                    Button(onClick = { isVerticalGrid = true }) {
+                    Button(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { isVerticalGrid = true }
+                    ) {
 
                         Text("Lazy Vertical Grid")
                     }
 
-                    Button(onClick = { isVerticalGrid = false }) {
+                    Button(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { isVerticalGrid = false }
+                    ) {
 
                         Text("Lazy Horizontal Grid")
                     }

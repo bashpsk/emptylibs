@@ -3,36 +3,27 @@ package io.bashpsk.emptylibs.datastoreui.preference
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemElevation
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.bashpsk.emptylibs.datastoreui.component.DialogConfirmButton
 import io.bashpsk.emptylibs.datastoreui.component.DialogResetButton
+import io.bashpsk.emptylibs.datastoreui.component.DialogTitleView
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
 import io.bashpsk.emptylibs.datastoreui.extension.resetPreference
@@ -75,7 +66,15 @@ inline fun <reified V> TextFieldPreference(
     initialValue: V,
     noinline title: @Composable () -> Unit,
     crossinline summary: @Composable (item: V) -> Unit = {},
-    dialogTitle: String = "Enter Option",
+    crossinline dialogTitle: @Composable (
+        dialogState: MutableTransitionState<Boolean>
+    ) -> Unit = { dialogState ->
+
+        DialogTitleView(
+            dialogTitle = "Enter Option",
+            onClick = { dialogState.targetState = false }
+        )
+    },
     noinline leadingContent: @Composable () -> Unit = {},
     noinline trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),
@@ -143,37 +142,7 @@ inline fun <reified V> TextFieldPreference(
             },
             properties = properties,
             shape = MaterialTheme.shapes.small,
-            title = {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        modifier = Modifier.weight(weight = 1.0F),
-                        text = dialogTitle,
-                        textAlign = TextAlign.Start,
-                        maxLines = 1,
-                        style = MaterialTheme.typography.titleMedium,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    IconButton(
-                        onClick = {
-
-                            dialogVisibleState.targetState = false
-                        }
-                    ) {
-
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Close"
-                        )
-                    }
-                }
-            },
+            title = { dialogTitle(dialogVisibleState) },
             text = { textFieldContent() },
             confirmButton = {
 

@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -18,9 +19,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import io.bashpsk.emptylibs.R
+import io.bashpsk.emptylibs.component.imageedit.saveAsFile
 import io.bashpsk.emptylibs.imagekolor.filter.ImageFilterLayout
 import io.bashpsk.emptylibs.imagekolor.filter.rememberImageFilterState
-import io.bashpsk.emptylibs.component.imageedit.saveAsFile
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +46,7 @@ fun ImageFilterScreen() {
                 actions = {
 
                     IconButton(
+                        shapes = IconButtonDefaults.shapes(),
                         onClick = {
 
                             bitmapCoroutineScope.launch {

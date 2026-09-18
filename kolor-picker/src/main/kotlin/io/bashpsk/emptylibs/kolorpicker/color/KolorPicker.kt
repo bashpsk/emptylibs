@@ -825,6 +825,7 @@ private fun ColorCopyPasteButtons(
     ) {
 
         if (enablePasteButton) ElevatedButton(
+            shapes = ButtonDefaults.shapes(),
             onClick = {
 
                 clipboardManager.primaryClip?.getItemAt(0)?.text?.toString()?.let { hexString ->
@@ -850,6 +851,7 @@ private fun ColorCopyPasteButtons(
         }
 
         if (enableCopyButton) FilledTonalButton(
+            shapes = ButtonDefaults.shapes(),
             onClick = {
 
                 val colorHex = state.selectedColor.toHexString()

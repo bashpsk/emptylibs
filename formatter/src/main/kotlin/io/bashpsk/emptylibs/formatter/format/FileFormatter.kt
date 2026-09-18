@@ -88,6 +88,6 @@ fun Long.toFileSize(formatSystem: SizeFormatSystem = SizeFormatSystem.Decimal): 
     return "%.1f %s".format(
         locale = Locale.getDefault(),
         displayValue,
-        formatSystem.units.getOrElse(digitGroups) { "Unknown" }
+        formatSystem.units.getOrElse(digitGroups) { "" }
     )
 }

@@ -24,6 +24,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -41,10 +42,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.layouts.collapsible.SwipeCollapsibleLayout
-import io.bashpsk.emptylibs.layouts.collapsible.rememberSwipeCollapsibleLayoutState
 import io.bashpsk.emptylibs.component.layouts.VideoData
 import io.bashpsk.emptylibs.component.layouts.dummyVideoList
+import io.bashpsk.emptylibs.layouts.collapsible.SwipeCollapsibleLayout
+import io.bashpsk.emptylibs.layouts.collapsible.rememberSwipeCollapsibleLayoutState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -220,6 +221,7 @@ fun SwipeCollapsibleLayoutScreen() {
                     )
 
                     IconButton(
+                        shapes = IconButtonDefaults.shapes(),
                         onClick = {
                             selectedEntry = dummyVideoList[
                                 dummyVideoList.indexOf(selectedEntry) - 1
@@ -230,6 +232,7 @@ fun SwipeCollapsibleLayoutScreen() {
                     }
 
                     IconButton(
+                        shapes = IconButtonDefaults.shapes(),
                         onClick = {
                             selectedEntry = dummyVideoList[
                                 dummyVideoList.indexOf(selectedEntry) + 1
@@ -239,7 +242,10 @@ fun SwipeCollapsibleLayoutScreen() {
                         Icon(Icons.Default.SkipNext, contentDescription = null)
                     }
 
-                    IconButton(onClick = { coroutineScope.launch { state.dismiss() } }) {
+                    IconButton(
+                        shapes = IconButtonDefaults.shapes(),
+                        onClick = { coroutineScope.launch { state.dismiss() } }
+                    ) {
                         Icon(Icons.Default.Close, contentDescription = null)
                     }
                 }

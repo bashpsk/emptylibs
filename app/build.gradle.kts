@@ -111,7 +111,6 @@ dependencies {
 
     //  MODULE          :
     implementation(project(":animations"))
-    implementation(project(":canvas-slate"))
     implementation(project(":compose-utils"))
     implementation(project(":compose-widgets"))
     implementation(project(":datastore-ui"))
@@ -122,7 +121,6 @@ dependencies {
     implementation(project(":image-krop"))
     implementation(project(":image-utils"))
     implementation(project(":image-view"))
-    implementation(project(":image-wallpaper"))
     implementation(project(":jetpack-ui"))
     implementation(project(":kolor-picker"))
     implementation(project(":layouts"))

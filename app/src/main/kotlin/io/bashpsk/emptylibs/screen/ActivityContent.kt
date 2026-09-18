@@ -8,7 +8,6 @@ fun ActivityContent() {
 //    AnalogClockScreen()
 //    BasicTextEditorScreen()
 //    BottomOptionBarScreen()
-//    CanvasSlateScreen()
 //    ColorPickerDialogScreen()
 //    ColorPickerScreen()
 //    DatastoreUIScreen()
@@ -26,8 +25,6 @@ fun ActivityContent() {
 //    ImageFilterScreen()
 //    ImageKolorScreen()
 //    ImageUtilsShapeScreen()
-//    ImageWallpaperScreen()
-//    InkSlateScreen()
 //    JoyStickScreen()
 //    LazyTextViewerScreen()
 //    LruCacheScreen()
@@ -52,6 +49,5 @@ fun ActivityContent() {
 //    TwoPaneAdaptiveLayoutScreen()
 //    ZoomableLayoutScreen()
 //    VideoGestureScreen()
-//    WaveAnimationScreen()
 //    WheelTextPickerScreen()
 }

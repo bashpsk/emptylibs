@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,10 +29,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.R
+import io.bashpsk.emptylibs.component.imageedit.saveAsFile
 import io.bashpsk.emptylibs.imageedit.edit.ImageEdit
 import io.bashpsk.emptylibs.imageedit.edit.rememberImageEditState
 import io.bashpsk.emptylibs.imageview.transform.TransformImageView
-import io.bashpsk.emptylibs.component.imageedit.saveAsFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -123,6 +124,7 @@ fun ImageEditScreen() {
                     )
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             isImageEdit = true

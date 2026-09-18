@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -95,17 +96,26 @@ fun StorageSearchScreen() {
                     itemVerticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Button(enabled = searchQuery.isNotEmpty(), onClick = { searchQuery = "" }) {
+                    Button(
+                        enabled = searchQuery.isNotEmpty(),
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { searchQuery = "" }
+                    ) {
 
                         Text("Clear")
                     }
 
-                    Button(enabled = searchQuery.isEmpty(), onClick = { searchQuery = "Vid" }) {
+                    Button(
+                        enabled = searchQuery.isEmpty(),
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { searchQuery = "Vid" }
+                    ) {
 
                         Text("Search --> Vid")
                     }
 
                     Button(
+                        shapes = ButtonDefaults.shapes(),
                         onClick = {
 
                             extensions = if (extensions == null) FileType.Video.extension else null
@@ -115,7 +125,10 @@ fun StorageSearchScreen() {
                         Text(if (extensions == null) "Ext --> Video" else "Ext --> Null")
                     }
 
-                    Button(onClick = { includeFolders = !includeFolders }) {
+                    Button(
+                        shapes = ButtonDefaults.shapes(),
+                        onClick = { includeFolders = !includeFolders }
+                    ) {
 
                         Text(if (includeFolders) "Included Folders" else "Excluded Folders")
                     }

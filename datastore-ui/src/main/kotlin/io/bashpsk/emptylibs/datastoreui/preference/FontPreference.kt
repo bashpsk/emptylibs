@@ -10,12 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
@@ -34,7 +30,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
@@ -42,6 +37,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.bashpsk.emptylibs.datastoreui.component.DialogConfirmButton
 import io.bashpsk.emptylibs.datastoreui.component.DialogResetButton
+import io.bashpsk.emptylibs.datastoreui.component.DialogTitleView
 import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
 import io.bashpsk.emptylibs.datastoreui.datastore.LocalDatastore
 import io.bashpsk.emptylibs.datastoreui.extension.getPreference
@@ -72,7 +68,6 @@ import kotlinx.coroutines.launch
  * @param trailingContent An optional Composable to be displayed at the end of the item.
  * @param colors [ListItemColors] to be used for the preference item.
  * @param elevation The tonal elevation of the preference item.
- * @param shadowElevation The shadow elevation of the preference item.
  * @param properties The [DialogProperties] to be applied to the font selection dialog.
  * @param confirmButton A Composable lambda function for the confirmation button in the dialog.
  * @param resetButton A Composable lambda function for the reset button in the dialog,
@@ -89,7 +84,15 @@ inline fun FontPreference(
 
         PreferenceSummary(fontFamily = font)
     },
-    dialogTitle: String = "Select Font",
+    crossinline dialogTitle: @Composable (
+        dialogState: MutableTransitionState<Boolean>
+    ) -> Unit = { dialogState ->
+
+        DialogTitleView(
+            dialogTitle = "Select Font",
+            onClick = { dialogState.targetState = false }
+        )
+    },
     previewText: String = "This is sample text. Time is 03:33 AM",
     noinline leadingContent: @Composable () -> Unit = {},
     noinline trailingContent: @Composable () -> Unit = {},
@@ -100,7 +103,9 @@ inline fun FontPreference(
         dismissOnBackPress = true,
         dismissOnClickOutside = false
     ),
-    crossinline confirmButton: @Composable (state: MutableTransitionState<Boolean>) -> Unit = { state ->
+    crossinline confirmButton: @Composable (
+        state: MutableTransitionState<Boolean>
+    ) -> Unit = { state ->
 
         DialogConfirmButton { state.targetState = false }
     },
@@ -156,37 +161,7 @@ inline fun FontPreference(
             containerColor = AlertDialogDefaults.containerColor.copy(alpha = 0.70f),
             textContentColor = AlertDialogDefaults.textContentColor,
             iconContentColor = AlertDialogDefaults.iconContentColor,
-            title = {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Text(
-                        modifier = Modifier.weight(weight = 1.0F),
-                        text = dialogTitle,
-                        textAlign = TextAlign.Start,
-                        maxLines = 1,
-                        style = MaterialTheme.typography.titleMedium,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    IconButton(
-                        onClick = {
-
-                            dialogVisibleState.targetState = false
-                        }
-                    ) {
-
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Close"
-                        )
-                    }
-                }
-            },
+            title = { dialogTitle(dialogVisibleState) },
             text = {
 
                 LazyColumn(
