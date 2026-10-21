@@ -36,10 +36,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-inline fun BasicTextEditor(
+fun BasicTextEditor(
     modifier: Modifier = Modifier,
     inputContent: String,
-    crossinline onContentChange: (content: String) -> Unit,
+    onContentChange: (content: String) -> Unit,
     textStyle: TextStyle = TextStyle.Default,
     numberColor: Color = MaterialTheme.colorScheme.onSurface,
     cursorBrush: Brush = SolidColor(Color.DarkGray),
@@ -50,7 +50,7 @@ inline fun BasicTextEditor(
 
     var textFieldValue by remember { mutableStateOf(TextFieldValue(inputContent)) }
 
-    val onTextContentChange = remember<(TextFieldValue)-> Unit> {
+    val onTextContentChange = remember<(TextFieldValue) -> Unit> {
         { newValue ->
 
             textFieldValue = newValue
@@ -60,7 +60,7 @@ inline fun BasicTextEditor(
 
     LaunchedEffect(inputContent) {
 
-       if( inputContent != textFieldValue.text) {
+        if (inputContent != textFieldValue.text) {
 
             textFieldValue = textFieldValue.copy(text = inputContent)
         }
@@ -80,10 +80,10 @@ inline fun BasicTextEditor(
 }
 
 @Composable
-inline fun BasicTextEditor(
+fun BasicTextEditor(
     modifier: Modifier = Modifier,
     inputContent: TextFieldValue,
-    noinline onContentChange: (content: TextFieldValue) -> Unit,
+    onContentChange: (content: TextFieldValue) -> Unit,
     textStyle: TextStyle = TextStyle.Default,
     numberColor: Color = MaterialTheme.colorScheme.onSurface,
     cursorBrush: Brush = SolidColor(Color.DarkGray),

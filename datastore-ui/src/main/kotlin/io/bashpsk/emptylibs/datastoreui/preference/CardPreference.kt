@@ -27,14 +27,13 @@ import io.bashpsk.emptylibs.datastoreui.component.PreferenceSummary
  * @param colors [ListItemColors] to be used for this list item. Defaults to
  * [ListItemDefaults.colors].
  * @param elevation The elevation of this list item. Defaults to [ListItemDefaults.elevation].
- * @param onClick A lambda function to be executed when the preference item is clicked. Defaults to
- * an empty lambda.
+ * @param onClick A lambda function to be executed when the preference item is clicked.
  */
 @Composable
 fun CardPreference(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
-    summary: @Composable () -> Unit = { PreferenceSummary() },
+    summary: @Composable () -> Unit = {},
     leadingContent: @Composable () -> Unit = {},
     trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),

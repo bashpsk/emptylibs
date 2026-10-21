@@ -1,7 +1,6 @@
 package io.bashpsk.emptylibs.layouts.collapsible
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.runtime.Composable
@@ -14,12 +13,12 @@ import androidx.compose.ui.unit.IntSize
 /**
  * Creates and remembers a [SwipeCollapsibleLayoutState] for [SwipeCollapsibleLayout].
  *
- * @param initialValue The initial [CollapsibleLayoutProgress] of the layout.
+ * @param initialValue The initial [CollapsibleLayoutValue] of the layout.
  * @param animationSpec The [AnimationSpec] used for state transitions.
  */
 @Composable
 fun rememberSwipeCollapsibleLayoutState(
-    initialValue: CollapsibleLayoutProgress = CollapsibleLayoutProgress.Dismissed,
+    initialValue: CollapsibleLayoutValue = CollapsibleLayoutValue.Dismissed,
     animationSpec: AnimationSpec<Float> = SwipeCollapsibleLayoutDefault.AnimationSpec
 ): SwipeCollapsibleLayoutState {
 
@@ -31,42 +30,41 @@ fun rememberSwipeCollapsibleLayoutState(
 /**
  * The state implementation for [SwipeCollapsibleLayout].
  * Manages the anchored draggable state and provides methods to transition between
- * [CollapsibleLayoutProgress] states.
+ * [CollapsibleLayoutValue] states.
  *
- * @param initialValue The initial [CollapsibleLayoutProgress] state.
+ * @param initialValue The initial [CollapsibleLayoutValue] state.
  * @param animationSpec The [AnimationSpec] to use for animations.
  */
-@OptIn(ExperimentalFoundationApi::class)
 class SwipeCollapsibleLayoutState(
-    private val initialValue: CollapsibleLayoutProgress,
-    @PublishedApi internal val animationSpec: AnimationSpec<Float>
+    private val initialValue: CollapsibleLayoutValue,
+    internal val animationSpec: AnimationSpec<Float>
 ) : CollapsibleLayoutState {
 
-    @PublishedApi
+
     internal val anchoredDraggableState = AnchoredDraggableState(initialValue = initialValue)
 
-    override val currentValue: CollapsibleLayoutProgress
+    override val currentValue: CollapsibleLayoutValue
         get() = anchoredDraggableState.currentValue
 
-    override val targetValue: CollapsibleLayoutProgress
+    override val targetValue: CollapsibleLayoutValue
         get() = anchoredDraggableState.targetValue
 
     override val progress: Float
         get() = anchoredDraggableState.progress(
-            from = CollapsibleLayoutProgress.Expanded,
-            to = CollapsibleLayoutProgress.Collapsed
-        )
+            from = CollapsibleLayoutValue.Expanded,
+            to = CollapsibleLayoutValue.Collapsed
+        ).coerceIn(0.0F..1.0F)
 
     override val isVisible: Boolean
-        get() = currentValue != CollapsibleLayoutProgress.Dismissed
+        get() = targetValue != CollapsibleLayoutValue.Dismissed
+                || currentValue != CollapsibleLayoutValue.Dismissed
 
-    @PublishedApi
     internal var layoutSize by mutableStateOf(IntSize.Zero)
 
     override suspend fun expand() {
 
         anchoredDraggableState.animateTo(
-            targetValue = CollapsibleLayoutProgress.Expanded,
+            targetValue = CollapsibleLayoutValue.Expanded,
             animationSpec = animationSpec
         )
     }
@@ -74,7 +72,7 @@ class SwipeCollapsibleLayoutState(
     override suspend fun collapse() {
 
         anchoredDraggableState.animateTo(
-            targetValue = CollapsibleLayoutProgress.Collapsed,
+            targetValue = CollapsibleLayoutValue.Collapsed,
             animationSpec = animationSpec
         )
     }
@@ -82,7 +80,7 @@ class SwipeCollapsibleLayoutState(
     override suspend fun dismiss() {
 
         anchoredDraggableState.animateTo(
-            targetValue = CollapsibleLayoutProgress.Dismissed,
+            targetValue = CollapsibleLayoutValue.Dismissed,
             animationSpec = animationSpec
         )
     }

@@ -3,7 +3,6 @@ package io.bashpsk.emptylibs.datastoreui.preference
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
@@ -64,17 +63,16 @@ import kotlinx.coroutines.launch
  * @param sliderColors [SliderColors] to be used for the slider. Defaults to
  * [SliderDefaults.colors].
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-inline fun SliderPreference(
+fun SliderPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<Float>,
     initialValue: Float = 0.0F,
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (position: Float) -> Unit = {},
-    noinline leadingContent: @Composable () -> Unit = {},
-    noinline trailingContent: @Composable ((position: Float) -> Unit)? = { sliderPosition ->
+    title: @Composable () -> Unit,
+    summary: @Composable (position: Float) -> Unit = {},
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable ((position: Float) -> Unit)? = { sliderPosition ->
 
         val sliderValueLabel by remember(sliderPosition) {
             derivedStateOf { sliderPosition.toRoundedDecimalString(fraction = 1) }
@@ -136,6 +134,7 @@ inline fun SliderPreference(
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
                     state = sliderState,
+                    onValueChange = { newValue -> sliderState.value = newValue },
                     onValueChangeFinished = {
 
                         coroutineScope.launch(context = Dispatchers.IO) {

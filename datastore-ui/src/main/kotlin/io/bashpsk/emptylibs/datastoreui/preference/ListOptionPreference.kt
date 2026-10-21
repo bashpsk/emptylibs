@@ -71,15 +71,15 @@ import kotlinx.coroutines.launch
  * which provides access to the [CoroutineScope] and [DataStore].
  */
 @Composable
-inline fun <K, V> ListOptionPreference(
+fun <K, V> ListOptionPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<V>,
     initialValue: V,
     entities: ImmutableMap<K, V>,
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (item: V) -> Unit = {},
-    crossinline dialogTitle: @Composable (
+    title: @Composable () -> Unit,
+    summary: @Composable (item: V) -> Unit = {},
+    dialogTitle: @Composable (
         dialogState: MutableTransitionState<Boolean>
     ) -> Unit = { dialogState ->
 
@@ -90,9 +90,9 @@ inline fun <K, V> ListOptionPreference(
     },
     itemShapes: ListItemShapes = ListItemDefaults.shapes(),
     itemColors: ListItemColors = ListItemDefaults.segmentedColors(),
-    noinline leadingContent: @Composable () -> Unit = {},
-    noinline trailingContent: @Composable () -> Unit = {},
-    crossinline itemContent: @Composable CoroutineScope.(
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable () -> Unit = {},
+    itemContent: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         entry: Pair<K, V>,
         selected: Boolean
@@ -115,13 +115,13 @@ inline fun <K, V> ListOptionPreference(
         dismissOnBackPress = true,
         dismissOnClickOutside = false
     ),
-    crossinline confirmButton: @Composable (
+    confirmButton: @Composable (
         state: MutableTransitionState<Boolean>
     ) -> Unit = { state ->
 
         DialogConfirmButton { state.targetState = false }
     },
-    crossinline resetButton: @Composable CoroutineScope.(
+    resetButton: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         state: MutableTransitionState<Boolean>
     ) -> Unit = { preferenceDatastore, state ->
@@ -159,7 +159,7 @@ inline fun <K, V> ListOptionPreference(
             },
             properties = properties,
             shape = MaterialTheme.shapes.small,
-            title = {dialogTitle(dialogVisibleState)},
+            title = { dialogTitle(dialogVisibleState) },
             text = {
 
                 LazyColumn(

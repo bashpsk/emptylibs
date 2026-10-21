@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.component.layouts.VideoData
 import io.bashpsk.emptylibs.component.layouts.dummyVideoList
@@ -72,47 +73,31 @@ fun SwipeCollapsibleLayoutScreen() {
         ) {
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.spacedBy(
+                    space = 4.dp,
+                    alignment = Alignment.CenterVertically
+                )
             ) {
 
-                Image(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(16F / 9F),
-                    painter = painterResource(imageItem.thumbnail),
-                    contentScale = ContentScale.Crop,
-                    contentDescription = null
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = imageItem.title,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodyMedium
                 )
 
-                Column(
+                Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(
-                        space = 4.dp,
-                        alignment = Alignment.CenterVertically
-                    )
-                ) {
-
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = imageItem.title,
-                        textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .alpha(0.75F),
-                        text = "3.33K views  •  333 likes  •  3 years ago",
-                        textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
+                        .alpha(0.75F),
+                    text = "3.33K views  •  333 likes  •  3 years ago",
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
     }
@@ -185,28 +170,29 @@ fun SwipeCollapsibleLayoutScreen() {
                 .padding(paddingValues)
                 .fillMaxSize(),
             state = state,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
             primaryContent = {
 
-                Box(
+                selectedEntry?.let { imageItem ->
+
+                    Image(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(16F / 9F),
+                        painter = painterResource(imageItem.thumbnail),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = null
+                    )
+                } ?: Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .aspectRatio(16F / 9F)
                         .background(Color.Blue)
-                ) {
-
-                    selectedEntry?.let { imageItem ->
-
-                        Image(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .aspectRatio(16F / 9F),
-                            painter = painterResource(imageItem.thumbnail),
-                            contentScale = ContentScale.Crop,
-                            contentDescription = null
-                        )
-                    }
-                }
+                )
             },
             secondaryContent = {
+
+                val currentIndex = dummyVideoList.indexOf(selectedEntry)
 
                 Row(
                     modifier = Modifier
@@ -217,27 +203,23 @@ fun SwipeCollapsibleLayoutScreen() {
 
                     Text(
                         modifier = Modifier.weight(1f),
-                        text = selectedEntry?.title ?: "Not selected!"
+                        text = selectedEntry?.title ?: "Not selected!",
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     IconButton(
+                        enabled = currentIndex > 0,
                         shapes = IconButtonDefaults.shapes(),
-                        onClick = {
-                            selectedEntry = dummyVideoList[
-                                dummyVideoList.indexOf(selectedEntry) - 1
-                            ]
-                        }
+                        onClick = { selectedEntry = dummyVideoList[currentIndex - 1] }
                     ) {
                         Icon(Icons.Default.SkipPrevious, contentDescription = null)
                     }
 
                     IconButton(
+                        enabled = currentIndex != -1 && currentIndex < dummyVideoList.size - 1,
                         shapes = IconButtonDefaults.shapes(),
-                        onClick = {
-                            selectedEntry = dummyVideoList[
-                                dummyVideoList.indexOf(selectedEntry) + 1
-                            ]
-                        }
+                        onClick = { selectedEntry = dummyVideoList[currentIndex + 1] }
                     ) {
                         Icon(Icons.Default.SkipNext, contentDescription = null)
                     }

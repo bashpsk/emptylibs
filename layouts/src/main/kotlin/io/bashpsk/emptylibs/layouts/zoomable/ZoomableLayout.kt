@@ -18,10 +18,10 @@ import io.bashpsk.emptylibs.gestureui.transform.transformableGestures
 import kotlin.math.roundToInt
 
 @Composable
-inline fun ZoomableLayout(
+fun ZoomableLayout(
     modifier: Modifier = Modifier,
     state: TransformableGesturesState = rememberTransformableGesturesState(),
-    crossinline content: @Composable ZoomableLayoutScope.() -> Unit
+    content: @Composable ZoomableLayoutScope.() -> Unit
 ) {
 
     val layoutPosition by remember(state.position) { derivedStateOf { state.position.round() } }
@@ -43,10 +43,10 @@ inline fun ZoomableLayout(
  * @param content The content to be zoomed, with [ZoomableLayoutScope].
  */
 @Composable
-inline fun ZoomableLayout(
+fun ZoomableLayout(
     modifier: Modifier = Modifier,
     zoomScale: Float = 1.0F,
-    crossinline content: @Composable ZoomableLayoutScope.() -> Unit
+    content: @Composable ZoomableLayoutScope.() -> Unit
 ) {
 
     val scope = retain { ZoomableLayoutScopeImpl() }

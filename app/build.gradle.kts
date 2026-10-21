@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.window.size)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -97,9 +98,9 @@ dependencies {
     //  NAVIGATION      :
     implementation(libs.androidx.navigation.compose)
 
-    implementation("androidx.pdf:pdf-viewer:1.0.0-alpha19")
-    implementation("androidx.pdf:pdf-compose:1.0.0-alpha19")
-    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha19")
+    implementation("androidx.pdf:pdf-viewer:1.0.0-beta01")
+    implementation("androidx.pdf:pdf-compose:1.0.0-beta01")
+    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-beta01")
 
     implementation("androidx.ink:ink-authoring-compose:1.0.0")
     implementation("androidx.ink:ink-brush-compose:1.0.0")

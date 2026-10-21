@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
  * @param thumb The composable to be used as the scrollbar thumb.
  */
 @Composable
-inline fun BoxWithConstraintsScope.LazyGridScrollBar(
+fun BoxWithConstraintsScope.LazyGridScrollBar(
     modifier: Modifier = Modifier,
     state: LazyGridState,
     orientation: Orientation = state.layoutInfo.orientation,
@@ -38,12 +38,12 @@ inline fun BoxWithConstraintsScope.LazyGridScrollBar(
     },
     thumbColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     thumbNotchWidth: Dp = 12.dp,
-    crossinline label: @Composable (
+    label: @Composable (
         firstVisibleItemIndex: Int,
         visibleItemsCount: Int,
         totalItemsCount: Int
     ) -> Unit = { _, _, _ -> },
-    crossinline thumb: @Composable BoxScope.() -> Unit = {
+    thumb: @Composable BoxScope.() -> Unit = {
 
         DefaultScrollBarThumb()
     }

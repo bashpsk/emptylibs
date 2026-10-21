@@ -1,14 +1,11 @@
 package io.bashpsk.emptylibs.imagekolor.color
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 
 /**
@@ -22,6 +19,7 @@ import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
  *
  * @param modifier The modifier to be applied to the layout.
  * @param state The [ImageKolorState] that holds the current image and color adjustment values.
+ * @param firstPaneRatio The fraction of available space (width in side-by-side, height in stacked)
  * @param imageContent A composable lambda that defines the content for displaying the image.
  * By default, it uses [KolorImageView].
  * @param kolorContent A composable lambda that defines the content for the color adjustment
@@ -31,6 +29,8 @@ import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 fun ImageKolorLayout(
     modifier: Modifier = Modifier,
     state: ImageKolorState,
+    @FloatRange(0.0, 1.0)
+    firstPaneRatio: Float = 0.40F,
     imageContent: @Composable () -> Unit = {
 
         KolorImageView(modifier = Modifier.fillMaxSize(), state = state)
@@ -46,18 +46,9 @@ fun ImageKolorLayout(
     }
 ) {
 
-    val imageAspectRatio by remember(state.imageBitmap) {
-        derivedStateOf {
-            findAspectRatio(
-                width = state.imageBitmap?.width ?: 16,
-                height = state.imageBitmap?.height ?: 9
-            )
-        }
-    }
-
     TwoPaneAdaptiveLayout(
         modifier = modifier,
-        aspectRatio = imageAspectRatio,
+        firstPaneRatio = firstPaneRatio,
         firstPane = imageContent,
         secondPane = kolorContent
     )

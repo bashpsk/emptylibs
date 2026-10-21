@@ -54,17 +54,14 @@ fun SwipeRevealItem(
     ) { measurables, constraints ->
 
         val leftMeasurable = measurables.find { measurable ->
-
             measurable.layoutId == LeftContentId
         }
 
         val rightMeasurable = measurables.find { measurable ->
-
             measurable.layoutId == RightContentId
         }
 
         val mainMeasurable = measurables.find { measurable ->
-
             measurable.layoutId == MainContentId
         }
 

@@ -152,7 +152,7 @@ fun Number.shortenedNumericalNotation(): String {
 
         else -> {
 
-            val units = arrayOf("", "K", "M", "B", "T", "Q")
+            val units = arrayOf("", "K", "M", "B", "T", "Q", "Qi", "Sx", "Sp", "Oc", "No", "Dc")
             val powerOfThousand = (log10(value).toInt() / 3).coerceAtMost(units.lastIndex)
             val displayValue = value / 10.0.pow(powerOfThousand * 3)
 

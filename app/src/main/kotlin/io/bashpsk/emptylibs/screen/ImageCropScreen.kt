@@ -44,7 +44,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -84,7 +83,6 @@ import io.bashpsk.emptylibs.imagekrop.crop.rememberImageKropState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageCropScreen() {
 
@@ -223,7 +221,6 @@ fun ImageCropScreen() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ImageKropTopBar(
     undoButtonEnabled: Boolean,
@@ -288,7 +285,6 @@ private fun ImageKropTopBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ImageKropBottomBar(
     state: ImageKropState,
@@ -448,7 +444,6 @@ internal fun ImageKropBottomBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun KropImagePreviewDialog(
     imagePreviewDialog: MutableTransitionState<Boolean>,
@@ -730,6 +725,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
                     state = sliderState,
+                    onValueChange = { newValue -> sliderState.value = newValue},
                     onValueChangeFinished = {
 
                         val newShape = shape.copy(sides = sliderState.value.toInt().toShort())
@@ -756,6 +752,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
                     state = sliderState,
+                    onValueChange = { newValue -> sliderState.value = newValue},
                     onValueChangeFinished = {
 
                         val newShape = shape.copy(radius = sliderState.value)
@@ -782,6 +779,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
                     state = sliderState,
+                    onValueChange = { newValue -> sliderState.value = newValue},
                     onValueChangeFinished = {
 
                         val newShape = shape.copy(radius = sliderState.value)
@@ -814,6 +812,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
                     state = edgeCountSliderState,
+                    onValueChange = { newValue -> edgeCountSliderState.value = newValue},
                     onValueChangeFinished = {
 
                         val newShape = shape.copy(edges = edgeCountSliderState.value.toInt())
@@ -834,6 +833,7 @@ private fun KropShapeCustomization(state: ImageKropState) {
                 Slider(
                     modifier = Modifier.fillMaxWidth(),
                     state = distanceSliderState,
+                    onValueChange = { newValue -> distanceSliderState.value = newValue},
                     onValueChangeFinished = {
 
                         val newShape = shape.copy(distance = distanceSliderState.value)

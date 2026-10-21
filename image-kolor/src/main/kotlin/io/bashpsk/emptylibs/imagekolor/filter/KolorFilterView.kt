@@ -48,7 +48,7 @@ import io.bashpsk.emptylibs.imagekolor.R
  * @param label The label of the [ImageFilterType] to be displayed.
  */
 @Composable
-inline fun KolorFilterView(
+fun KolorFilterView(
     modifier: Modifier = Modifier,
     kolorFilter: ImageFilterType,
     imageModel: ImageBitmap?,
@@ -57,8 +57,8 @@ inline fun KolorFilterView(
     borderWidth: Dp = if (isSelected) 2.dp else 0.2.dp,
     borderColor: Color = MaterialTheme.colorScheme.error,
     shape: Shape = MaterialTheme.shapes.extraSmall,
-    crossinline onFilterClick: (filter: ImageFilterType) -> Unit,
-    crossinline label: @Composable () -> Unit = {
+    onFilterClick: (filter: ImageFilterType) -> Unit,
+    label: @Composable () -> Unit = {
 
         Text(
             modifier = Modifier

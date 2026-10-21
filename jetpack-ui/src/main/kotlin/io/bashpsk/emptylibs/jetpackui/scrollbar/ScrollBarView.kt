@@ -55,29 +55,28 @@ import androidx.compose.ui.unit.dp
  * state metadata.
  * @param thumb A composable lambda that defines the content inside the scrollbar thumb.
  */
-@PublishedApi
 @Composable
-internal inline fun BoxWithConstraintsScope.ScrollBarView(
+internal fun BoxWithConstraintsScope.ScrollBarView(
     modifier: Modifier = Modifier,
     visibleState: MutableTransitionState<Boolean>,
     orientation: Orientation,
     alignment: Alignment,
     barPositionOffset: IntOffset,
     barDraggableState: DraggableState,
-    noinline onSizeChanged: (IntSize) -> Unit,
-    crossinline onDragStarted: () -> Unit,
-    crossinline onDragStopped: () -> Unit,
+    onSizeChanged: (IntSize) -> Unit,
+    onDragStarted: () -> Unit,
+    onDragStopped: () -> Unit,
     thumbShape: Shape,
     thumbColor: Color,
     firstVisibleItemIndex: Int,
     visibleItemsCount: Int,
     totalItemsCount: Int,
-    crossinline label: @Composable (
+    label: @Composable (
         firstVisibleItemIndex: Int,
         visibleItemsCount: Int,
         totalItemsCount: Int
     ) -> Unit,
-    crossinline thumb:@Composable BoxScope.() -> Unit
+    thumb: @Composable BoxScope.() -> Unit
 ) {
 
     AnimatedVisibility(

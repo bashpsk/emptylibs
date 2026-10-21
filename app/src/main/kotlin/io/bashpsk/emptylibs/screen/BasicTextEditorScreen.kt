@@ -3,7 +3,6 @@ package io.bashpsk.emptylibs.screen
 import android.os.Environment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.jetpackui.text.BasicTextEditor
 import java.io.File
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun BasicTextEditorScreen() {
 

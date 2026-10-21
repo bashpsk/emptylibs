@@ -74,17 +74,17 @@ import kotlinx.coroutines.launch
  * which provides access to the [CoroutineScope] and [DataStore].
  */
 @Composable
-inline fun FontPreference(
+fun FontPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<String>,
     entities: ImmutableList<FontPreferenceItem>,
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (font: FontFamily) -> Unit = { font ->
+    title: @Composable () -> Unit,
+    summary: @Composable (font: FontFamily) -> Unit = { font ->
 
         PreferenceSummary(fontFamily = font)
     },
-    crossinline dialogTitle: @Composable (
+    dialogTitle: @Composable (
         dialogState: MutableTransitionState<Boolean>
     ) -> Unit = { dialogState ->
 
@@ -94,8 +94,8 @@ inline fun FontPreference(
         )
     },
     previewText: String = "This is sample text. Time is 03:33 AM",
-    noinline leadingContent: @Composable () -> Unit = {},
-    noinline trailingContent: @Composable () -> Unit = {},
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     elevation: ListItemElevation = ListItemDefaults.elevation(),
     properties: DialogProperties = DialogProperties(
@@ -103,13 +103,13 @@ inline fun FontPreference(
         dismissOnBackPress = true,
         dismissOnClickOutside = false
     ),
-    crossinline confirmButton: @Composable (
+    confirmButton: @Composable (
         state: MutableTransitionState<Boolean>
     ) -> Unit = { state ->
 
         DialogConfirmButton { state.targetState = false }
     },
-    crossinline resetButton: @Composable CoroutineScope.(
+    resetButton: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         state: MutableTransitionState<Boolean>
     ) -> Unit = { preferenceDatastore, state ->

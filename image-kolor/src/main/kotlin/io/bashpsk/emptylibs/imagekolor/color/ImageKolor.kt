@@ -16,7 +16,6 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -33,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.bashpsk.emptylibs.formatter.math.hasPositive
 import io.bashpsk.emptylibs.imagekolor.color.ImageKolorInput.Companion.getIcon
 import io.bashpsk.emptylibs.imagekolor.color.ImageKolorInput.Companion.getValue
 import io.bashpsk.emptylibs.imagekolor.color.ImageKolorInput.Companion.range
@@ -96,7 +96,17 @@ fun KolorImageView(modifier: Modifier = Modifier, state: ImageKolorState) {
  * enabled status.
  */
 @Composable
-fun KolorAdjustmentSliders(modifier: Modifier = Modifier, state: ImageKolorState) {
+fun KolorAdjustmentSliders(
+    modifier: Modifier = Modifier,
+    state: ImageKolorState,
+    label: @Composable (
+        kolorInput: ImageKolorInput,
+        percentage: Int
+    ) -> Unit = { kolorInput, valuePercentage ->
+
+        AdjustmentSliderLabel(kolorInput = kolorInput, valuePercentage = valuePercentage)
+    }
+) {
 
     Column(
         modifier = modifier.padding(horizontal = 8.dp, vertical = 8.dp),
@@ -114,7 +124,8 @@ fun KolorAdjustmentSliders(modifier: Modifier = Modifier, state: ImageKolorState
             AdjustmentSlider(
                 modifier = Modifier.fillMaxWidth(),
                 kolorInput = state.kolorInput,
-                onValueChange = state::updateValues
+                onValueChange = state::updateValues,
+                label = { percentage -> label(state.kolorInput, percentage) }
             )
         }
     }
@@ -135,15 +146,17 @@ fun KolorAdjustmentSliders(modifier: Modifier = Modifier, state: ImageKolorState
  * @param onValueChange A callback function that is invoked when the slider's value changes.
  * It receives the new Float value as an argument.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AdjustmentSlider(
     modifier: Modifier = Modifier,
     kolorInput: ImageKolorInput,
-    onValueChange: (Float) -> Unit
+    onValueChange: (Float) -> Unit,
+    label: @Composable (percentage: Int) -> Unit = { valuePercentage ->
+
+        AdjustmentSliderLabel(kolorInput = kolorInput, valuePercentage = valuePercentage)
+    }
 ) {
 
-    val kolorLabel by remember(kolorInput) { derivedStateOf { kolorInput.label } }
     val kolorValueRange by remember(kolorInput) { derivedStateOf { kolorInput.range } }
     val kolorValue by remember(kolorInput) { derivedStateOf { kolorInput.getValue() } }
 
@@ -162,29 +175,18 @@ private fun AdjustmentSlider(
         }
     }
 
-    val sliderLabel by remember(kolorLabel, valuePercentage) {
-        derivedStateOf {
-            "$kolorLabel : ${
-                if (valuePercentage > 0) "+${valuePercentage}" else "$valuePercentage"
-            }%"
-        }
-    }
-
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(space = 4.dp)
     ) {
 
-        Text(
-            text = sliderLabel,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleSmall
-        )
+        label(valuePercentage)
 
         Slider(
             modifier = Modifier.fillMaxWidth(),
             state = sliderState,
+            onValueChange = { newValue -> sliderState.value = newValue },
             onValueChangeFinished = { onValueChange(sliderState.value) }
         )
     }
@@ -288,4 +290,22 @@ private fun KolorInputView(
             contentDescription = "Input Type"
         )
     }
+}
+
+@Composable
+private fun AdjustmentSliderLabel(kolorInput: ImageKolorInput, valuePercentage: Int) {
+
+    val sliderLabel by remember(kolorInput, valuePercentage) {
+        derivedStateOf {
+            "${kolorInput.label} : ${
+                if (valuePercentage.hasPositive()) "+${valuePercentage}" else "$valuePercentage"
+            }%"
+        }
+    }
+
+    Text(
+        text = sliderLabel,
+        textAlign = TextAlign.Center,
+        style = MaterialTheme.typography.titleSmall
+    )
 }

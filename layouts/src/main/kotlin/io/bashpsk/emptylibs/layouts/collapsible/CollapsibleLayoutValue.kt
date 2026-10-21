@@ -3,7 +3,7 @@ package io.bashpsk.emptylibs.layouts.collapsible
 /**
  * Represents the progress states of a collapsible layout.
  */
-enum class CollapsibleLayoutProgress {
+enum class CollapsibleLayoutValue {
 
     /**
      * The layout is in its collapsed state.

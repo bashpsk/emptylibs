@@ -13,7 +13,6 @@ import androidx.compose.runtime.retain.retain
  *
  * @param state The [LazyGridState] to attach the scrollbar state to.
  */
-@PublishedApi
 @Composable
 internal fun rememberLazyGridScrollBarState(state: LazyGridState): LazyGridScrollBarState {
 
@@ -29,7 +28,6 @@ internal fun rememberLazyGridScrollBarState(state: LazyGridState): LazyGridScrol
  *
  * @property state The underlying [LazyGridState] used to track the scroll position of the grid.
  */
-@PublishedApi
 @Stable
 internal class LazyGridScrollBarState(
     private val state: LazyGridState

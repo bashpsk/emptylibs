@@ -40,9 +40,7 @@ fun TileImageView(
     tileSize: Int = 512
 ) {
 
-    val aspectRatio by remember(imageBitmap) {
-        derivedStateOf { imageBitmap.findAspectRatio() ?: 0F }
-    }
+    val aspectRatio by remember(imageBitmap) { derivedStateOf { imageBitmap.findAspectRatio() } }
 
     Layout(
         modifier = modifier

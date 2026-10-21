@@ -59,14 +59,14 @@ import kotlinx.coroutines.launch
  * which provides access to the [CoroutineScope] and [DataStore].
  */
 @Composable
-inline fun <reified V> TextFieldPreference(
+fun <V> TextFieldPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<V>,
     initialValue: V,
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (item: V) -> Unit = {},
-    crossinline dialogTitle: @Composable (
+    title: @Composable () -> Unit,
+    summary: @Composable (item: V) -> Unit = {},
+    dialogTitle: @Composable (
         dialogState: MutableTransitionState<Boolean>
     ) -> Unit = { dialogState ->
 
@@ -75,8 +75,8 @@ inline fun <reified V> TextFieldPreference(
             onClick = { dialogState.targetState = false }
         )
     },
-    noinline leadingContent: @Composable () -> Unit = {},
-    noinline trailingContent: @Composable () -> Unit = {},
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable () -> Unit = {},
     colors: ListItemColors = ListItemDefaults.colors(),
     elevation: ListItemElevation = ListItemDefaults.elevation(),
     properties: DialogProperties = DialogProperties(
@@ -85,8 +85,8 @@ inline fun <reified V> TextFieldPreference(
         dismissOnClickOutside = false
     ),
     textFieldValue: TextFieldValue,
-    crossinline textFieldContent: @Composable () -> Unit,
-    crossinline confirmButton: @Composable CoroutineScope.(
+    textFieldContent: @Composable () -> Unit,
+    confirmButton: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         state: MutableTransitionState<Boolean>
     ) -> Unit = { preferenceDatastore, state ->
@@ -104,7 +104,7 @@ inline fun <reified V> TextFieldPreference(
             state.targetState = false
         }
     },
-    crossinline resetButton: @Composable CoroutineScope.(
+    resetButton: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         state: MutableTransitionState<Boolean>
     ) -> Unit = { preferenceDatastore, state ->

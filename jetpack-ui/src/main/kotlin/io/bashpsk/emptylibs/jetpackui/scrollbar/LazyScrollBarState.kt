@@ -4,7 +4,6 @@ package io.bashpsk.emptylibs.jetpackui.scrollbar
  * Interface defining the state required for a generic lazy scrollbar.
  * This abstracts the differences between different types of lazy layouts (List, Grid, etc.)
  */
-@PublishedApi
 internal interface LazyScrollBarState {
 
     /**

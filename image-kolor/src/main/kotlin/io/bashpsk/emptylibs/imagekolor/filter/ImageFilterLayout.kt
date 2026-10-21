@@ -1,15 +1,12 @@
 package io.bashpsk.emptylibs.imagekolor.filter
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 
 /**
@@ -22,6 +19,7 @@ import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
  * @param modifier The modifier to be applied to the layout.
  * @param imageBitmap The [ImageBitmap] to be displayed.
  * @param state The [ImageFilterState] that holds the current filter selection.
+ * @param firstPaneRatio The fraction of available space (width in side-by-side, height in stacked)
  * @param imageContent A composable lambda that defines the content for displaying the image.
  * By default, it uses an [Image] composable with [ContentScale.Fit] and
  * applies the selected color filter from the [state].
@@ -32,11 +30,13 @@ import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
  * two measurable children.
  */
 @Composable
-inline fun ImageFilterLayout(
+fun ImageFilterLayout(
     modifier: Modifier = Modifier,
     imageBitmap: ImageBitmap,
     state: ImageFilterState,
-    crossinline imageContent: @Composable () -> Unit = {
+    @FloatRange(0.0, 1.0)
+    firstPaneRatio: Float = 0.40F,
+    imageContent: @Composable () -> Unit = {
 
         Image(
             modifier = Modifier.fillMaxSize(),
@@ -46,19 +46,15 @@ inline fun ImageFilterLayout(
             contentDescription = "Image Color Filter"
         )
     },
-    crossinline filterContent: @Composable () -> Unit = {
+    filterContent: @Composable () -> Unit = {
 
         ImageFilter(modifier = Modifier.fillMaxSize(), state = state)
     }
 ) {
 
-    val imageAspectRatio by remember(imageBitmap) {
-        derivedStateOf { findAspectRatio(width = imageBitmap.width, height = imageBitmap.height) }
-    }
-
     TwoPaneAdaptiveLayout(
         modifier = modifier,
-        aspectRatio = imageAspectRatio,
+        firstPaneRatio = firstPaneRatio,
         firstPane = imageContent,
         secondPane = filterContent
     )

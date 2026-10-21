@@ -1,8 +1,6 @@
 package io.bashpsk.emptylibs.formatter.format
 
 import androidx.compose.runtime.Stable
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.persistentListOf
 import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -82,7 +80,7 @@ fun Duration.formattedDuration(pattern: DurationPattern): String {
         )
     }
 
-    return patternMap.first.format(locale = Locale.getDefault(), *patternMap.second.toTypedArray())
+    return patternMap.first.format(locale = Locale.getDefault(), *patternMap.second)
 }
 
 /**
@@ -97,31 +95,31 @@ private fun Duration.findDurationPattern(
     minutesLabel: String,
     secondsLabel: String?,
     isSecondsOnly: Boolean
-): Pair<String, PersistentList<Any>> {
+): Pair<String, Array<Any>> {
 
     return when {
 
-        this == Duration.ZERO -> "%01d${secondsLabel ?: ""}" to persistentListOf(0)
+        this == Duration.ZERO -> "%01d${secondsLabel ?: ""}" to arrayOf(0)
 
         this < 1.toDuration(
             DurationUnit.MINUTES
         ) && isSecondsOnly -> this.toComponents { seconds, _ ->
 
-            "%02d${secondsLabel ?: ""}" to persistentListOf(seconds)
+            "%02d${secondsLabel ?: ""}" to arrayOf(seconds)
         }
 
         this < 1.toDuration(
             DurationUnit.HOURS
         ) -> this.toComponents { minutes, seconds, _ ->
 
-            "%02d${minutesLabel}%02d${secondsLabel ?: ""}" to persistentListOf(minutes, seconds)
+            "%02d${minutesLabel}%02d${secondsLabel ?: ""}" to arrayOf(minutes, seconds)
         }
 
         this < 1.toDuration(
             DurationUnit.DAYS
         ) -> this.toComponents { hours, minutes, seconds, _ ->
 
-            "%02d${hoursLabel}%02d${minutesLabel}%02d${secondsLabel ?: ""}" to persistentListOf(
+            "%02d${hoursLabel}%02d${minutesLabel}%02d${secondsLabel ?: ""}" to arrayOf(
                 hours,
                 minutes,
                 seconds
@@ -132,7 +130,7 @@ private fun Duration.findDurationPattern(
 
             "%01d${daysLabel}%02d${hoursLabel}%02d${minutesLabel}%02d${
                 secondsLabel ?: ""
-            }" to persistentListOf(days, hours, minutes, seconds)
+            }" to arrayOf(days, hours, minutes, seconds)
         }
     }
 }

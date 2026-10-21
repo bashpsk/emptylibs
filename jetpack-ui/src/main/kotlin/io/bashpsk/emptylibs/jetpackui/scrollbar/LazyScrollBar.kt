@@ -49,9 +49,8 @@ import kotlin.time.Duration.Companion.seconds
  * state metadata.
  * @param thumb A composable lambda that defines the visual content inside the scrollbar thumb.
  */
-@PublishedApi
 @Composable
-internal inline fun BoxWithConstraintsScope.LazyScrollBar(
+internal fun BoxWithConstraintsScope.LazyScrollBar(
     modifier: Modifier = Modifier,
     state: LazyScrollBarState,
     orientation: Orientation,
@@ -62,12 +61,12 @@ internal inline fun BoxWithConstraintsScope.LazyScrollBar(
     },
     thumbColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     thumbNotchWidth: Dp = 12.dp,
-    crossinline label: @Composable (
+    label: @Composable (
         firstVisibleItemIndex: Int,
         visibleItemsCount: Int,
         totalItemsCount: Int
     ) -> Unit = { _, _, _ -> },
-    crossinline thumb: @Composable BoxScope.() -> Unit = {
+    thumb: @Composable BoxScope.() -> Unit = {
 
         DefaultScrollBarThumb()
     }

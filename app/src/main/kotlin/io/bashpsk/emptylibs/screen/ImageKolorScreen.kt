@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.SaveAs
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -25,14 +24,13 @@ import io.bashpsk.emptylibs.imagekolor.color.ImageKolorLayout
 import io.bashpsk.emptylibs.imagekolor.color.rememberImageKolorState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageKolorScreen() {
 
     val context = LocalContext.current
     val bitmapCoroutineScope = rememberCoroutineScope()
 
-    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper01)
+    val imageBitmap = ImageBitmap.imageResource(R.drawable.wallpaper02)
     val kolorState = rememberImageKolorState(imageBitmap = imageBitmap)
 
     Scaffold(

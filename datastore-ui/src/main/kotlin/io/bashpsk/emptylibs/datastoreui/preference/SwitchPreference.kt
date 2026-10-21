@@ -42,15 +42,15 @@ import kotlinx.coroutines.launch
  * @param elevation The elevation of this list item. Defaults to [ListItemDefaults.elevation].
  */
 @Composable
-inline fun SwitchPreference(
+fun SwitchPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<Boolean>,
     initialValue: Boolean = false,
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (checked: Boolean) -> Unit = {},
-    noinline leadingContent: @Composable () -> Unit = {},
-    crossinline trailingContent: @Composable (checked: Boolean) -> Unit = { checked ->
+    title: @Composable () -> Unit,
+    summary: @Composable (checked: Boolean) -> Unit = {},
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable (checked: Boolean) -> Unit = { checked ->
 
         SwitchButton(checked = checked)
     },

@@ -26,9 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.formatter.format.parseHexToColor
-import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 import io.bashpsk.emptylibs.kolorpicker.color.KolorPickerDialog
 import io.bashpsk.emptylibs.kolorpicker.color.rememberKolorPickerState
+import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
 
 /**
  * A composable component that facilitates the visualization and recoloring of SVG elements.
@@ -63,7 +63,7 @@ fun SvgKolor(
     }
 
     val aspectRatio by remember(windowWidthSize) {
-        derivedStateOf { if (windowWidthSize == WindowWidthSizeClass.Compact) 2.0F else 0.50F }
+        derivedStateOf { if (windowWidthSize == WindowWidthSizeClass.Compact) 0.40F else 0.50F }
     }
 
     KolorPickerDialog(
@@ -86,7 +86,7 @@ fun SvgKolor(
 
     TwoPaneAdaptiveLayout(
         modifier = modifier,
-        aspectRatio = aspectRatio,
+        firstPaneRatio = aspectRatio,
         firstPane = {
 
             when (windowWidthSize) {

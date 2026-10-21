@@ -6,6 +6,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
 import io.bashpsk.emptylibs.formatter.format.findAspectRatio
 import kotlin.math.min
 
@@ -19,12 +20,9 @@ import kotlin.math.min
  * bitmap is null.
  */
 @Stable
-fun ImageBitmap?.toSize(): Size {
+fun ImageBitmap.toSize(): Size {
 
-    return this?.let { bitmap ->
-
-        Size(width = bitmap.width.toFloat(), height = bitmap.height.toFloat())
-    } ?: Size.Zero
+    return toIntSize().toSize()
 }
 
 /**
@@ -33,16 +31,12 @@ fun ImageBitmap?.toSize(): Size {
  * If the [ImageBitmap] is null, it returns [IntSize.Zero].
  * Otherwise, it creates a [IntSize] object with the width and height of the bitmap.
  *
- * @return A [IntSize] object representing the dimensions of the [ImageBitmap],
- * or [IntSize.Zero] if the bitmap is null.
+ * @return A [IntSize] object representing the dimensions of the [ImageBitmap].
  */
 @Stable
-fun ImageBitmap?.toIntSize(): IntSize {
+fun ImageBitmap.toIntSize(): IntSize {
 
-    return this?.let { bitmap ->
-
-        IntSize(width = bitmap.width, height = bitmap.height)
-    } ?: IntSize.Zero
+    return IntSize(width = width, height = height)
 }
 
 /**
@@ -50,12 +44,12 @@ fun ImageBitmap?.toIntSize(): IntSize {
  *
  * The aspect ratio is defined as the width divided by the height.
  *
- * @return The aspect ratio of the bitmap as a [Float], or null if the bitmap is null.
+ * @return The aspect ratio of the bitmap as a [Float].
  */
 @Stable
-fun ImageBitmap?.findAspectRatio(): Float? {
+fun ImageBitmap.findAspectRatio(): Float {
 
-    return this?.let { bitmap -> findAspectRatio(width = bitmap.width, height = bitmap.height) }
+    return findAspectRatio(width = width, height = height)
 }
 
 /**

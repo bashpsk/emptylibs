@@ -71,15 +71,15 @@ import kotlinx.coroutines.launch
  * which provides access to the [CoroutineScope] and [DataStore].
  */
 @Composable
-inline fun <K> SetOptionPreference(
+fun <K> SetOptionPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<Set<String>>,
     initialValue: Set<String>,
     entities: ImmutableMap<K, String>,
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (items: Set<String>) -> Unit = {},
-    crossinline dialogTitle: @Composable (
+    title: @Composable () -> Unit,
+    summary: @Composable (items: Set<String>) -> Unit = {},
+    dialogTitle: @Composable (
         dialogState: MutableTransitionState<Boolean>
     ) -> Unit = { dialogState ->
 
@@ -90,9 +90,9 @@ inline fun <K> SetOptionPreference(
     },
     itemShapes: ListItemShapes = ListItemDefaults.shapes(),
     itemColors: ListItemColors = ListItemDefaults.segmentedColors(),
-    noinline leadingContent: @Composable () -> Unit = {},
-    noinline trailingContent: @Composable () -> Unit = {},
-    crossinline itemContent: @Composable CoroutineScope.(
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable () -> Unit = {},
+    itemContent: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         items: Set<String>,
         entry: Pair<K, String>,
@@ -117,11 +117,11 @@ inline fun <K> SetOptionPreference(
         dismissOnBackPress = true,
         dismissOnClickOutside = false
     ),
-    crossinline confirmButton: @Composable (state: MutableTransitionState<Boolean>) -> Unit = { state ->
+    confirmButton: @Composable (state: MutableTransitionState<Boolean>) -> Unit = { state ->
 
         DialogConfirmButton { state.targetState = false }
     },
-    crossinline resetButton: @Composable CoroutineScope.(
+    resetButton: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         state: MutableTransitionState<Boolean>
     ) -> Unit = { preferenceDatastore, state ->
@@ -159,7 +159,7 @@ inline fun <K> SetOptionPreference(
             },
             properties = properties,
             shape = MaterialTheme.shapes.small,
-            title = {dialogTitle(dialogVisibleState)},
+            title = { dialogTitle(dialogVisibleState) },
             text = {
 
                 LazyColumn(

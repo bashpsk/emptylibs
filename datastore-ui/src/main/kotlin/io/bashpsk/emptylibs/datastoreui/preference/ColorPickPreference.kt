@@ -61,19 +61,19 @@ import kotlinx.coroutines.launch
  * dialog. Defaults to a reset button that clears the preference key.
  */
 @Composable
-inline fun ColorPickPreference(
+fun ColorPickPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<Int>,
     @ColorInt
     initialValue: Int = Color.Unspecified.toArgb(),
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (argb: Int) -> Unit = {
+    title: @Composable () -> Unit,
+    summary: @Composable (argb: Int) -> Unit = {
 
         PreferenceSummary()
     },
-    noinline leadingContent: @Composable () -> Unit = {},
-    crossinline trailingContent: @Composable (argb: Int) -> Unit = { color ->
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable (argb: Int) -> Unit = { color ->
 
         PreferenceColorPreviewBox(color = color)
     },
@@ -81,7 +81,7 @@ inline fun ColorPickPreference(
     elevation: ListItemElevation = ListItemDefaults.elevation(),
     enableAlphaPanel: Boolean = true,
     enableCopyPasteButton: Boolean = true,
-    crossinline resetButton: @Composable CoroutineScope.(
+    resetButton: @Composable CoroutineScope.(
         state: KolorPickerState,
         datastore: DataStore<Preferences>
     ) -> Unit = { state, preferenceDatastore ->

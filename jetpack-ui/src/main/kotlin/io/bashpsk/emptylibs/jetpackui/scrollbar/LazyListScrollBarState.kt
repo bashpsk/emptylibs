@@ -12,7 +12,6 @@ import androidx.compose.runtime.retain.retain
  *
  * @param state The [LazyListState] to attach the scrollbar state to.
  */
-@PublishedApi
 @Composable
 internal fun rememberLazyListScrollBarState(state: LazyListState): LazyListScrollBarState {
 
@@ -28,7 +27,6 @@ internal fun rememberLazyListScrollBarState(state: LazyListState): LazyListScrol
  *
  * @property state The underlying [LazyListState] used to track the scroll position of the list.
  */
-@PublishedApi
 @Stable
 internal class LazyListScrollBarState(
     private val state: LazyListState

@@ -1061,7 +1061,6 @@ private fun ColorSelectionView(
  * @param imageShapeList A list of available image shapes.
  * @param onShapeChange Callback function invoked when a new shape is selected.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ShapeSelectionView(
     modifier: Modifier = Modifier,
@@ -1461,6 +1460,7 @@ private fun SliderSelectionView(
         Slider(
             modifier = Modifier.fillMaxWidth(),
             state = sliderState,
+            onValueChange = { newValue -> sliderState.value = newValue},
             onValueChangeFinished = { onValueChange(sliderState.value) }
         )
     }
@@ -1619,6 +1619,7 @@ private fun DashPathSelectionView(
 
         Slider(
             state = intervalOffSliderState,
+            onValueChange = { newValue -> intervalOffSliderState.value = newValue},
             onValueChangeFinished = { onIntervalOffChange(intervalOffSliderState.value) }
         )
 
@@ -1631,6 +1632,7 @@ private fun DashPathSelectionView(
 
         Slider(
             state = intervalOnSliderState,
+            onValueChange = { newValue -> intervalOnSliderState.value = newValue},
             onValueChangeFinished = { onIntervalOnChange(intervalOnSliderState.value) }
         )
 
@@ -1643,6 +1645,7 @@ private fun DashPathSelectionView(
 
         Slider(
             state = intervalPhaseSliderState,
+            onValueChange = { newValue -> intervalPhaseSliderState.value = newValue},
             onValueChangeFinished = { onIntervalPhaseChange(intervalPhaseSliderState.value) }
         )
     }

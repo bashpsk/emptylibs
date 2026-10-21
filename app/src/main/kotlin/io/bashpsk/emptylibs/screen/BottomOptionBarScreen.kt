@@ -25,7 +25,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -46,7 +45,6 @@ import io.bashpsk.emptylibs.component.jetpackui.FileOperation
 import io.bashpsk.emptylibs.component.jetpackui.OptionBarData
 import io.bashpsk.emptylibs.utils.setDebug
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomOptionBarScreen() {
 

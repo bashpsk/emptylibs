@@ -1,6 +1,7 @@
 package io.bashpsk.emptylibs.layouts.twopane
 
 import androidx.activity.compose.LocalActivity
+import androidx.annotation.FloatRange
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -13,29 +14,32 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
-import kotlin.math.min
 
 /**
- * A layout that arranges two panes adaptively based on the available width.
+ * A layout that arranges two panes adaptively based on the available width and a fraction ratio.
  *
- * - In compact width, it places the `secondPane` below the `firstPane`.
- * - In medium or expanded width, it places the `secondPane` to the side of the `firstPane`.
+ * - In compact width, it places the `secondPane` below the `firstPane` using `paneRatio` for height
+ * splitting.
+ * - In medium or expanded width, it places the `secondPane` to the side of the `firstPane` using
+ * `paneRatio` for width splitting.
  *
  * This layout is useful for master-detail screens or any UI that needs to adapt its
- * two-pane structure to different screen sizes. The `firstPane`'s aspect ratio is maintained.
+ * two-pane structure to different screen sizes.
  *
  * @param modifier The modifier to be applied to the layout.
+ * @param firstPaneRatio The fraction of available space (width in side-by-side, height in stacked)
+ * assigned to the `firstPane` (between 0.0 and 1.0).
  * @param firstPane The content of the first pane.
  * @param secondPane The content of the second pane.
- * @param aspectRatio The aspect ratio to be maintained for the `firstPane`.
  */
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-inline fun TwoPaneAdaptiveLayout(
+fun TwoPaneAdaptiveLayout(
     modifier: Modifier = Modifier,
-    aspectRatio: Float = 1.0F,
-    crossinline firstPane: @Composable () -> Unit,
-    crossinline secondPane: @Composable () -> Unit
+    @FloatRange(0.0, 1.0)
+    firstPaneRatio: Float = 0.5F,
+    firstPane: @Composable () -> Unit,
+    secondPane: @Composable () -> Unit
 ) {
 
     val activity = LocalActivity.current
@@ -43,6 +47,8 @@ inline fun TwoPaneAdaptiveLayout(
     val windowWidthSize by remember(windowSizeClass) {
         derivedStateOf { windowSizeClass?.widthSizeClass ?: WindowWidthSizeClass.Compact }
     }
+
+    val boundedRatio = firstPaneRatio.coerceIn(0.0F..1.0F)
 
     Layout(
         modifier = modifier,
@@ -64,56 +70,54 @@ inline fun TwoPaneAdaptiveLayout(
 
             WindowWidthSizeClass.Compact -> {
 
-                val firstPaneMaxHeight = (constraints.maxHeight * aspectRatio).toInt()
-                val initialFirstPaneHeight = (constraints.maxWidth / aspectRatio).toInt()
-                val firstPaneRenderHeight = min(initialFirstPaneHeight, firstPaneMaxHeight)
-                val firstPaneRenderWidth = (firstPaneRenderHeight * aspectRatio).toInt()
-                    .coerceIn(0, constraints.maxWidth)
-                val finalFirstPaneHeight = (firstPaneRenderWidth / aspectRatio).toInt()
-                    .coerceIn(0, firstPaneMaxHeight)
+                val firstPaneHeight = (constraints.maxHeight * boundedRatio).toInt()
+                val secondPaneHeight = (constraints.maxHeight - firstPaneHeight).coerceAtLeast(0)
 
                 firstPlaceable = firstMeasurable.measure(
-                    Constraints.fixed(width = firstPaneRenderWidth, height = finalFirstPaneHeight)
-                )
-
-                secondPlaceable = secondMeasurable.measure(
-                    Constraints.fixed(
-                        width = constraints.maxWidth,
-                        height = (constraints.maxHeight - finalFirstPaneHeight).coerceAtLeast(0)
+                    Constraints(
+                        minWidth = constraints.minWidth,
+                        maxWidth = constraints.maxWidth,
+                        minHeight = firstPaneHeight,
+                        maxHeight = firstPaneHeight
                     )
                 )
 
-                IntOffset(
-                    x = ((constraints.maxWidth - firstPaneRenderWidth) / 2).coerceAtLeast(0),
-                    y = 0
-                ) to IntOffset(x = 0, y = finalFirstPaneHeight)
+                secondPlaceable = secondMeasurable.measure(
+                    Constraints(
+                        minWidth = constraints.minWidth,
+                        maxWidth = constraints.maxWidth,
+                        minHeight = secondPaneHeight,
+                        maxHeight = secondPaneHeight
+                    )
+                )
+
+                IntOffset(x = 0, y = 0) to IntOffset(x = 0, y = firstPaneHeight)
             }
 
             else -> {
 
-                val firstPaneMaxWidth = (constraints.maxWidth * aspectRatio).toInt()
-                val initialFirstPaneWidth = (constraints.maxHeight * aspectRatio).toInt()
-                val firstPaneRenderWidth = min(initialFirstPaneWidth, firstPaneMaxWidth)
-                val firstPaneRenderHeight = (firstPaneRenderWidth / aspectRatio).toInt()
-                    .coerceIn(0, constraints.maxHeight)
-                val finalFirstPaneWidth = (firstPaneRenderHeight * aspectRatio).toInt()
-                    .coerceIn(0, firstPaneMaxWidth)
+                val firstPaneWidth = (constraints.maxWidth * boundedRatio).toInt()
+                val secondPaneWidth = (constraints.maxWidth - firstPaneWidth).coerceAtLeast(0)
 
                 firstPlaceable = firstMeasurable.measure(
-                    Constraints.fixed(width = finalFirstPaneWidth, height = firstPaneRenderHeight)
-                )
-
-                secondPlaceable = secondMeasurable.measure(
-                    Constraints.fixed(
-                        width = (constraints.maxWidth - finalFirstPaneWidth).coerceAtLeast(0),
-                        height = constraints.maxHeight
+                    Constraints(
+                        minWidth = firstPaneWidth,
+                        maxWidth = firstPaneWidth,
+                        minHeight = constraints.minHeight,
+                        maxHeight = constraints.maxHeight
                     )
                 )
 
-                IntOffset(
-                    x = 0,
-                    y = ((constraints.maxHeight - firstPaneRenderHeight) / 2).coerceAtLeast(0)
-                ) to IntOffset(x = finalFirstPaneWidth, y = 0)
+                secondPlaceable = secondMeasurable.measure(
+                    Constraints(
+                        minWidth = secondPaneWidth,
+                        maxWidth = secondPaneWidth,
+                        minHeight = constraints.minHeight,
+                        maxHeight = constraints.maxHeight
+                    )
+                )
+
+                IntOffset(x = 0, y = 0) to IntOffset(x = firstPaneWidth, y = 0)
             }
         }
 

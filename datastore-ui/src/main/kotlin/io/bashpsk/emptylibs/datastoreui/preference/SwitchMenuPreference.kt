@@ -40,19 +40,19 @@ import kotlinx.coroutines.launch
  * typically to dismiss the dropdown menu.
  */
 @Composable
-inline fun SwitchMenuPreference(
+fun SwitchMenuPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<Boolean>,
     initialValue: Boolean = false,
-    noinline title: @Composable () -> Unit,
-    noinline leadingContent: @Composable () -> Unit = {},
-    crossinline trailingContent: @Composable (checked: Boolean) -> Unit = { checked ->
+    title: @Composable () -> Unit,
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable (checked: Boolean) -> Unit = { checked ->
 
         SwitchButton(checked = checked)
     },
     colors: MenuItemColors = MenuDefaults.itemColors(),
-    crossinline onMenuDismiss: () -> Unit = {}
+    onMenuDismiss: () -> Unit = {}
 ) {
 
     val preferenceDatastore = datastore ?: LocalDatastore.current

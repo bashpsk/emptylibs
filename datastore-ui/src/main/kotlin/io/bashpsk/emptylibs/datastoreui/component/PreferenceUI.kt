@@ -162,7 +162,6 @@ fun PreferenceColorPreviewBox(modifier: Modifier = Modifier, @ColorInt color: In
  * @param itemShapes The [ListItemShapes] to be used for the item's shape.
  * @param itemColors The [ListItemColors] to be used for the item's colors.
  */
-@PublishedApi
 @Composable
 internal fun <K, V> CoroutineScope.PreferenceListEntryItem(
     modifier: Modifier = Modifier,
@@ -215,7 +214,6 @@ internal fun <K, V> CoroutineScope.PreferenceListEntryItem(
  * @param itemShapes The [ListItemShapes] to be used for the item's shape.
  * @param itemColors The [ListItemColors] to be used for the item's colors.
  */
-@PublishedApi
 @Composable
 internal fun <K> CoroutineScope.PreferenceListEntryItem(
     modifier: Modifier = Modifier,
@@ -260,7 +258,6 @@ internal fun <K> CoroutineScope.PreferenceListEntryItem(
     }
 }
 
-@PublishedApi
 @Composable
 internal fun SwitchButton(checked: Boolean) {
 
@@ -278,7 +275,6 @@ internal fun SwitchButton(checked: Boolean) {
     )
 }
 
-@PublishedApi
 @Composable
 internal fun DialogTitleView(
     dialogTitle: String,
@@ -316,7 +312,6 @@ internal fun DialogTitleView(
     }
 }
 
-@PublishedApi
 @Composable
 internal fun DialogConfirmButton(onClick: () -> Unit) {
 
@@ -341,7 +336,6 @@ internal fun DialogConfirmButton(onClick: () -> Unit) {
     }
 }
 
-@PublishedApi
 @Composable
 internal fun DialogResetButton(onClick: () -> Unit) {
 

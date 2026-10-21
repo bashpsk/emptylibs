@@ -2,7 +2,6 @@ package io.bashpsk.emptylibs.gestureui.video
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -51,7 +50,6 @@ private const val DEAD_ZONE_PERCENTAGE = 0.05F // 5%
  *      [PointerInputChange], the drag amount [Offset], and the currently determined
  *      [PointerDirection].
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun PointerInputScope.detectVideoGestures(
     screenSize: IntSize = IntSize.Zero,
     deadZone: Float? = DEAD_ZONE_PERCENTAGE,

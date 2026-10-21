@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -65,7 +64,6 @@ import kotlinx.collections.immutable.PersistentList
  * @param maxItemsInEachRow The maximum number of segments in each row.
  * @param maxLines The maximum number of lines for the layout.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SegmentTextField(
     modifier: Modifier = Modifier,

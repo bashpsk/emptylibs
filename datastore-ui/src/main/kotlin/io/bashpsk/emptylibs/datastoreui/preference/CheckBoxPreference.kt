@@ -44,18 +44,18 @@ import kotlinx.coroutines.launch
  * @param elevation The elevation of this ListItem. Defaults to [ListItemDefaults.elevation].
  */
 @Composable
-inline fun CheckBoxPreference(
+fun CheckBoxPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<Boolean>,
     initialValue: Boolean = false,
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (checked: Boolean) -> Unit = {
+    title: @Composable () -> Unit,
+    summary: @Composable (checked: Boolean) -> Unit = {
 
         PreferenceSummary()
     },
-    noinline leadingContent: @Composable () -> Unit = {},
-    crossinline trailingContent: @Composable (checked: Boolean) -> Unit = { checked ->
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable (checked: Boolean) -> Unit = { checked ->
 
         Checkbox(checked = checked, onCheckedChange = null)
     },

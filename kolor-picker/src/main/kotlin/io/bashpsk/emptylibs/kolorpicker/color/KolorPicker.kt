@@ -29,7 +29,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -89,7 +88,6 @@ import io.bashpsk.emptylibs.layouts.twopane.TwoPaneAdaptiveLayout
  * @param enablePasteButton A boolean indicating whether to show paste button for the color.
  * Defaults to `false`.
  */
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun KolorPicker(
@@ -106,13 +104,13 @@ fun KolorPicker(
 
     TwoPaneAdaptiveLayout(
         modifier = modifier,
-        aspectRatio = 1.0F,
+        firstPaneRatio = 0.50F,
         firstPane = {
 
             SaturationLightnessPanel(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(ratio = 1.0F)
+                    .aspectRatio(ratio = 1.0F, matchHeightConstraintsFirst = true)
                     .padding(horizontal = TrackHeight / 2, vertical = TrackHeight / 2),
                 hueValue = state.hueValue,
                 saturationValue = state.saturationValue,

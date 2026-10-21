@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 /**
  * The default thumb used by [LazyScrollBar].
  */
-@PublishedApi
 @Composable
 internal fun DefaultScrollBarThumb() {
 

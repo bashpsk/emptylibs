@@ -10,14 +10,14 @@ import androidx.compose.runtime.Stable
 interface CollapsibleLayoutState {
 
     /**
-     * The current [CollapsibleLayoutProgress] of the layout.
+     * The current [CollapsibleLayoutValue] of the layout.
      */
-    val currentValue: CollapsibleLayoutProgress
+    val currentValue: CollapsibleLayoutValue
 
     /**
-     * The target [CollapsibleLayoutProgress] that the layout is currently animating towards.
+     * The target [CollapsibleLayoutValue] that the layout is currently animating towards.
      */
-    val targetValue: CollapsibleLayoutProgress
+    val targetValue: CollapsibleLayoutValue
 
     /**
      * A value between 0.0 and 1.0 representing the progress between states.
@@ -26,22 +26,22 @@ interface CollapsibleLayoutState {
     val progress: Float
 
     /**
-     * Whether the layout is currently visible (not in [CollapsibleLayoutProgress.Dismissed] state).
+     * Whether the layout is currently visible (not in [CollapsibleLayoutValue.Dismissed] state).
      */
     val isVisible: Boolean
 
     /**
-     * Animates the layout to the [CollapsibleLayoutProgress.Expanded] state.
+     * Animates the layout to the [CollapsibleLayoutValue.Expanded] state.
      */
     suspend fun expand()
 
     /**
-     * Animates the layout to the [CollapsibleLayoutProgress.Collapsed] state.
+     * Animates the layout to the [CollapsibleLayoutValue.Collapsed] state.
      */
     suspend fun collapse()
 
     /**
-     * Animates the layout to the [CollapsibleLayoutProgress.Dismissed] state.
+     * Animates the layout to the [CollapsibleLayoutValue.Dismissed] state.
      */
     suspend fun dismiss()
 }

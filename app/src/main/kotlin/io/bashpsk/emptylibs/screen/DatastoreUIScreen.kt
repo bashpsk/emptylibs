@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material.icons.filled.SwitchCamera
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -83,7 +82,6 @@ import io.bashpsk.emptylibs.datastoreui.preference.TextFieldPreference
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableMap
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatastoreUIScreen() {
 

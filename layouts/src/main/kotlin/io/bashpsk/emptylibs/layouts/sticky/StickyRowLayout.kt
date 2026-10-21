@@ -38,12 +38,12 @@ import androidx.compose.ui.unit.constrainWidth
  * as the sticky element.
  */
 @Composable
-inline fun StickyRowLayout(
+fun StickyRowLayout(
     modifier: Modifier = Modifier,
     horizontalScroll: Int = 0,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
-    crossinline content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {}
 ) {
 
     Layout(
@@ -63,6 +63,7 @@ inline fun StickyRowLayout(
             constraints.hasBoundedWidth -> {
                 (constraints.maxWidth - stickyPlaceable.width - horizontalSpace).coerceAtLeast(0)
             }
+
             else -> Constraints.Infinity
         }
         val otherPlaceables = measurables.drop(1).map { measurable ->

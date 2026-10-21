@@ -64,19 +64,19 @@ import kotlinx.coroutines.launch
  * @param elevation The elevation of this list item. Defaults to [ListItemDefaults.elevation].
  */
 @Composable
-inline fun <K, V> DropDownPreference(
+fun <K, V> DropDownPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<V>,
     initialValue: V,
     entities: ImmutableMap<K, V>,
-    noinline title: @Composable () -> Unit,
-    crossinline summary: @Composable (entry: V) -> Unit = {
+    title: @Composable () -> Unit,
+    summary: @Composable (entry: V) -> Unit = {
 
         PreferenceSummary()
     },
-    noinline leadingContent: @Composable () -> Unit = {},
-    crossinline trailingContent: @Composable (isMenuExpanded: Boolean) -> Unit = { isMenuExpanded ->
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable (isMenuExpanded: Boolean) -> Unit = { isMenuExpanded ->
 
         Icon(
             modifier = Modifier.rotate(degrees = if (isMenuExpanded) 180.0F else 0.0F),

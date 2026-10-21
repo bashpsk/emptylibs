@@ -65,7 +65,7 @@ layouts.
 
 ```kotlin
 TwoPaneAdaptiveLayout(
-    aspectRatio = 16f / 9f, // Maintain ratio for the first pane
+    paneRatio = 0.5f, // Maintain weight for the first pane (1:1)
     firstPane = {
         // Video Player or List
     },

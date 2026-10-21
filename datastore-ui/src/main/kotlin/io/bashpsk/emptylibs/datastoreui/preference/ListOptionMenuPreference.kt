@@ -69,14 +69,14 @@ import kotlinx.coroutines.launch
  * which provides access to the [CoroutineScope] and [DataStore].
  */
 @Composable
-inline fun <K, V> ListOptionMenuPreference(
+fun <K, V> ListOptionMenuPreference(
     modifier: Modifier = Modifier,
     datastore: DataStore<Preferences>?,
     key: Preferences.Key<V>,
     initialValue: V,
     entities: ImmutableMap<K, V>,
-    noinline title: @Composable () -> Unit,
-    crossinline dialogTitle: @Composable (
+    title: @Composable () -> Unit,
+    dialogTitle: @Composable (
         dialogState: MutableTransitionState<Boolean>
     ) -> Unit = { dialogState ->
 
@@ -87,9 +87,9 @@ inline fun <K, V> ListOptionMenuPreference(
     },
     itemShapes: ListItemShapes = ListItemDefaults.shapes(),
     itemColors: ListItemColors = ListItemDefaults.segmentedColors(),
-    noinline leadingContent: @Composable () -> Unit = {},
-    noinline trailingContent: @Composable () -> Unit = {},
-    crossinline itemContent: @Composable CoroutineScope.(
+    leadingContent: @Composable () -> Unit = {},
+    trailingContent: @Composable () -> Unit = {},
+    itemContent: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         entry: Pair<K, V>,
         selected: Boolean
@@ -111,8 +111,8 @@ inline fun <K, V> ListOptionMenuPreference(
         dismissOnBackPress = true,
         dismissOnClickOutside = false
     ),
-    noinline onMenuDismiss: () -> Unit = {},
-    crossinline confirmButton: @Composable (
+    onMenuDismiss: () -> Unit = {},
+    confirmButton: @Composable (
         state: MutableTransitionState<Boolean>
     ) -> Unit = { state ->
 
@@ -122,7 +122,7 @@ inline fun <K, V> ListOptionMenuPreference(
             onMenuDismiss()
         }
     },
-    crossinline resetButton: @Composable CoroutineScope.(
+    resetButton: @Composable CoroutineScope.(
         datastore: DataStore<Preferences>,
         state: MutableTransitionState<Boolean>
     ) -> Unit = { preferenceDatastore, state ->
