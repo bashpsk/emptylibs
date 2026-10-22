@@ -1,6 +1,6 @@
 # 👜 Empty Libs
 
-[![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs)
+[![JitPack](https://jitpack.io/v/com.github.bashpsk/emptylibs.svg)](https://jitpack.io/#com.github.bashpsk/emptylibs)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Android](https://img.shields.io/badge/Platform-Android-green.svg)](https://developer.android.com)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4.svg)](https://developer.android.com/jetpack/compose)
@@ -24,8 +24,8 @@ processing with a clean and intuitive API.
 
 | Module                                          | Status                                                                                                                                                    | Description                                               |
 |:------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------------|
-| [**✨ Animations**](./animations)                | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/animations.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/animations)               | Music visualizers and fluid wave effects.                 |
-| [**🛠️ Compose Utils**](./compose-utils)        | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/compose-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/compose-utils)         | Serializable/Parcelable data classes for core types.      |
+| [**✨ Animations**](./animations)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/animations.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/animations)               | Music visualizers and fluid wave effects.                 |
+| [**🛠️ Compose Utils**](./compose-utils)         | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/compose-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/compose-utils)         | Serializable/Parcelable data classes for core types.      |
 | [**🧩 Compose Widgets**](./compose-widgets)     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/compose-widgets.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/compose-widgets)     | Functional analog and digital clocks for Compose.         |
 | [**⚙️ Datastore UI**](./datastore-ui)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/datastore-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/datastore-ui)           | Pre-built settings components for Jetpack DataStore.      |
 | [**📝 Formatter**](./formatter)                 | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/formatter.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/formatter)                 | Decimal rounding and date/time formatting utilities.      |
@@ -33,8 +33,8 @@ processing with a clean and intuitive API.
 | [**🎨 Image Edit**](./image-edit)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-edit.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-edit)               | Full-screen image editor with drawing, text, and shapes.  |
 | [**🌈 Image Kolor**](./image-kolor)             | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-kolor.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-kolor)             | Image filtering and manual color adjustment sliders.      |
 | [**✂️ Image Krop**](./image-krop)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-krop.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-krop)               | Advanced cropping with aspect ratios and custom shapes.   |
-| [**✨ Image Utils**](./image-utils)              | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-utils)             | Shape and bitmap utility library.                         |
-| [**🖼️ Image View**](./image-view)              | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-view.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-view)               | Zoomable, pannable, and swipeable image gallery (Coil 3). |
+| [**✨ Image Utils**](./image-utils)             | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-utils.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-utils)             | Shape and bitmap utility library.                         |
+| [**🖼️ Image View**](./image-view)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/image-view.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/image-view)               | Zoomable, pannable, and swipeable image gallery (Coil 3). |
 | [**💎 Jetpack UI**](./jetpack-ui)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/jetpack-ui.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/jetpack-ui)               | Adaptive layouts, nav bars, and custom pickers.           |
 | [**🎨 Kolor Picker**](./kolor-picker)           | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/kolor-picker.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/kolor-picker)           | HSL panel, image dropper, and color dialogs.              |
 | [**📐 Layouts**](./layouts)                     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/layouts.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/layouts)                     | Adaptive two-pane, collapsible, and zoomable layouts.     |
@@ -43,6 +43,7 @@ processing with a clean and intuitive API.
 | [**📜 PDF Viewer**](./pdf-viewer)               | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/pdf-viewer.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/pdf-viewer)               | Lightweight PDF rendering and viewing components.         |
 | [**📜 Serialization XML**](./serialization-xml) | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/serialization-xml.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/serialization-xml) | Lightweight XML serialization for Kotlin.                 |
 | [**📂 Storage**](./storage)                     | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/storage.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/storage)                     | Coroutine-based file browsing and storage management.     |
+| [**📝 Text Editor**](./text-editor)             | [![JitPack](https://jitpack.io/v/com.github.bashpsk.emptylibs/text-editor.svg)](https://jitpack.io/#com.github.bashpsk.emptylibs/text-editor)             | High-performance text editor and lazy text viewer.        |
 
 ---
 
@@ -84,6 +85,7 @@ emptylibs-pdf-template = { group = "com.github.bashpsk.emptylibs", name = "pdf-t
 emptylibs-pdf-viewer = { group = "com.github.bashpsk.emptylibs", name = "pdf-viewer", version.ref = "empty-libs" }
 emptylibs-serialization-xml = { group = "com.github.bashpsk.emptylibs", name = "serialization-xml", version.ref = "empty-libs" }
 emptylibs-storage = { group = "com.github.bashpsk.emptylibs", name = "storage", version.ref = "empty-libs" }
+emptylibs-text-editor = { group = "com.github.bashpsk.emptylibs", name = "text-editor", version.ref = "empty-libs" }
 ```
 
 Then add the desired library to your module-level `build.gradle.kts`:
@@ -109,6 +111,7 @@ dependencies {
     implementation(libs.emptylibs.pdf.viewer)
     implementation(libs.emptylibs.serialization.xml)
     implementation(libs.emptylibs.storage)
+    implementation(libs.emptylibs.text.editor)
 }
 ```
 
