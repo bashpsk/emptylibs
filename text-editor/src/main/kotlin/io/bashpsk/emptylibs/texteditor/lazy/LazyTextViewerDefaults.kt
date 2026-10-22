@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.text
+package io.bashpsk.emptylibs.texteditor.lazy
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable

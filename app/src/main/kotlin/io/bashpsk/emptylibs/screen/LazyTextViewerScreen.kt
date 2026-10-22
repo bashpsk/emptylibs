@@ -26,10 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.bashpsk.emptylibs.formatter.format.toFileSize
-import io.bashpsk.emptylibs.jetpackui.text.LazyTextViewer
-import io.bashpsk.emptylibs.jetpackui.text.LazyTextViewerDefaults
-import io.bashpsk.emptylibs.jetpackui.text.TextSource
-import io.bashpsk.emptylibs.jetpackui.text.rememberLazyTextViewerState
+import io.bashpsk.emptylibs.texteditor.lazy.LazyTextViewer
+import io.bashpsk.emptylibs.texteditor.lazy.LazyTextViewerDefaults
+import io.bashpsk.emptylibs.texteditor.lazy.TextSource
+import io.bashpsk.emptylibs.texteditor.lazy.rememberLazyTextViewerState
 import io.bashpsk.emptylibs.storage.extension.fileLength
 import io.bashpsk.emptylibs.utils.setDebug
 import kotlinx.coroutines.Dispatchers

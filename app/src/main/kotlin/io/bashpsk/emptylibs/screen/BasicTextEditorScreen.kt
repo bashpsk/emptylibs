@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.jetpackui.text.BasicTextEditor
+import io.bashpsk.emptylibs.texteditor.basic.BasicTextEditor
 import java.io.File
 
 @Composable

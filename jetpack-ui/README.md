@@ -13,7 +13,6 @@ custom pickers.
 - **AnimatedBottomNavBar**: Engaging navigation bar with smooth icon scaling and label transitions.
 - **DialTextPicker**: Circular picker for intuitive numerical or time selection.
 - **WheelTextPicker**: Classic slot-machine style vertical picker with haptic feedback.
-- **BasicTextEditor**: Line-numbered text field wrapper for code or plain text.
 
 ---
 
@@ -94,35 +93,6 @@ DialTextPicker(state = dialState)
 val minutes = (0..59).map { it.toString().padStart(2, '0') }.toImmutableList()
 val wheelState = rememberWheelTextPickerState(textList = minutes)
 WheelTextPicker(state = wheelState, visibleCount = 5)
-```
-
-### 📝 Text Tools
-
-#### Lazy Text Viewer
-
-High-performance viewer capable of rendering millions of lines efficiently.
-
-```kotlin
-val state = rememberLazyTextViewerState(
-    source = TextSource.Path("/sdcard/large_log.txt")
-)
-
-LazyTextViewer(
-    modifier = Modifier.fillMaxSize(),
-    state = state
-)
-```
-
-#### Basic Text Editor
-
-Simple editor with line numbers and standard text field features.
-
-```kotlin
-BasicTextEditor(
-    modifier = Modifier.fillMaxSize(),
-    inputContent = myCodeString,
-    onContentChange = { myCodeString = it }
-)
 ```
 
 ### 🕹️ Controls
@@ -209,16 +179,6 @@ BoxWithConstraints {
 https://github.com/user-attachments/assets/0cb6bdc0-6b7a-4ce7-85dc-939bacbc5541
 
 https://github.com/user-attachments/assets/250bbce5-b6c3-47cc-af90-63bf8898c0f3
-
-### Text Editor & Viewer:
-
-| Basic Text Editor                                                 | Lazy Text Viewer                                                       |
-|-------------------------------------------------------------------|------------------------------------------------------------------------|
-| ![Screenshot 01](../screenshots/jetpack_ui_basic_text_editor.jpg) | ![Screenshot 01](../screenshots/jetpack_ui_basic_lazy_text_viewer.jpg) |
-
-https://github.com/user-attachments/assets/5a6ab890-8bae-4e07-8c72-22a2c6ea8729
-
-https://github.com/user-attachments/assets/4eebdcd5-ea75-4cba-b72e-9829d569da5e
 
 ### JoyStick:
 

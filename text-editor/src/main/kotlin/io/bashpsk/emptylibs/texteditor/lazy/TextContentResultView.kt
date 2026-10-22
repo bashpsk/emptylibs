@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.text
+package io.bashpsk.emptylibs.texteditor.lazy
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth

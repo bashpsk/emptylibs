@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.text
+package io.bashpsk.emptylibs.texteditor.basic
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement

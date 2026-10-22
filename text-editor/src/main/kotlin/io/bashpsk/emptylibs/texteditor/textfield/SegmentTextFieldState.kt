@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.textfield
+package io.bashpsk.emptylibs.texteditor.textfield
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable

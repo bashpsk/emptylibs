@@ -22,7 +22,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import io.bashpsk.emptylibs.jetpackui.textfield.SegmentTextField
+import io.bashpsk.emptylibs.texteditor.textfield.SegmentTextField
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
 

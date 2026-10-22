@@ -80,8 +80,10 @@ dependencies {
     //  MODULE          :
     implementation(project(":compose-utils"))
     implementation(project(":formatter"))
+    implementation(project(":layouts"))
     implementation(project(":lrucache-manager"))
     implementation(project(":gesture-ui"))
+    implementation(project(":storage"))
 }
 
 publishing {

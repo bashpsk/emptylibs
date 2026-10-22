@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.textfield
+package io.bashpsk.emptylibs.texteditor.textfield
 
 import android.view.KeyEvent
 import androidx.compose.foundation.layout.Arrangement

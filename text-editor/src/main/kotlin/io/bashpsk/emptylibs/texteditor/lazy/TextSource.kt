@@ -1,4 +1,4 @@
-package io.bashpsk.emptylibs.jetpackui.text
+package io.bashpsk.emptylibs.texteditor.lazy
 
 import android.net.Uri
 import androidx.compose.runtime.Stable
